@@ -111,7 +111,8 @@ def main():
     command = (["docker", "run",
                 "--user", f"{os.getuid()}:{os.getgid()}",
                 "--workdir", cwd,
-                "--volume", f"{ROOT}:/usr/local/src/incontext"] +
+                "--volume", f"{ROOT}:/usr/local/src/incontext",
+                "--publish", "8000:8000"] +
                volumes +
                [image_tag, "python3", "-u", "/usr/local/src/incontext/incontext.py"] +
                args)
