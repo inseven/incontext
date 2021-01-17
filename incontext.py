@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import argparse
 import collections
 import glob
 import importlib
@@ -28,6 +27,7 @@ import logging
 import os
 import sys
 
+import commandline
 import paths
 import utils
 
@@ -192,10 +192,7 @@ class InContext(object):
             plugins[module] = importlib.import_module(module)
 
         # Create the argument parser.
-        self.parser = argparse.ArgumentParser(prog="incontext", description="Generate website.")
-        self.parser.add_argument('--site', '-s', default=os.getcwd(), help="path to the root of the site")
-        self.parser.add_argument('--verbose', '-v', action='store_true', default=False, help="show verbose output")
-        self.parser.add_argument('--volume', action='append', help="mount an additional volume in the Docker container")
+        self.parser = commandline.parser()
         self.subparsers = self.parser.add_subparsers(help="command to run")
 
         # Initialize the plugins.

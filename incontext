@@ -30,6 +30,8 @@ import subprocess
 import sys
 import time
 
+import commandline
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DOCKER_DIRECTORY = os.path.join(ROOT, "docker")
 
@@ -113,18 +115,20 @@ def main():
     # Proxy object for the docker configuration.
     docker = Docker()
 
-    # Process the arguments and perform any pre-flight operations.
-    args = list(sys.argv[1:])
-    try:
-        index = first_index(items=args, where=lambda x: not x.startswith("-"))
-        command = args[index]
-        command_args = args[index + 1:]
+    # Process the arguments and perform any pre-flight operations to add docker arguments.
+    parser = commandline.parser(add_help=False)
+    parser.add_argument("--help", "-h", action="store_true")
+    options, command_args = parser.parse_known_args()
+    if command_args:
+        command = command_args[0]
+        command_args = command_args[1:]
         if command in PREFLIGHT:
             logging.debug("Running '%s' preflight...", command)
             PREFLIGHT[command](docker, command_args)
-    except NotFound:
-        pass
 
+    # Get the unfiltered arguments
+    args = sys.argv[1:]
+    
     # Wait for docker to start up to handle situations where we've been launched before docker is running (e.g. system startup).
     waiting = False
     while True:
@@ -155,7 +159,7 @@ def main():
     # Iterate over the arguments determining which ones map to files or directories on the file system.
     # These will be mounted as volumes when running Docker Compose to ensure the instance of incontext running
     # in the container has access to the necessary files.
-    # Passing a path on the command line is treated as granting implicit permission to the container.
+    # Passing a path on the command line is treated as granting impicit permission to the container.
     cwd = os.getcwd()
     volumes = []
     for volume in unique_prefixes(filter_paths(args) + [cwd]):  # N.B. The current working directory is an implicit mount.
