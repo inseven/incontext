@@ -20,8 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import argparse
+import functools
 import hashlib
 import logging
+import operator
 import os
 import subprocess
 import sys
@@ -68,8 +71,59 @@ def filter_paths(items):
     return [os.path.abspath(item) for item in items if os.path.exists(item)]
 
 
+class NotFound(Exception):
+    pass
+
+
+def first_index(items, where):
+    try:
+        return next(index for (index, item) in enumerate(items) if where(item))
+    except StopIteration:
+        raise NotFound()
+
+
+class Docker(object):
+
+    def __init__(self):
+        self.ports = []
+
+    def add_port(self, port):
+        self.ports.append(port)
+
+    @property
+    def arguments(self):
+        arguments = [["--publish", f"{port}:{port}"] for port in self.ports]
+        return functools.reduce(operator.concat, arguments, [])
+
+
+def preflight_serve(docker, args):
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--port", "-p", default=8000)
+    options, unknown = parser.parse_known_args(args)
+    docker.add_port(options.port)
+
+
+PREFLIGHT = {
+    "serve": preflight_serve,
+}
+
+
 def main():
-    args = sys.argv[1:]
+
+    # Proxy object for the docker configuration.
+    docker = Docker()
+
+    # Process the arguments and perform any pre-flight operations.
+    args = list(sys.argv[1:])
+    try:
+        index = first_index(items=args, where=lambda x: not x.startswith("-"))
+        command = args[index]
+        command_args = args[index + 1:]
+        if command in PREFLIGHT:
+            logging.debug("Running '%s' preflight...", command)
+            PREFLIGHT[command](docker, command_args)
+    except NotFound:
+        pass
 
     # Wait for docker to start up to handle situations where we've been launched before docker is running (e.g. system startup).
     waiting = False
@@ -111,9 +165,9 @@ def main():
     command = (["docker", "run",
                 "--user", f"{os.getuid()}:{os.getgid()}",
                 "--workdir", cwd,
-                "--volume", f"{ROOT}:/usr/local/src/incontext",
-                "--publish", "8000:8000"] +
+                "--volume", f"{ROOT}:/usr/local/src/incontext"] +
                volumes +
+               docker.arguments +
                [image_tag, "python3", "-u", "/usr/local/src/incontext/incontext.py"] +
                args)
                
