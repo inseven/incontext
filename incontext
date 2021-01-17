@@ -26,6 +26,7 @@ import hashlib
 import logging
 import operator
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -42,6 +43,11 @@ DOCKER_IMAGE_NAME = "incontext-docker"
 
 verbose = '--verbose' in sys.argv[1:] or '-v' in sys.argv[1:]
 logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO, format="[%(levelname)s] %(message)s")
+
+
+def signal_handler(sig, frame):
+    # Ignore the cancel signal as this should be handled by the guest.
+    pass
 
 
 def get_files(path):
@@ -174,7 +180,10 @@ def main():
                docker.arguments +
                [image_tag, "python3", "-u", "/usr/local/src/incontext/incontext.py"] +
                args)
-               
+
+    # Install a signal handler to allow the container to handle SIGINT.
+    signal.signal(signal.SIGINT, signal_handler)
+
     # Run incontext in docker.
     logging.debug("Running command %s.", command)
     result = subprocess.run(command)
