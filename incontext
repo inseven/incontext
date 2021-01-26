@@ -165,16 +165,16 @@ def main():
     # Iterate over the arguments determining which ones map to files or directories on the file system.
     # These will be mounted as volumes when running Docker Compose to ensure the instance of incontext running
     # in the container has access to the necessary files.
-    # Passing a path on the command line is treated as granting impicit permission to the container.
-    cwd = os.getcwd()
+    # Passing a path on the command line is treated as granting implicit permission to the container.
+    site = os.path.abspath(options.site)
     volumes = []
-    for volume in unique_prefixes(filter_paths(args) + [cwd]):  # N.B. The current working directory is an implicit mount.
+    for volume in unique_prefixes(filter_paths(args) + [site]):  # N.B. The current working directory is an implicit mount.
         volumes.extend(["--volume", f"{volume}:{volume}"])
-    
-    # Construct the command.    
+
+    # Construct the command.
     command = (["docker", "run",
                 "--user", f"{os.getuid()}:{os.getgid()}",
-                "--workdir", cwd,
+                "--workdir", site,
                 "--volume", f"{ROOT}:/usr/local/src/incontext"] +
                volumes +
                docker.arguments +
