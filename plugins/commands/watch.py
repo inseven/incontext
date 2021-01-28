@@ -129,7 +129,7 @@ class WatchingBuilder(object):
         self.observer.stop()
         self.observer.join()
         self.builder.join()
-        
+
 
 @incontext.command("watch", help="watch for changes and automatically build the website")
 def command_watch(incontext, options):
@@ -151,7 +151,6 @@ def command_watch(incontext, options):
                        help="watch for changes and rebuild automatically")
 ])
 def command_serve(incontext, options):
-    print(incontext.configuration.site.destination.files_directory)
 
     builder = None
     if options.watch:

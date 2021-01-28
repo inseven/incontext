@@ -31,10 +31,13 @@ import subprocess
 import sys
 import time
 
+import cli
 import commandline
+import utils
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DOCKER_DIRECTORY = os.path.join(ROOT, "docker")
+PREFLIGHT_PLUGIN_DIRECTORY = os.path.join(ROOT, "preflight")
 
 DOCKERFILE = os.path.join(DOCKER_DIRECTORY, "Dockerfile")
 
@@ -43,6 +46,24 @@ DOCKER_IMAGE_NAME = "incontext-docker"
 
 verbose = '--verbose' in sys.argv[1:] or '-v' in sys.argv[1:]
 logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO, format="[%(levelname)s] %(message)s")
+
+
+class NotFound(Exception):
+    pass
+
+
+class Docker(object):
+
+    def __init__(self):
+        self.ports = []
+
+    def add_port(self, port):
+        self.ports.append(port)
+
+    @property
+    def arguments(self):
+        arguments = [["--publish", f"{port}:{port}"] for port in self.ports]
+        return functools.reduce(operator.concat, arguments, [])
 
 
 def signal_handler(sig, frame):
@@ -79,10 +100,6 @@ def filter_paths(items):
     return [os.path.abspath(item) for item in items if os.path.exists(item)]
 
 
-class NotFound(Exception):
-    pass
-
-
 def first_index(items, where):
     try:
         return next(index for (index, item) in enumerate(items) if where(item))
@@ -90,36 +107,13 @@ def first_index(items, where):
         raise NotFound()
 
 
-class Docker(object):
-
-    def __init__(self):
-        self.ports = []
-
-    def add_port(self, port):
-        self.ports.append(port)
-
-    @property
-    def arguments(self):
-        arguments = [["--publish", f"{port}:{port}"] for port in self.ports]
-        return functools.reduce(operator.concat, arguments, [])
-
-
-def preflight_serve(docker, args):
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument("--port", "-p", default=8000)
-    options, unknown = parser.parse_known_args(args)
-    docker.add_port(options.port)
-
-
-PREFLIGHT = {
-    "serve": preflight_serve,
-}
-
-
 def main():
 
     # Proxy object for the docker configuration.
     docker = Docker()
+
+    # Load preflight plugins.
+    plugins = utils.load_plugins(PREFLIGHT_PLUGIN_DIRECTORY)
 
     # Process the arguments and perform any pre-flight operations to add docker arguments.
     parser = commandline.parser(add_help=False)
@@ -128,9 +122,9 @@ def main():
     if command_args:
         command = command_args[0]
         command_args = command_args[1:]
-        if command in PREFLIGHT:
+        if command in cli.PREFLIGHT_PLUGINS:
             logging.debug("Running '%s' preflight...", command)
-            PREFLIGHT[command](docker, command_args)
+            cli.PREFLIGHT_PLUGINS[command].perform_preflight(docker, command_args)
 
     # Get the unfiltered arguments
     args = sys.argv[1:]

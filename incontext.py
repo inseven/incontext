@@ -22,7 +22,6 @@
 
 import collections
 import glob
-import importlib
 import logging
 import os
 import sys
@@ -42,7 +41,7 @@ CALLBACK_TYPE_STANDALONE = "standalone"
 
 
 class _CommandPlugin(object):
-    
+
     def __init__(self, name, help, callback, callback_type, arguments=[]):
         self.name = name
         self.help = help
@@ -50,7 +49,7 @@ class _CommandPlugin(object):
         self.callback_type = callback_type
         self.arguments = arguments
         self._runner = None
-        
+
     def configure(self, incontext, parser):
         if self.callback_type == CALLBACK_TYPE_SETUP:
             self._runner = self.callback(incontext, parser)
@@ -63,13 +62,13 @@ class _CommandPlugin(object):
             self._runner = callback
             return callback
         raise AssertionError("Unknown command callback type.")
-        
+
     def run(self, **kwargs):
         return self._runner(Namespace(**kwargs))
 
 
 class Argument(object):
-    
+
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
@@ -78,27 +77,27 @@ class Argument(object):
 class _Plugins(object):
     """
     Centralised mechanism for storing references to plugins by type.
-    
+
     InContext allows for plugins to be registered either module-wide (via to `incontext` decorators), or by providing
     an implementation of the `initialize_plugin` function and registering plugins directly with the `InContext`
     instance passed in. In both of these situations, registered plugins are stored in an instance of the `_Plugins` class.
-    
+
     Instances of the `incontext` have a module-scoped instance of `_Plugins` (`incontext._PLUGINS`) which is added to the
     runtime instance using the `extend` method when plugins are loaded.
     """
-    
+
     def __init__(self):
         self._plugins_by_type = collections.defaultdict(dict)
-        
+
     def add_plugin(self, plugin_type, name, plugin):
         self._plugins_by_type[plugin_type][name] = plugin
-        
+
     def plugin_types():
         return self._plugins_by_type.values()
-        
+
     def plugins(self, plugin_type):
         return self._plugins_by_type[plugin_type]
-        
+
     def extend(self, plugins):
         """
         Add all of the plugins in `plugins` (type `_Plugins`) to the current instance.
@@ -106,8 +105,8 @@ class _Plugins(object):
         for plugin_type, plugin_plugins in plugins._plugins_by_type.items():
             for name, plugin in plugin_plugins.items():
                 self.add_plugin(plugin_type, name, plugin)
-                
-                
+
+
 _PLUGINS = _Plugins()
 """
 Module-scoped plugin instances (used with decorator-based plugin registration).
@@ -119,7 +118,7 @@ Should not be manipulated directly.
 def context_function(name=None):
     """
     Register a new Jinja context function, to be made available at template render as `name`.
-    
+
     If `name` is not specified, the function name is used.
     """
     def decorator(f):
@@ -182,14 +181,7 @@ class InContext(object):
         """
 
         # Load the plugins.
-        sys.path.append(self.plugins_directory)
-        plugins = {}
-        for plugin in utils.find_files(self.plugins_directory, [".py"]):
-            plugin = os.path.join(*plugin)
-            (module, _) = os.path.splitext(os.path.relpath(plugin, self.plugins_directory))
-            module = module.replace("/", ".")
-            logging.debug("Importing '%s'...", module)
-            plugins[module] = importlib.import_module(module)
+        plugins = utils.load_plugins(self.plugins_directory)
 
         # Create the argument parser.
         self.parser = commandline.parser()
@@ -197,7 +189,7 @@ class InContext(object):
 
         # Initialize the plugins.
         for plugin_name, plugin_instance in plugins.items():
-            
+
             # Load the classic method-based plugins.
             if hasattr(plugin_instance, 'initialize_plugin'):
                 logging.debug("Initializing legacy plugin '%s'...", plugin_name)
@@ -207,11 +199,11 @@ class InContext(object):
             if hasattr(plugin_instance, 'incontext'):
                 logging.debug("Initializing plugin '%s'...", plugin_name)
                 self.plugins.extend(plugin_instance.incontext._PLUGINS)
-                
+
     @property
     def commands(self):
         return self.plugins.plugins(PLUGIN_TYPE_COMMAND)
-                
+
     @property
     def context_functions(self):
         """
@@ -222,7 +214,7 @@ class InContext(object):
     def add_argument(self, *args, **kwargs):
         """
         Add a global command-line argument.
-        
+
         Primarily intended to be used by configuration providers to allow them to specify a path to a configuration
         file, or configuration override.
         """
@@ -262,7 +254,7 @@ class InContext(object):
     def get_task(self, name):
         """
         Return the task associated with `name`.
-        
+
         Raises `KeyError` if no task has been registered with `name`.
         """
         return self.tasks[name]
@@ -296,14 +288,14 @@ class InContext(object):
         """
         Parse the command line arguments and execute the requested command.
         """
-        
+
         # Prepare the commands for running.
         for command_plugin in self.plugins.plugins(PLUGIN_TYPE_COMMAND).values():
             parser = self.subparsers.add_parser(command_plugin.name, help=command_plugin.help)
             fn = command_plugin.configure(self, parser)
             parser.set_defaults(fn=fn)
 
-        # Parse the arguments.       
+        # Parse the arguments.
         options = self.parser.parse_args(args)
         for name, configuration_provider in self.configuration_providers.items():
             self.configuration.add(name, configuration_provider(self, options))
