@@ -28,7 +28,7 @@ class Argument(object):
         self.kwargs = kwargs
 
     def bind(self, parser):
-        parser.add_argument(*(self.argument.args), **(self.argument.kwargs))
+        parser.add_argument(*(self.args), **(self.kwargs))
 
 
 def parser(add_help=True):

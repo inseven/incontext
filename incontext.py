@@ -56,7 +56,7 @@ class _CommandPlugin(object):
             return self._runner
         elif self.callback_type == CALLBACK_TYPE_STANDALONE:
             for argument in self.arguments:
-                parser.add_argument(*(argument.args), **(argument.kwargs))
+                argument.bind(parser)
             def callback(options):
                 return self.callback(incontext, options)
             self._runner = callback
