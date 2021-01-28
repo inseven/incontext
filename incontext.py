@@ -67,13 +67,6 @@ class _CommandPlugin(object):
         return self._runner(Namespace(**kwargs))
 
 
-class Argument(object):
-
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-
-
 class _Plugins(object):
     """
     Centralised mechanism for storing references to plugins by type.

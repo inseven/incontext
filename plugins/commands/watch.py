@@ -34,6 +34,7 @@ import watchdog.events
 import watchdog.observers
 
 import incontext
+import cli
 import paths
 import utils
 
@@ -143,12 +144,12 @@ def command_watch(incontext, options):
 
 
 @incontext.command("serve", help="run a local web server for development", arguments=[
-    incontext.Argument("--port", "-p",
-                       type=int, default=8000,
-                       help="destination of the new site"),
-    incontext.Argument("--watch",
-                       action="store_true", default=False,
-                       help="watch for changes and rebuild automatically")
+    cli.Argument("--port", "-p",
+                 type=int, default=8000,
+                 help="destination of the new site"),
+    cli.Argument("--watch",
+                 action="store_true", default=False,
+                 help="watch for changes and rebuild automatically")
 ])
 def command_serve(incontext, options):
 
