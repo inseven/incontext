@@ -26,7 +26,7 @@ import logging
 import os
 import sys
 
-import commandline
+import cli
 import paths
 import utils
 
@@ -184,7 +184,7 @@ class InContext(object):
         plugins = utils.load_plugins(self.plugins_directory)
 
         # Create the argument parser.
-        self.parser = commandline.parser()
+        self.parser = cli.parser()
         self.subparsers = self.parser.add_subparsers(help="command to run")
 
         # Initialize the plugins.

@@ -32,7 +32,6 @@ import sys
 import time
 
 import cli
-import commandline
 import utils
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -116,7 +115,7 @@ def main():
     plugins = utils.load_plugins(PREFLIGHT_PLUGIN_DIRECTORY)
 
     # Process the arguments and perform any pre-flight operations to add docker arguments.
-    parser = commandline.parser(add_help=False)
+    parser = cli.parser(add_help=False)
     parser.add_argument("--help", "-h", action="store_true")
     options, command_args = parser.parse_known_args()
     if command_args:
