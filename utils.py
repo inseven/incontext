@@ -217,6 +217,10 @@ def create_animated_thumbnail(input, output):
                                output])
 
 
+def replace_extension(path, extension):
+    root, ext = os.path.splitext(path)
+    return root + extension
+
 def load_plugins(path):
     sys.path.append(path)
     plugins = {}
