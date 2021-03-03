@@ -91,6 +91,9 @@ class _Plugins(object):
     def plugins(self, plugin_type):
         return self._plugins_by_type[plugin_type]
 
+    def plugin(self, plugin_type, name):
+        return self._plugins_by_type[plugin_type][name]
+
     def extend(self, plugins):
         """
         Add all of the plugins in `plugins` (type `_Plugins`) to the current instance.
@@ -168,7 +171,7 @@ class InContext(object):
         self.subparsers = []
         self.configuration_providers = {}
         self.configuration = Configuration()
-        self.plugins = _PLUGINS
+        self._plugins = _PLUGINS
         """
         Returns the registered plugins stored in a `_Plugins` instance.
         """
@@ -191,18 +194,39 @@ class InContext(object):
             # Load the decorator-based plugins by copying in their 'global' state.
             if hasattr(plugin_instance, 'incontext'):
                 logging.debug("Initializing plugin '%s'...", plugin_name)
-                self.plugins.extend(plugin_instance.incontext._PLUGINS)
+                self._plugins.extend(plugin_instance.incontext._PLUGINS)
 
     @property
     def commands(self):
-        return self.plugins.plugins(PLUGIN_TYPE_COMMAND)
+        return self._plugins.plugins(PLUGIN_TYPE_COMMAND)
 
     @property
     def context_functions(self):
         """
         Return a dictionary of additional context functions that will be available to the Jinja templating at render time.
         """
-        return self.plugins.plugins(PLUGIN_TYPE_CONTEXT_FUNCTION)
+        return self._plugins.plugins(PLUGIN_TYPE_CONTEXT_FUNCTION)
+
+    def add_plugin(self, domain, name, plugin):
+        """
+        Add a plugin, `plugin`, named `name`, in the specified domain, `domain`.
+
+        This is the generic mechanism by which plugins are able to themselves add extension points to InContext. For
+        example, the image handling plugin makes use of this to allow other plugins to register custom transforms.
+        """
+        self._plugins.add_plugin(plugin_type=domain, name=name, plugin=plugin)
+
+    def plugin(self, domain, name):
+        """
+        Get the plugin `name` in the domain, `domain`.
+        """
+        return self._plugins.plugin(plugin_type=domain, name=name)
+
+    def plugins(self, domain):
+        """
+        Return a dictionary of all plugins in a specific domain, keyed by their name.
+        """
+        return self._plugins.plugins(plugin_type=domain)
 
     def add_argument(self, *args, **kwargs):
         """
@@ -228,10 +252,10 @@ class InContext(object):
         @param help: The help string that describes the command to be printed when the user passes the '--help' flag.
         @type help: str
         """
-        self.plugins.add_plugin(PLUGIN_TYPE_COMMAND, name, _CommandPlugin(name=name,
-                                                                          help=help,
-                                                                          callback=function,
-                                                                          callback_type=CALLBACK_TYPE_SETUP))
+        self._plugins.add_plugin(PLUGIN_TYPE_COMMAND, name, _CommandPlugin(name=name,
+                                                                           help=help,
+                                                                           callback=function,
+                                                                           callback_type=CALLBACK_TYPE_SETUP))
 
     def add_configuration_provider(self, name, function):
         """
@@ -252,6 +276,8 @@ class InContext(object):
         """
         return self.tasks[name]
 
+    # TODO: Consider using the plugin architecture for registering handlers
+    #       https://github.com/inseven/incontext/issues/110
     def add_handler(self, name, function):
         """
         Register a new handler.
@@ -283,7 +309,7 @@ class InContext(object):
         """
 
         # Prepare the commands for running.
-        for command_plugin in self.plugins.plugins(PLUGIN_TYPE_COMMAND).values():
+        for command_plugin in self._plugins.plugins(PLUGIN_TYPE_COMMAND).values():
             parser = self.subparsers.add_parser(command_plugin.name, help=command_plugin.help)
             fn = command_plugin.configure(self, parser)
             parser.set_defaults(fn=fn)

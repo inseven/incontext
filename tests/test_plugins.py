@@ -35,16 +35,15 @@ class PluginsTestCase(unittest.TestCase):
 
     def test_expected_plugins(self):
         instance = incontext.InContext(plugins_directory=paths.PLUGINS_DIR)
-        self.assertIsInstance(instance.plugins, incontext._Plugins)
-        self.assertEqual(set(instance.plugins.plugins(incontext.PLUGIN_TYPE_COMMAND).keys()),
-                             {
-                                 "add",
-                                 "build",
-                                 "build-documentation",
-                                 "clean",
-                                 "new",
-                                 "publish",
+        self.assertEqual(set(instance.plugins(incontext.PLUGIN_TYPE_COMMAND).keys()),
+                         {
+                             "add",
+                             "build",
+                             "build-documentation",
+                             "clean",
+                             "new",
+                             "publish",
                                  "serve",
-                                 "tests",
-                                 "watch",
-                             })
+                             "tests",
+                             "watch",
+                         })
