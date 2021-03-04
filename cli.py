@@ -31,8 +31,9 @@ class Argument(object):
         parser.add_argument(*(self.args), **(self.kwargs))
 
 
-def parser(add_help=True):
-    parser = argparse.ArgumentParser(prog="incontext", description="Generate website.", add_help=add_help)
+def parser():
+    parser = argparse.ArgumentParser(prog="incontext", description="Generate website.", add_help=False)
+    parser.add_argument('--help', '-h', default=False, action='store_true', help="show this help message and exit")
     parser.add_argument('--site', '-s', default=os.getcwd(), help="path to the root of the site")
     parser.add_argument('--verbose', '-v', action='store_true', default=False, help="show verbose output")
     parser.add_argument('--volume', action='append', help="mount an additional volume in the Docker container")

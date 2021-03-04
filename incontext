@@ -115,8 +115,7 @@ def main():
     plugins = utils.load_plugins(PREFLIGHT_PLUGIN_DIRECTORY)
 
     # Process the arguments and perform any pre-flight operations to add docker arguments.
-    parser = cli.parser(add_help=False)
-    parser.add_argument("--help", "-h", action="store_true")
+    parser = cli.parser()
     options, command_args = parser.parse_known_args()
     if command_args:
         command = command_args[0]
@@ -161,17 +160,16 @@ def main():
     # Passing a path on the command line is treated as granting implicit permission to the container.
     site = os.path.abspath(options.site)
     volumes = []
-    for volume in unique_prefixes(filter_paths(args) + [site]):  # N.B. The current working directory is an implicit mount.
+    for volume in unique_prefixes(filter_paths(args) + [site] + [ROOT]):  # N.B. The current working directory is an implicit mount.
         volumes.extend(["--volume", f"{volume}:{volume}"])
 
     # Construct the command.
     command = (["docker", "run",
                 "--user", f"{os.getuid()}:{os.getgid()}",
-                "--workdir", site,
-                "--volume", f"{ROOT}:/usr/local/src/incontext"] +
+                "--workdir", site] +
                volumes +
                docker.arguments +
-               [image_tag, "python3", "-u", "/usr/local/src/incontext/incontext.py"] +
+               [image_tag, "python3", "-u", os.path.join(ROOT, "incontext.py")] +
                args)
 
     # Install a signal handler to allow the container to handle SIGINT.

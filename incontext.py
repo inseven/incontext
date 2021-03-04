@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import collections
+import copy
 import glob
 import logging
 import os
@@ -163,27 +164,27 @@ class InContext(object):
         @param plugins_directory: Path to the plugins directory.
         @type plugins_directory: str
         """
-        self.plugins_directory = os.path.abspath(plugins_directory)
         self.handlers = {}
         self.tasks = {}
         self.environment = {}
-        self.parser = None
-        self.subparsers = []
+        self.arguments = []
         self.configuration_providers = {}
         self.configuration = Configuration()
-        self._plugins = _PLUGINS
+        self._plugins = copy.deepcopy(_PLUGINS)
+        self._loaded_plugin_directories = {}
+
+        # Load and initialize the plugins.
+        self.load_plugins(os.path.abspath(plugins_directory))
+
+    def load_plugins(self, directory):
         """
-        Returns the registered plugins stored in a `_Plugins` instance.
+        Load and initialize the plugins in a given directory, adding them to the incontext instance.
         """
-
-        # Load the plugins.
-        plugins = utils.load_plugins(self.plugins_directory)
-
-        # Create the argument parser.
-        self.parser = cli.parser()
-        self.subparsers = self.parser.add_subparsers(help="command to run")
-
-        # Initialize the plugins.
+        directory = os.path.abspath(directory)
+        if directory in self._loaded_plugin_directories:
+            return
+        self._loaded_plugin_directories[directory] = True
+        plugins = utils.load_plugins(directory)
         for plugin_name, plugin_instance in plugins.items():
 
             # Load the classic method-based plugins.
@@ -235,7 +236,7 @@ class InContext(object):
         Primarily intended to be used by configuration providers to allow them to specify a path to a configuration
         file, or configuration override.
         """
-        self.parser.add_argument(*args, **kwargs)
+        self.arguments.append(cli.Argument(*args, **kwargs))
 
     def add_command(self, name, function, help=""):
         """
@@ -303,19 +304,53 @@ class InContext(object):
         """
         return self.handlers[name]
 
+    def parser(self, add_subparsers=True):
+        """
+        Return a parser, configured with the currently loaded plugins.
+        """
+        # Create the argument parser.
+        parser = cli.parser()
+
+        # Add the top-level arguments.
+        for argument in self.arguments:
+            parser.add_argument(*(argument.args), **(argument.kwargs))
+
+        # Prepare the commands for running (if requested).
+        if add_subparsers:
+            subparsers = parser.add_subparsers(help="command to run")
+            for command_plugin in self._plugins.plugins(PLUGIN_TYPE_COMMAND).values():
+                subparser = subparsers.add_parser(command_plugin.name, help=command_plugin.help)
+                fn = command_plugin.configure(self, subparser)
+                subparser.set_defaults(fn=fn)
+
+        return parser
+
     def run(self, args=None):
         """
         Parse the command line arguments and execute the requested command.
         """
 
-        # Prepare the commands for running.
-        for command_plugin in self._plugins.plugins(PLUGIN_TYPE_COMMAND).values():
-            parser = self.subparsers.add_parser(command_plugin.name, help=command_plugin.help)
-            fn = command_plugin.configure(self, parser)
-            parser.set_defaults(fn=fn)
+        # Parse the top-level arguments, ignoring unknown arguments.
+        parser = self.parser(add_subparsers=False)
+        options, unknown = parser.parse_known_args(args)
 
-        # Parse the arguments.
-        options = self.parser.parse_args(args)
+        # Check to see if there are any site-local plugins.
+        plugins_directory = os.path.join(os.path.abspath(options.site), "plugins")
+        if os.path.exists(plugins_directory):
+            logging.debug("Loading site plugins...")
+            self.load_plugins(plugins_directory)
+
+        # Re-parse the arguments, along with the sub-commands / sub-parsers.
+        logging.debug("Re-processing arguments with sub-commands...")
+        parser = self.parser()
+        options = parser.parse_args(args)
+
+        # Explicit handling of the help functionality.
+        if options.help:
+            parser.print_help()
+            exit(1)
+
+        # Handle the arguments, running the command if specified.
         for name, configuration_provider in self.configuration_providers.items():
             self.configuration.add(name, configuration_provider(self, options))
         if 'fn' not in options:
