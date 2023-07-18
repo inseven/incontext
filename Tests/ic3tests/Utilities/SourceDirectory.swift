@@ -33,12 +33,14 @@ class SourceDirectory {
 
     let rootURL: URL
     let contentURL: URL
-    let site: Site
 
-    init(rootURL: URL) {
+    lazy var site: Site = {
+        try! Site(rootURL: rootURL)
+    }()
+
+    init(rootURL: URL) throws {
         self.rootURL = rootURL
-        self.contentURL = rootURL.appendingPathComponent("content")
-        self.site = Site(rootURL: rootURL)
+        self.contentURL = rootURL.appendingPathComponent("content", isDirectory: true)
     }
 
     func url(for location: Location) -> URL {

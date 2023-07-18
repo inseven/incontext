@@ -24,12 +24,7 @@ import Foundation
 import UniformTypeIdentifiers
 
 import Stencil
-
-extension UTType {
-
-    static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
-
-}
+import Yaml
 
 struct Site {
 
@@ -46,25 +41,28 @@ struct Site {
     ]
 
     let rootURL: URL
+    let contentURL: URL
+    let templatesURL: URL
+    let buildURL: URL
+    let storeURL: URL
+    let filesURL: URL
 
-    var contentURL: URL {
-        return rootURL.appending(component: "content")
-    }
+    let settings: [AnyHashable: Any]
 
-    var templatesURL: URL {
-        return rootURL.appending(component: "templates")
-    }
+    init(rootURL: URL) throws {
+        self.rootURL = rootURL
+        self.contentURL = rootURL.appendingPathComponent("content", isDirectory: true)
+        self.templatesURL = rootURL.appendingPathComponent("templates", isDirectory: true)
+        self.buildURL = rootURL.appendingPathComponent("build-swift", isDirectory: true)
+        self.storeURL = buildURL.appendingPathComponent("store.sqlite")
+        self.filesURL = buildURL.appendingPathComponent("files", isDirectory: true)
 
-    var buildURL: URL {
-        return rootURL.appending(component: "build-swift")
-    }
-
-    var storeURL: URL {
-        return buildURL.appending(component: "store.sqlite")
-    }
-
-    var filesURL: URL {
-        return buildURL.appending(component: "files")
+        let settingsURL = rootURL.appendingPathComponent("site.yaml")
+        let settingsData = try Data(contentsOf: settingsURL)
+        guard let settingsString = String(data: settingsData, encoding: .utf8) else {
+            throw InContextError.unsupportedEncoding
+        }
+        self.settings = try (try Yaml.load(settingsString)).dictionary()
     }
 
     func importer(for url: URL) -> Importer? {

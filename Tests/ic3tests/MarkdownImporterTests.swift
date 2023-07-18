@@ -28,6 +28,11 @@ import XCTest
 class MarkdownImporterTests: ContentTestCase {
 
     func testMarkdownTitleOverride() async throws {
+        _ = try defaultSourceDirectory.add("site.yaml", contents: """
+config:
+    title: Example
+
+""")
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: """
 ---
 title: Fromage
@@ -42,6 +47,10 @@ These are the contents of the file.
     }
 
     func testMarkdownTitleFromFile() async throws {
+        _ = try defaultSourceDirectory.add("site.yaml", contents: """
+config:
+    title: Example
+""")
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
         let importer = MarkdownImporter()
         let documents = try await importer.process(site: defaultSourceDirectory.site, file: file)
@@ -50,4 +59,3 @@ These are the contents of the file.
     }
 
 }
-

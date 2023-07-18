@@ -21,11 +21,10 @@
 // SOFTWARE.
 
 import Foundation
-import ImageIO
-import Ink
 import UniformTypeIdentifiers
 
-// TODO: Consider files on disk for default directory behaviours.
-let site = try Site(rootURL: URL(filePath: "/Users/jbmorley/Projects/jbmorley.co.uk"))
-let ic = try Builder(site: site)
-try await ic.build()
+extension UTType {
+
+    static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
+
+}

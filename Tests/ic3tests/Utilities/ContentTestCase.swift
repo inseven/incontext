@@ -26,10 +26,10 @@ import XCTest
 class ContentTestCase: XCTestCase {
 
     lazy var defaultSourceDirectory = {
-        SourceDirectory(rootURL: directoryURL)
+        try! SourceDirectory(rootURL: directoryURL)
     }()
 
-    let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
 
     override func setUp() {
         super.setUp()
