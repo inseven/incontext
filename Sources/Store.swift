@@ -58,7 +58,7 @@ class Store {
                 t.column(Schema.parent)
                 t.column(Schema.type)
                 t.column(Schema.date)
-//                t.column(Schema.metadata)
+                t.column(Schema.metadata)
                 t.column(Schema.contents)
                 t.column(Schema.template)
             })
@@ -115,11 +115,20 @@ class Store {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.transaction {
             for document in documents {
+
+                // Serialise the metadata.
+                let data = try JSONSerialization.data(withJSONObject: document.metadata)
+                guard let metadata = String(data: data, encoding: .utf8) else {
+                    // TODO: Better error.
+                    throw InContextError.unknown
+                }
+
                 try connection.run(Schema.documents.insert(or: .replace,
                                                            Schema.url <- document.url,
                                                            Schema.parent <- document.parent,
                                                            Schema.type <- document.type,
                                                            Schema.date <- document.date,
+                                                           Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
                                                            Schema.template <- document.template))
             }

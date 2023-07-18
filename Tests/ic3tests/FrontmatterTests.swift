@@ -51,19 +51,19 @@ Here's some **Markdown** content
                                                 ["posts":
                                                     ["include":
                                                         ["general"]]]]
-        XCTAssertEqual(document.parsed as NSObject, metadata as NSObject)
+        XCTAssertEqual(document.metadata as NSObject, metadata as NSObject)
     }
 
     func testEmptyFrontmatter() throws {
         let document = try FrontmatterDocument(contents: "**strong**")
         XCTAssertEqual(document.content, "**strong**")
-        XCTAssertEqual(document.parsed as NSObject, [AnyHashable: Any]() as NSObject)
+        XCTAssertEqual(document.metadata as NSObject, [AnyHashable: Any]() as NSObject)
     }
 
     func testEmptyFrontmatterParseHTML() throws {
         let document = try FrontmatterDocument(contents: "**strong**", generateHTML: true)
         XCTAssertEqual(document.content, "<p><strong>strong</strong></p>\n")
-        XCTAssertEqual(document.parsed as NSObject, [AnyHashable: Any]() as NSObject)
+        XCTAssertEqual(document.metadata as NSObject, [AnyHashable: Any]() as NSObject)
     }
 
 }

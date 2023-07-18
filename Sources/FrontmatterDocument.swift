@@ -29,19 +29,16 @@ struct FrontmatterDocument {
 
     private static let frontmatterRegEx = /(?s)^(-\-\-\n)(?<metadata>.*?)(-\-\-\n)(?<content>.*)$/
 
-    let metadata: String?
-    let parsed: Dictionary<AnyHashable, Any>
+    let metadata: Dictionary<AnyHashable, Any>
     let content: String
 
     init(contents: String, generateHTML: Bool = false) throws {
         guard let match = contents.wholeMatch(of: Self.frontmatterRegEx) else {
-            metadata = nil
-            parsed = [:]
+            metadata = [:]
             content = generateHTML ? contents.html() : contents
             return
         }
-        metadata = String(match.metadata)
-        parsed = try match.metadata.parseYAML()
+        metadata = try String(match.metadata).parseYAML()
         content = generateHTML ? String(match.content).html() : String(match.content)
     }
 

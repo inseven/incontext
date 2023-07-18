@@ -81,9 +81,13 @@ func markdown_handler(site: Site, fileURL: URL, contentModificationDate: Date) a
         throw InContextError.unsupportedEncoding
     }
     let details = fileURL.basenameDetails()
-    let parser = MarkdownParser()
-    let result = parser.parse(contents)
+
+    let result = try FrontmatterDocument(contents: contents, generateHTML: true)
+//
+//    let parser = MarkdownParser()
+//    let result = parser.parse(contents)
     var metadata = result.metadata  // TODO: Perform a copy?
+    // TODO: Remove the parsed.
     metadata["title"] = details.title
 
     // TODO: The metadata doesn't seem to permit complex structure; I might have to create my own parser.
@@ -96,9 +100,9 @@ func markdown_handler(site: Site, fileURL: URL, contentModificationDate: Date) a
                      type: "",
                      date: details.date,
                      metadata: metadata,
-                     contents: result.html,
+                     contents: result.content,
                      mtime: contentModificationDate,
-                     template: metadata["template"] ?? "page.html")]  // TODO: Where the heck does this come from?
+                     template: (metadata["template"] as? String) ?? "page.html")]  // TODO: Where the heck does this come from?
 }
 
 // TODO: Load the site configuration.

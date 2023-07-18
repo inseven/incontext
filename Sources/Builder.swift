@@ -156,6 +156,7 @@ class Builder {
     let store: Store
 
     init(site: Site) throws {
+        try FileManager.default.createDirectory(at: site.buildURL, withIntermediateDirectories: true)
         self.site = site
         self.store = try Store(databaseURL: site.storeURL)
     }
@@ -226,8 +227,17 @@ class Builder {
             try await withThrowingTaskGroup(of: [Document].self) { group in
                 var count = 0
                 for case let fileURL as URL in directoryEnumerator {
+
+                    // Ignore directories.
+                    let isDirectory = try fileURL
+                        .resourceValues(forKeys: [.isDirectoryKey])
+                        .isDirectory!
+                    if isDirectory {
+                        continue
+                    }
+
                     let contentModificationDate = try fileURL
-                        .resourceValues(forKeys:[.contentModificationDateKey])
+                        .resourceValues(forKeys: [.contentModificationDateKey])
                         .contentModificationDate!
                     guard let importer = site.importer(for: fileURL) else {
                         print("Ignoring unsupported file '\(fileURL.relativePath)'.")
@@ -275,38 +285,38 @@ class Builder {
 //                    documents.append(contentsOf: documents)
                 }
             }
-            // TODO: Work out how to remove entries for deleeted files.
+            // TODO: Work out how to remove entries for deleted files.
 
-            let environment = site.environment()
-
-            @dynamicMemberLookup
-            struct Page {
-
-                var query: [String] {
-                    return ["Foo"]
-                }
-
-                var random = "Booooo"
-
-                subscript(dynamicMember member: String) -> Any? {
-                    return "FUDGE"
-                }
-
-            }
-
-            // Render the documents.
-            try await withThrowingTaskGroup(of: Void.self) { group in
-                for document in try await store.documents() {
-                    group.addTask {
-                        try await self.render(document: document, environment: environment)
-                    }
-                }
-                // TODO: Is this necessary?
-                for try await _ in group {}
-            }
+//            let environment = site.environment()
+//
+//            @dynamicMemberLookup
+//            struct Page {
+//
+//                var query: [String] {
+//                    return ["Foo"]
+//                }
+//
+//                var random = "Booooo"
+//
+//                subscript(dynamicMember member: String) -> Any? {
+//                    return "FUDGE"
+//                }
+//
+//            }
+//
+//            // Render the documents.
+//            try await withThrowingTaskGroup(of: Void.self) { group in
+//                for document in try await store.documents() {
+//                    group.addTask {
+//                        try await self.render(document: document, environment: environment)
+//                    }
+//                }
+//                // TODO: Is this necessary?
+//                for try await _ in group {}
+//            }
 
         }
-        print("Generation took \(duration).")
+        print("Import took \(duration).")
     }
 
 }

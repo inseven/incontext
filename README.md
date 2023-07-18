@@ -19,3 +19,5 @@ while I'd love to use it to build my own website in the future, we're not there 
 - [ ] Is YamlSwift fast enough?
 - [ ] What is the performance hit of using a regex in the frontmatter parser?
 - [ ] Use the Swift `Regex` DSL
+- [ ] Saved named importers and their version and intermediate data when they change
+- [ ] Titles are not being correctly saved in the store or document
