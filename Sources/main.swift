@@ -39,7 +39,7 @@ func image_handler(site: Site, fileURL: URL, contentModificationDate: Date) asyn
     }
 
     // TODO: Extract some of this data into the document.
-    let properties = CGImageSourceCopyPropertiesAtIndex(image, 0, nil) as? [String: Any]
+    _ = CGImageSourceCopyPropertiesAtIndex(image, 0, nil) as? [String: Any]
 
     // Perform the transforms.
     for transform in site.transforms {

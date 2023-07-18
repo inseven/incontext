@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2023 InSeven Limited
+// Copyright (c) 2023 Jason Barrie Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -41,8 +41,8 @@ class WithNode: NodeType {
     static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
         var components = token.components
         components.removeFirst()
-        let nodes = try parser.parse(until(["endwith"]))
-        var nextToken = parser.nextToken() // Consumes the endwith
+        _ = try parser.parse(until(["endwith"]))
+        _ = parser.nextToken() // Consumes the endwith
         return WithNode(token: token)
     }
 
@@ -63,8 +63,8 @@ class MacroNode: NodeType {
     static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
         var components = token.components
         components.removeFirst()
-        let nodes = try parser.parse(until(["endmacro"]))
-        var nextToken = parser.nextToken() // Consumes the endwith
+        _ = try parser.parse(until(["endmacro"]))
+        _ = parser.nextToken() // Consumes the endwith
         return MacroNode(token: token)
     }
 
@@ -294,26 +294,7 @@ class Builder {
 
             }
 
-//            try template.render(["name": "kyle"])
-            let context: [String: Any] = [
-                "page": Page(),
-                "name": "Cheese",
-                "random": [
-                    "one",
-                    "two",
-                ]
-            ]
-            print(try environment.renderTemplate(string: "Hello {{ name }}{{ page.query }}{% for post in page.query %}{{ post }}{% endfor %}", context: context))
-            exit(0)
-
-            // Render the HTML files.
-            // TODO: I need to replicate the index file generation.
-            // TODO: I need to think how the image fragment templates are loaded.
-            // TODO: This is currently a serial operation and shouldn't be.
-//            for document in try await store.documents() {
-//                try await render(document: document, environment: environment)
-//            }
-
+            // Render the documents.
             try await withThrowingTaskGroup(of: Void.self) { group in
                 for document in try await store.documents() {
                     group.addTask {
