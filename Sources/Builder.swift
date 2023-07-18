@@ -21,134 +21,8 @@
 // SOFTWARE.
 
 import Foundation
-import UniformTypeIdentifiers
 
-//import Tuxedo
 import Stencil
-
-class WithNode: NodeType {
-
-    func render(_ context: Stencil.Context) throws -> String {
-        return "missing 'with' implementation"
-    }
-
-    init(token: Token) {
-        self.token = token
-    }
-
-    let token: Token?
-
-    static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
-        var components = token.components
-        components.removeFirst()
-        _ = try parser.parse(until(["endwith"]))
-        _ = parser.nextToken() // Consumes the endwith
-        return WithNode(token: token)
-    }
-
-}
-
-class MacroNode: NodeType {
-
-    func render(_ context: Stencil.Context) throws -> String {
-        return "missing 'macro' implementation"
-    }
-
-    init(token: Token) {
-        self.token = token
-    }
-
-    let token: Token?
-
-    static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
-        var components = token.components
-        components.removeFirst()
-        _ = try parser.parse(until(["endmacro"]))
-        _ = parser.nextToken() // Consumes the endwith
-        return MacroNode(token: token)
-    }
-
-}
-
-class SetNode: NodeType {
-
-    func render(_ context: Stencil.Context) throws -> String {
-        return "missing 'set' implementation"
-    }
-
-    init(token: Token) {
-        self.token = token
-    }
-
-    let token: Token?
-
-    static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
-        var components = token.components
-        components.removeFirst()
-        return SetNode(token: token)
-    }
-
-}
-
-class GalleryNode: NodeType {
-
-    func render(_ context: Stencil.Context) throws -> String {
-        return "missing 'gallery' implementation"
-    }
-
-    init(token: Token) {
-        self.token = token
-    }
-
-    let token: Token?
-
-    static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
-        var components = token.components
-        components.removeFirst()
-        return GalleryNode(token: token)
-    }
-
-}
-
-class VideoNode: NodeType {
-
-    func render(_ context: Stencil.Context) throws -> String {
-        return "missing 'video' implementation"
-    }
-
-    init(token: Token) {
-        self.token = token
-    }
-
-    let token: Token?
-
-    static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
-        var components = token.components
-        components.removeFirst()
-        return VideoNode(token: token)
-    }
-
-}
-
-class TemplateNode: NodeType {
-
-    func render(_ context: Stencil.Context) throws -> String {
-        return "missing 'template' implementation"
-    }
-
-    init(token: Token) {
-        self.token = token
-    }
-
-    let token: Token?
-
-    static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
-        var components = token.components
-        components.removeFirst()
-        return TemplateNode(token: token)
-    }
-
-}
 
 class Builder {
 
@@ -182,7 +56,7 @@ class Builder {
             "site": [
                 "title": "Jason Morley",
                 "date_format": "MMMM dd, yyyy",
-                "date_format_short": "%B %-d",
+                "date_format_short": "MMMM dd",
                 "url": "https://jbmorley.co.uk"
             ],
             "page": [
