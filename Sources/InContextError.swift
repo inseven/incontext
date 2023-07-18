@@ -25,6 +25,7 @@ import Foundation
 enum InContextError: Error {
     case unsupportedEncoding
     case unknown
+    case invalidMetadata
     case unknownSchemaVersion(Int32)
     case notFound
 }

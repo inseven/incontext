@@ -46,12 +46,48 @@
       }
     },
     {
+      "identity" : "swift-cmark",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-cmark.git",
+      "state" : {
+        "revision" : "29d9c97e6310b87c4799268eaa2fc76164b2dbd8",
+        "version" : "0.2.0"
+      }
+    },
+    {
+      "identity" : "swift-markdown",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-markdown.git",
+      "state" : {
+        "revision" : "68b2fed9fb12fb71ac81e537f08bed430b189e35",
+        "version" : "0.2.0"
+      }
+    },
+    {
+      "identity" : "swift-markdownkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/swift-markdownkit.git",
+      "state" : {
+        "revision" : "69b44cd50c683527643baa1d78ef71cda40ff65e",
+        "version" : "1.1.7"
+      }
+    },
+    {
       "identity" : "titlecaser",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jwells89/Titlecaser.git",
       "state" : {
         "revision" : "612e84f8d150c1bec1f1e9292efb20ff339dce07",
         "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "yamlswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/behrang/YamlSwift.git",
+      "state" : {
+        "revision" : "287f5cab7da0d92eb947b5fd8151b203ae04a9a3",
+        "version" : "3.4.4"
       }
     },
     {
