@@ -21,13 +21,24 @@
 // SOFTWARE.
 
 import Foundation
+import XCTest
 
-struct File {
+class ContentTestCase: XCTestCase {
 
-    var relativePath: String {
-        return url.relativePath
+    lazy var defaultSourceDirectory = {
+        SourceDirectory(rootURL: directoryURL)
+    }()
+
+    let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+    override func setUp() {
+        super.setUp()
+        try! FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
     }
 
-    let url: URL
-    let contentModificationDate: Date
+    override func tearDown() {
+        super.tearDown()
+        try! FileManager.default.removeItem(at: directoryURL)
+    }
+
 }

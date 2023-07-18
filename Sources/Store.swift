@@ -143,7 +143,7 @@ class Store {
         guard let file = try connection.pluck(Schema.files.filter(Schema.relativePath == relativePath)) else {
             return nil
         }
-        return File(relativePath: try file.get(Schema.relativePath),
+        return File(url: URL(filePath: try file.get(Schema.relativePath), relativeTo: site.contentURL),
                     contentModificationDate: try file.get(Schema.contentModificationDate))
     }
 

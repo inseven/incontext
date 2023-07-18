@@ -22,8 +22,6 @@
 
 import Foundation
 
-import MarkdownKit
-
 import XCTest
 @testable import ic3
 

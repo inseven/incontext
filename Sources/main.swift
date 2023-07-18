@@ -26,9 +26,11 @@ import Ink
 import UniformTypeIdentifiers
 
 // TODO: Inject the file
-typealias Importer = (Site, URL, Date) async throws -> [Document]
+typealias Importer = (Site, File) async throws -> [Document]
 
-func image_handler(site: Site, fileURL: URL, contentModificationDate: Date) async throws -> [Document] {
+func image_handler(site: Site, file: File) async throws -> [Document] {
+
+    let fileURL = file.url
 
     let resourceURL = site.filesURL.appending(path: fileURL.relevantRelativePath)
     try FileManager.default.createDirectory(at: resourceURL, withIntermediateDirectories: true)
@@ -71,11 +73,14 @@ func image_handler(site: Site, fileURL: URL, contentModificationDate: Date) asyn
                      date: details.date,
                      metadata: [:],
                      contents: "",
-                     mtime: contentModificationDate,
+                     mtime: file.contentModificationDate,
                      template: "photo.html")]
 }
 
-func markdown_handler(site: Site, fileURL: URL, contentModificationDate: Date) async throws -> [Document] {
+func markdown_handler(site: Site, file: File) async throws -> [Document] {
+
+    let fileURL = file.url
+
     let data = try Data(contentsOf: fileURL)
     guard let contents = String(data: data, encoding: .utf8) else {
         throw InContextError.unsupportedEncoding
@@ -83,12 +88,12 @@ func markdown_handler(site: Site, fileURL: URL, contentModificationDate: Date) a
     let details = fileURL.basenameDetails()
 
     let result = try FrontmatterDocument(contents: contents, generateHTML: true)
-//
-//    let parser = MarkdownParser()
-//    let result = parser.parse(contents)
+
+    // Set the title if it doesn't exist.
     var metadata = result.metadata  // TODO: Perform a copy?
-    // TODO: Remove the parsed.
-    metadata["title"] = details.title
+    if metadata["title"] == nil {
+        metadata["title"] = details.title
+    }
 
     // TODO: The metadata doesn't seem to permit complex structure; I might have to create my own parser.
     // TODO: There's a bunch of legacy code which detects thumbnails. *sigh*
@@ -101,7 +106,7 @@ func markdown_handler(site: Site, fileURL: URL, contentModificationDate: Date) a
                      date: details.date,
                      metadata: metadata,
                      contents: result.content,
-                     mtime: contentModificationDate,
+                     mtime: file.contentModificationDate,
                      template: (metadata["template"] as? String) ?? "page.html")]  // TODO: Where the heck does this come from?
 }
 

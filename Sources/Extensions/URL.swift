@@ -31,6 +31,10 @@ extension String {
         return hasSuffix("/") ? self : self + "/"
     }
 
+    func ensureLeadingSlash() -> String {
+        return hasPrefix("/") ? self : "/" + self
+    }
+
     // TODO: Move the title processing into here?
     // TODO: Consolidate?
     func splitBasenameComponents() -> (Date?, String, Float?) {
@@ -68,7 +72,7 @@ extension URL {
         if relevantRelativePath.hasPrefix(".") {
             return "/"
         }
-        return "/" + relevantRelativePath.ensuringTrailingSlash()
+        return relevantRelativePath.ensureLeadingSlash().ensuringTrailingSlash()
     }
 
     var parentURL: String {
@@ -76,7 +80,7 @@ extension URL {
         if relevantParentPath == ".." {
             return "/"
         }
-        return "/" + relevantParentPath.ensuringTrailingSlash()
+        return relevantParentPath.ensureLeadingSlash().ensuringTrailingSlash()
     }
 
     func basenameDetails() -> BasenameDetails {

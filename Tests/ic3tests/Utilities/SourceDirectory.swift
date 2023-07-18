@@ -22,12 +22,42 @@
 
 import Foundation
 
-struct File {
+@testable import ic3
 
-    var relativePath: String {
-        return url.relativePath
+class SourceDirectory {
+
+    enum Location {
+        case root
+        case content
     }
 
-    let url: URL
-    let contentModificationDate: Date
+    let rootURL: URL
+    let contentURL: URL
+    let site: Site
+
+    init(rootURL: URL) {
+        self.rootURL = rootURL
+        self.contentURL = rootURL.appendingPathComponent("content")
+        self.site = Site(rootURL: rootURL)
+    }
+
+    func url(for location: Location) -> URL {
+        switch location {
+        case .root:
+            return rootURL
+        case .content:
+            return contentURL
+        }
+    }
+
+    func add(_ path: String, location: Location = .root, contents: String) throws -> File {
+        let rootURL = url(for: location)
+        assert(!path.hasPrefix("/"), "Paths must be relative")
+        let fileURL = URL(filePath: path, relativeTo: rootURL)
+        let directoryURL = fileURL.deletingLastPathComponent()
+        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        try contents.write(to: fileURL, atomically: true, encoding: .utf8)
+        return File(url: fileURL, contentModificationDate: try FileManager.default.modificationDateOfItem(at: fileURL))
+    }
+
 }

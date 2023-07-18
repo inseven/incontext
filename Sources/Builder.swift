@@ -266,12 +266,9 @@ class Builder {
                         // TODO: If the importer has changed, then we first need to clean up the previous document and intermediate files.
 
                         // Import the file.
-                        let documents = try await importer(self.site, fileURL, contentModificationDate)
-
-                        // Write the documents to the database.
-                        try await self.store.save(documents: documents,
-                                                  for: File(relativePath: fileURL.relativePath,
-                                                            contentModificationDate: contentModificationDate))
+                        let file = File(url: fileURL, contentModificationDate: contentModificationDate)
+                        let documents = try await importer(self.site, file)
+                        try await self.store.save(documents: documents, for: file)
 
                         // TODO: This should probably just return the relative paths so we can know which files to delete.
                         return documents

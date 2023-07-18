@@ -22,12 +22,30 @@
 
 import Foundation
 
-struct File {
+import XCTest
+@testable import ic3
 
-    var relativePath: String {
-        return url.relativePath
+class MarkdownImporterTests: ContentTestCase {
+
+    func testMarkdownTitleOverride() async throws {
+        let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: """
+---
+title: Fromage
+---
+
+These are the contents of the file.
+""")
+        let documents = try await markdown_handler(site: defaultSourceDirectory.site, file: file)
+        XCTAssertEqual(documents.count, 1)
+        XCTAssertEqual(documents.first!.metadata["title"] as? String, "Fromage")
     }
 
-    let url: URL
-    let contentModificationDate: Date
+    func testMarkdownTitleFromFile() async throws {
+        let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
+        let documents = try await markdown_handler(site: defaultSourceDirectory.site, file: file)
+        XCTAssertEqual(documents.count, 1)
+        XCTAssertEqual(documents.first!.metadata["title"] as? String, "Cheese")
+    }
+
 }
+

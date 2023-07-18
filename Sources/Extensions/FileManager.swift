@@ -22,12 +22,11 @@
 
 import Foundation
 
-struct File {
+extension FileManager {
 
-    var relativePath: String {
-        return url.relativePath
+    func modificationDateOfItem(at url: URL) throws -> Date {
+        let attr = try attributesOfItem(atPath: url.path)
+        return attr[FileAttributeKey.modificationDate] as! Date
     }
 
-    let url: URL
-    let contentModificationDate: Date
 }
