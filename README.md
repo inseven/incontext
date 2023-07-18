@@ -21,3 +21,5 @@ while I'd love to use it to build my own website in the future, we're not there 
 - [ ] Use the Swift `Regex` DSL
 - [ ] Saved named importers and their version and intermediate data when they change
 - [ ] Titles are not being correctly saved in the store or document
+- [ ] Detect sites in roots above the current directory (git-like)
+- [ ] Support loading the existing stie configuration

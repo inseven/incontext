@@ -267,7 +267,7 @@ class Builder {
 
                         // Import the file.
                         let file = File(url: fileURL, contentModificationDate: contentModificationDate)
-                        let documents = try await importer(self.site, file)
+                        let documents = try await importer.process(site: self.site, file: file)
                         try await self.store.save(documents: documents, for: file)
 
                         // TODO: This should probably just return the relative paths so we can know which files to delete.

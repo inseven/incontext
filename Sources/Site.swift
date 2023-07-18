@@ -41,8 +41,8 @@ struct Site {
     ]
 
     let importers: [([UTType], Importer)] = [
-        ([.jpeg, .heic, .jpeg, .png, .gif, .tiff], image_handler),
-        ([.markdown], markdown_handler),
+        ([.jpeg, .heic, .jpeg, .png, .gif, .tiff], ImageImporter()),
+        ([.markdown], MarkdownImporter()),
     ]
 
     let rootURL: URL

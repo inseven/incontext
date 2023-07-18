@@ -21,11 +21,9 @@
 // SOFTWARE.
 
 import Foundation
-import ImageIO
-import Ink
-import UniformTypeIdentifiers
 
-// TODO: Consider files on disk for default directory behaviours.
-let site = Site(rootURL: URL(filePath: "/Users/jbmorley/Projects/jbmorley.co.uk"))
-let ic = try Builder(site: site)
-try await ic.build()
+protocol Importer {
+
+    func process(site: Site, file: File) async throws -> [Document]
+
+}

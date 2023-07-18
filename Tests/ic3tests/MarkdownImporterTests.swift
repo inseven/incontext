@@ -35,14 +35,16 @@ title: Fromage
 
 These are the contents of the file.
 """)
-        let documents = try await markdown_handler(site: defaultSourceDirectory.site, file: file)
+        let importer = MarkdownImporter()
+        let documents = try await importer.process(site: defaultSourceDirectory.site, file: file)
         XCTAssertEqual(documents.count, 1)
         XCTAssertEqual(documents.first!.metadata["title"] as? String, "Fromage")
     }
 
     func testMarkdownTitleFromFile() async throws {
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
-        let documents = try await markdown_handler(site: defaultSourceDirectory.site, file: file)
+        let importer = MarkdownImporter()
+        let documents = try await importer.process(site: defaultSourceDirectory.site, file: file)
         XCTAssertEqual(documents.count, 1)
         XCTAssertEqual(documents.first!.metadata["title"] as? String, "Cheese")
     }
