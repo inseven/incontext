@@ -23,3 +23,5 @@ while I'd love to use it to build my own website in the future, we're not there 
 - [ ] Titles are not being correctly saved in the store or document
 - [ ] Detect sites in roots above the current directory (git-like)
 - [ ] Support loading the existing stie configuration
+- [ ] Track resources and clean them up when files are deleted or importers change
+- [ ] Try using a multi-reader / single-writer model for the database to improve template render performance

@@ -228,22 +228,26 @@ class Builder {
                 var count = 0
                 for case let fileURL as URL in directoryEnumerator {
 
-                    // Ignore directories.
+                    // Get the file metadata.
                     let isDirectory = try fileURL
                         .resourceValues(forKeys: [.isDirectoryKey])
                         .isDirectory!
+                    let contentModificationDate = try fileURL
+                        .resourceValues(forKeys: [.contentModificationDateKey])
+                        .contentModificationDate!
+
+                    // Ignore directories.
                     if isDirectory {
                         continue
                     }
 
-                    let contentModificationDate = try fileURL
-                        .resourceValues(forKeys: [.contentModificationDateKey])
-                        .contentModificationDate!
+                    // Get the importer for the file.
                     guard let importer = site.importer(for: fileURL) else {
                         print("Ignoring unsupported file '\(fileURL.relativePath)'.")
                         continue
                     }
-                    print("Importing '\(fileURL.relativePath)'...")
+
+                    // Schedule the import.
                     group.addTask {
 
                         // TODO: Consider moving this out into a separate function.
@@ -251,8 +255,8 @@ class Builder {
                         // TODO: Templates are stored in cached data so input settings need to invalidate the cache.
 
                         // Check to see if the file already exists in the store and has a matching modification date.
-                        if let file = try await self.store.file(for: fileURL.relativePath) {
-                            if Calendar.current.isDate(file.contentModificationDate,
+                        if let status = try await self.store.status(for: fileURL.relativePath) {
+                            if Calendar.current.isDate(status.contentModificationDate,
                                                        equalTo: contentModificationDate,
                                                        toGranularity: .nanosecond) {
                                 return []
@@ -261,14 +265,20 @@ class Builder {
                                 //       Importing the documents at this point might be a little memory intensive.
 
                             }
+
+                            // TODO: Clean up the existing intermediates if we know that the contents have changed.
                         }
 
-                        // TODO: If the importer has changed, then we first need to clean up the previous document and intermediate files.
+                        print("Importing '\(fileURL.relativePath)'...")
 
                         // Import the file.
                         let file = File(url: fileURL, contentModificationDate: contentModificationDate)
                         let documents = try await importer.process(site: self.site, file: file)
-                        try await self.store.save(documents: documents, for: file)
+                        let status = Status(fileURL: file.url,
+                                            contentModificationDate: file.contentModificationDate,
+                                            importer: importer.identifier,
+                                            importerVersion: importer.version)
+                        try await self.store.save(documents: documents, for: status)
 
                         // TODO: This should probably just return the relative paths so we can know which files to delete.
                         return documents

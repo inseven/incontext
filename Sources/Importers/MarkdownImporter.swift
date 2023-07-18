@@ -24,6 +24,9 @@ import Foundation
 
 class MarkdownImporter: Importer {
 
+    let identifier = "app.incontext.importer.markdown"
+    let version = 1
+
     func process(site: Site, file: File) async throws -> [Document] {
 
         let fileURL = file.url

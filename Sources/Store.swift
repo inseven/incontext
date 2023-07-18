@@ -24,12 +24,25 @@ import Foundation
 
 import SQLite
 
+struct Status {
+
+    var relativePath: String {
+        return fileURL.relativePath
+    }
+
+    let fileURL: URL
+    let contentModificationDate: Date
+    let importer: String
+    let importerVersion: Int
+
+}
+
 class Store {
 
     struct Schema {
 
         static let documents = Table("documents")
-        static let files = Table("files")
+        static let status = Table("status")
 
         // documents
         static let url = Expression<String>("url")
@@ -40,9 +53,11 @@ class Store {
         static let contents = Expression<String>("contents")
         static let template = Expression<String>("template")
 
-        // files
+        // status
         static let relativePath = Expression<String>("relative_path")
         static let contentModificationDate = Expression<Date>("content_modification_date")
+        static let importer = Expression<String>("importer")
+        static let importerVersion = Expression<Int>("importer_version")
 
     }
 
@@ -62,9 +77,11 @@ class Store {
                 t.column(Schema.contents)
                 t.column(Schema.template)
             })
-            try connection.run(Schema.files.create(ifNotExists: true) { t in
+            try connection.run(Schema.status.create(ifNotExists: true) { t in
                 t.column(Schema.relativePath, primaryKey: true)
                 t.column(Schema.contentModificationDate)
+                t.column(Schema.importer)
+                t.column(Schema.importerVersion)
             })
         },
     ]
@@ -111,7 +128,7 @@ class Store {
         }
     }
 
-    private func syncQueue_save(documents: [Document], for file: File) throws {
+    private func syncQueue_save(documents: [Document], status: Status) throws {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.transaction {
             for document in documents {
@@ -132,19 +149,23 @@ class Store {
                                                            Schema.contents <- document.contents,
                                                            Schema.template <- document.template))
             }
-            try connection.run(Schema.files.insert(or: .replace,
-                                                   Schema.relativePath <- file.relativePath,
-                                                   Schema.contentModificationDate <- file.contentModificationDate))
+            try connection.run(Schema.status.insert(or: .replace,
+                                                    Schema.relativePath <- status.relativePath,
+                                                    Schema.contentModificationDate <- status.contentModificationDate,
+                                                    Schema.importer <- status.importer,
+                                                    Schema.importerVersion <- status.importerVersion))
         }
     }
 
-    private func syncQueue_file(for relativePath: String) throws -> File? {
+    private func syncQueue_status(for relativePath: String) throws -> Status? {
         dispatchPrecondition(condition: .onQueue(syncQueue))
-        guard let file = try connection.pluck(Schema.files.filter(Schema.relativePath == relativePath)) else {
+        guard let status = try connection.pluck(Schema.status.filter(Schema.relativePath == relativePath)) else {
             return nil
         }
-        return File(url: URL(filePath: try file.get(Schema.relativePath), relativeTo: site.contentURL),
-                    contentModificationDate: try file.get(Schema.contentModificationDate))
+        return Status(fileURL: URL(filePath: try status.get(Schema.relativePath), relativeTo: site.contentURL),
+                      contentModificationDate: try status.get(Schema.contentModificationDate),
+                      importer: try status.get(Schema.importer),
+                      importerVersion: try status.get(Schema.importerVersion))
     }
 
     private func syncQueue_documents() throws -> [Document] {
@@ -162,15 +183,15 @@ class Store {
         }
     }
 
-    func save(documents: [Document], for file: File) async throws {
+    func save(documents: [Document], for status: Status) async throws {
         try await run {
-            try self.syncQueue_save(documents: documents, for: file)
+            try self.syncQueue_save(documents: documents, status: status)
         }
     }
 
-    func file(for relativePath: String) async throws -> File? {
+    func status(for relativePath: String) async throws -> Status? {
         return try await run {
-            return try self.syncQueue_file(for: relativePath)
+            return try self.syncQueue_status(for: relativePath)
         }
     }
 

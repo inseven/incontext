@@ -24,6 +24,9 @@ import Foundation
 
 protocol Importer {
 
+    var identifier: String { get }
+    var version: Int { get }
+
     func process(site: Site, file: File) async throws -> [Document]
 
 }
