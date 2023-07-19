@@ -116,7 +116,7 @@ class Builder {
                     }
 
                     // Get the importer for the file.
-                    guard let importer = try site.importer(for: fileURL) else {
+                    guard let (importer, settings) = try site.importer(for: fileURL) else {
                         print("Ignoring unsupported file '\(fileURL.relativePath)'.")
                         continue
                     }
@@ -166,7 +166,7 @@ class Builder {
 
                         // Import the file.
                         let file = File(url: fileURL, contentModificationDate: contentModificationDate)
-                        let result = try await importer.process(site: self.site, file: file)
+                        let result = try await importer.process(site: self.site, file: file, settings: settings)
                         let status = Status(fileURL: file.url,
                                             contentModificationDate: file.contentModificationDate,
                                             importer: importer.identifier,

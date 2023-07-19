@@ -79,7 +79,18 @@ struct Site {
             else {
                 throw InContextError.corruptSettings
             }
-            return try Handler(when: when, then: then)
+
+            let settings: [AnyHashable: Any]
+            if handler["args"] != nil {
+                guard let args = handler["args"] as? [AnyHashable: Any] else {
+                    throw InContextError.corruptSettings
+                }
+                settings = args
+            } else {
+                settings = [:]
+            }
+
+            return try Handler(when: when, then: then, settings: settings)
         }
         self.handlers = actualHandlers
 
@@ -93,7 +104,7 @@ struct Site {
             ] as [Importer]).reduce(into: [:]) { $0[$1.legacyIdentifier] = $1 }
     }
 
-    func importer(for url: URL) throws -> Importer? {
+    func importer(for url: URL) throws -> (Importer, [AnyHashable: Any])? {
         for handler in handlers {
             guard try handler.when.wholeMatch(in: url.relativePath) != nil else {
                 continue
@@ -101,7 +112,7 @@ struct Site {
             guard let importer = importers[handler.then] else {
                 throw InContextError.unknownImporter(handler.then)
             }
-            return importer
+            return (importer, handler.settings)
         }
         return nil
     }

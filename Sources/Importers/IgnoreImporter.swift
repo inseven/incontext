@@ -28,7 +28,7 @@ class IgnoreImporter: Importer {
     let legacyIdentifier = "ignore"
     let version = 1
 
-    func process(site: Site, file: File) async throws -> ImporterResult {
+    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
         return ImporterResult()
     }
 

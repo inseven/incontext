@@ -28,15 +28,19 @@ class SassImporter: Importer {
 
     let identifier = "app.incontext.importer.sass"
     let legacyIdentifier = "preprocess_stylesheet"
-    let version = 7
+    let version = 9
 
-    func process(site: Site, file: File) async throws -> ImporterResult {
-
-        let inputURL = URL(filePath: "css/main.scss", relativeTo: site.contentURL)
+    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
+        guard let path = settings["path"] as? String else {
+            throw InContextError.corruptSettings
+        }
+        let inputURL = URL(filePath: path, relativeTo: site.contentURL)
         let outputURL = site.outputURL(relativePath: inputURL.deletingPathExtension().relativePath + ".css")
         let compiler = try Compiler()
         let results = try await compiler.compile(fileURL: inputURL)
         try await compiler.shutdownGracefully()
+        try FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(),
+                                                withIntermediateDirectories: true)
         try results.css.write(to: outputURL, atomically: true, encoding: .utf8)
         return ImporterResult(assets: [Asset(fileURL: outputURL)])
     }

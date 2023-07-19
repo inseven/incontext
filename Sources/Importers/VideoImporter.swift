@@ -28,7 +28,7 @@ class VideoImporter: Importer {
     let legacyIdentifier = "import_video"
     let version = 1
 
-    func process(site: Site, file: File) async throws -> ImporterResult {
+    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
         return ImporterResult()
     }
 

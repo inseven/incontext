@@ -40,6 +40,6 @@ protocol Importer {
     var legacyIdentifier: String { get }
     var version: Int { get }
 
-    func process(site: Site, file: File) async throws -> ImporterResult
+    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult
 
 }

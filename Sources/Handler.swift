@@ -28,11 +28,13 @@ struct Handler {
     let when: Regex<AnyRegexOutput>
     let whenSource: String
     let then: String
+    let settings: [AnyHashable: Any]
 
-    init(when: String, then: String) throws {
+    init(when: String, then: String, settings: [AnyHashable: Any]) throws {
         self.when = try Regex("^" + when + "$")
         self.whenSource = when
         self.then = then
+        self.settings = settings
     }
 
 }

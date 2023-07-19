@@ -28,7 +28,7 @@ class CopyImporter: Importer {
     let legacyIdentifier = "copy_file"
     let version = 1
 
-    func process(site: Site, file: File) async throws -> ImporterResult {
+    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
         // TODO: Consider whether these actually get a tracking context that lets them add to the site instead of
         //       returning documents. That feels like it might be cleaner and more flexible?
         //       That approach would have the benefit of meaning that we don't really need to do significant path
