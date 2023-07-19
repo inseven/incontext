@@ -27,5 +27,7 @@ enum InContextError: Error {
     case unknown
     case invalidMetadata
     case unknownSchemaVersion(Int32)
+    case unknownImporter(String)
+    case corruptSettings
     case notFound
 }

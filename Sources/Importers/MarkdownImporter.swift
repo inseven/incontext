@@ -25,9 +25,10 @@ import Foundation
 class MarkdownImporter: Importer {
 
     let identifier = "app.incontext.importer.markdown"
+    let legacyIdentifier = "import_markdown"
     let version = 1
 
-    func process(site: Site, file: File) async throws -> [Document] {
+    func process(site: Site, file: File) async throws -> ImporterResult {
 
         let fileURL = file.url
 
@@ -50,14 +51,15 @@ class MarkdownImporter: Importer {
         //       I think it might actually be possible to do this with the template engine.
 
         // TODO: Do I actually wnat it to process the markdown at import time? Does it matter?
-        return [Document(url: fileURL.siteURL,
-                         parent: fileURL.parentURL,
-                         type: "",
-                         date: details.date,
-                         metadata: metadata,
-                         contents: result.content,
-                         mtime: file.contentModificationDate,
-                         template: (metadata["template"] as? String) ?? "page.html")]  // TODO: Where the heck does this come from?
+        let document = Document(url: fileURL.siteURL,
+                                parent: fileURL.parentURL,
+                                type: "",
+                                date: details.date,
+                                metadata: metadata,
+                                contents: result.content,
+                                mtime: file.contentModificationDate,
+                                template: (metadata["template"] as? String) ?? "page.html")  // TODO: Use a default for this.
+        return ImporterResult(documents: [document])
     }
 
 }

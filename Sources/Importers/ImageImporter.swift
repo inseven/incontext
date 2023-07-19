@@ -26,13 +26,14 @@ import ImageIO
 class ImageImporter: Importer {
 
     let identifier = "app.incontext.importer.image"
+    let legacyIdentifier = "import_photo"
     let version = 1
 
-    func process(site: Site, file: File) async throws -> [Document] {
+    func process(site: Site, file: File) async throws -> ImporterResult {
 
         let fileURL = file.url
 
-        let resourceURL = site.filesURL.appending(path: fileURL.relevantRelativePath)
+        let resourceURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: site.filesURL)  // TODO: Make this a utiltiy and test it
         try FileManager.default.createDirectory(at: resourceURL, withIntermediateDirectories: true)
 
         // Load the original image.
@@ -42,6 +43,8 @@ class ImageImporter: Importer {
 
         // TODO: Extract some of this data into the document.
         _ = CGImageSourceCopyPropertiesAtIndex(image, 0, nil) as? [String: Any]
+
+        var assets: [Asset] = []
 
         // Perform the transforms.
         for transform in site.transforms {
@@ -63,18 +66,20 @@ class ImageImporter: Importer {
             }
             CGImageDestinationAddImage(destination, thumbnail, nil)
             CGImageDestinationFinalize(destination)  // TODO: Handle error here?
+            assets.append(Asset(fileURL: destinationURL as URL))
         }
 
         let details = fileURL.basenameDetails()
 
-        return [Document(url: fileURL.siteURL,
-                         parent: fileURL.parentURL,
-                         type: "",
-                         date: details.date,
-                         metadata: [:],
-                         contents: "",
-                         mtime: file.contentModificationDate,
-                         template: "photo.html")]
+        let document = Document(url: fileURL.siteURL,
+                                parent: fileURL.parentURL,
+                                type: "",
+                                date: details.date,
+                                metadata: [:],
+                                contents: "",
+                                mtime: file.contentModificationDate,
+                                template: "photo.html")
+        return ImporterResult(documents: [document], assets: assets)
     }
 
 }

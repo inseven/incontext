@@ -22,24 +22,14 @@
 
 import Foundation
 
-struct ImporterResult {
+class VideoImporter: Importer {
 
-    let documents: [Document]
-    let assets: [Asset]
+    let identifier = "app.incontext.importer.video"
+    let legacyIdentifier = "import_video"
+    let version = 1
 
-    init(documents: [Document] = [], assets: [Asset] = []) {
-        self.documents = documents
-        self.assets = assets
+    func process(site: Site, file: File) async throws -> ImporterResult {
+        return ImporterResult()
     }
-
-}
-
-protocol Importer {
-
-    var identifier: String { get }
-    var legacyIdentifier: String { get }
-    var version: Int { get }
-
-    func process(site: Site, file: File) async throws -> ImporterResult
 
 }

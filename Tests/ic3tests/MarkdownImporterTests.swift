@@ -31,7 +31,12 @@ class MarkdownImporterTests: ContentTestCase {
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
 config:
     title: Example
-
+build_steps:
+  - task: process_files
+    args:
+      handlers:
+        - when: '(.*/)?.*\\.markdown'
+          then: import_markdown
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: """
 ---
@@ -41,21 +46,27 @@ title: Fromage
 These are the contents of the file.
 """)
         let importer = MarkdownImporter()
-        let documents = try await importer.process(site: defaultSourceDirectory.site, file: file)
-        XCTAssertEqual(documents.count, 1)
-        XCTAssertEqual(documents.first!.metadata["title"] as? String, "Fromage")
+        let result = try await importer.process(site: defaultSourceDirectory.site, file: file)
+        XCTAssertEqual(result.documents.count, 1)
+        XCTAssertEqual(result.documents.first!.metadata["title"] as? String, "Fromage")
     }
 
     func testMarkdownTitleFromFile() async throws {
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
 config:
     title: Example
+build_steps:
+  - task: process_files
+    args:
+      handlers:
+        - when: '(.*/)?.*\\.markdown'
+          then: import_markdown
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
         let importer = MarkdownImporter()
-        let documents = try await importer.process(site: defaultSourceDirectory.site, file: file)
-        XCTAssertEqual(documents.count, 1)
-        XCTAssertEqual(documents.first!.metadata["title"] as? String, "Cheese")
+        let result = try await importer.process(site: defaultSourceDirectory.site, file: file)
+        XCTAssertEqual(result.documents.count, 1)
+        XCTAssertEqual(result.documents.first!.metadata["title"] as? String, "Cheese")
     }
 
 }

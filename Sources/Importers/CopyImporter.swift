@@ -22,24 +22,23 @@
 
 import Foundation
 
-struct ImporterResult {
+class CopyImporter: Importer {
 
-    let documents: [Document]
-    let assets: [Asset]
+    let identifier = "app.incontext.importer.copy"
+    let legacyIdentifier = "copy_file"
+    let version = 1
 
-    init(documents: [Document] = [], assets: [Asset] = []) {
-        self.documents = documents
-        self.assets = assets
+    func process(site: Site, file: File) async throws -> ImporterResult {
+        // TODO: Consider whether these actually get a tracking context that lets them add to the site instead of
+        //       returning documents. That feels like it might be cleaner and more flexible?
+        //       That approach would have the benefit of meaning that we don't really need to do significant path
+        //       manipulation.
+        let destinationURL = URL(filePath: file.relativePath, relativeTo: site.filesURL)
+        let fileManager = FileManager.default
+        try fileManager.createDirectory(at: destinationURL.deletingLastPathComponent(),
+                                        withIntermediateDirectories: true)
+        try fileManager.copyItem(at: file.url, to: destinationURL)
+        return ImporterResult(assets: [Asset(fileURL: destinationURL)])
     }
-
-}
-
-protocol Importer {
-
-    var identifier: String { get }
-    var legacyIdentifier: String { get }
-    var version: Int { get }
-
-    func process(site: Site, file: File) async throws -> ImporterResult
 
 }

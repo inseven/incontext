@@ -25,3 +25,11 @@ while I'd love to use it to build my own website in the future, we're not there 
 - [ ] Support loading the existing stie configuration
 - [ ] Track resources and clean them up when files are deleted or importers change
 - [ ] Try using a multi-reader / single-writer model for the database to improve template render performance
+- [ ] Use Swift DSL to unify file and image handlers (this would allow easy checking of glob, regex, extension, and mime
+      type)
+- [ ] Drop the now-unnecessary dependency on Sass
+- [ ] Check that gifs are transformed correctly
+- [ ] Test that the relative paths are correct for the destination directory; this likely needs to be per-importer, but
+      it would be much easier if we had a way to generate these as part of the site so importers don't have to think too
+      hard
+- [ ] SQLite is mangling mtimes meaning that some files always get regenerated

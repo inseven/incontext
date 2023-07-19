@@ -116,7 +116,7 @@ class Builder {
                     }
 
                     // Get the importer for the file.
-                    guard let importer = site.importer(for: fileURL) else {
+                    guard let importer = try site.importer(for: fileURL) else {
                         print("Ignoring unsupported file '\(fileURL.relativePath)'.")
                         continue
                     }
@@ -140,22 +140,37 @@ class Builder {
 
                             }
 
+                            // Clean up the existing assets.
+                            // TODO: We also need to do this for files that just don't exist anymore.
+                            // TODO: This needs to be a utility.
+                            let fileManager = FileManager.default
+                            for asset in try await self.store.assets(for: fileURL.relativePath) {
+                                print("Removing intermediate '\(asset.fileURL)'...")
+                                guard fileManager.fileExists(atPath: asset.fileURL.path) else {
+                                    print("Skipping missing file...")
+                                    continue
+                                }
+                                try FileManager.default.removeItem(at: asset.fileURL)
+                            }
+                            try await self.store.forgetAssets(for: fileURL.relativePath)
+
+
                             // TODO: Clean up the existing intermediates if we know that the contents have changed.
                         }
 
-                        print("Importing '\(fileURL.relativePath)'...")
+                        print("[\(importer.legacyIdentifier)] Importing '\(fileURL.relativePath)'...")
 
                         // Import the file.
                         let file = File(url: fileURL, contentModificationDate: contentModificationDate)
-                        let documents = try await importer.process(site: self.site, file: file)
+                        let result = try await importer.process(site: self.site, file: file)
                         let status = Status(fileURL: file.url,
                                             contentModificationDate: file.contentModificationDate,
                                             importer: importer.identifier,
                                             importerVersion: importer.version)
-                        try await self.store.save(documents: documents, for: status)
+                        try await self.store.save(documents: result.documents, assets: result.assets, status: status)
 
                         // TODO: This should probably just return the relative paths so we can know which files to delete.
-                        return documents
+                        return result.documents
                     }
                     count += 1
 //                    if count > 500 {

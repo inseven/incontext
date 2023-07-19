@@ -22,24 +22,14 @@
 
 import Foundation
 
-struct ImporterResult {
+class SassImporter: Importer {
 
-    let documents: [Document]
-    let assets: [Asset]
+    let identifier = "app.incontext.importer.sass"
+    let legacyIdentifier = "preprocess_stylesheet"
+    let version = 1
 
-    init(documents: [Document] = [], assets: [Asset] = []) {
-        self.documents = documents
-        self.assets = assets
+    func process(site: Site, file: File) async throws -> ImporterResult {
+        return ImporterResult()
     }
-
-}
-
-protocol Importer {
-
-    var identifier: String { get }
-    var legacyIdentifier: String { get }
-    var version: Int { get }
-
-    func process(site: Site, file: File) async throws -> ImporterResult
 
 }

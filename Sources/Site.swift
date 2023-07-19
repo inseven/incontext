@@ -35,11 +35,6 @@ struct Site {
         ImageTransform(basename: "small", width: 480, format: .jpeg, sets: ["thumbnail", "previews"]),
     ]
 
-    let importers: [([UTType], Importer)] = [
-        ([.jpeg, .heic, .jpeg, .png, .gif, .tiff], ImageImporter()),
-        ([.markdown], MarkdownImporter()),
-    ]
-
     let rootURL: URL
     let contentURL: URL
     let templatesURL: URL
@@ -48,6 +43,10 @@ struct Site {
     let filesURL: URL
 
     let settings: [AnyHashable: Any]
+
+    let importers: [String: Importer]
+
+    let handlers: [Handler]
 
     init(rootURL: URL) throws {
         self.rootURL = rootURL
@@ -63,16 +62,46 @@ struct Site {
             throw InContextError.unsupportedEncoding
         }
         self.settings = try (try Yaml.load(settingsString)).dictionary()
+
+
+        guard let buildSteps = settings["build_steps"] as? [[String: Any]],
+              let processFiles = buildSteps.first,
+              processFiles["task"] as? String == "process_files",
+              let args = processFiles["args"] as? [String: Any],
+              let handlers = args["handlers"] as? [[String: Any]]
+        else {
+            throw InContextError.corruptSettings
+        }
+
+        let actualHandlers = try handlers.map { handler in
+            guard let when = handler["when"] as? String,
+                  let then = handler["then"] as? String
+            else {
+                throw InContextError.corruptSettings
+            }
+            return try Handler(when: when, then: then)
+        }
+        self.handlers = actualHandlers
+
+        self.importers = ([
+                CopyImporter(),
+                IgnoreImporter(),
+                ImageImporter(),
+                MarkdownImporter(),
+                SassImporter(),
+                VideoImporter(),
+            ] as [Importer]).reduce(into: [:]) { $0[$1.legacyIdentifier] = $1 }
     }
 
-    func importer(for url: URL) -> Importer? {
-        guard let fileType = UTType(filenameExtension: url.pathExtension) else {
-            return nil
-        }
-        for (types, importer) in site.importers {
-            if types.contains(where: { fileType.conforms(to:$0) }) {
-                return importer
+    func importer(for url: URL) throws -> Importer? {
+        for handler in handlers {
+            guard try handler.when.wholeMatch(in: url.relativePath) != nil else {
+                continue
             }
+            guard let importer = importers[handler.then] else {
+                throw InContextError.unknownImporter(handler.then)
+            }
+            return importer
         }
         return nil
     }

@@ -21,25 +21,18 @@
 // SOFTWARE.
 
 import Foundation
+import RegexBuilder
 
-struct ImporterResult {
+struct Handler {
 
-    let documents: [Document]
-    let assets: [Asset]
+    let when: Regex<AnyRegexOutput>
+    let whenSource: String
+    let then: String
 
-    init(documents: [Document] = [], assets: [Asset] = []) {
-        self.documents = documents
-        self.assets = assets
+    init(when: String, then: String) throws {
+        self.when = try Regex("^" + when + "$")
+        self.whenSource = when
+        self.then = then
     }
-
-}
-
-protocol Importer {
-
-    var identifier: String { get }
-    var legacyIdentifier: String { get }
-    var version: Int { get }
-
-    func process(site: Site, file: File) async throws -> ImporterResult
 
 }

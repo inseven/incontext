@@ -22,24 +22,15 @@
 
 import Foundation
 
-struct ImporterResult {
+struct Status {
 
-    let documents: [Document]
-    let assets: [Asset]
-
-    init(documents: [Document] = [], assets: [Asset] = []) {
-        self.documents = documents
-        self.assets = assets
+    var relativePath: String {
+        return fileURL.relativePath
     }
 
-}
-
-protocol Importer {
-
-    var identifier: String { get }
-    var legacyIdentifier: String { get }
-    var version: Int { get }
-
-    func process(site: Site, file: File) async throws -> ImporterResult
+    let fileURL: URL
+    let contentModificationDate: Date
+    let importer: String
+    let importerVersion: Int
 
 }
