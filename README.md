@@ -36,4 +36,4 @@ while I'd love to use it to build my own website in the future, we're not there 
 - [ ] I still don't have a good solution for many-to-one compiles
 - [ ] I could, like Jekyll have an explicit way to ignore files and then have a way for importers to explicitly return
       their dependencies
-
+- [ ] swift-sass includes binary dependencies and is unacceptable long-term
