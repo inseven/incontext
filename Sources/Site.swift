@@ -116,6 +116,10 @@ struct Site {
         return template
     }
 
+    func outputURL(relativePath: String) -> URL {
+        return URL(filePath: relativePath, relativeTo: filesURL)
+    }
+
     func environment() -> Environment {
         // Get the template.
 

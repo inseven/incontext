@@ -22,14 +22,23 @@
 
 import Foundation
 
+import DartSass
+
 class SassImporter: Importer {
 
     let identifier = "app.incontext.importer.sass"
     let legacyIdentifier = "preprocess_stylesheet"
-    let version = 1
+    let version = 7
 
     func process(site: Site, file: File) async throws -> ImporterResult {
-        return ImporterResult()
+
+        let inputURL = URL(filePath: "css/main.scss", relativeTo: site.contentURL)
+        let outputURL = site.outputURL(relativePath: inputURL.deletingPathExtension().relativePath + ".css")
+        let compiler = try Compiler()
+        let results = try await compiler.compile(fileURL: inputURL)
+        try await compiler.shutdownGracefully()
+        try results.css.write(to: outputURL, atomically: true, encoding: .utf8)
+        return ImporterResult(assets: [Asset(fileURL: outputURL)])
     }
 
 }

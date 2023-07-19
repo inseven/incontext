@@ -33,3 +33,4 @@ while I'd love to use it to build my own website in the future, we're not there 
       it would be much easier if we had a way to generate these as part of the site so importers don't have to think too
       hard
 - [ ] SQLite is mangling mtimes meaning that some files always get regenerated
+- [ ] I still don't have a good solution for many-to-one compiles

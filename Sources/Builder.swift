@@ -130,9 +130,13 @@ class Builder {
 
                         // Check to see if the file already exists in the store and has a matching modification date.
                         if let status = try await self.store.status(for: fileURL.relativePath) {
-                            if Calendar.current.isDate(status.contentModificationDate,
-                                                       equalTo: contentModificationDate,
-                                                       toGranularity: .nanosecond) {
+
+                            let fileModified = !Calendar.current.isDate(status.contentModificationDate,
+                                                                        equalTo: contentModificationDate,
+                                                                        toGranularity: .nanosecond)
+                            let differentImporterVersion = status.importerVersion != importer.version
+
+                            if !fileModified && !differentImporterVersion {
                                 return []
 
                                 // TODO: Consider whether this would actually be a good time to read the cached documents.
@@ -145,7 +149,7 @@ class Builder {
                             // TODO: This needs to be a utility.
                             let fileManager = FileManager.default
                             for asset in try await self.store.assets(for: fileURL.relativePath) {
-                                print("Removing intermediate '\(asset.fileURL)'...")
+                                print("Removing intermediate '\(asset.fileURL.relativePath)'...")
                                 guard fileManager.fileExists(atPath: asset.fileURL.path) else {
                                     print("Skipping missing file...")
                                     continue

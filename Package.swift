@@ -17,6 +17,7 @@ let package = Package(
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.14.1"),
         .package(url: "https://github.com/apple/swift-markdown.git", from: "0.2.0"),
         .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.7"),
+        .package(url: "https://github.com/johnfairh/swift-sass.git", from: "1.7.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -24,14 +25,15 @@ let package = Package(
         .executableTarget(
             name: "ic3",
             dependencies: [
+                .product(name: "DartSass", package: "swift-sass"),
                 .product(name: "Ink", package: "ink"),
+                .product(name: "Markdown", package: "swift-markdown"),
+                .product(name: "MarkdownKit", package: "swift-markdownkit"),
                 .product(name: "Stencil", package: "Stencil"),
                 .product(name: "SQLite", package: "SQLite.swift"),
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yams", package: "Yams"),
                 .product(name: "Yaml", package: "YamlSwift"),
-                .product(name: "Markdown", package: "swift-markdown"),
-                .product(name: "MarkdownKit", package: "swift-markdownkit"),
             ],
             path: "Sources"),
         .testTarget(
