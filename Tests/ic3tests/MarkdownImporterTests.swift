@@ -46,7 +46,7 @@ title: Fromage
 These are the contents of the file.
 """)
         let importer = MarkdownImporter()
-        let result = try await importer.process(site: defaultSourceDirectory.site, file: file)
+        let result = try await importer.process(site: defaultSourceDirectory.site, file: file, settings: [:])
         XCTAssertEqual(result.documents.count, 1)
         XCTAssertEqual(result.documents.first!.metadata["title"] as? String, "Fromage")
     }
@@ -64,7 +64,7 @@ build_steps:
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
         let importer = MarkdownImporter()
-        let result = try await importer.process(site: defaultSourceDirectory.site, file: file)
+        let result = try await importer.process(site: defaultSourceDirectory.site, file: file, settings: [:])
         XCTAssertEqual(result.documents.count, 1)
         XCTAssertEqual(result.documents.first!.metadata["title"] as? String, "Cheese")
     }

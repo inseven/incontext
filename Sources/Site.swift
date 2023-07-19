@@ -131,14 +131,9 @@ struct Site {
         return URL(filePath: relativePath, relativeTo: filesURL)
     }
 
-    func environment() -> Environment {
-        // Get the template.
+    static func ext() -> Extension {
 
         let ext = Extension()
-        let templatesPath = site.templatesURL.path(percentEncoded: false)
-        let loader = FileSystemLoader(paths: [.init(templatesPath)])
-        let environment = Environment(loader: loader, extensions: [ext])
-
         ext.registerFilter("safe") { content in
             return content
         }
@@ -201,6 +196,18 @@ struct Site {
         ext.registerTag("gallery", parser: GalleryNode.parse)  // This can and probably should be implemented as a template.
         ext.registerTag("video", parser: VideoNode.parse)  // This can and probably should be implemented as a template.
         ext.registerTag("template", parser: TemplateNode.parse)
+
+        return ext
+    }
+
+    func environment() -> Environment {
+        // Get the template.
+
+        let templatesPath = site.templatesURL.path(percentEncoded: false)
+        let loader = FileSystemLoader(paths: [.init(templatesPath)])
+        let environment = Environment(loader: loader, extensions: [Self.ext()])
+
+
 
         // Pre-render the contents.
         // TODO: Inject the site for querying.

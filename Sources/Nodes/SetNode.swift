@@ -26,20 +26,21 @@ import Stencil
 
 class SetNode: NodeType {
 
-    func render(_ context: Stencil.Context) throws -> String {
-        return "missing 'set' implementation"
-    }
-
-    init(token: Token) {
-        self.token = token
+    static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
+        return SetNode(token: token, contents: token.contents)
     }
 
     let token: Token?
+    let contents: String
 
-    static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
-        var components = token.components
-        components.removeFirst()
-        return SetNode(token: token)
+    init(token: Token, contents: String) {
+        self.token = token
+        self.contents = contents
+    }
+
+    func render(_ context: Stencil.Context) throws -> String {
+        context["contents"] = contents
+        return ""
     }
 
 }
