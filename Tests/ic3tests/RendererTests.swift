@@ -107,6 +107,11 @@ class RendererTests: XCTestCase {
                        "The answer is 42!")
     }
 
+    func testSetDouble  () {
+        XCTAssertEqual(try render("{% set value = 3.14159 %}Pi = {{ value }}!", context: ["tick": "tock"]),
+                       "Pi = 3.14159!")
+    }
+
     // Fails to parse
 //    func testFunctionWithParameters() {
 //        @objc class Person: NSObject {

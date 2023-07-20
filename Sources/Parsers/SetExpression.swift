@@ -30,6 +30,7 @@ public indirect enum SetExpression {
     case identifier(Identifier)
     case int(Int)
     case string(String)
+    case double(Double)
 
 }
 
@@ -47,6 +48,8 @@ extension SetExpression {
     func eval() -> Any? {
         switch self {
         case .int(let value):
+            return value
+        case .double(let value):
             return value
         case .string(let value):
             return value
@@ -82,6 +85,7 @@ extension SetExpression {
         case set
         case equals
         case int(Int)
+        case double(Double)
         case string(String)
         case identifier(String)
     }
@@ -99,7 +103,8 @@ extension SetExpression {
             RegexTokenGenerator(pattern: "=").map(to: .equals),
             RegexTokenGenerator(pattern: "[a-zA-Z]+").map(Token.identifier),
             IntLiteralTokenGenerator().map(Token.int),
-            StringLiteralTokenGenerator().map(Token.string)
+            DoubleLiteralTokenGenerator().map(Token.double),
+            StringLiteralTokenGenerator().map(Token.string),
         ]
     }
 
@@ -110,6 +115,11 @@ extension SetExpression.Token {
     var int: Int? {
         guard case .int(let int) = self else { return nil }
         return int
+    }
+
+    var double: Double? {
+        guard case .double(let double) = self else { return nil }
+        return double
     }
 
     var string: String? {
@@ -128,6 +138,10 @@ extension Int: Parsable {
     public static let parser: AnyParser<SetExpression.Token, Int> = .consuming(keyPath: \.int)
 }
 
+extension Double: Parsable {
+    public static let parser: AnyParser<SetExpression.Token, Double> = .consuming(keyPath: \.double)
+}
+
 extension String: Parsable {
     public static let parser: AnyParser<SetExpression.Token, String> = .consuming(keyPath: \.string)
 }
@@ -138,7 +152,11 @@ extension SetExpression.Identifier: Parsable {
 
 extension SetExpression.Operation: Parsable {
     public static let parser: AnyParser<SetExpression.Token, SetExpression.Operation> = {
-        return (.set && (SetExpression.Identifier.map(SetExpression.identifier) && .equals && (Int.map(SetExpression.int) || String.map(SetExpression.string))))
+
+        let result = Int.map(SetExpression.int) || Double.map(SetExpression.double) || String.map(SetExpression.string)
+        let expression = SetExpression.Identifier.map(SetExpression.identifier) && .equals && result
+
+        return (.set && expression)
             .map { Self(lhs: $0, rhs: $1) }
     }()
 }

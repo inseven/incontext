@@ -36,10 +36,14 @@ class ParserTests: XCTestCase {
         print(result)
     }
 
+    func testParseDouble() throws {
+        let result = try SetExpression.parse("set cheese = 3.14", using: SetExpression.Lexer.self)
+        print(result)
+    }
+
     func testParseString() throws {
         let result = try SetExpression.parse("set cheese = \"two\"", using: SetExpression.Lexer.self)
         print(result)
-        print(result.result())
     }
 
     // TODO: Check parsing top-level literal fails.
