@@ -27,7 +27,7 @@ class VideoImporter: Importer {
 
     let identifier = "app.incontext.importer.video"
     let legacyIdentifier = "import_video"
-    let version = 2
+    let version = 5
 
     func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
         let video = AVAsset(url: file.url)
@@ -35,10 +35,11 @@ class VideoImporter: Importer {
         try FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(),
                                                 withIntermediateDirectories: true)
         await export(video: video,
-                     withPreset: AVAssetExportPresetLowQuality,
+                     withPreset: AVAssetExportPresetHighestQuality,
                      toFileType: .mov,
                      atURL: outputURL)
 
+//        https://img.ly/blog/working-with-large-video-and-image-files-on-ios-with-swift/#resizingavideo
 //        let newAsset = AVAsset(url:Bundle.main.url(forResource: "jumping-man", withExtension: "mov")!) //1
 //        var newSize = <some size that you've calculated> //2
 //        let resizeComposition = AVMutableVideoComposition(asset: newAsset, applyingCIFiltersWithHandler: { request in
@@ -50,7 +51,7 @@ class VideoImporter: Importer {
 //        })
 //        resizeComposition.renderSize = newSize //5
 
-        return ImporterResult()
+        return ImporterResult(assets: [Asset(fileURL: outputURL)])
     }
 
     func export(video: AVAsset,
@@ -62,6 +63,7 @@ class VideoImporter: Importer {
         guard await AVAssetExportSession.compatibility(ofExportPreset: preset,
                                                        with: video,
                                                        outputFileType: outputFileType) else {
+            // TODO: Fail!
             print("The preset can't export the video to the output file type.")
             return
         }
@@ -69,6 +71,7 @@ class VideoImporter: Importer {
         // Create and configure the export session.
         guard let exportSession = AVAssetExportSession(asset: video,
                                                        presetName: preset) else {
+            // TODO: Fail!
             print("Failed to create export session.")
             return
         }
