@@ -54,6 +54,7 @@ class VideoImporter: Importer {
         return ImporterResult(assets: [Asset(fileURL: outputURL)])
     }
 
+    // https://developer.apple.com/documentation/avfoundation/media_reading_and_writing/exporting_video_to_alternative_formats
     func export(video: AVAsset,
                 withPreset preset: String = AVAssetExportPresetHighestQuality,
                 toFileType outputFileType: AVFileType = .mov,
