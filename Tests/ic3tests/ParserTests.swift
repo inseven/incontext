@@ -22,29 +22,26 @@
 
 import Foundation
 
-import Stencil
+import XCTest
+@testable import ic3
 
-class SetNode: NodeType {
+class ParserTests: XCTestCase {
 
-    static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
-        return SetNode(token: token, contents: token.contents)
+    func testTrue() {
+        XCTAssertTrue(true)
     }
 
-    let token: Token?
-    let contents: String
-
-    init(token: Token, contents: String) {
-        self.token = token
-        self.contents = contents
+    func testParseInt() throws {
+        let result = try SetExpression.parse("set cheese = 2", using: SetExpression.Lexer.self)
+        print(result)
     }
 
-    func render(_ context: Stencil.Context) throws -> String {
-        let result = try SetExpression.parse(contents, using: SetExpression.Lexer.self)
-        guard let result = result.result() else {
-            throw InContextError.unknown  // TODO: Better error.
-        }
-        context[result.name] = result.value
-        return ""
+    func testParseString() throws {
+        let result = try SetExpression.parse("set cheese = \"two\"", using: SetExpression.Lexer.self)
+        print(result)
+        print(result.result())
     }
+
+    // TODO: Check parsing top-level literal fails.
 
 }
