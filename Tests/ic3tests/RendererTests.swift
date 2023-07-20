@@ -96,10 +96,15 @@ class RendererTests: XCTestCase {
                        "Hello Jason!")
     }
 
-    func testSet() {
+    func testSetString() {
         // TODO: Bug fix; should always push a context if it's empty at render time.
         XCTAssertEqual(try render("{% set name = \"Jason\" %}Hello {{ name }}!", context: ["tick": "tock"]),
                        "Hello Jason!")
+    }
+
+    func testSetInt() {
+        XCTAssertEqual(try render("{% set value = 42 %}The answer is {{ value }}!", context: ["tick": "tock"]),
+                       "The answer is 42!")
     }
 
     // Fails to parse
