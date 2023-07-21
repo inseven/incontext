@@ -23,5 +23,21 @@
 import Foundation
 
 protocol EvaluationContext {
+    // TODO: Rename 'evaluate' to perform.
+    // TODO: Anon argument
     func evaluate(call: FunctionCall) throws -> Any?
+    func lookup(_ name: String) throws -> Any?
+}
+
+extension EvaluationContext {
+
+    func perform(_ operation: Operation) throws -> Any? {
+        switch operation {
+        case .call(let functionCall):
+            return try evaluate(call: functionCall)
+        case .lookup(let name):
+            return try lookup(name)
+        }
+    }
+
 }

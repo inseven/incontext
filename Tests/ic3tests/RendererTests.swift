@@ -96,8 +96,9 @@ class RendererTests: XCTestCase {
                        "Hello Jason!")
     }
 
+    // TODO: Bug fix; should always push a context if it's empty at render time.
+
     func testSetString() {
-        // TODO: Bug fix; should always push a context if it's empty at render time.
         XCTAssertEqual(try render("{% set name = \"Jason\" %}Hello {{ name }}!", context: ["tick": "tock"]),
                        "Hello Jason!")
     }
@@ -112,10 +113,16 @@ class RendererTests: XCTestCase {
                        "Pi = 3.14159!")
     }
 
+    func testVariable() {
+        XCTAssertEqual(try render("{% set value = tick %}tick = {{ value }}!", context: ["tick": "tock"]),
+                       "tick = tock!")
+    }
+
     // TODO: Support assigning with identifiers.
 
     func testFunctionCall() {
-        XCTAssertEqual(try render("{% set value = titlecase(string: \"jason\") %}Hello {{ value }}!", context: ["object": EchoCallable()]),
+        XCTAssertEqual(try render("{% set value = titlecase(string: \"jason\") %}Hello {{ value }}!",
+                                  context: ["object": EchoCallable()]),
                        "Hello Jason!")
     }
 

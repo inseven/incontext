@@ -22,12 +22,41 @@
 
 import Foundation
 
-public enum Resultable: Equatable {
+// Executable can include a lookup, or a call?
+
+enum Operation: Equatable {
+    case call(FunctionCall)
+    case lookup(String)
+}
+
+// TODO: This needs to take an operand long-term.
+// TODO: Execution??
+// This is the perform. It captures the operation to perform, and the operation.
+// The recursion is achieved because resultable can be an Executable in the future.
+public struct Executable: Equatable {
+    let operand: Resultable?
+    let operation: Operation
+
+    func eval(_ context: EvaluationContext) throws -> Any? {
+        // TODO: The operand needs to be an evaluation context!
+        if let operand {
+            guard let actualOperand = try operand.eval(context) as? EvaluationContext else {
+                // TODO: Correct error (invalidEvaluationContext) with some details
+                throw InContextError.unknown
+            }
+            return try actualOperand.perform(operation)
+        } else {
+            return try context.perform(operation)
+        }
+    }
+}
+
+public indirect enum Resultable: Equatable {
 
     case int(Int)
     case double(Double)
     case string(String)
-    case call(FunctionCall)
+    case executable(Executable)
 
     func eval(_ context: EvaluationContext) throws -> Any? {
         switch self {
@@ -37,8 +66,8 @@ public enum Resultable: Equatable {
             return value
         case .string(let value):
             return value
-        case .call(let call):
-            return try context.evaluate(call: call)
+        case .executable(let executable):
+            return try executable.eval(context)
         }
     }
 

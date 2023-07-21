@@ -24,6 +24,8 @@ import Foundation
 
 import Ogma
 
+// TODO: Rename
+// TODO: Remove public
 public indirect enum SetExpression {
 
     public struct Identifier {
@@ -44,6 +46,7 @@ extension SetExpression {
         case equals
         case colon
         case comma
+        case dot
         case openParenthesis
         case closeParenthesis
         case int(Int)
@@ -63,6 +66,7 @@ extension SetExpression {
             WhiteSpaceTokenGenerator().ignore(),
             RegexTokenGenerator(pattern: "set").map(to: .set),
             RegexTokenGenerator(pattern: "=").map(to: .equals),
+            RegexTokenGenerator(pattern: "\\.").map(to: .dot),
             RegexTokenGenerator(pattern: ":").map(to: .colon),
             RegexTokenGenerator(pattern: "\\(").map(to: .openParenthesis),
             RegexTokenGenerator(pattern: "\\)").map(to: .closeParenthesis),
@@ -127,9 +131,37 @@ extension Resultable: Parsable {
         let int = Int.map { Self.int($0) }
         let double = Double.map { Self.double($0) }
         let string = String.map { Self.string($0) }
-        let functionCall = FunctionCall.map { Self.call($0) }
-        return int || double || string || functionCall
+        let executable = Executable.map { Self.executable($0) }
+        return executable || int || double || string
     }()
+}
+
+extension Operation: Parsable {
+    public static let parser: AnyParser<SetExpression.Token, Self> = {
+        let functionCall = FunctionCall.map { Self.call($0) }
+        let lookup = SetExpression.Identifier.map { Self.lookup($0.name) }
+        let expression = functionCall || lookup
+        return expression.map { $0 }
+    }()
+}
+
+// TODO: This is actually an execution application // Apply?
+// foo() -> Apply(nil, .call(foo()))
+// a -> Apply(nil, .lookup(a))
+// a.foo() -> Apply(Apply(nil, .lookup(a)), .call(foo()))
+
+extension Executable: Parsable {
+
+    // TODO: Need to double check if this would unintentionally permit a literal in the middle.
+    //       (I think it would.)
+    public static let parser: AnyParser<SetExpression.Token, Self> = {
+        let boundOperation = (Resultable.map { $0 } && .dot && Operation.map { $0 })
+            .map { Self(operand: $0, operation: $1) }
+        let baseOperation = Operation.map { Self(operand: nil, operation: $0) }
+        return (boundOperation || baseOperation)
+            .map { $0 }
+    }()
+
 }
 
 extension FunctionCall: Parsable {

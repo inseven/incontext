@@ -52,6 +52,7 @@ struct EchoCallable: DynamicCallable {
 extension Context: EvaluationContext {
 
     func evaluate(call: FunctionCall) throws -> Any? {
+        // TODO: Look up the function name not the object name.
         guard let instance = self["object"] else {
             // TODO: Throw a better error.
             throw InContextError.unknown
@@ -61,6 +62,11 @@ extension Context: EvaluationContext {
             throw InContextError.unknown
         }
         return try callable.perform(BoundFunctionCall(context: self, callable: call))
+    }
+
+    func lookup(_ name: String) throws -> Any? {
+        // TODO: This should throw if the variable doesn't exist in the context, but I'm not sure how to know that right now.
+        return self[name]
     }
 
 }
