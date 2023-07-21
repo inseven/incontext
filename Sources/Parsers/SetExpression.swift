@@ -24,44 +24,6 @@ import Foundation
 
 import Ogma
 
-protocol EvaluationContext {
-    func evaluate(call: FunctionCall) throws -> Any?
-}
-
-public enum Resultable {
-
-    case int(Int)
-    case double(Double)
-    case string(String)
-    case call(FunctionCall)
-
-    func eval(_ context: EvaluationContext) throws -> Any? {
-        switch self {
-        case .int(let value):
-            return value
-        case .double(let value):
-            return value
-        case .string(let value):
-            return value
-        case .call(let call):
-            return try context.evaluate(call: call)
-        }
-    }
-
-}
-
-public struct FunctionCall {
-
-    let name: String
-    let arguments: [(String, Resultable)]
-
-}
-
-public struct SetOperation {
-    let identifier: String
-    let result: Resultable
-}
-
 public indirect enum SetExpression {
 
     public struct Identifier {
@@ -73,26 +35,6 @@ public indirect enum SetExpression {
     case int(Int)
     case string(String)
     case double(Double)
-
-}
-
-extension SetExpression {
-
-    struct Result {
-        let name: String
-        let value: Any?
-    }
-
-    // TODO: Rename context to environment
-    func result(_ context: EvaluationContext) throws -> Result? {
-        switch self {
-        case .operation(let operation):
-            return Result(name: operation.identifier, value: try operation.result.eval(context))
-        default:
-            return nil
-        }
-    }
-
 }
 
 extension SetExpression {
@@ -174,6 +116,12 @@ extension SetExpression.Identifier: Parsable {
     public static let parser: AnyParser<SetExpression.Token, SetExpression.Identifier> = .consuming(keyPath: \.identifier)
 }
 
+extension SetOperation {
+    init(string: String) throws {
+        self = try Self.parse(string, using: SetExpression.Lexer.self)
+    }
+}
+
 extension Resultable: Parsable {
     public static let parser: AnyParser<SetExpression.Token, Self> = {
         let int = Int.map { Self.int($0) }
@@ -208,15 +156,6 @@ extension SetOperation: Parsable {
             .map { Self(identifier: $0, result: $1) }
     }()
 }
-
-extension SetOperation {
-
-    init(string: String) throws {
-        self = try Self.parse(string, using: SetExpression.Lexer.self)
-    }
-
-}
-
 
 extension SetExpression: Parsable {
     public static let parser: AnyParser<SetExpression.Token, Self> = SetOperation.map(SetExpression.operation)

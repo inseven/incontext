@@ -28,38 +28,26 @@ import Stencil
 
 protocol DynamicCallable {
 
-    func perform(_ call: FunctionCall, context: EvaluationContext) throws -> Any?
+    func perform(_ call: BoundFunctionCall) throws -> Any?
 
 }
 
 // TODO: These could probably be made typesafe up to n arguments.
 
-extension FunctionCall {
-
-    func argument<T>(name1: String, type1: T.Type, context: EvaluationContext) throws -> (String, T)? {
-        guard arguments.count == 1,
-              arguments.first?.0 == name1,
-              let parameter = try arguments.first?.1.eval(context) as? T else {
-            return nil
-        }
-        return (name1, parameter)
-    }
-
-}
-
 struct EchoCallable: DynamicCallable {
 
     // TODO: This needs to check for the method name too!
     // TODO: It would be more elegant to not have to pass in the evaluation context but have that done before?
-    func perform(_ call: FunctionCall, context: EvaluationContext) throws -> Any? {
-        if let argument = try call.argument(name1: "string", type1: String.self, context: context) {
+    func perform(_ call: BoundFunctionCall) throws -> Any? {
+        if let argument = try call.argument(name1: "string", type1: String.self) {
             return argument.1.toTitleCase()
         }
         throw InContextError.unknown
-
     }
 
 }
+
+// TODO: Maybe the method name is nullable to indicate top level?
 
 extension Context: EvaluationContext {
 
@@ -72,7 +60,7 @@ extension Context: EvaluationContext {
             // TODO: Throw a meaningful error so we understand that this doesn't conform.
             throw InContextError.unknown
         }
-        return try callable.perform(call, context: self)
+        return try callable.perform(BoundFunctionCall(context: self, callable: call))
     }
 
 }
