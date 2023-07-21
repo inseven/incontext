@@ -145,15 +145,9 @@ extension Operation: Parsable {
     }()
 }
 
-// TODO: This is actually an execution application // Apply?
-// foo() -> Apply(nil, .call(foo()))
-// a -> Apply(nil, .lookup(a))
-// a.foo() -> Apply(Apply(nil, .lookup(a)), .call(foo()))
-
 extension Executable: Parsable {
 
-    // TODO: Need to double check if this would unintentionally permit a literal in the middle.
-    //       (I think it would.)
+    // TODO: Guard against unintentional iterals in after a dot.
     public static let parser: AnyParser<SetExpression.Token, Self> = {
         let boundOperation = (Resultable.map { $0 } && .dot && Operation.map { $0 })
             .map { Self(operand: $0, operation: $1) }

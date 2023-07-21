@@ -22,15 +22,6 @@
 
 import Foundation
 
-// TODO: The function call should have it's operand.
-
-struct NamedResultable: Equatable {
-
-    let name: String
-    let result: Resultable
-
-}
-
 public struct FunctionCall: Equatable {
 
     public static func == (lhs: FunctionCall, rhs: FunctionCall) -> Bool {
