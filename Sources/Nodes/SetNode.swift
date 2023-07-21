@@ -24,37 +24,39 @@ import Foundation
 
 import Stencil
 
-class DummyEnvironment: EvaluationContext {
-
-    func evaluate(call: FunctionCall) -> Any? {
-        return "GORGONZOLA"
-    }
-
-}
-
 // TODO: Could return KeyValuePairs as the generic solution for args though this needs to be typed somehow?
 
-// TODO: Consider renaming this to template callable
-@dynamicCallable
 protocol DynamicCallable {
-    func dynamicallyCall(withKeywordArguments args: KeyValuePairs<String, Any>) -> Any?
-}
 
-
-struct EchoCallable: DynamicCallable {
-
-    func dynamicallyCall(withKeywordArguments args: KeyValuePairs<String, Any>) -> Any? {
-        return nil
-    }
-
+    func perform(_ call: FunctionCall, context: EvaluationContext) throws -> Any?
 
 }
+
+// TODO: These could probably be made typesafe up to n arguments.
 
 extension FunctionCall {
 
-    var methodSignature: String {
-        let components: [String] = [name] + self.arguments.map { $0.0 }
-        return components.joined(separator: ":") + ":"
+    func argument<T>(name1: String, type1: T.Type, context: EvaluationContext) throws -> (String, T)? {
+        guard arguments.count == 1,
+              arguments.first?.0 == name1,
+              let parameter = try arguments.first?.1.eval(context) as? T else {
+            return nil
+        }
+        return (name1, parameter)
+    }
+
+}
+
+struct EchoCallable: DynamicCallable {
+
+    // TODO: This needs to check for the method name too!
+    // TODO: It would be more elegant to not have to pass in the evaluation context but have that done before?
+    func perform(_ call: FunctionCall, context: EvaluationContext) throws -> Any? {
+        if let argument = try call.argument(name1: "string", type1: String.self, context: context) {
+            return argument.1.toTitleCase()
+        }
+        throw InContextError.unknown
+
     }
 
 }
@@ -62,18 +64,15 @@ extension FunctionCall {
 extension Context: EvaluationContext {
 
     func evaluate(call: FunctionCall) throws -> Any? {
-        guard let instance = self[call.name] else {
+        guard let instance = self["object"] else {
             // TODO: Throw a better error.
             throw InContextError.unknown
         }
-        guard let object = instance as? NSObject else {
+        guard let callable = instance as? DynamicCallable else {
             // TODO: Throw a meaningful error so we understand that this doesn't conform.
             throw InContextError.unknown
         }
-        let arguments = try call.arguments.map { (_, resultable) in
-            try resultable.eval(self)
-        }
-        return nil
+        return try callable.perform(call, context: self)
     }
 
 }
@@ -94,7 +93,7 @@ class SetNode: NodeType {
 
     func render(_ context: Stencil.Context) throws -> String {
         let operation = try SetOperation(string: contents)
-        context[operation.identifier] = try operation.result.eval(DummyEnvironment())
+        context[operation.identifier] = try operation.result.eval(context)
         return ""
     }
 

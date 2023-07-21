@@ -38,6 +38,8 @@ let package = Package(
                 .product(name: "Yaml", package: "YamlSwift"),
             ],
             path: "Sources"),
+        .target(name: "InContextObjC",
+                path: "Objc"),
         .testTarget(
             name: "ic3tests",
             dependencies: ["ic3"]),

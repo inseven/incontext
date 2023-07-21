@@ -115,8 +115,8 @@ class RendererTests: XCTestCase {
     // TODO: Support assigning with identifiers.
 
     func testFunctionCall() {
-        XCTAssertEqual(try render("{% set value = perform() %}Result = {{ value }}!", context: ["tick": "tock"]),
-                       "Result = GORGONZOLA!")
+        XCTAssertEqual(try render("{% set value = titlecase(string: \"jason\") %}Hello {{ value }}!", context: ["object": EchoCallable()]),
+                       "Hello Jason!")
     }
 
     // Fails to parse
