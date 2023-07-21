@@ -1,32 +1,74 @@
+// MIT License
 //
-//  File.swift
+// Copyright (c) 2023 Jason Barrie Morley
 //
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-//  Created by Jason Barrie Morley on 19/07/2023.
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
 //
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 import Foundation
 
 import Ogma
 
-// Symbol?
-// Variable?
-// Identifiers? <- this one?
+protocol EvaluationContext {
+    func evaluate(call: FunctionCall) throws -> Any?
+}
 
-// TODO: Quoted String is a different expression?
+public enum Resultable {
+
+    case int(Int)
+    case double(Double)
+    case string(String)
+    case call(FunctionCall)
+
+    func eval(_ context: EvaluationContext) throws -> Any? {
+        switch self {
+        case .int(let value):
+            return value
+        case .double(let value):
+            return value
+        case .string(let value):
+            return value
+        case .call(let call):
+            return try context.evaluate(call: call)
+        }
+    }
+
+}
+
+public struct FunctionCall {
+
+    let name: String
+    let arguments: [(String, Resultable)]
+
+}
+
+public struct SetOperation {
+    let identifier: String
+    let result: Resultable
+}
 
 public indirect enum SetExpression {
-
-    public struct Operation {
-        let lhs: SetExpression
-        let rhs: SetExpression
-    }
 
     public struct Identifier {
         let name: String
     }
 
-    case operation(Operation)
+    case operation(SetOperation)
     case identifier(Identifier)
     case int(Int)
     case string(String)
@@ -41,37 +83,11 @@ extension SetExpression {
         let value: Any?
     }
 
-    // TODO: This needs to take a context for callables.
-    // TODO: This should probably actually transform it into a nice structure that can _then_ be evaluated.
-    //       Perhaps a block that takes a context?
-    // Maybe this extension lives outside of the expression?
-    func eval() -> Any? {
-        switch self {
-        case .int(let value):
-            return value
-        case .double(let value):
-            return value
-        case .string(let value):
-            return value
-        default:
-            return nil
-        }
-    }
-
-    // TODO: This shouldn't be necessary!
-    func name() -> String? {
-        switch self {
-        case .identifier(let identifier):
-            return identifier.name
-        default:
-            return nil
-        }
-    }
-
-    func result() -> Result? {
+    // TODO: Rename context to environment
+    func result(_ context: EvaluationContext) throws -> Result? {
         switch self {
         case .operation(let operation):
-            return Result(name: operation.lhs.name()!, value: operation.rhs.eval())
+            return Result(name: operation.identifier, value: try operation.result.eval(context))
         default:
             return nil
         }
@@ -84,6 +100,10 @@ extension SetExpression {
     public enum Token: TokenProtocol {
         case set
         case equals
+        case colon
+        case comma
+        case openParenthesis
+        case closeParenthesis
         case int(Int)
         case double(Double)
         case string(String)
@@ -101,6 +121,10 @@ extension SetExpression {
             WhiteSpaceTokenGenerator().ignore(),
             RegexTokenGenerator(pattern: "set").map(to: .set),
             RegexTokenGenerator(pattern: "=").map(to: .equals),
+            RegexTokenGenerator(pattern: ":").map(to: .colon),
+            RegexTokenGenerator(pattern: "\\(").map(to: .openParenthesis),
+            RegexTokenGenerator(pattern: "\\)").map(to: .closeParenthesis),
+            RegexTokenGenerator(pattern: ",").map(to: .comma),
             RegexTokenGenerator(pattern: "[a-zA-Z]+").map(Token.identifier),
             IntLiteralTokenGenerator().map(Token.int),
             DoubleLiteralTokenGenerator().map(Token.double),
@@ -150,17 +174,50 @@ extension SetExpression.Identifier: Parsable {
     public static let parser: AnyParser<SetExpression.Token, SetExpression.Identifier> = .consuming(keyPath: \.identifier)
 }
 
-extension SetExpression.Operation: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, SetExpression.Operation> = {
-
-        let result = Int.map(SetExpression.int) || Double.map(SetExpression.double) || String.map(SetExpression.string)
-        let expression = SetExpression.Identifier.map(SetExpression.identifier) && .equals && result
-
-        return (.set && expression)
-            .map { Self(lhs: $0, rhs: $1) }
+extension Resultable: Parsable {
+    public static let parser: AnyParser<SetExpression.Token, Self> = {
+        let int = Int.map { Self.int($0) }
+        let double = Double.map { Self.double($0) }
+        let string = String.map { Self.string($0) }
+        let functionCall = FunctionCall.map { Self.call($0) }
+        return int || double || string || functionCall
     }()
 }
 
+extension FunctionCall: Parsable {
+    public static let parser: AnyParser<SetExpression.Token, Self> = {
+        let name = SetExpression.Identifier.map { $0.name }
+        let result = Resultable.map { $0 }
+        let argument = name && .colon && result
+        let arguments = argument
+            .separated(by: .comma, allowsTrailingSeparator: false, allowsEmpty: true)
+            .map { $0 }
+            .wrapped(by: .openParenthesis, and: .closeParenthesis)
+        let call = SetExpression.Identifier.map { $0.name } && arguments
+        return call
+            .map { FunctionCall(name: $0, arguments: $1) }
+    }()
+}
+
+extension SetOperation: Parsable {
+    public static let parser: AnyParser<SetExpression.Token, Self> = {
+        let identifier = SetExpression.Identifier.map { $0.name }
+        let result = Resultable.map { $0 }
+        let expression = identifier && .equals && result
+        return (.set && expression)
+            .map { Self(identifier: $0, result: $1) }
+    }()
+}
+
+extension SetOperation {
+
+    init(string: String) throws {
+        self = try Self.parse(string, using: SetExpression.Lexer.self)
+    }
+
+}
+
+
 extension SetExpression: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, SetExpression> = SetExpression.Operation.map(SetExpression.operation)
+    public static let parser: AnyParser<SetExpression.Token, Self> = SetOperation.map(SetExpression.operation)
 }

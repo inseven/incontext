@@ -24,6 +24,60 @@ import Foundation
 
 import Stencil
 
+class DummyEnvironment: EvaluationContext {
+
+    func evaluate(call: FunctionCall) -> Any? {
+        return "GORGONZOLA"
+    }
+
+}
+
+// TODO: Could return KeyValuePairs as the generic solution for args though this needs to be typed somehow?
+
+// TODO: Consider renaming this to template callable
+@dynamicCallable
+protocol DynamicCallable {
+    func dynamicallyCall(withKeywordArguments args: KeyValuePairs<String, Any>) -> Any?
+}
+
+
+struct EchoCallable: DynamicCallable {
+
+    func dynamicallyCall(withKeywordArguments args: KeyValuePairs<String, Any>) -> Any? {
+        return nil
+    }
+
+
+}
+
+extension FunctionCall {
+
+    var methodSignature: String {
+        let components: [String] = [name] + self.arguments.map { $0.0 }
+        return components.joined(separator: ":") + ":"
+    }
+
+}
+
+extension Context: EvaluationContext {
+
+    func evaluate(call: FunctionCall) throws -> Any? {
+        guard let instance = self[call.name] else {
+            // TODO: Throw a better error.
+            throw InContextError.unknown
+        }
+        guard let object = instance as? NSObject else {
+            // TODO: Throw a meaningful error so we understand that this doesn't conform.
+            throw InContextError.unknown
+        }
+        let arguments = try call.arguments.map { (_, resultable) in
+            try resultable.eval(self)
+        }
+        return nil
+    }
+
+}
+
 class SetNode: NodeType {
 
     static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
@@ -39,11 +93,8 @@ class SetNode: NodeType {
     }
 
     func render(_ context: Stencil.Context) throws -> String {
-        let result = try SetExpression.parse(contents, using: SetExpression.Lexer.self)
-        guard let result = result.result() else {
-            throw InContextError.unknown  // TODO: Better error.
-        }
-        context[result.name] = result.value
+        let operation = try SetOperation(string: contents)
+        context[operation.identifier] = try operation.result.eval(DummyEnvironment())
         return ""
     }
 

@@ -46,6 +46,11 @@ class ParserTests: XCTestCase {
         print(result)
     }
 
+    func testParseFunction() throws {
+        let result = try SetExpression.parse("set cheese = titlecase(name: \"fromage\")", using: SetExpression.Lexer.self)
+        print(result)
+    }
+
     // TODO: Check parsing top-level literal fails.
 
 }
