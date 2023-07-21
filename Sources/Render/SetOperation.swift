@@ -22,7 +22,19 @@
 
 import Foundation
 
-public struct SetOperation {
+public struct SetOperation: Equatable {
+
+    public static func == (lhs: SetOperation, rhs: SetOperation) -> Bool {
+        guard lhs.identifier == rhs.identifier else {
+            return false
+        }
+        guard lhs.result == rhs.result else {
+            return false
+        }
+        return true
+    }
+
     let identifier: String
     let result: Resultable
+
 }

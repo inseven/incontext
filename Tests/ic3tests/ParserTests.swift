@@ -32,25 +32,49 @@ class ParserTests: XCTestCase {
     }
 
     func testParseInt() throws {
-        let result = try SetExpression.parse("set cheese = 2", using: SetExpression.Lexer.self)
-        print(result)
+        XCTAssertEqual(try SetOperation(string: "set cheese = 2"),
+                       SetOperation(identifier: "cheese", result: .int(2)))
     }
 
     func testParseDouble() throws {
-        let result = try SetExpression.parse("set cheese = 3.14", using: SetExpression.Lexer.self)
-        print(result)
+        XCTAssertEqual(try SetOperation(string: "set cheese = 3.14"),
+                       SetOperation(identifier: "cheese", result: .double(3.14)))
     }
 
     func testParseString() throws {
-        let result = try SetExpression.parse("set cheese = \"two\"", using: SetExpression.Lexer.self)
-        print(result)
+        XCTAssertEqual(try SetOperation(string: "set cheese = \"two\""),
+                       SetOperation(identifier: "cheese", result: .string("two")))
     }
 
     func testParseFunction() throws {
-        let result = try SetExpression.parse("set cheese = titlecase(name: \"fromage\")", using: SetExpression.Lexer.self)
-        print(result)
+        let arguments = [NamedResultable(name: "name", result: .string("fromage"))]
+        XCTAssertEqual(try SetOperation(string: "set cheese = titlecase(name: \"fromage\")"),
+                       SetOperation(identifier: "cheese",
+                                    result: .call(FunctionCall(name: "titlecase", arguments: arguments))))
     }
 
+//    func testParseSymbol() throws {
+//        let result = try SetExpression.parse("set cheese = foo", using: SetExpression.Lexer.self)
+//        print(result)
+//    }
+//
+//    func testParsePath() throws {
+//        let result = try SetExpression.parse("set cheese = foo.bar", using: SetExpression.Lexer.self)
+//        print(result)
+//    }
+//
+//    // The parser result should be something like:
+//    // Apply(FunctionCall("visit", [("country", "France")]), Apply(FunctionCall("travel", []), foo))
+//
+//    func testParseMultipleCalls() throws {
+//        let result = try SetExpression.parse("set cheese = foo.travel().visit(country: \"France\")", using: SetExpression.Lexer.self)
+//        print(result)
+//
+//
+//    }
+
     // TODO: Check parsing top-level literal fails.
+    // TODO: What's the difference between a property getter and a function call?
+    // e.g. How does foo.bar().baz look in the output?
 
 }

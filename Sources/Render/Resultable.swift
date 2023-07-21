@@ -22,7 +22,7 @@
 
 import Foundation
 
-public enum Resultable {
+public enum Resultable: Equatable {
 
     case int(Int)
     case double(Double)

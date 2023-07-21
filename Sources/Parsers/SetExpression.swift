@@ -136,8 +136,9 @@ extension FunctionCall: Parsable {
     public static let parser: AnyParser<SetExpression.Token, Self> = {
         let name = SetExpression.Identifier.map { $0.name }
         let result = Resultable.map { $0 }
-        let argument = name && .colon && result
-        let arguments = argument
+        let argument = (name && .colon && result)
+        let cheese = argument.map { NamedResultable(name: $0, result: $1) }
+        let arguments = cheese
             .separated(by: .comma, allowsTrailingSeparator: false, allowsEmpty: true)
             .map { $0 }
             .wrapped(by: .openParenthesis, and: .closeParenthesis)

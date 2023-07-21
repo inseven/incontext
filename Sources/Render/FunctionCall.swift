@@ -22,9 +22,28 @@
 
 import Foundation
 
-public struct FunctionCall {
+// TODO: The function call should have it's operand.
+
+struct NamedResultable: Equatable {
 
     let name: String
-    let arguments: [(String, Resultable)]
+    let result: Resultable
+
+}
+
+public struct FunctionCall: Equatable {
+
+    public static func == (lhs: FunctionCall, rhs: FunctionCall) -> Bool {
+        guard lhs.name == rhs.name else {
+            return false
+        }
+        guard lhs.arguments == rhs.arguments else {
+            return false
+        }
+        return true
+    }
+
+    let name: String
+    let arguments: [NamedResultable]
 
 }

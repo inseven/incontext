@@ -32,8 +32,8 @@ struct BoundFunctionCall {
     // TODO: Consider separating this out as a match and an evaultate to make it easier to implement?
     func argument<T>(name1: String, type1: T.Type) throws -> (String, T)? {
         guard callable.arguments.count == 1,
-              callable.arguments.first?.0 == name1,
-              let parameter = try callable.arguments.first?.1.eval(context) as? T else {
+              callable.arguments.first?.name == name1,
+              let parameter = try callable.arguments.first?.result.eval(context) as? T else {
             return nil
         }
         return (name1, parameter)
