@@ -47,10 +47,3 @@ public struct FunctionCall: Equatable {
     let arguments: [NamedResultable]
 
 }
-
-public struct Apply {
-
-    let call: FunctionCall
-    let operand: Resultable
-
-}
