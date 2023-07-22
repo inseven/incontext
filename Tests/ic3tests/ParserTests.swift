@@ -58,6 +58,26 @@ class ParserTests: XCTestCase {
                        SetOperation(identifier: "cheese", result: .string("two")))
     }
 
+    func testParseBoolTrue() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = true"),
+                       SetOperation(identifier: "cheese", result: .bool(true)))
+    }
+
+    func testParseBoolFalse() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = false"),
+                       SetOperation(identifier: "cheese", result: .bool(false)))
+    }
+
+    func testParseBoolCamelCaseTrue() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = True"),
+                       SetOperation(identifier: "cheese", result: .bool(true)))
+    }
+
+    func testParseBoolCamelCaseFalse() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = False"),
+                       SetOperation(identifier: "cheese", result: .bool(false)))
+    }
+
     func testParseEmptyArray() throws {
         XCTAssertEqual(try SetOperation(string: "set cheese = []"),
                        SetOperation(identifier: "cheese", result: .array([])))

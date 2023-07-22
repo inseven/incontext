@@ -49,6 +49,8 @@ extension SetExpression {
         case closeSquareBracket
         case openBrace
         case closeBrace
+        case `true`
+        case `false`
         case int(Int)
         case double(Double)
         case string(String)
@@ -68,13 +70,15 @@ extension SetExpression {
             RegexTokenGenerator(pattern: "=").map(to: .equals),
             RegexTokenGenerator(pattern: "\\.").map(to: .dot),
             RegexTokenGenerator(pattern: ":").map(to: .colon),
+            RegexTokenGenerator(pattern: ",").map(to: .comma),
             RegexTokenGenerator(pattern: "\\(").map(to: .openParenthesis),
             RegexTokenGenerator(pattern: "\\)").map(to: .closeParenthesis),
             RegexTokenGenerator(pattern: "\\[").map(to: .openSquareBracket),
             RegexTokenGenerator(pattern: "\\]").map(to: .closeSquareBracket),
             RegexTokenGenerator(pattern: "\\{").map(to: .openBrace),
             RegexTokenGenerator(pattern: "\\}").map(to: .closeBrace),
-            RegexTokenGenerator(pattern: ",").map(to: .comma),
+            RegexTokenGenerator(pattern: "true|True\\b").map(to: .true),
+            RegexTokenGenerator(pattern: "false|False\\b").map(to: .false),
             RegexTokenGenerator(pattern: "[a-zA-Z_][a-zA-Z0-9_]*").map(Token.identifier),
             IntLiteralTokenGenerator().map(Token.int),
             DoubleLiteralTokenGenerator().map(Token.double),
@@ -109,21 +113,22 @@ extension SetExpression.Token {
 }
 
 extension Int: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Int> = .consuming(keyPath: \.int)
+    public static let parser: AnyParser<SetExpression.Token, Self> = .consuming(keyPath: \.int)
 }
 
 extension Double: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Double> = .consuming(keyPath: \.double)
+    public static let parser: AnyParser<SetExpression.Token, Self> = .consuming(keyPath: \.double)
 }
 
 extension String: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, String> = .consuming(keyPath: \.string)
+    public static let parser: AnyParser<SetExpression.Token, Self> = .consuming(keyPath: \.string)
 }
 
-// TODO: Work out if there's a way to do this more without the abstraction.
-public typealias ResultableArray = Array<Resultable>
+extension Bool: Parsable {
+    public static let parser: AnyParser<SetExpression.Token, Self> = Token.true.map { true } || Token.false.map { false }
+}
 
-extension ResultableArray: Parsable {
+extension Array: Parsable where Element == Resultable {
     public static let parser: AnyParser<SetExpression.Token, Self> = {
         let element = Resultable.map { $0 }
         let elements = element
@@ -134,9 +139,7 @@ extension ResultableArray: Parsable {
     }()
 }
 
-public typealias ResultableDictionary = Dictionary<Resultable, Resultable>
-
-extension ResultableDictionary: Parsable {
+extension Dictionary: Parsable where Key == Resultable, Value == Resultable {
     public static let parser: AnyParser<SetExpression.Token, Self> = {
         let element = Resultable.self && .colon && Resultable.self
         return element
@@ -144,7 +147,6 @@ extension ResultableDictionary: Parsable {
             .map { Dictionary($0, uniquingKeysWith: { $1 }) }
             .wrapped(by: .openBrace, and: .closeBrace)
     }()
-
 }
 
 extension SetExpression.Identifier: Parsable {
@@ -162,10 +164,11 @@ extension Resultable: Parsable {
         let int = Int.map { Self.int($0) }
         let double = Double.map { Self.double($0) }
         let string = String.map { Self.string($0) }
+        let bool = Bool.map { Self.bool($0) }
         let executable = Executable.map { Self.executable($0) }
-        let array = ResultableArray.map { Self.array($0) }
-        let dictionary = ResultableDictionary.map { Self.dictionary($0) }
-        return executable || int || double || string || array || dictionary
+        let array = Array<Resultable>.map { Self.array($0) }
+        let dictionary = Dictionary<Resultable, Resultable>.map { Self.dictionary($0) }
+        return executable || int || double || string || bool || array || dictionary
     }()
 }
 

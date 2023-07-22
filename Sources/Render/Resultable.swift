@@ -27,18 +27,21 @@ public indirect enum Resultable: Equatable, Hashable {
     case int(Int)
     case double(Double)
     case string(String)
+    case bool(Bool)
     case array(Array<Resultable>)
     case executable(Executable)
     case dictionary(Dictionary<Resultable, Resultable>)
 
     func eval(_ context: EvaluationContext) throws -> Any? {
         switch self {
-        case .int(let value):
-            return value
-        case .double(let value):
-            return value
-        case .string(let value):
-            return value
+        case .int(let int):
+            return int
+        case .double(let double):
+            return double
+        case .string(let string):
+            return string
+        case .bool(let bool):
+            return bool
         case .executable(let executable):
             return try executable.eval(context)
         case .array(let array):
