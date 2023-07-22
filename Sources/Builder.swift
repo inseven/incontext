@@ -24,51 +24,6 @@ import Foundation
 
 import Stencil
 
-// TODO: This should totally be a document context
-struct PageContext: EvaluationContext, DynamicMemberLookup {
-
-    let document: Document
-
-//    "title": document.metadata["title"],
-//    "content": "WELL THIS SUCKS",
-//    "html": html,
-//    "date": document.date,
-//    "query": { (name: String) -> [[String: Any]] in
-//        return [[
-//            "date": Date(),
-//            "title": "Balls",
-//            "url": URL(string: "https://www.google.com")!
-//        ]]
-//    }
-
-    func evaluate(call: BoundFunctionCall) throws -> Any? {
-        if let _ = try call.argument("query", arg1: "name", type1: String.self) {
-            return [String]()
-        }
-        throw InContextError.unknownFunction(call.signature)
-    }
-
-    func lookup(_ name: String) throws -> Any? {
-        switch name {
-        case "title":
-            return "TITLE"
-        default:
-            throw InContextError.unknownSymbol(name)
-        }
-    }
-
-    // TODO: Support Python and Swift naming conventions
-    subscript(dynamicMember member: String) -> Any? {
-        if member == "content" {
-            return document.contents
-        } else if member == "date" {
-            return document.date
-        }
-        return document.metadata[member]
-    }
-
-}
-
 class Builder {
 
     let site: Site
@@ -84,6 +39,7 @@ class Builder {
 
         // TODO: Push this into the site?
         // TODO: Work out which file extension we need to use for our index file (this is currently based on the template).
+        // TODO: Guess the template mimetype.
         let destinationDirectoryURL = site.filesURL.appendingPathComponent(document.url)
         let destinationFileURL = destinationDirectoryURL.appendingPathComponent("index", conformingTo: .html)
         print("Rendering '\(document.url)' with template '\(document.template)'...")
@@ -91,18 +47,13 @@ class Builder {
         // Create the destination directory.
         try FileManager.default.createDirectory(at: destinationDirectoryURL, withIntermediateDirectories: true)
 
-        // TODO: Render the template.
-        // TODO: Guess the template mimetype.
-
-
-        // TODO: Consider caching this and see if it's already cached.
-        let html = try environment.renderTemplate(string: document.contents)
+        // TODO: Inline the config loaded from the settings file
         let context: [String: Any] = [
             "site": [
                 "title": "Jason Morley",
                 "date_format": "MMMM dd, yyyy",
                 "date_format_short": "MMMM dd",
-                "url": "https://jbmorley.co.uk"
+                "url": "https://jbmorley.co.uk",
             ],
             "page": PageContext(document: document),
             "distant_past":  { (timezoneAware: Bool) in
@@ -132,7 +83,6 @@ class Builder {
         let clock = ContinuousClock()
         let duration = try await clock.measure {
             try await withThrowingTaskGroup(of: [Document].self) { group in
-                var count = 0
                 for case let fileURL as URL in directoryEnumerator {
 
                     // Get the file metadata.
@@ -209,10 +159,6 @@ class Builder {
                         // TODO: This should probably just return the relative paths so we can know which files to delete.
                         return result.documents
                     }
-                    count += 1
-//                    if count > 500 {
-//                        break
-//                    }
                 }
                 for try await _ in group {
 //                    documents.append(contentsOf: documents)
@@ -222,37 +168,21 @@ class Builder {
 
             let environment = site.environment()
 
-//            @dynamicMemberLookup
-//            struct Page {
-//
-//                var query: [String] {
-//                    return ["Foo"]
-//                }
-//
-//                var random = "Booooo"
-//
-//                subscript(dynamicMember member: String) -> Any? {
-//                    return "FUDGE"
-//                }
-//
+            // TODO: Command-line argument to force serial processings
+//            for document in try await store.documents() {
+//                try await self.render(document: document, environment: environment)
 //            }
-
-            // TODO: This is currently serial
-            // TODO: It might be a nice option to force serial processing.
-            for document in try await store.documents() {
-                try await self.render(document: document, environment: environment)
-            }
 
             // Render the documents.
-//            try await withThrowingTaskGroup(of: Void.self) { group in
-//                for document in try await store.documents() {
-//                    group.addTask {
-//                        try await self.render(document: document, environment: environment)
-//                    }
-//                }
-//                // TODO: Is this necessary?
-//                for try await _ in group {}
-//            }
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for document in try await store.documents() {
+                    group.addTask {
+                        try await self.render(document: document, environment: environment)
+                    }
+                }
+                // TODO: Is this necessary?
+                for try await _ in group {}
+            }
 
         }
         print("Import took \(duration).")
