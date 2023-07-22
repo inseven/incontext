@@ -24,8 +24,7 @@ import Foundation
 
 import Stencil
 
-// TODO: This should totally be a document context
-struct PageContext: EvaluationContext, DynamicMemberLookup {
+struct DocumentContext: EvaluationContext, DynamicMemberLookup {
 
     let document: Document
 

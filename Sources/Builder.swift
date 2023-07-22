@@ -55,7 +55,7 @@ class Builder {
                 "date_format_short": "MMMM dd",
                 "url": "https://jbmorley.co.uk",
             ],
-            "page": PageContext(document: document),
+            "page": DocumentContext(document: document),
             "distant_past":  { (timezoneAware: Bool) in
                 return Date.distantPast
             }
