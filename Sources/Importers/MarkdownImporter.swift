@@ -26,7 +26,7 @@ class MarkdownImporter: Importer {
 
     let identifier = "app.incontext.importer.markdown"
     let legacyIdentifier = "import_markdown"
-    let version = 1
+    let version = 5
 
     func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
 
@@ -41,7 +41,8 @@ class MarkdownImporter: Importer {
         let result = try FrontmatterDocument(contents: contents, generateHTML: true)
 
         // Set the title if it doesn't exist.
-        var metadata = result.metadata  // TODO: Perform a copy?
+        var metadata = [AnyHashable: Any]()
+        metadata.merge(result.metadata) { $1 }
         if metadata["title"] == nil {
             metadata["title"] = details.title
         }

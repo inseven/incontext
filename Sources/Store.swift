@@ -138,6 +138,8 @@ class Store {
                     throw InContextError.unknown
                 }
 
+                print(metadata)
+
                 try connection.run(Schema.documents.insert(or: .replace,
                                                            Schema.url <- document.url,
                                                            Schema.parent <- document.parent,
@@ -190,11 +192,20 @@ class Store {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         let rowIterator = try connection.prepareRowIterator(Schema.documents)
         return try rowIterator.map { row in
+
+            // Deserialize the metadata.
+            let metadataString = row[Schema.metadata]
+            guard let data = metadataString.data(using: .utf8),
+                  let metadata = try JSONSerialization.jsonObject(with: data) as? [AnyHashable: Any]
+            else {
+                throw InContextError.unknown
+            }
+
             return Document(url: row[Schema.url],
                             parent: row[Schema.parent],
                             type: row[Schema.type],
                             date: row[Schema.date],
-                            metadata: [:],  // TODO!
+                            metadata: metadata,  // TODO!
                             contents: row[Schema.contents],
                             mtime: Date(),  // TODO!
                             template: row[Schema.template])

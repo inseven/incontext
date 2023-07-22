@@ -24,11 +24,29 @@ import Foundation
 
 import Stencil
 
+//extension Dictionary: EvaluationContext {
+//
+//    func evaluate(call: BoundFunctionCall) throws -> Any? {
+//
+//    }
+//
+//    func lookup(_ name: String) throws -> Any? {
+//        return self[name]
+//    }
+//
+//}
+
 extension Context: EvaluationContext {
 
     func evaluate(call: BoundFunctionCall) throws -> Any? {
         // TODO: This is where we'd see if we had a top-level member that was (somehow) callable.
         // TODO: Perhaps a Protocol on a class at this level?
+
+        // TODO: It would be much better if this was injected into the environment from outside. But hey it works right now.
+        if call.void("generate_uuid") {
+            return UUID().uuidString
+        }
+
         throw InContextError.unknownFunction(call.signature)
     }
 

@@ -24,6 +24,8 @@ import Foundation
 
 import Ogma
 
+// TODO: Consider supporting filters; maybe these can be applied from the context?
+
 // TODO: Rename to parser?array
 // TODO: Remove public
 public indirect enum SetExpression {

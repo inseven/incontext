@@ -24,7 +24,8 @@ import Foundation
 
 import Stencil
 
-struct PageContext: EvaluationContext {
+// TODO: This should totally be a document context
+struct PageContext: EvaluationContext, DynamicMemberLookup {
 
     let document: Document
 
@@ -54,6 +55,16 @@ struct PageContext: EvaluationContext {
         default:
             throw InContextError.unknownSymbol(name)
         }
+    }
+
+    // TODO: Support Python and Swift naming conventions
+    subscript(dynamicMember member: String) -> Any? {
+        if member == "content" {
+            return document.contents
+        } else if member == "date" {
+            return document.date
+        }
+        return document.metadata[member]
     }
 
 }
