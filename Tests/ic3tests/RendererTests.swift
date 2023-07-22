@@ -12,6 +12,34 @@ import XCTest
 
 import Stencil
 
+
+struct EchoCallable: EvaluationContext {
+
+    // TODO: It might be much nicer to have some kind of MethodSignature()
+    // TODO: Perhaps use an OrderedDictionary as the return? (key, value) though that looses the type info.
+    func evaluate(call: BoundFunctionCall) throws -> Any? {
+        if call.void("jump") {
+            return "*boing*"
+        } else if let argument = try call.argument("titlecase", arg1: "string", type1: String.self) {
+            return argument.1.toTitleCase()
+        } else if let argument = try call.argument("echo", arg1: "string", type1: String.self) {
+            return argument.1
+        } else if let arguments = try call.arguments("prefix",
+                                                     arg1: "str1", type1: String.self,
+                                                     arg2: "str2", type2: String.self) {
+            return arguments.1 + arguments.3
+        }
+        throw InContextError.unknown
+    }
+
+    func lookup(_ name: String) throws -> Any? {
+        // TODO: Throw error
+        return nil
+    }
+
+}
+
+
 class RendererTests: XCTestCase {
 
     func render(_ template: String, context: [String: Any]) throws -> String {
@@ -121,9 +149,41 @@ class RendererTests: XCTestCase {
     // TODO: Support assigning with identifiers.
 
     func testFunctionCall() {
-        XCTAssertEqual(try render("{% set value = titlecase(string: \"jason\") %}Hello {{ value }}!",
+        XCTAssertEqual(try render("{% set value = object.titlecase(string: \"jason\") %}Hello {{ value }}!",
                                   context: ["object": EchoCallable()]),
                        "Hello Jason!")
+    }
+
+    // TODO: Test top-level context function _without_ faked up object.
+
+    func testStringCount() {
+        XCTAssertEqual(try render("{% set value = \"cheese\".count %}{{ value }}!",
+                                  context: ["object": EchoCallable()]),
+                       "6!")
+    }
+
+    func testEchoCallable() {
+        XCTAssertEqual(try render("{% set value = object.echo(string: \"jason\") %}{{ value }}",
+                                  context: ["object": EchoCallable()]),
+                       "jason")
+    }
+
+    func testEchoCallableLookup() {
+        XCTAssertEqual(try render("{% set value = object.echo(string: name) %}{{ value }}",
+                                  context: ["object": EchoCallable(), "name": "jason"]),
+                       "jason")
+    }
+
+    func testEchoCallableChain() {
+        XCTAssertEqual(try render("{% set value = object.echo(string: object.echo(string: \"jason\")) %}{{ value }}",
+                                  context: ["object": EchoCallable(), "name": "jason"]),
+                       "jason")
+    }
+
+    func testMultipleArguments() {
+        XCTAssertEqual(try render("{% set value = object.prefix(str1: \"abc\", str2: \"def\") %}{{ value }}",
+                                  context: ["object": EchoCallable()]),
+                       "abcdef")
     }
 
     // Fails to parse

@@ -22,24 +22,26 @@
 
 import Foundation
 
-public indirect enum Resultable: Equatable {
+// TODO: This needs to take an operand long-term.
+// TODO: Execution??
+// This is the perform. It captures the operation to perform, and the operation.
+// The recursion is achieved because resultable can be an Executable in the future.
+public struct Executable: Equatable {
+    let operand: Resultable?
+    let operation: Operation
 
-    case int(Int)
-    case double(Double)
-    case string(String)
-    case executable(Executable)
-
+    // TODO: Rename to global context.
     func eval(_ context: EvaluationContext) throws -> Any? {
-        switch self {
-        case .int(let value):
-            return value
-        case .double(let value):
-            return value
-        case .string(let value):
-            return value
-        case .executable(let executable):
-            return try executable.eval(context)
+        // TODO: The operand needs to be an evaluation context!
+        if let operand {
+            let actualOperand = try operand.eval(context)
+            guard let operandContext = actualOperand as? EvaluationContext else {
+                // TODO: Correct error (invalidEvaluationContext) with some details
+                throw InContextError.unknown
+            }
+            return try operandContext.perform(operation, globalContext: context)
+        } else {
+            return try context.perform(operation, globalContext: context)
         }
     }
-
 }

@@ -63,6 +63,51 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(try SetOperation(string: "set cheese = titlecase(name: \"fromage\")"), expected)
     }
 
+    func testParseFunctionMultipleIntArguments() throws {
+        let arguments = [NamedResultable(name: "one", result: .int(1)),
+                         NamedResultable(name: "two", result: .int(2))]
+        let expected = SetOperation(identifier: "cheese",
+                                    result: .executable(.init(operand: nil,
+                                                              operation: .call(.init(name: "call",
+                                                                                     arguments: arguments)))))
+        XCTAssertEqual(try SetOperation(string: "set cheese = call(one: 1, two: 2)"), expected)
+    }
+
+    func testParseFunctionMultipleStringArguments() throws {
+        let arguments = [NamedResultable(name: "one", result: .string("1")),
+                         NamedResultable(name: "two", result: .string("2"))]
+        let expected = SetOperation(identifier: "cheese",
+                                    result: .executable(.init(operand: nil,
+                                                              operation: .call(.init(name: "call",
+                                                                                     arguments: arguments)))))
+        XCTAssertEqual(try SetOperation(string: "set cheese = call(one: \"1\", two: \"2\")"), expected)
+    }
+
+    func testParseLookupAndFunctionMultipleStringArguments() throws {
+        let object = Resultable.executable(.init(operand: nil,
+                                                operation: .lookup("object")))
+        let arguments = [NamedResultable(name: "one", result: .string("1")),
+                         NamedResultable(name: "two", result: .string("2"))]
+        let expected = SetOperation(identifier: "cheese",
+                                    result: .executable(.init(operand: object,
+                                                              operation: .call(.init(name: "call",
+                                                                                     arguments: arguments)))))
+        XCTAssertEqual(try SetOperation(string: "set cheese = object.call(one: \"1\", two: \"2\")"), expected)
+    }
+
+    func testParseCuriousFailure() throws {
+        let object = Resultable.executable(.init(operand: nil,
+                                                operation: .lookup("object")))
+        let arguments = [NamedResultable(name: "str1", result: .string("abc")),
+                         NamedResultable(name: "str2", result: .string("def"))]
+        let expected = SetOperation(identifier: "cheese",
+                                    result: .executable(.init(operand: object,
+                                                              operation: .call(.init(name: "prefix",
+                                                                                     arguments: arguments)))))
+        XCTAssertEqual(try SetOperation(string: "set value = object.prefix(str1: \"abc\", str2: \"def\")"), expected)
+    }
+
+
     // TODO: "hello".uppercase() should work
     // TODO: foo."hello" should fail
 

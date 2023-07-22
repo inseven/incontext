@@ -24,53 +24,6 @@ import Foundation
 
 import Stencil
 
-// TODO: Could return KeyValuePairs as the generic solution for args though this needs to be typed somehow?
-
-protocol DynamicCallable {
-
-    func perform(_ call: BoundFunctionCall) throws -> Any?
-
-}
-
-// TODO: These could probably be made typesafe up to n arguments.
-
-struct EchoCallable: DynamicCallable {
-
-    // TODO: This needs to check for the method name too!
-    // TODO: It would be more elegant to not have to pass in the evaluation context but have that done before?
-    func perform(_ call: BoundFunctionCall) throws -> Any? {
-        if let argument = try call.argument(name1: "string", type1: String.self) {
-            return argument.1.toTitleCase()
-        }
-        throw InContextError.unknown
-    }
-
-}
-
-// TODO: Maybe the method name is nullable to indicate top level?
-
-extension Context: EvaluationContext {
-
-    func evaluate(call: FunctionCall) throws -> Any? {
-        // TODO: Look up the function name not the object name.
-        guard let instance = self["object"] else {
-            // TODO: Throw a better error.
-            throw InContextError.unknown
-        }
-        guard let callable = instance as? DynamicCallable else {
-            // TODO: Throw a meaningful error so we understand that this doesn't conform.
-            throw InContextError.unknown
-        }
-        return try callable.perform(BoundFunctionCall(context: self, callable: call))
-    }
-
-    func lookup(_ name: String) throws -> Any? {
-        // TODO: This should throw if the variable doesn't exist in the context, but I'm not sure how to know that right now.
-        return self[name]
-    }
-
-}
-
 class SetNode: NodeType {
 
     static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {

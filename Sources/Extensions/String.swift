@@ -22,23 +22,18 @@
 
 import Foundation
 
-public indirect enum Resultable: Equatable {
+extension String: EvaluationContext {
 
-    case int(Int)
-    case double(Double)
-    case string(String)
-    case executable(Executable)
+    func evaluate(call: BoundFunctionCall) throws -> Any? {
+        throw InContextError.unknown
+    }
 
-    func eval(_ context: EvaluationContext) throws -> Any? {
-        switch self {
-        case .int(let value):
-            return value
-        case .double(let value):
-            return value
-        case .string(let value):
-            return value
-        case .executable(let executable):
-            return try executable.eval(context)
+    func lookup(_ name: String) throws -> Any? {
+        switch name {
+        case "count":
+            return count
+        default:
+            throw InContextError.unknown
         }
     }
 

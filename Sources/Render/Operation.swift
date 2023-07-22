@@ -22,24 +22,8 @@
 
 import Foundation
 
-public indirect enum Resultable: Equatable {
-
-    case int(Int)
-    case double(Double)
-    case string(String)
-    case executable(Executable)
-
-    func eval(_ context: EvaluationContext) throws -> Any? {
-        switch self {
-        case .int(let value):
-            return value
-        case .double(let value):
-            return value
-        case .string(let value):
-            return value
-        case .executable(let executable):
-            return try executable.eval(context)
-        }
-    }
-
+// TODO: Move this into Executable
+enum Operation: Equatable {
+    case call(FunctionCall)
+    case lookup(String)
 }

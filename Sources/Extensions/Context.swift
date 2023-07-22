@@ -22,24 +22,20 @@
 
 import Foundation
 
-public indirect enum Resultable: Equatable {
+import Stencil
 
-    case int(Int)
-    case double(Double)
-    case string(String)
-    case executable(Executable)
+extension Context: EvaluationContext {
 
-    func eval(_ context: EvaluationContext) throws -> Any? {
-        switch self {
-        case .int(let value):
-            return value
-        case .double(let value):
-            return value
-        case .string(let value):
-            return value
-        case .executable(let executable):
-            return try executable.eval(context)
-        }
+    func evaluate(call: BoundFunctionCall) throws -> Any? {
+        // TODO: This is where we'd see if we had a top-level member that was (somehow) callable.
+        // TODO: Perhaps a Protocol on a class at this level?
+        throw InContextError.unknown
+    }
+
+    func lookup(_ name: String) throws -> Any? {
+        // TODO: This should throw if the variable doesn't exist in the context, but I'm not sure how to know that right now.
+        // TODO: This should perhaps also support the other lookup mechanisms?
+        return self[name]
     }
 
 }
