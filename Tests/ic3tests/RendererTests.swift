@@ -186,15 +186,4 @@ class RendererTests: XCTestCase {
                        "abcdef")
     }
 
-    // Fails to parse
-//    func testFunctionWithParameters() {
-//        @objc class Person: NSObject {
-//            @objc func name() -> String {
-//                return "Jason"
-//            }
-//        }
-//        XCTAssertEqual(try render("Hello {{ person.name }}!", context: ["person": Person()]),
-//                       "Hello Jason!")
-//    }
-
 }
