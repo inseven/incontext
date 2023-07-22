@@ -25,6 +25,18 @@ import Foundation
 import XCTest
 @testable import ic3
 
+extension Dictionary: EvaluationContext where Key == String, Value == Any {
+
+    public func evaluate(call: ic3.BoundFunctionCall) throws -> Any? {
+        throw InContextError.unknownFunction(call.signature)
+    }
+
+    public func lookup(_ name: String) throws -> Any? {
+        return self[name]
+    }
+
+}
+
 class ParserTests: XCTestCase {
 
     func testTrue() {
@@ -67,8 +79,10 @@ class ParserTests: XCTestCase {
     }
 
     func testParseStringArray() throws {
-        XCTAssertEqual(try SetOperation(string: "set cheese = [\"one\", \"two\"]"),
+        let operation = try SetOperation(string: "set cheese = [\"one\", \"two\"]")
+        XCTAssertEqual(operation,
                        SetOperation(identifier: "cheese", result: .array([.string("one"), .string("two")])))
+        XCTAssertEqual(try operation.result.eval([String: Any]()) as? [String], ["one", "two"])
     }
 
     func testParseIntArray() throws {
