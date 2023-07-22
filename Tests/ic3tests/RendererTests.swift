@@ -13,7 +13,7 @@ import XCTest
 import Stencil
 
 
-struct EchoCallable: EvaluationContext {
+struct TestContext: EvaluationContext {
 
     // TODO: It might be much nicer to have some kind of MethodSignature()
     // TODO: Perhaps use an OrderedDictionary as the return? (key, value) though that looses the type info.
@@ -150,7 +150,7 @@ class RendererTests: XCTestCase {
 
     func testFunctionCall() {
         XCTAssertEqual(try render("{% set value = object.titlecase(string: \"jason\") %}Hello {{ value }}!",
-                                  context: ["object": EchoCallable()]),
+                                  context: ["object": TestContext()]),
                        "Hello Jason!")
     }
 
@@ -158,31 +158,31 @@ class RendererTests: XCTestCase {
 
     func testStringCount() {
         XCTAssertEqual(try render("{% set value = \"cheese\".count %}{{ value }}!",
-                                  context: ["object": EchoCallable()]),
+                                  context: ["object": TestContext()]),
                        "6!")
     }
 
     func testEchoCallable() {
         XCTAssertEqual(try render("{% set value = object.echo(string: \"jason\") %}{{ value }}",
-                                  context: ["object": EchoCallable()]),
+                                  context: ["object": TestContext()]),
                        "jason")
     }
 
     func testEchoCallableLookup() {
         XCTAssertEqual(try render("{% set value = object.echo(string: name) %}{{ value }}",
-                                  context: ["object": EchoCallable(), "name": "jason"]),
+                                  context: ["object": TestContext(), "name": "jason"]),
                        "jason")
     }
 
     func testEchoCallableChain() {
         XCTAssertEqual(try render("{% set value = object.echo(string: object.echo(string: \"jason\")) %}{{ value }}",
-                                  context: ["object": EchoCallable(), "name": "jason"]),
+                                  context: ["object": TestContext(), "name": "jason"]),
                        "jason")
     }
 
     func testMultipleArguments() {
         XCTAssertEqual(try render("{% set value = object.prefix(str1: \"abc\", str2: \"def\") %}{{ value }}",
-                                  context: ["object": EchoCallable()]),
+                                  context: ["object": TestContext()]),
                        "abcdef")
     }
 
