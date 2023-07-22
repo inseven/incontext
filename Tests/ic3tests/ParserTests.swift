@@ -116,11 +116,6 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(try SetOperation(string: "set cute = call(arg1: \"cats\")"), expected)
     }
 
-
-    // TODO: "hello".uppercase() should work
-    // TODO: foo."hello" should fail
-
-
     func testParseSymbol() throws {
         let expected = SetOperation(identifier: "cheese",
                                     result: .executable(.init(operand: nil,
@@ -156,23 +151,8 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(try SetOperation(string: "set cheese = \"fromage\".titlecase(name: \"fromage\")"), expected)
     }
 
-//    func testParsePath() throws {
-//        let result = try SetExpression.parse("set cheese = foo.bar", using: SetExpression.Lexer.self)
-//        print(result)
-//    }
-//
-//    // The parser result should be something like:
-//    // Apply(FunctionCall("visit", [("country", "France")]), Apply(FunctionCall("travel", []), foo))
-//
-//    func testParseMultipleCalls() throws {
-//        let result = try SetExpression.parse("set cheese = foo.travel().visit(country: \"France\")", using: SetExpression.Lexer.self)
-//        print(result)
-//
-//
-//    }
-
-    // TODO: Check parsing top-level literal fails.
-    // TODO: What's the difference between a property getter and a function call?
-    // e.g. How does foo.bar().baz look in the output?
+    // TODO: foo."hello" should fail
+    // TODO: foo.bar().baz
+    // TODO: foo.bar().echo(string: "value")
 
 }
