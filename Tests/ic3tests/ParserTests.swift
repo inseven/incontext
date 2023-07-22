@@ -85,6 +85,15 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(try operation.result.eval([String: Any]()) as? [String], ["one", "two"])
     }
 
+    func testNestedArray() throws {
+        let operation = try SetOperation(string: "set cheese = [\"one\", [2, 3.0]]")
+        XCTAssertEqual(operation,
+                       SetOperation(identifier: "cheese", result: .array([.string("one"),
+                                                                          .array([.int(2), .double(3.0)])])))
+        XCTAssertEqual(try operation.result.eval([String: Any]()) as? NSArray,
+                       ["one", [2, 3.0]] as NSArray)
+    }
+
     func testParseIntArray() throws {
         XCTAssertEqual(try SetOperation(string: "set cheese = [1, 2]"),
                        SetOperation(identifier: "cheese", result: .array([.int(1), .int(2)])))
