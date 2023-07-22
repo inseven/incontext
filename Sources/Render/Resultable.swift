@@ -27,6 +27,7 @@ public indirect enum Resultable: Equatable {
     case int(Int)
     case double(Double)
     case string(String)
+    case array(Array<Resultable>)
     case executable(Executable)
 
     func eval(_ context: EvaluationContext) throws -> Any? {
@@ -39,6 +40,10 @@ public indirect enum Resultable: Equatable {
             return value
         case .executable(let executable):
             return try executable.eval(context)
+        case .array(let array):
+            return try array.map { item in
+                try item.eval(context)
+            }
         }
     }
 

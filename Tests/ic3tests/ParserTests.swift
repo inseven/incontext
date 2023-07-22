@@ -46,10 +46,39 @@ class ParserTests: XCTestCase {
                        SetOperation(identifier: "cheese", result: .string("two")))
     }
 
-    // TODO: Support more than empty arrays
     func testParseEmptyArray() throws {
         XCTAssertEqual(try SetOperation(string: "set cheese = []"),
-                       SetOperation(identifier: "cheese", result: .string("two")))
+                       SetOperation(identifier: "cheese", result: .array([])))
+    }
+
+    func testParseSingleItemStringArray() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = [\"one\"]"),
+                       SetOperation(identifier: "cheese", result: .array([.string("one")])))
+    }
+
+    func testParseSingleItemIntArray() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = [42]"),
+                       SetOperation(identifier: "cheese", result: .array([.int(42)])))
+    }
+
+    func testParseSingleItemDoubleArray() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = [3.14]"),
+                       SetOperation(identifier: "cheese", result: .array([.double(3.14)])))
+    }
+
+    func testParseStringArray() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = [\"one\", \"two\"]"),
+                       SetOperation(identifier: "cheese", result: .array([.string("one"), .string("two")])))
+    }
+
+    func testParseIntArray() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = [1, 2]"),
+                       SetOperation(identifier: "cheese", result: .array([.int(1), .int(2)])))
+    }
+
+    func testParseMixedArray() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = [1, \"two\", 3.0]"),
+                       SetOperation(identifier: "cheese", result: .array([.int(1), .string("two"), .double(3.0)])))
     }
 
     func testParseFunction() throws {

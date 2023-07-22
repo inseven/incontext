@@ -24,7 +24,7 @@ import Foundation
 
 import Ogma
 
-// TODO: Rename
+// TODO: Rename to parser?array
 // TODO: Remove public
 public indirect enum SetExpression {
 
@@ -33,11 +33,6 @@ public indirect enum SetExpression {
     }
 
     case operation(SetOperation)
-    case identifier(Identifier)
-    case int(Int)
-    case string(String)
-    case double(Double)
-    case array(Array<Any>)
 }
 
 extension SetExpression {
@@ -121,6 +116,22 @@ extension String: Parsable {
     public static let parser: AnyParser<SetExpression.Token, String> = .consuming(keyPath: \.string)
 }
 
+// TODO: Work out if there's a way to do this more without the abstraction.
+public typealias ResultableArray = Array<Resultable>
+
+extension ResultableArray: Parsable {
+
+    public static let parser: AnyParser<SetExpression.Token, ResultableArray> = {
+        let element = Resultable.map { $0 }
+        let elements = element
+            .separated(by: .comma, allowsTrailingSeparator: false, allowsEmpty: true)
+            .map { $0 }
+            .wrapped(by: .openSquareBracket, and: .closeSquareBracket)
+        return elements
+    }()
+
+}
+
 extension SetExpression.Identifier: Parsable {
     public static let parser: AnyParser<SetExpression.Token, SetExpression.Identifier> = .consuming(keyPath: \.identifier)
 }
@@ -137,7 +148,8 @@ extension Resultable: Parsable {
         let double = Double.map { Self.double($0) }
         let string = String.map { Self.string($0) }
         let executable = Executable.map { Self.executable($0) }
-        return executable || int || double || string
+        let array = ResultableArray.map { Self.array($0) }
+        return executable || int || double || string || array
     }()
 }
 
