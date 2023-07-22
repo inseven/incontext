@@ -29,7 +29,7 @@ struct TestContext: EvaluationContext {
                                                      arg2: "str2", type2: String.self) {
             return arguments.1 + arguments.3
         }
-        throw InContextError.unknown
+        throw InContextError.unknownFunction(call.signature)
     }
 
     func lookup(_ name: String) throws -> Any? {

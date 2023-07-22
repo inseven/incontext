@@ -190,6 +190,33 @@ struct Site {
             return value
         }
 
+        ext.registerFilter("json") { (value: Any?) in
+            // TODO: Encode some JSON.
+            return "{}"
+        }
+
+        ext.registerFilter("unique") { (value: Any?) in
+            guard let value = value as? [String] else {
+                throw TemplateSyntaxError("'unique' filter expects an array of strings")
+            }
+            return Array(Set(value))
+        }
+
+        ext.registerFilter("map") { (value: Any?, arguments: [Any?]) in
+            // TODO: This should actually get a property off the thing.
+            return value
+        }
+
+        ext.registerFilter("sort") { (value: Any?, arguments: [Any?]) in
+            // TODO: Actually sort the input.
+            return value
+        }
+
+        ext.registerFilter("rejectattr") { (value: Any?, arguments: [Any?]) in
+            // TODO: Actually reject properties the input.
+            return value
+        }
+
         ext.registerTag("with", parser: WithNode.parse)
         ext.registerTag("macro", parser: MacroNode.parse)
         ext.registerTag("set", parser: SetNode.parse)

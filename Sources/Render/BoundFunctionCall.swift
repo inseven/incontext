@@ -29,6 +29,13 @@ struct BoundFunctionCall {
 
     // Move the operations onto here.
 
+    var signature: String {
+        let arguments = call.arguments
+            .map { $0.name + ":" }
+            .joined()
+        return "\(call.name)(\(arguments))"
+    }
+
     func void(_ name: String) -> Bool {
         return call.name == name && call.arguments.isEmpty
     }

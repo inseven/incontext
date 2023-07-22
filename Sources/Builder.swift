@@ -24,6 +24,40 @@ import Foundation
 
 import Stencil
 
+struct PageContext: EvaluationContext {
+
+    let document: Document
+
+//    "title": document.metadata["title"],
+//    "content": "WELL THIS SUCKS",
+//    "html": html,
+//    "date": document.date,
+//    "query": { (name: String) -> [[String: Any]] in
+//        return [[
+//            "date": Date(),
+//            "title": "Balls",
+//            "url": URL(string: "https://www.google.com")!
+//        ]]
+//    }
+
+    func evaluate(call: BoundFunctionCall) throws -> Any? {
+        if let _ = try call.argument("query", arg1: "name", type1: String.self) {
+            return [String]()
+        }
+        throw InContextError.unknownFunction(call.signature)
+    }
+
+    func lookup(_ name: String) throws -> Any? {
+        switch name {
+        case "title":
+            return "TITLE"
+        default:
+            throw InContextError.unknownSymbol(name)
+        }
+    }
+
+}
+
 class Builder {
 
     let site: Site
@@ -59,19 +93,7 @@ class Builder {
                 "date_format_short": "MMMM dd",
                 "url": "https://jbmorley.co.uk"
             ],
-            "page": [
-                "title": document.metadata["title"],
-                "content": "WELL THIS SUCKS",
-                "html": html,
-                "date": document.date,
-                "query": { (name: String) -> [[String: Any]] in
-                    return [[
-                        "date": Date(),
-                        "title": "Balls",
-                        "url": URL(string: "https://www.google.com")!
-                    ]]
-                }
-            ],
+            "page": PageContext(document: document),
             "distant_past":  { (timezoneAware: Bool) in
                 return Date.distantPast
             }
@@ -187,8 +209,8 @@ class Builder {
             }
             // TODO: Work out how to remove entries for deleted files.
 
-//            let environment = site.environment()
-//
+            let environment = site.environment()
+
 //            @dynamicMemberLookup
 //            struct Page {
 //
@@ -203,8 +225,14 @@ class Builder {
 //                }
 //
 //            }
-//
-//            // Render the documents.
+
+            // TODO: This is currently serial
+            // TODO: It might be a nice option to force serial processing.
+            for document in try await store.documents() {
+                try await self.render(document: document, environment: environment)
+            }
+
+            // Render the documents.
 //            try await withThrowingTaskGroup(of: Void.self) { group in
 //                for document in try await store.documents() {
 //                    group.addTask {

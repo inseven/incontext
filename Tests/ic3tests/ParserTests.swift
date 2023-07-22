@@ -46,6 +46,12 @@ class ParserTests: XCTestCase {
                        SetOperation(identifier: "cheese", result: .string("two")))
     }
 
+    // TODO: Support more than empty arrays
+    func testParseEmptyArray() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = []"),
+                       SetOperation(identifier: "cheese", result: .string("two")))
+    }
+
     func testParseFunction() throws {
         let expected = SetOperation(identifier: "cheese",
                                     result: .executable(.init(operand: nil,

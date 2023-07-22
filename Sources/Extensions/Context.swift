@@ -29,7 +29,7 @@ extension Context: EvaluationContext {
     func evaluate(call: BoundFunctionCall) throws -> Any? {
         // TODO: This is where we'd see if we had a top-level member that was (somehow) callable.
         // TODO: Perhaps a Protocol on a class at this level?
-        throw InContextError.unknown
+        throw InContextError.unknownFunction(call.signature)
     }
 
     func lookup(_ name: String) throws -> Any? {

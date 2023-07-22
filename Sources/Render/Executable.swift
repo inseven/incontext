@@ -36,8 +36,7 @@ public struct Executable: Equatable {
         if let operand {
             let actualOperand = try operand.eval(context)
             guard let operandContext = actualOperand as? EvaluationContext else {
-                // TODO: Correct error (invalidEvaluationContext) with some details
-                throw InContextError.unknown
+                throw InContextError.evaluationUnsupported(String(describing: actualOperand))
             }
             return try operandContext.perform(operation, globalContext: context)
         } else {

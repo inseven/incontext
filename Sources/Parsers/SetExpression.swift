@@ -37,6 +37,7 @@ public indirect enum SetExpression {
     case int(Int)
     case string(String)
     case double(Double)
+    case array(Array<Any>)
 }
 
 extension SetExpression {
@@ -49,6 +50,8 @@ extension SetExpression {
         case dot
         case openParenthesis
         case closeParenthesis
+        case openSquareBracket
+        case closeSquareBracket
         case int(Int)
         case double(Double)
         case string(String)
@@ -70,6 +73,8 @@ extension SetExpression {
             RegexTokenGenerator(pattern: ":").map(to: .colon),
             RegexTokenGenerator(pattern: "\\(").map(to: .openParenthesis),
             RegexTokenGenerator(pattern: "\\)").map(to: .closeParenthesis),
+            RegexTokenGenerator(pattern: "\\[").map(to: .openSquareBracket),
+            RegexTokenGenerator(pattern: "\\]").map(to: .closeSquareBracket),
             RegexTokenGenerator(pattern: ",").map(to: .comma),
             RegexTokenGenerator(pattern: "[a-zA-Z_][a-zA-Z0-9_]*").map(Token.identifier),
             IntLiteralTokenGenerator().map(Token.int),
