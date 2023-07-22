@@ -104,6 +104,22 @@ class ParserTests: XCTestCase {
                        SetOperation(identifier: "cheese", result: .array([.int(1), .string("two"), .double(3.0)])))
     }
 
+    func testParseEmptyDictionary() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = {}"),
+                       SetOperation(identifier: "cheese", result: .dictionary([:])))
+    }
+
+    func testSingleValueDictionary() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = {\"foo\": \"bar\"}"),
+                       SetOperation(identifier: "cheese", result: .dictionary([.string("foo"): .string("bar")])))
+    }
+
+    func testMixedValueDictionary() throws {
+        XCTAssertEqual(try SetOperation(string: "set cheese = {\"foo\": \"bar\", 12: 42.0}"),
+                       SetOperation(identifier: "cheese", result: .dictionary([.string("foo"): .string("bar"),
+                                                                               .int(12): .double(42.0)])))
+    }
+
     func testParseFunction() throws {
         let expected = SetOperation(identifier: "cheese",
                                     result: .executable(.init(operand: nil,

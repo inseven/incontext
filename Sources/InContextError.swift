@@ -26,6 +26,7 @@ enum InContextError: Error {
     case unsupportedEncoding
     case unknown
     case unknownSymbol(String)
+    case invalidKey(Any?)
     case unknownFunction(String)
     case evaluationUnsupported(String)
     case invalidMetadata

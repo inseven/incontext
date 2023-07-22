@@ -47,6 +47,8 @@ extension SetExpression {
         case closeParenthesis
         case openSquareBracket
         case closeSquareBracket
+        case openBrace
+        case closeBrace
         case int(Int)
         case double(Double)
         case string(String)
@@ -70,6 +72,8 @@ extension SetExpression {
             RegexTokenGenerator(pattern: "\\)").map(to: .closeParenthesis),
             RegexTokenGenerator(pattern: "\\[").map(to: .openSquareBracket),
             RegexTokenGenerator(pattern: "\\]").map(to: .closeSquareBracket),
+            RegexTokenGenerator(pattern: "\\{").map(to: .openBrace),
+            RegexTokenGenerator(pattern: "\\}").map(to: .closeBrace),
             RegexTokenGenerator(pattern: ",").map(to: .comma),
             RegexTokenGenerator(pattern: "[a-zA-Z_][a-zA-Z0-9_]*").map(Token.identifier),
             IntLiteralTokenGenerator().map(Token.int),
@@ -120,14 +124,25 @@ extension String: Parsable {
 public typealias ResultableArray = Array<Resultable>
 
 extension ResultableArray: Parsable {
-
-    public static let parser: AnyParser<SetExpression.Token, ResultableArray> = {
+    public static let parser: AnyParser<SetExpression.Token, Self> = {
         let element = Resultable.map { $0 }
         let elements = element
             .separated(by: .comma, allowsTrailingSeparator: false, allowsEmpty: true)
             .map { $0 }
             .wrapped(by: .openSquareBracket, and: .closeSquareBracket)
         return elements
+    }()
+}
+
+public typealias ResultableDictionary = Dictionary<Resultable, Resultable>
+
+extension ResultableDictionary: Parsable {
+    public static let parser: AnyParser<SetExpression.Token, Self> = {
+        let element = Resultable.self && .colon && Resultable.self
+        return element
+            .separated(by: .comma, allowsTrailingSeparator: false, allowsEmpty: true)
+            .map { Dictionary($0, uniquingKeysWith: { $1 }) }
+            .wrapped(by: .openBrace, and: .closeBrace)
     }()
 
 }
@@ -149,7 +164,8 @@ extension Resultable: Parsable {
         let string = String.map { Self.string($0) }
         let executable = Executable.map { Self.executable($0) }
         let array = ResultableArray.map { Self.array($0) }
-        return executable || int || double || string || array
+        let dictionary = ResultableDictionary.map { Self.dictionary($0) }
+        return executable || int || double || string || array || dictionary
     }()
 }
 

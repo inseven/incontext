@@ -23,7 +23,7 @@
 import Foundation
 
 // TODO: Move this into Executable
-enum Operation: Equatable {
+enum Operation: Equatable, Hashable {
     case call(FunctionCall)
     case lookup(String)
 }

@@ -22,7 +22,7 @@
 
 import Foundation
 
-struct NamedResultable: Equatable {
+struct NamedResultable: Equatable, Hashable {
 
     let name: String
     let result: Resultable

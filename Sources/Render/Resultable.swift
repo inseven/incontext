@@ -22,13 +22,14 @@
 
 import Foundation
 
-public indirect enum Resultable: Equatable {
+public indirect enum Resultable: Equatable, Hashable {
 
     case int(Int)
     case double(Double)
     case string(String)
     case array(Array<Resultable>)
     case executable(Executable)
+    case dictionary(Dictionary<Resultable, Resultable>)
 
     func eval(_ context: EvaluationContext) throws -> Any? {
         switch self {
@@ -44,6 +45,17 @@ public indirect enum Resultable: Equatable {
             return try array.map { item in
                 try item.eval(context)
             }
+        case .dictionary(let dictionary):
+            return try dictionary
+                .map { (key, value) in
+                    let key = try key.eval(context)
+                    guard let hashableKey = key as? AnyHashable else {
+                        throw InContextError.invalidKey(key)
+                    }
+                    let value = try value.eval(context)
+                    return (hashableKey, value)
+                }
+                .reduce(into: [AnyHashable: Any]()) { $0[$1.0] = $1.1 }
         }
     }
 

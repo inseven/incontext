@@ -22,7 +22,7 @@
 
 import Foundation
 
-public struct FunctionCall: Equatable {
+public struct FunctionCall: Equatable, Hashable {
 
     public static func == (lhs: FunctionCall, rhs: FunctionCall) -> Bool {
         guard lhs.name == rhs.name else {
