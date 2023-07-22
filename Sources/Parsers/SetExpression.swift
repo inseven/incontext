@@ -71,7 +71,7 @@ extension SetExpression {
             RegexTokenGenerator(pattern: "\\(").map(to: .openParenthesis),
             RegexTokenGenerator(pattern: "\\)").map(to: .closeParenthesis),
             RegexTokenGenerator(pattern: ",").map(to: .comma),
-            RegexTokenGenerator(pattern: "[a-zA-Z]+").map(Token.identifier),
+            RegexTokenGenerator(pattern: "[a-zA-Z_][a-zA-Z0-9_]*").map(Token.identifier),
             IntLiteralTokenGenerator().map(Token.int),
             DoubleLiteralTokenGenerator().map(Token.double),
             StringLiteralTokenGenerator().map(Token.string),

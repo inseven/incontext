@@ -95,16 +95,25 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(try SetOperation(string: "set cheese = object.call(one: \"1\", two: \"2\")"), expected)
     }
 
-    func testParseCuriousFailure() throws {
+    func testParseArgumentsWithNumbers() throws {
         let object = Resultable.executable(.init(operand: nil,
                                                 operation: .lookup("object")))
         let arguments = [NamedResultable(name: "str1", result: .string("abc")),
                          NamedResultable(name: "str2", result: .string("def"))]
-        let expected = SetOperation(identifier: "cheese",
+        let expected = SetOperation(identifier: "value",
                                     result: .executable(.init(operand: object,
                                                               operation: .call(.init(name: "prefix",
                                                                                      arguments: arguments)))))
         XCTAssertEqual(try SetOperation(string: "set value = object.prefix(str1: \"abc\", str2: \"def\")"), expected)
+    }
+
+    func testParseFunctionWithNumberedArgument() throws {
+        let arguments = [NamedResultable(name: "arg1", result: .string("cats"))]
+        let expected = SetOperation(identifier: "cute",
+                                    result: .executable(.init(operand: nil,
+                                                              operation: .call(.init(name: "call",
+                                                                                     arguments: arguments)))))
+        XCTAssertEqual(try SetOperation(string: "set cute = call(arg1: \"cats\")"), expected)
     }
 
 
