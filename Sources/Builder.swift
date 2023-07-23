@@ -24,6 +24,86 @@ import Foundation
 
 import Stencil
 
+struct Bind<Head, Tail> {
+
+    let head: Head
+    let tail: Tail
+
+}
+
+struct Method {
+    let name: String
+
+    init(_ name: String) {
+        self.name = name
+    }
+}
+
+struct Argument<T> {
+    let name: String
+    let type: T.Type
+}
+
+// TODO: Bindable as a protocol?
+
+extension Method {
+
+    func argument<T>(_ argument: String, type: T.Type) -> Bind<Self, Argument<T>> {
+        return Bind(head: self, tail: Argument(name: argument, type: type.self))
+    }
+}
+
+extension Bind {
+
+    func argument<Child>(_ argument: String, type: Child.Type) -> Bind<Self, Argument<Child>> {
+        let child = Argument<Child>(name: argument, type: type.self)
+        let binding = Bind<Self, Argument<Child>>(head: self, tail: child)
+        return binding
+    }
+
+}
+
+
+let foo = Method("Cheese")
+let bar = Method("Fudge")
+    .argument("str1", type: String.self)
+let baz = Method("Blancmange")
+    .argument("str1", type: String.self)
+    .argument("dbl2", type: Double.self)
+
+
+// TODO: This could return a tuple? That might be nicer?
+// TODO: Are there named tuples?
+extension BoundFunctionCall {
+
+    func arguments(_ method: Method) throws -> ()? {
+        guard void(method.name) else {
+            return nil
+        }
+        return ()
+    }
+
+    func arguments<T>(_ method: Bind<Method, Argument<T>>) throws -> T? {
+        guard let arguments = try self.argument(method.head.name,
+                                                arg1: method.tail.name, type1: method.tail.type)
+        else {
+            return nil
+        }
+        return (arguments.1)
+    }
+
+    func arguments<Arg1, Arg2>(_ method: Bind<Bind<Method, Argument<Arg1>>, Argument<Arg2>>) throws -> (Arg1, Arg2)? {
+        guard let arguments = try self.arguments(method.head.head.name,
+                                                 arg1: method.head.tail.name, type1: method.head.tail.type,
+                                                 arg2: method.tail.name, type2: method.tail.type)
+        else {
+            return nil
+        }
+        return (arguments.1, arguments.3)
+    }
+
+}
+
 class Builder {
 
     let site: Site
@@ -55,6 +135,9 @@ class Builder {
                 "date_format_short": "MMMM dd",
                 "url": "https://jbmorley.co.uk",
             ],
+            "generate_uuid": CallableBlock(Method("generate_uuid")) {
+                return UUID().uuidString
+            },
             "page": DocumentContext(document: document),
             "distant_past":  { (timezoneAware: Bool) in
                 return Date.distantPast

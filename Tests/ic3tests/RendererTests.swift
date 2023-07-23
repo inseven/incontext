@@ -12,22 +12,23 @@ import XCTest
 
 import Stencil
 
-
+// TODO: Move this into a separate method.
 struct TestContext: EvaluationContext {
 
-    // TODO: It might be much nicer to have some kind of MethodSignature()
-    // TODO: Perhaps use an OrderedDictionary as the return? (key, value) though that looses the type info.
+    // TODO: Consider some form of typesafe subscripted object (think SQLite.swift)
     func evaluate(call: BoundFunctionCall) throws -> Any? {
-        if call.void("jump") {
+        if let _ = try call.arguments(Method("jump")) {
             return "*boing*"
-        } else if let argument = try call.argument("titlecase", arg1: "string", type1: String.self) {
-            return argument.1.toTitleCase()
-        } else if let argument = try call.argument("echo", arg1: "string", type1: String.self) {
-            return argument.1
-        } else if let arguments = try call.arguments("prefix",
-                                                     arg1: "str1", type1: String.self,
-                                                     arg2: "str2", type2: String.self) {
-            return arguments.1 + arguments.3
+        } else if let argument = try call.arguments(Method("titlecase")
+            .argument("string", type: String.self)) {
+            return argument.toTitleCase()
+        } else if let argument = try call.arguments(Method("echo")
+            .argument("string", type: String.self)) {
+            return argument
+        } else if let arguments = try call.arguments(Method("prefix")
+            .argument("str1", type: String.self)
+            .argument("str2", type: String.self)) {
+            return arguments.0 + arguments.1
         }
         throw InContextError.unknownFunction(call.signature)
     }
@@ -184,6 +185,18 @@ class RendererTests: XCTestCase {
         XCTAssertEqual(try render("{% set value = object.prefix(str1: \"abc\", str2: \"def\") %}{{ value }}",
                                   context: ["object": TestContext()]),
                        "abcdef")
+    }
+
+    func testDictionaryWithCallableBlock() {
+        let context = [
+            "increment": CallableBlock(Method("increment")
+                .argument("value", type: Int.self)) { value in
+                    return value + 1
+                }
+        ]
+        XCTAssertEqual(try render("{% set value = increment(value: 1) %}{{ value }}",
+                                  context: context),
+                       "2")
     }
 
 }

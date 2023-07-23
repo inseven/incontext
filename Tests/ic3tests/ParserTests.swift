@@ -25,18 +25,6 @@ import Foundation
 import XCTest
 @testable import ic3
 
-extension Dictionary: EvaluationContext where Key == String, Value == Any {
-
-    public func evaluate(call: ic3.BoundFunctionCall) throws -> Any? {
-        throw InContextError.unknownFunction(call.signature)
-    }
-
-    public func lookup(_ name: String) throws -> Any? {
-        return self[name]
-    }
-
-}
-
 class ParserTests: XCTestCase {
 
     func testTrue() {

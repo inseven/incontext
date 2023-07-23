@@ -24,10 +24,12 @@ import Foundation
 
 struct BoundFunctionCall {
 
-    let context: EvaluationContext  // TODO: Perhaps this should always be the global context?
+    let context: EvaluationContext
     let call: FunctionCall
 
-    // Move the operations onto here.
+    var name: String {
+        return call.name
+    }
 
     var signature: String {
         let arguments = call.arguments
@@ -40,8 +42,6 @@ struct BoundFunctionCall {
         return call.name == name && call.arguments.isEmpty
     }
 
-    // TODO: Consider separating this out as a match and an evaultate to make it easier to implement?
-    // TODO: There should be a mechanism for checking the name.
     func argument<T>(_ name: String, arg1: String, type1: T.Type) throws -> (String, T)? {
         guard call.name == name,
               call.arguments.count == 1,
