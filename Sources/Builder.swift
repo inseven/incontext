@@ -115,7 +115,7 @@ class Builder {
         self.store = try Store(databaseURL: site.storeURL)
     }
 
-    func render(document: Document, environment: Environment) async throws {
+    func render(document: Document, environment: Environment, documents: [Document]) async throws {
 
         // TODO: Push this into the site?
         // TODO: Work out which file extension we need to use for our index file (this is currently based on the template).
@@ -134,7 +134,12 @@ class Builder {
                 "date_format": "MMMM dd, yyyy",
                 "date_format_short": "MMMM dd",
                 "url": "https://jbmorley.co.uk",
-            ],
+                "posts": CallableBlock(Method("posts")) {
+                    // TODO: Consider default values for callables.
+                    // TODO: Consider wrapping these elsewhere.
+                    return documents.map { DocumentContext(document: $0) }
+                }
+            ] as Dictionary<String, Any>,  // TODO: as [String: Any] is different?
             "generate_uuid": CallableBlock(Method("generate_uuid")) {
                 return UUID().uuidString
             },
@@ -251,20 +256,26 @@ class Builder {
 
             let environment = site.environment()
 
-            // TODO: Command-line argument to force serial processings
-//            for document in try await store.documents() {
-//                try await self.render(document: document, environment: environment)
-//            }
+
 
             // Render the documents.
-            try await withThrowingTaskGroup(of: Void.self) { group in
+            // TODO: Generate the document contexts out here.
+            let documents = try await store.documents()
+            let serial = true  // TODO: Command line argument
+            if serial {
                 for document in try await store.documents() {
-                    group.addTask {
-                        try await self.render(document: document, environment: environment)
-                    }
+                    try await self.render(document: document, environment: environment, documents: documents)
                 }
-                // TODO: Is this necessary?
-                for try await _ in group {}
+            } else {
+                try await withThrowingTaskGroup(of: Void.self) { group in
+                    for document in documents {
+                        group.addTask {
+                            try await self.render(document: document, environment: environment, documents: documents)
+                        }
+                    }
+                    // TODO: Is this necessary?
+                    for try await _ in group {}
+                }
             }
 
         }

@@ -187,11 +187,12 @@ extension Executable: Parsable {
 
     // TODO: Guard against unintentional iterals in after a dot.
     public static let parser: AnyParser<SetExpression.Token, Self> = {
-        let boundOperation = (Resultable.map { $0 } && .dot && Operation.map { $0 })
-            .map { Self(operand: $0, operation: $1) }
-        let baseOperation = Operation.map { Self(operand: nil, operation: $0) }
-        return (boundOperation || baseOperation)
-            .map { $0 }
+        let head = Resultable.map { $0 }
+        let tail = Executable.map { $0 }
+        let expression = head && .dot && tail
+        let common = expression.map { try $1.apply(to: $0) }
+        let base = Operation.map { Self(operand: nil, operation: $0) }
+        return (common || base).map { $0 }
     }()
 
 }

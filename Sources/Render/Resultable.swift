@@ -22,7 +22,7 @@
 
 import Foundation
 
-public indirect enum Resultable: Equatable, Hashable {
+public indirect enum Resultable: Equatable, Hashable, CustomStringConvertible {
 
     case int(Int)
     case double(Double)
@@ -59,6 +59,25 @@ public indirect enum Resultable: Equatable, Hashable {
                     return (hashableKey, value)
                 }
                 .reduce(into: [AnyHashable: Any]()) { $0[$1.0] = $1.1 }
+        }
+    }
+
+    public var description: String {
+        switch self {
+        case .int(let int):
+            return int.formatted()
+        case .double(let double):
+            return double.formatted()
+        case .string(let string):
+            return string
+        case .bool(let bool):
+            return bool ? "true" : "false"
+        case .array(let array):
+            return array.description
+        case .executable(let executable):
+            return executable.description
+        case .dictionary(let dictionary):
+            return dictionary.description
         }
     }
 

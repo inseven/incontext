@@ -187,7 +187,7 @@ class RendererTests: XCTestCase {
                        "abcdef")
     }
 
-    func testDictionaryWithCallableBlock() {
+    func testContextWithCallableBlock() {
         let context = [
             "increment": CallableBlock(Method("increment")
                 .argument("value", type: Int.self)) { value in
@@ -198,5 +198,28 @@ class RendererTests: XCTestCase {
                                   context: context),
                        "2")
     }
+
+    func testParseSet() throws {
+        let operation = try SetOperation(string: "set value = utils.increment(value: 1)")
+        let lookup = Executable(operand: nil, operation: .lookup("utils"))
+        let call = FunctionCall(name: "increment", arguments: [NamedResultable(name: "value", result: .int(1))])
+        let perform = Executable(operand: Resultable.executable(lookup), operation: .call(call))
+        let expected = SetOperation(identifier: "value", result: .executable(perform))
+        XCTAssertEqual(operation, expected)
+    }
+
+    func testContextWithDictionaryContainingCallableBlock() {
+        let context = [
+            "utils": [
+                "increment": CallableBlock(Method("increment").argument("value", type: Int.self)) { value in
+                    return value + 1
+                }
+            ] as Dictionary<String, Any>  // Oh. My. God. Why is this necessary??
+        ]
+        XCTAssertEqual(try render("{% set value = utils.increment(value: 1) %}{{ value }}",
+                                  context: context),
+                       "2")
+    }
+
 
 }

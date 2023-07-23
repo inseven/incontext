@@ -51,6 +51,8 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
         switch name {
         case "title":
             return "TITLE"
+        case "date":
+            return document.date
         default:
             throw InContextError.unknownSymbol(name)
         }

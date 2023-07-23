@@ -22,7 +22,15 @@
 
 import Foundation
 
-public struct FunctionCall: Equatable, Hashable {
+extension String {
+
+    func wrapped(by prefix: String, and suffix: String) -> String {
+        return prefix + self + suffix
+    }
+
+}
+
+public struct FunctionCall: Equatable, Hashable, CustomStringConvertible {
 
     public static func == (lhs: FunctionCall, rhs: FunctionCall) -> Bool {
         guard lhs.name == rhs.name else {
@@ -36,5 +44,11 @@ public struct FunctionCall: Equatable, Hashable {
 
     let name: String
     let arguments: [NamedResultable]
+
+    public var description: String {
+        return arguments.map { $0.description }
+            .joined(separator: ", ")
+            .wrapped(by: "(", and: ")")
+    }
 
 }

@@ -31,6 +31,8 @@ class ParserTests: XCTestCase {
         XCTAssertTrue(true)
     }
 
+    // TODO: None / nil
+
     func testParseInt() throws {
         XCTAssertEqual(try SetOperation(string: "set cheese = 2"),
                        SetOperation(identifier: "cheese", result: .int(2)))
@@ -233,8 +235,42 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(try SetOperation(string: "set cheese = \"fromage\".titlecase(name: \"fromage\")"), expected)
     }
 
+    func testMultiLevelFunctionCall() throws {
+        let post = Executable(operand: nil, operation: .lookup("post"))
+        let date = Executable(operand: .executable(post), operation: .lookup("date"))
+        let format = Executable(operand: .executable(date), operation: .call(FunctionCall(name: "format", arguments: [NamedResultable(name: "string", result: .string("YYYY"))])))
+        let expected = SetOperation(identifier: "last_year", result: .executable(format))
+        XCTAssertEqual(try SetOperation(string: "set last_year = post.date.format(string: \"YYYY\")"), expected)
+    }
+
+    func testExecutableAppy() throws {
+        // a.b.c.foo()
+        let foo = Executable(operand: nil, operation: .call(FunctionCall(name: "foo")))
+        let c = Executable(operand: nil, operation: .lookup("c"))
+        let c_foo = try foo.apply(to: .executable(c))
+
+        XCTAssertEqual(c_foo, Executable(operand: .executable(c),
+                                         operation: .call(FunctionCall(name: "foo"))))
+
+        let b = Executable(operand: nil, operation: .lookup("b"))
+        let b_c_foo = try c_foo.apply(to: .executable(b))
+        print(String(describing: b_c_foo))
+        XCTAssertEqual(b_c_foo,
+                       Executable(operand: .executable(Executable(operand: .executable(b), operation: .lookup("c"))),
+                                   operation: .call(FunctionCall(name: "foo"))))
+
+    }
+
     // TODO: foo."hello" should fail
     // TODO: foo.bar().baz
     // TODO: foo.bar().echo(string: "value")
+
+}
+
+extension FunctionCall {
+
+    init(name: String) {
+        self.init(name: name, arguments: [])
+    }
 
 }

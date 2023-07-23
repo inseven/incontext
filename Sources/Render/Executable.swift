@@ -44,3 +44,30 @@ public struct Executable: Equatable, Hashable {
         }
     }
 }
+
+
+extension Executable {
+
+    func apply(to operand: Resultable) throws -> Executable {
+        // Base case.
+        if self.operand == nil {
+            return Self(operand: operand, operation: operation)
+        }
+        // Complex case.
+        // This is _only_ possible if our inner operand is a callable; otherwise we throw.
+        if case .executable(let executable) = self.operand {
+            return Self(operand: .executable(try executable.apply(to: operand)), operation: operation)
+        }
+        // TODO: Invalid function application.
+        throw InContextError.unknown
+    }
+
+}
+
+extension Executable: CustomStringConvertible {
+
+    public var description: String {
+        return "(\(operand?.description ?? "nil"), \(operation.description))"
+    }
+
+}

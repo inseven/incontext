@@ -23,7 +23,17 @@
 import Foundation
 
 // TODO: Move this into Executable
-enum Operation: Equatable, Hashable {
+enum Operation: Equatable, Hashable, CustomStringConvertible {
     case call(FunctionCall)
     case lookup(String)
+
+    var description: String {
+        switch self {
+        case .call(let call):
+            return ".call(\(call.description))"
+        case .lookup(let name):
+            return ".lookup(\(name))"
+        }
+    }
+
 }

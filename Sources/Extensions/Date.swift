@@ -22,14 +22,20 @@
 
 import Foundation
 
-struct NamedResultable: Equatable, Hashable, CustomStringConvertible {
+extension Date: EvaluationContext {
 
-    let name: String
-    let result: Resultable
-
-    var description: String {
-        return "\(name):\(result.description)"
+    func evaluate(call: BoundFunctionCall) throws -> Any? {
+        if let argument = try call.arguments(Method("format").argument("string", type: String.self)) {
+            // TODO: Use the new Swift formatter styles
+            let formatter = DateFormatter()
+            formatter.dateFormat = argument
+            return formatter.string(from: self)
+        }
+        throw InContextError.unknownFunction(call.signature)
     }
 
+    func lookup(_ name: String) throws -> Any? {
+        throw InContextError.unknownSymbol(name)
+    }
 
 }
