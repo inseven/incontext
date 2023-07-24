@@ -24,8 +24,79 @@ import Foundation
 
 import Stencil
 
+
+class ConcurrentBox<Content> {
+
+    let condition = NSCondition()
+    var value: Content? = nil
+
+    func put(_ value: Content) {
+        condition.withLock {
+            while self.value != nil {
+                condition.wait()
+            }
+            self.value = value
+            condition.broadcast()
+        }
+    }
+
+    func take() throws -> Content {
+        guard let value = tryTake(until: .distantFuture) else {
+            // TODO: Interrupted?
+            throw InContextError.unknown
+        }
+        return value
+    }
+
+    func tryTake(until date: Date) -> Content? {
+        condition.withLock {
+            while self.value == nil {
+                let signalled = condition.wait(until: date)
+                guard signalled else {
+                    return nil
+                }
+            }
+            let value = self.value
+            self.value = nil
+            condition.broadcast()
+            return value
+        }
+    }
+
+}
+
+
+
+//extension Task {
+
+    func globalAwaitResult<Success, Failure>(_ task: Task<Success, Failure>) throws -> Success {
+        let box = ConcurrentBox<Result<Success, Failure>>()
+        Task {
+            let result = await task.result
+            box.put(result)
+        }
+        let result = try box.take()
+        switch result {
+        case .success(let value):
+            return value
+        case .failure(let error):
+            throw error
+        }
+    }
+//
+//}
+
+extension Task {
+
+    func awaitResult() throws -> Success {
+        return try globalAwaitResult(self)
+    }
+
+}
+
 struct DocumentContext: EvaluationContext, DynamicMemberLookup {
 
+    let store: Store
     let document: Document
 
 //    "title": document.metadata["title"],
@@ -40,25 +111,33 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
 //        ]]
 //    }
 
+    func documents() throws -> [DocumentContext] {
+        let task = Task {
+            return try await store
+                .documents()
+                .map { DocumentContext(store: store, document: $0) }
+        }
+        return try task.awaitResult()
+    }
+
     func evaluate(call: BoundFunctionCall) throws -> Any? {
         if let _ = try call.argument("query", arg1: "name", type1: String.self) {
-            return [String]()
+            let task = Task {
+                return try await store.documents()
+                    .map { DocumentContext(store: store, document: $0) }
+            }
+            return try task.awaitResult()
         }
         throw InContextError.unknownFunction(call.signature)
     }
 
     func lookup(_ name: String) throws -> Any? {
-        switch name {
-        case "title":
-            return "TITLE"
-        case "date":
-            return document.date
-        default:
-            throw InContextError.unknownSymbol(name)
-        }
+        // TODO: Ensure we fail with misisng properties?
+        return self[dynamicMember: name]
     }
 
     // TODO: Support Python and Swift naming conventions
+    // TODO: Errors if values don't exist?
     subscript(dynamicMember member: String) -> Any? {
         if member == "content" {
             return document.contents
@@ -71,3 +150,7 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
     }
 
 }
+
+
+// TODO: I could support initializing sets to make it easier to generate tags efficiently.
+// TODO: I should throw away set operation values with a result of '_'

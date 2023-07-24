@@ -22,37 +22,27 @@
 
 import Foundation
 
-public struct SetOperation: Equatable {
+import Stencil
 
-    public static func == (lhs: SetOperation, rhs: SetOperation) -> Bool {
-        guard lhs.identifier == rhs.identifier else {
-            return false
-        }
-        guard lhs.result == rhs.result else {
-            return false
-        }
-        return true
+class UpdateNode: NodeType {
+
+    static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
+        return UpdateNode(token: token, contents: token.contents)
     }
 
-    let identifier: String
-    let result: Resultable
+    let token: Token?
+    let contents: String
 
-}
-
-
-public struct UpdateOperation: Equatable {
-
-    public static func == (lhs: UpdateOperation, rhs: UpdateOperation) -> Bool {
-        guard lhs.identifier == rhs.identifier else {
-            return false
-        }
-        guard lhs.result == rhs.result else {
-            return false
-        }
-        return true
+    init(token: Token, contents: String) {
+        self.token = token
+        self.contents = contents
     }
 
-    let identifier: String
-    let result: Resultable
+    func render(_ context: Stencil.Context) throws -> String {
+        let operation = try UpdateOperation(string: contents)
+        let value = try operation.result.eval(context)
+        try context.update(key: operation.identifier, value: value)
+        return ""
+    }
 
 }

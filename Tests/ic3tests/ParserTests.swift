@@ -265,6 +265,11 @@ class ParserTests: XCTestCase {
     // TODO: foo.bar().baz
     // TODO: foo.bar().echo(string: "value")
 
+    func testUpdate() throws {
+        XCTAssertEqual(try UpdateOperation(string: "update cheese = 2"),
+                       UpdateOperation(identifier: "cheese", result: .int(2)))
+    }
+
 }
 
 extension FunctionCall {

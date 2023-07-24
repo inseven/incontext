@@ -220,6 +220,7 @@ struct Site {
         ext.registerTag("with", parser: WithNode.parse)
         ext.registerTag("macro", parser: MacroNode.parse)
         ext.registerTag("set", parser: SetNode.parse)
+        ext.registerTag("update", parser: UpdateNode.parse)
         ext.registerTag("gallery", parser: GalleryNode.parse)  // This can and probably should be implemented as a template.
         ext.registerTag("video", parser: VideoNode.parse)  // This can and probably should be implemented as a template.
         ext.registerTag("template", parser: TemplateNode.parse)

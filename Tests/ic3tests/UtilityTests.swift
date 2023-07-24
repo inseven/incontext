@@ -54,6 +54,14 @@ class UtilityTests: ContentTestCase {
         XCTAssertEqual(url.parentURL, "/posts/")
     }
 
+    func testConcurrentBox() throws {
+        let task = Task {
+            try await Task.sleep(nanoseconds: 1000000000)
+            return "cheese"
+        }
+        XCTAssertEqual(try task.awaitResult(), "cheese")
+    }
+
     // TODO: Remaining filename tests.
 
 }

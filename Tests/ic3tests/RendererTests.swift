@@ -43,7 +43,7 @@ struct TestContext: EvaluationContext {
 
 class RendererTests: XCTestCase {
 
-    func render(_ template: String, context: [String: Any]) throws -> String {
+    func render(_ template: String, context: [String: Any] = [:]) throws -> String {
         let environment = Environment(extensions: [Site.ext()])
         return try environment.renderTemplate(string: template, context: context)
     }
@@ -138,7 +138,7 @@ class RendererTests: XCTestCase {
     }
 
     func testSetDouble() {
-        XCTAssertEqual(try render("{% set value = 3.14159 %}Pi = {{ value }}!", context: ["tick": "tock"]),
+        XCTAssertEqual(try render("{% set value = 3.14159 %}Pi = {{ value }}!", context: [:]),
                        "Pi = 3.14159!")
     }
 
@@ -221,5 +221,27 @@ class RendererTests: XCTestCase {
                        "2")
     }
 
+    func testArrayAssignment() {
+        XCTAssertEqual(try render("{% set values = [1, 2] %}{% for value in values %}{{ value }},{% endfor %}",
+                                  context: ["object": TestContext()]),
+                       "1,2,")
+    }
+
+    func testArrayExtendAssignment() {
+        XCTAssertEqual(try render("{% set values = [1, 2] %}{% set values = values.extending(values: [3, 4]) %}{% for value in values %}{{ value }},{% endfor %}",
+                                  context: ["object": TestContext()]),
+                       "1,2,3,4,")
+    }
+
+    func testArrayOutput() {
+        XCTAssertEqual(try render("{% set values = [1, 2] %}{% if values %}{{ values }}{% endif %}",
+                                  context: ["object": TestContext()]),
+                       "[1, 2]")
+    }
+
+    func testUpdate() {
+        XCTAssertEqual(try render("{% set name = \"bob\" %}{% update name = \"alice\" %}{{ name }}"),
+                       "alice")
+    }
 
 }

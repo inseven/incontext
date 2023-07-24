@@ -1,0 +1,3 @@
+[submodule "Stencil"]
+	path = Stencil
+	url = git@github.com:jbmorley/Stencil.git

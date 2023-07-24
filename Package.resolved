@@ -64,15 +64,6 @@
       }
     },
     {
-      "identity" : "stencil",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/stencilproject/Stencil.git",
-      "state" : {
-        "revision" : "4f222ac85d673f35df29962fc4c36ccfdaf9da5b",
-        "version" : "0.15.1"
-      }
-    },
-    {
       "identity" : "swift-atomics",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",

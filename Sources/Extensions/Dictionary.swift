@@ -41,3 +41,20 @@ extension Dictionary: EvaluationContext where Key == String, Value == Any {
     }
 
 }
+
+extension Array: EvaluationContext {
+
+    // TODO: Consider whether arrays should actualy be [Any], not [Any?]
+
+    func evaluate(call: BoundFunctionCall) throws -> Any? {
+        if let values = try call.arguments(Method("extending").argument("values", type: [Any?].self)) {
+            return self + values
+        }
+        throw InContextError.unknownFunction(call.signature)
+    }
+
+    func lookup(_ name: String) throws -> Any? {
+        throw InContextError.unknownSymbol(name)
+    }
+
+}

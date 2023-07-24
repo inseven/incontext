@@ -128,6 +128,7 @@ class Builder {
         try FileManager.default.createDirectory(at: destinationDirectoryURL, withIntermediateDirectories: true)
 
         // TODO: Inline the config loaded from the settings file
+        let store = self.store
         let context: [String: Any] = [
             "site": [
                 "title": "Jason Morley",
@@ -137,13 +138,13 @@ class Builder {
                 "posts": CallableBlock(Method("posts")) {
                     // TODO: Consider default values for callables.
                     // TODO: Consider wrapping these elsewhere.
-                    return documents.map { DocumentContext(document: $0) }
+                    return documents.map { DocumentContext(store: store, document: $0) }
                 }
             ] as Dictionary<String, Any>,  // TODO: as [String: Any] is different?
             "generate_uuid": CallableBlock(Method("generate_uuid")) {
                 return UUID().uuidString
             },
-            "page": DocumentContext(document: document),
+            "page": DocumentContext(store: store, document: document),
             "distant_past":  { (timezoneAware: Bool) in
                 return Date.distantPast
             }

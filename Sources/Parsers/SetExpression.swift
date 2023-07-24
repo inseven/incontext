@@ -41,6 +41,7 @@ extension SetExpression {
 
     public enum Token: TokenProtocol {
         case set
+        case update
         case equals
         case colon
         case comma
@@ -69,6 +70,7 @@ extension SetExpression {
         static let generators: Generators = [
             WhiteSpaceTokenGenerator().ignore(),
             RegexTokenGenerator(pattern: "set").map(to: .set),
+            RegexTokenGenerator(pattern: "update").map(to: .update),
             RegexTokenGenerator(pattern: "=").map(to: .equals),
             RegexTokenGenerator(pattern: "\\.").map(to: .dot),
             RegexTokenGenerator(pattern: ":").map(to: .colon),
@@ -161,6 +163,12 @@ extension SetOperation {
     }
 }
 
+extension UpdateOperation {
+    init(string: String) throws {
+        self = try Self.parse(string, using: SetExpression.Lexer.self)
+    }
+}
+
 extension Resultable: Parsable {
     public static let parser: AnyParser<SetExpression.Token, Self> = {
         let int = Int.map { Self.int($0) }
@@ -219,6 +227,16 @@ extension SetOperation: Parsable {
         let result = Resultable.map { $0 }
         let expression = identifier && .equals && result
         return (.set && expression)
+            .map { Self(identifier: $0, result: $1) }
+    }()
+}
+
+extension UpdateOperation: Parsable {
+    public static let parser: AnyParser<SetExpression.Token, Self> = {
+        let identifier = SetExpression.Identifier.map { $0.name }
+        let result = Resultable.map { $0 }
+        let expression = identifier && .equals && result
+        return (.update && expression)
             .map { Self(identifier: $0, result: $1) }
     }()
 }
