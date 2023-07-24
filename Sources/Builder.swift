@@ -124,8 +124,6 @@ class Builder {
         let destinationFileURL = destinationDirectoryURL.appendingPathComponent("index", conformingTo: .html)
         print("Rendering '\(document.url)' with template '\(document.template)'...")
 
-        // Create the destination directory.
-        try FileManager.default.createDirectory(at: destinationDirectoryURL, withIntermediateDirectories: true)
 
         // TODO: Inline the config loaded from the settings file
         let store = self.store
@@ -151,9 +149,11 @@ class Builder {
         ]
         let contents = try environment.renderTemplate(name: document.template, context: context)
 
-        // TODO: This still requires image fixup.
+        // TODO: Fixup images.
+        // TODO: Template HTML.
 
         // Write the contents to a file.
+        try FileManager.default.createDirectory(at: destinationDirectoryURL, withIntermediateDirectories: true)
         guard let data = contents.data(using: .utf8) else {
             throw InContextError.unsupportedEncoding
         }
@@ -262,7 +262,7 @@ class Builder {
             // Render the documents.
             // TODO: Generate the document contexts out here.
             let documents = try await store.documents()
-            let serial = true  // TODO: Command line argument
+            let serial = false  // TODO: Command line argument
             if serial {
                 for document in try await store.documents() {
                     try await self.render(document: document, environment: environment, documents: documents)

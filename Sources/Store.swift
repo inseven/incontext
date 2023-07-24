@@ -244,4 +244,11 @@ class Store {
         }
     }
 
+    func syncDocuments() throws -> [Document] {
+        dispatchPrecondition(condition: .notOnQueue(syncQueue))
+        return try syncQueue.sync {
+            try syncQueue_documents()
+        }
+    }
+
 }

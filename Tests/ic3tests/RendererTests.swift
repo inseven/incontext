@@ -40,6 +40,33 @@ struct TestContext: EvaluationContext {
 
 }
 
+public func XCTAssertEqualAsync<T>(_ expression1: @autoclosure () async throws -> T,
+                                   _ expression2: @autoclosure () async throws -> T,
+                                   _ message: @autoclosure () -> String = "",
+                                   file: StaticString = #filePath,
+                                   line: UInt = #line) async where T : Equatable {
+    do {
+        let result1 = try await expression1()
+        let result2 = try await expression2()
+        XCTAssertEqual(result1, result2, file: file, line: line)
+    } catch {
+        XCTFail(message(), file: file, line: line)
+    }
+}
+
+public func XCTAssertNotEqualAsync<T>(_ expression1: @autoclosure () async throws -> T,
+                                      _ expression2: @autoclosure () async throws -> T,
+                                      _ message: @autoclosure () -> String = "",
+                                      file: StaticString = #filePath,
+                                      line: UInt = #line) async where T : Equatable {
+    do {
+        let result1 = try await expression1()
+        let result2 = try await expression2()
+        XCTAssertNotEqual(result1, result2, file: file, line: line)
+    } catch {
+        XCTFail(message(), file: file, line: line)
+    }
+}
 
 class RendererTests: XCTestCase {
 
@@ -244,4 +271,35 @@ class RendererTests: XCTestCase {
                        "alice")
     }
 
+    // TODO: Update to use set.
+//    func testIncludeContext() async throws {
+//        try await withTemporaryDirectory { templatesURL in
+//            let template = "{{ secondary }}"
+//            print(templatesURL)
+//            let templateURL = templatesURL.appendingPathComponent("template.html")
+//            try template.write(to: templateURL, atomically: true, encoding: .utf8)
+//            let loader = FileSystemLoader(paths: [.init(templatesURL.path)])
+//            let environment = Environment(loader: loader, extensions: [Site.ext()])
+//            let result = try await environment.renderTemplate(string: "{% for page in pages %}{% include \"template.html\" secondary %}{% endfor %}",
+//                                                              context: ["pages": ["title": "title", "content": "content"], "secondary": ["one": "one_value"]])
+//            XCTAssertEqual(result, "cheese")
+//        }
+//    }
+
+}
+
+// TODO: Move this out.
+func withTemporaryDirectory(perform: @escaping (URL) async throws -> Void) async throws {
+    let fileManager = FileManager.default
+    let url = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+    try fileManager.createDirectory(at: url, withIntermediateDirectories: true)
+    defer {
+        do {
+            try fileManager.removeItem(at: url)
+        } catch {
+            print("Failed to delete temporary directory at '\(url.path)' with error \(error).")
+            exit(EXIT_FAILURE)
+        }
+    }
+    try await perform(url)
 }
