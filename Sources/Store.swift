@@ -188,9 +188,24 @@ class Store {
             .delete())
     }
 
-    private func syncQueue_documents() throws -> [Document] {
+    private func syncQueue_documents(includingCategories includeCategories: [String]?) throws -> [Document] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
-        let rowIterator = try connection.prepareRowIterator(Schema.documents)
+
+        let includeExpression: Expression<Bool>
+        if let includeCategories {
+            includeExpression = includeCategories.reduce(Expression<Bool>(value: false)) { result, category in
+                let expression: Expression<Bool> = Schema.type == category
+                return result || expression
+            }
+        } else {
+            includeExpression = Expression<Bool>(value: true)
+        }
+
+        let query = Schema.documents
+            .filter(includeExpression)
+            .order(Schema.date.desc)
+        let rowIterator = try connection.prepareRowIterator(query)
+
         return try rowIterator.map { row in
 
             // Deserialize the metadata.
@@ -240,14 +255,14 @@ class Store {
 
     func documents() async throws -> [Document] {
         return try await run {
-            return try self.syncQueue_documents()
+            return try self.syncQueue_documents(includingCategories: nil)
         }
     }
 
-    func syncDocuments() throws -> [Document] {
+    func syncDocuments(includingCategories includeCategories: [String]? = nil) throws -> [Document] {
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
         return try syncQueue.sync {
-            try syncQueue_documents()
+            try syncQueue_documents(includingCategories: includeCategories)
         }
     }
 

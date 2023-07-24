@@ -217,6 +217,25 @@ struct Site {
             return value
         }
 
+        ext.registerFilter("base64") { (value: Any?) in
+            guard let value = value as? String else {
+                throw TemplateSyntaxError("'base64' filter expects a string")
+            }
+            guard let data = value.data(using: .utf8) else {
+                // TODO: Correct error
+                throw InContextError.unknown
+            }
+            return data.base64EncodedString()
+        }
+
+        ext.registerFilter("int") { (value: Any?) in
+            if let value = value as? NSNumber {
+                return value.intValue
+            }
+            // TODO: Correct error.
+            throw InContextError.unknown
+        }
+
         ext.registerTag("with", parser: WithNode.parse)
         ext.registerTag("macro", parser: MacroNode.parse)
         ext.registerTag("set", parser: SetNode.parse)

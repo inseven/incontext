@@ -34,4 +34,7 @@ enum InContextError: Error {
     case unknownImporter(String)
     case corruptSettings
     case notFound
+    case unknownQuery(String)
+    case invalidQueryDefinition(String)
+    case incorrectType(AnyHashable)
 }

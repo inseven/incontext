@@ -38,3 +38,9 @@ while I'd love to use it to build my own website in the future, we're not there 
       their dependencies
 - [ ] swift-sass includes binary dependencies and is unacceptable long-term
 - [ ] It might be nice to add type checking to the frontmatter, or perhaps even Swift struct frontmatter
+- [ ] Rename 'type' to category because that's what it is and it's currently misleading
+- [ ] Markdown parsing seems to yield a tuple unexpectedly for some dictionaries?
+- [ ] Clean up `set`, `update`, and `with` parser errors to make them easier to understand
+- [ ] Type safe per-plugin settings (either by validating the YAML, or by using Swift DSL)
+- [ ] Support mdash in Markdown content
+- [ ] Track the queries used, and templates touched to render a page to allow for incremental template rendering

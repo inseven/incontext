@@ -40,4 +40,14 @@ extension Dictionary: EvaluationContext where Key == String, Value == Any {
         return self[name]
     }
 
+    func value<T>(for key: Key, default defaultValue: T) throws -> T {
+        guard let value = self[key] else {
+            return defaultValue
+        }
+        guard let value = value as? T else {
+            throw InContextError.incorrectType(key)
+        }
+        return value
+    }
+
 }

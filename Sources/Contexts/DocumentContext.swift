@@ -38,9 +38,29 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
         return try task.awaitResult()
     }
 
+    // TODO: Structured parser for the query definition which has nice clean error reporting.
     func evaluate(call: BoundFunctionCall) throws -> Any? {
-        if let _ = try call.argument("query", arg1: "name", type1: String.self) {
-            return try store.syncDocuments()
+        if let name = try call.arguments(Method("query").argument("name", type: String.self)) {
+            guard let queries = document.metadata["queries"] as? [String: Any],
+                  let query = queries[name]
+            else {
+                print(document.metadata)
+                // TODO: Errors should include the document being rendered!
+                throw InContextError.unknownQuery(name)
+            }
+            guard let structuredQuery = query as? [String: Any] else {
+                throw InContextError.invalidQueryDefinition(name)
+            }
+            var includeCategories: [String]? = nil
+            if let include = structuredQuery["include"] {
+                // TODO: Guard against a tuple of strings?
+                guard let include = include as? [String] else {
+                    print(type(of: include))
+                    throw InContextError.invalidQueryDefinition(name)
+                }
+                includeCategories = include
+            }
+            return try store.syncDocuments(includingCategories: includeCategories)
                 .map { DocumentContext(store: store, document: $0) }
         }
         throw InContextError.unknownFunction(call.signature)
@@ -60,6 +80,8 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
             return document.date
         } else if member == "html" {
             return document.contents
+        } else if member == "url" {
+            return document.url
         }
         return document.metadata[member]
     }

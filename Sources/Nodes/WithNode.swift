@@ -27,21 +27,24 @@ import Stencil
 class WithNode: NodeType {
 
     func render(_ context: Stencil.Context) throws -> String {
-        return "missing 'with' implementation"
+        let contents = try renderNodes(nodes, context)
+        return "WITH -> " + contents + " <- WITH"
     }
 
-    init(token: Token) {
+    init(token: Token, nodes: [NodeType]) {
         self.token = token
+        self.nodes = nodes
     }
 
     let token: Token?
+    let nodes: [NodeType]
 
     static func parse(_ parser: TokenParser, token: Token) throws -> NodeType {
         var components = token.components
         components.removeFirst()
-        _ = try parser.parse(until(["endwith"]))
+        let nodes = try parser.parse(until(["endwith"]))
         _ = parser.nextToken() // Consumes the endwith
-        return WithNode(token: token)
+        return WithNode(token: token, nodes: nodes)
     }
 
 }

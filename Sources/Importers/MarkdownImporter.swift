@@ -26,7 +26,7 @@ class MarkdownImporter: Importer {
 
     let identifier = "app.incontext.importer.markdown"
     let legacyIdentifier = "import_markdown"
-    let version = 5
+    let version = 8
 
     func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
 
@@ -47,6 +47,9 @@ class MarkdownImporter: Importer {
             metadata["title"] = details.title
         }
 
+        let category: String = try metadata.value(for: "category",
+                                                  default: try settings.value(for: "default_category", default: ""))
+
         // TODO: The metadata doesn't seem to permit complex structure; I might have to create my own parser.
         // TODO: There's a bunch of legacy code which detects thumbnails. *sigh*
         //       I think it might actually be possible to do this with the template engine.
@@ -54,7 +57,7 @@ class MarkdownImporter: Importer {
         // TODO: Do I actually wnat it to process the markdown at import time? Does it matter?
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
-                                type: "",
+                                type: category,
                                 date: details.date,
                                 metadata: metadata,
                                 contents: result.content,
