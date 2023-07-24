@@ -22,22 +22,17 @@
 
 import Foundation
 
-// TODO: Conisder whether callables should be anonymous by default and everything before () should be lookups?
-// TODO: This could lead to just one method on EvaluationContext; might be nice?
-
-// TODO: Not sure this is actually used at all; I think they all get wrapped by Context in the end anyhow.
-extension Dictionary: EvaluationContext where Key == String, Value == Any {
+extension Array: EvaluationContext {
 
     func evaluate(call: BoundFunctionCall) throws -> Any? {
-        // We currently handle callable blocks
-        guard let callable = self[call.call.name] as? CallableBlock else {
-            throw InContextError.unknownFunction(call.signature)
+        if let values = try call.arguments(Method("extending").argument("values", type: [Any?].self)) {
+            return self + values
         }
-        return try callable.evaluate(call: call)
+        throw InContextError.unknownFunction(call.signature)
     }
 
     func lookup(_ name: String) throws -> Any? {
-        return self[name]
+        throw InContextError.unknownSymbol(name)
     }
 
 }
