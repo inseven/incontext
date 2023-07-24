@@ -22,9 +22,9 @@
 
 import Foundation
 
-public struct SetOperation: Equatable {
+public struct UpdateOperation: Equatable {
 
-    public static func == (lhs: SetOperation, rhs: SetOperation) -> Bool {
+    public static func == (lhs: UpdateOperation, rhs: UpdateOperation) -> Bool {
         guard lhs.identifier == rhs.identifier else {
             return false
         }
