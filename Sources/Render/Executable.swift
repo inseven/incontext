@@ -22,6 +22,7 @@
 
 import Foundation
 
+
 // TODO: This needs to take an operand long-term.
 // TODO: Execution??
 // This is the perform. It captures the operation to perform, and the operation.
@@ -35,8 +36,13 @@ public struct Executable: Equatable, Hashable {
         // TODO: The operand needs to be an evaluation context!
         if let operand {
             let actualOperand = try operand.eval(context)
-            guard let operandContext = actualOperand as? EvaluationContext else {
-                throw InContextError.evaluationUnsupported(String(describing: actualOperand))
+
+            // Unfortunately it seems to be insufficient to just conform our types to `EvaluationContext`, we also need
+            // to try casting to those conforming types (in some cases at least).
+            let operandContext = ((actualOperand as? EvaluationContext) ??
+                                  (actualOperand as? [AnyHashable: Any]))
+            guard let operandContext else {
+                throw InContextError.evaluationUnsupported("\(String(describing: actualOperand)), \(type(of: actualOperand))")
             }
             return try operandContext.perform(operation, globalContext: context)
         } else {

@@ -35,6 +35,6 @@ enum InContextError: Error {
     case corruptSettings
     case notFound
     case unknownQuery(String)
-    case invalidQueryDefinition(String)
+    case invalidQueryDefinition
     case incorrectType(AnyHashable)
 }

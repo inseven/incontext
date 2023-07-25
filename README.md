@@ -44,3 +44,4 @@ while I'd love to use it to build my own website in the future, we're not there 
 - [ ] Type safe per-plugin settings (either by validating the YAML, or by using Swift DSL)
 - [ ] Support mdash in Markdown content
 - [ ] Track the queries used, and templates touched to render a page to allow for incremental template rendering
+- [ ] Consider whether I should support EXIF sidecars and, if so, handle dependency management for them

@@ -27,7 +27,7 @@ class ImageImporter: Importer {
 
     let identifier = "app.incontext.importer.image"
     let legacyIdentifier = "import_photo"
-    let version = 1
+    let version = 4
 
     func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
 
@@ -47,6 +47,7 @@ class ImageImporter: Importer {
         var assets: [Asset] = []
 
         // Perform the transforms.
+        var transformMetadata: [String: [[String: Any]]] = [:]
         for transform in site.transforms {
 
             let options = [kCGImageSourceCreateThumbnailWithTransform: kCFBooleanTrue,
@@ -54,11 +55,11 @@ class ImageImporter: Importer {
                                   kCGImageSourceThumbnailMaxPixelSize: transform.width as NSNumber] as CFDictionary
 
             let destinationFilename = transform.basename + "." + (transform.format.preferredFilenameExtension ?? "")
-            let destinationURL = resourceURL.appending(component: destinationFilename) as CFURL
+            let destinationURL = resourceURL.appending(component: destinationFilename)
 
             // TODO: Doesn't work with SVG.
             let thumbnail = CGImageSourceCreateThumbnailAtIndex(image, 0, options)!
-            guard let destination = CGImageDestinationCreateWithURL(destinationURL,
+            guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL,
                                                                     transform.format.identifier as CFString,
                                                                     1,
                                                                     nil) else {
@@ -67,7 +68,37 @@ class ImageImporter: Importer {
             CGImageDestinationAddImage(destination, thumbnail, nil)
             CGImageDestinationFinalize(destination)  // TODO: Handle error here?
             assets.append(Asset(fileURL: destinationURL as URL))
+
+//            let availableRect = AVFoundation.AVMakeRect(aspectRatio: image.size, insideRect: .init(origin: .zero, size: maxSize))
+//            let targetSize = availableRect.size
+
+            let details = [
+                "width": 100,
+                "height": 100,
+                "filename": "cheese",
+                "url": destinationURL.relativePath.ensureLeadingSlash(),
+            ] as [String: Any]
+
+            for setName in transform.sets {
+                transformMetadata[setName] = (transformMetadata[setName] ?? []) + [details]
+            }
         }
+
+        // Flatten the transform metadata to promote categories with single entires to top-level dictionaries.
+        // TODO: This is legacy behaviour from InContext 2 and we should probably reconsider whether it makes sense
+        let transformDetails = transformMetadata
+            .compactMap { key, value -> (String, Any)? in
+                guard !value.isEmpty else {
+                    return nil
+                }
+                if value.count == 1 {
+                    return (key, value[0])
+                }
+                return (key, value)
+            }
+            .reduce(into: [String: Any]()) { partialResult, element in
+                partialResult[element.0] = element.1
+            }
 
         let details = fileURL.basenameDetails()
 
@@ -75,7 +106,7 @@ class ImageImporter: Importer {
                                 parent: fileURL.parentURL,
                                 type: "",
                                 date: details.date,
-                                metadata: [:],
+                                metadata: transformDetails,
                                 contents: "",
                                 mtime: file.contentModificationDate,
                                 template: "photo.html")

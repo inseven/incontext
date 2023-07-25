@@ -92,7 +92,7 @@ class ParserTests: XCTestCase {
         let operation = try SetOperation(string: "set cheese = [\"one\", \"two\"]")
         XCTAssertEqual(operation,
                        SetOperation(identifier: "cheese", result: .array([.string("one"), .string("two")])))
-        XCTAssertEqual(try operation.result.eval([String: Any]()) as? [String], ["one", "two"])
+        XCTAssertEqual(try operation.result.eval([AnyHashable: Any]()) as? [String], ["one", "two"])
     }
 
     func testNestedArray() throws {
@@ -100,7 +100,7 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(operation,
                        SetOperation(identifier: "cheese", result: .array([.string("one"),
                                                                           .array([.int(2), .double(3.0)])])))
-        XCTAssertEqual(try operation.result.eval([String: Any]()) as? NSArray,
+        XCTAssertEqual(try operation.result.eval([AnyHashable: Any]()) as? NSArray,
                        ["one", [2, 3.0]] as NSArray)
     }
 

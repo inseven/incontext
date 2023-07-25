@@ -39,8 +39,14 @@ class SetNode: NodeType {
     }
 
     func render(_ context: Stencil.Context) throws -> String {
-        let operation = try SetOperation(string: contents)
-        context[operation.identifier] = try operation.result.eval(context)
+        do {
+            let operation = try SetOperation(string: contents)
+            let value = try operation.result.eval(context)
+            context[operation.identifier] = value
+        } catch {
+            print("Failed to evaluate set operation '\(contents)'.")
+            throw error
+        }
         return ""
     }
 

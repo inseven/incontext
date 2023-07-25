@@ -241,7 +241,7 @@ class RendererTests: XCTestCase {
                 "increment": CallableBlock(Method("increment").argument("value", type: Int.self)) { value in
                     return value + 1
                 }
-            ] as Dictionary<String, Any>  // Oh. My. God. Why is this necessary??
+            ]
         ]
         XCTAssertEqual(try render("{% set value = utils.increment(value: 1) %}{{ value }}",
                                   context: context),
@@ -269,6 +269,53 @@ class RendererTests: XCTestCase {
     func testUpdate() {
         XCTAssertEqual(try render("{% set name = \"bob\" %}{% update name = \"alice\" %}{{ name }}"),
                        "alice")
+    }
+
+    func testNestedDictionaryFromJSON() throws {
+        let dictionary = "{\"one\": {\"two\": \"three\"}}"
+        let json = dictionary.data(using: .utf8)
+        let context = try JSONSerialization.jsonObject(with: json!) as! [String: Any]
+        XCTAssertEqual(try render("{% set name = \"bob\" %}{% update name = \"alice\" %}{{ one.two }}", context: context),
+                       "three")
+    }
+
+    // These tests are just here to remind me that, out of the box, calculations fail silently in Stencil.
+    func testCalculationsFailSilently() throws {
+        XCTAssertEqual(try render("{{ 10 }}", context: [:]), "10")
+        XCTAssertNotEqual(try render("{{ 10 + 1 }}", context: [:]), "11")
+    }
+
+    func testCalculationsUsingSet() throws {
+
+        // add
+        XCTAssertEqual(try render("{% set result = add(lhs: 10, rhs: 1) %}{{ result }}", context: [:]),
+                       "11")
+        XCTAssertEqual(try render("{% set result = add(lhs: 10.0, rhs: 1) %}{{ result }}", context: [:]),
+                       "11.0")
+        XCTAssertEqual(try render("{% set result = add(lhs: 10, rhs: 2.0) %}{{ result }}", context: [:]),
+                       "12.0")
+        XCTAssertEqual(try render("{% set result = add(lhs: 10.0, rhs: 3.0) %}{{ result }}", context: [:]),
+                       "13.0")
+
+        // div
+        XCTAssertEqual(try render("{% set result = div(lhs: 5, rhs: 2) %}{{ result }}", context: [:]),
+                       "2")
+        XCTAssertEqual(try render("{% set result = div(lhs: 5.0, rhs: 2) %}{{ result }}", context: [:]),
+                       "2.5")
+        XCTAssertEqual(try render("{% set result = div(lhs: 5, rhs: 2.0) %}{{ result }}", context: [:]),
+                       "2.5")
+        XCTAssertEqual(try render("{% set result = div(lhs: 5.0, rhs: 2.0) %}{{ result }}", context: [:]),
+                       "2.5")
+
+        // mul
+        XCTAssertEqual(try render("{% set result = mul(lhs: 2, rhs: 3) %}{{ result }}", context: [:]),
+                       "6")
+        XCTAssertEqual(try render("{% set result = mul(lhs: 5.0, rhs: 9) %}{{ result }}", context: [:]),
+                       "45.0")
+        XCTAssertEqual(try render("{% set result = mul(lhs: 3, rhs: 6.0) %}{{ result }}", context: [:]),
+                       "18.0")
+        XCTAssertEqual(try render("{% set result = mul(lhs: 5.0, rhs: 2.0) %}{{ result }}", context: [:]),
+                       "10.0")
     }
 
     // TODO: Update to use set.

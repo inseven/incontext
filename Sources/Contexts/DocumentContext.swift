@@ -38,31 +38,28 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
         return try task.awaitResult()
     }
 
+    func documents(query: QueryDescription) throws -> [DocumentContext] {
+        return try store.syncDocuments(query: query)
+            .map { DocumentContext(store: store, document: $0) }
+    }
+
     // TODO: Structured parser for the query definition which has nice clean error reporting.
     func evaluate(call: BoundFunctionCall) throws -> Any? {
+
         if let name = try call.arguments(Method("query").argument("name", type: String.self)) {
+
             guard let queries = document.metadata["queries"] as? [String: Any],
-                  let query = queries[name]
-            else {
-                print(document.metadata)
-                // TODO: Errors should include the document being rendered!
+                  let query = queries[name] else {
                 throw InContextError.unknownQuery(name)
             }
-            guard let structuredQuery = query as? [String: Any] else {
-                throw InContextError.invalidQueryDefinition(name)
-            }
-            var includeCategories: [String]? = nil
-            if let include = structuredQuery["include"] {
-                // TODO: Guard against a tuple of strings?
-                guard let include = include as? [String] else {
-                    print(type(of: include))
-                    throw InContextError.invalidQueryDefinition(name)
-                }
-                includeCategories = include
-            }
-            return try store.syncDocuments(includingCategories: includeCategories)
-                .map { DocumentContext(store: store, document: $0) }
+            return try documents(query: try QueryDescription(definition: query))
+
+        } else if let _ = try call.arguments(Method("children")) {
+
+            return try documents(query: QueryDescription(parent: document.url))
+
         }
+
         throw InContextError.unknownFunction(call.signature)
     }
 
@@ -73,6 +70,7 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
 
     // TODO: Support Python and Swift naming conventions
     // TODO: Errors if values don't exist?
+    // TODO: Support auto-executing callables in a single dispatch model.
     subscript(dynamicMember member: String) -> Any? {
         if member == "content" {
             return document.contents

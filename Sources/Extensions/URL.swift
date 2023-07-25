@@ -67,6 +67,7 @@ extension URL {
         return relevantURL.deletingPathExtension().lastPathComponent
     }
 
+    // TODO: Rename this.
     var siteURL: String {
         let relevantRelativePath = relevantRelativePath
         if relevantRelativePath.hasPrefix(".") {
