@@ -43,7 +43,6 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
             .map { DocumentContext(store: store, document: $0) }
     }
 
-    // TODO: Structured parser for the query definition which has nice clean error reporting.
     func evaluate(call: BoundFunctionCall) throws -> Any? {
 
         if let name = try call.arguments(Method("query").argument("name", type: String.self)) {
@@ -72,7 +71,6 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
         return self[dynamicMember: name]
     }
 
-    // TODO: Support Python and Swift naming conventions
     // TODO: Errors if values don't exist?
     // TODO: Support auto-executing callables in a single dispatch model.
     subscript(dynamicMember member: String) -> Any? {
@@ -90,6 +88,4 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
 
 }
 
-
 // TODO: I could support initializing sets to make it easier to generate tags efficiently.
-// TODO: I should throw away set operation values with a result of '_'
