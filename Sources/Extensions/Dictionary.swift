@@ -54,4 +54,14 @@ extension Dictionary {
         return value
     }
 
+    func optionalValue<T>(for key: Key) throws -> T? {
+        guard let value = self[key] else {
+            return nil
+        }
+        guard let value = value as? T else {
+            throw InContextError.incorrectType(key)
+        }
+        return value
+    }
+
 }

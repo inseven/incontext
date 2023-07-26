@@ -45,3 +45,9 @@ while I'd love to use it to build my own website in the future, we're not there 
 - [ ] Support mdash in Markdown content
 - [ ] Track the queries used, and templates touched to render a page to allow for incremental template rendering
 - [ ] Consider whether I should support EXIF sidecars and, if so, handle dependency management for them
+- [ ] Store the document mime type in the database; this should make it possible to automatically select
+      all images etc
+- [ ] Add support for audio
+- [ ] Add support for generating podcast feeds
+- [ ] Typesafe configuration
+- [ ] Pass the template in as part of the default arguments

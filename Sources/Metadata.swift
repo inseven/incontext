@@ -22,47 +22,28 @@
 
 import Foundation
 
-import MarkdownKit
-import Yaml
+// InContext permits additional metadata, but expects some structured keys to be of specific types.
+struct Metadata: Codable {
 
-struct FrontmatterDocument {
+    let category: String?
+    let template: String?
+    let title: String?
+    let subtitle: String?
+    let date: Date?
+    let tags: [String]?
 
-    private static let frontmatterRegEx = /(?s)^(-\-\-\n)(?<metadata>.*?)(-\-\-\n)(?<content>.*)$/
-
-    let rawMetadata: String
-    let metadata: Dictionary<AnyHashable, Any>
-    let content: String
-
-    init(contents: String, generateHTML: Bool = false) throws {
-        guard let match = contents.wholeMatch(of: Self.frontmatterRegEx) else {
-            rawMetadata = ""
-            metadata = [:]
-            content = generateHTML ? contents.html() : contents
-            return
-        }
-        rawMetadata = String(match.metadata)
-        metadata = try rawMetadata.parseYAML()
-        content = generateHTML ? String(match.content).html() : String(match.content)
-    }
-
-}
-
-extension String {
-
-    func html() -> String {
-        let markdown = ExtendedMarkdownParser.standard.parse(self)
-        let html = HtmlGenerator.standard.generate(doc: markdown)
-        return html
-    }
-
-}
-
-extension StringProtocol {
-
-    func parseYAML() throws -> [AnyHashable: Any] {
-        // TODO: Do this inline.
-        let yaml = try Yaml.load(String(self))
-        return try yaml.dictionary()
+    init(category: String? = nil,
+         template: String? = nil,
+         title: String? = nil,
+         subtitle: String? = nil,
+         date: Date? = nil,
+         tags: [String]? = nil) {
+        self.category = category
+        self.template = template
+        self.title = title
+        self.subtitle = subtitle
+        self.date = date
+        self.tags = tags
     }
 
 }

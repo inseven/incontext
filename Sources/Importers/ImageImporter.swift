@@ -20,14 +20,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import AVFoundation
+import CoreGraphics
 import Foundation
 import ImageIO
+
+// Metadata import details from Python.
+//METADATA_SCHEMA = Dictionary({
+//
+//    "title": String(First(Key("Title"), Key("DisplayName"), Key("ObjectName"), Empty())),
+//    "content": String(First(Key("ImageDescription"), Key("Description"), Key("ArtworkContentDescription"), Default(None))),
+//    "date": First(EXIFDate(First(Key("DateTimeOriginal"), Key("ContentCreateDate"), Key("CreationDate"))), Empty()),
+//    "projection": First(Key("ProjectionType"), Empty()),
+//    "location": First(Dictionary({
+//        "latitude": GPSCoordinate(Key("GPSLatitude")),
+//        "longitude": GPSCoordinate(Key("GPSLongitude")),
+//    }), Empty())
+//
+//})
+
 
 class ImageImporter: Importer {
 
     let identifier = "app.incontext.importer.image"
     let legacyIdentifier = "import_photo"
-    let version = 4
+    let version = 6
 
     func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
 
@@ -42,7 +59,24 @@ class ImageImporter: Importer {
         }
 
         // TODO: Extract some of this data into the document.
-        _ = CGImageSourceCopyPropertiesAtIndex(image, 0, nil) as? [String: Any]
+
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(image, 0, nil) as? [String: Any],
+              let width = properties["PixelWidth"] as? Int,
+              let height = properties["PixelHeight"] as? Int else{
+            throw InContextError.unknown
+        }
+        print(width, height)
+
+        // TODO: Calculate the aspect ratio etc.
+
+        let title: String = (try properties.optionalValue(for: "Title") ??
+                             (try properties.optionalValue(for: "DisplayName")) ??
+                             (try properties.optionalValue(for: "ObjectName")) ??
+                             "")
+
+        var metadata: [String: Any] = [
+            "title": title
+        ]
 
         var assets: [Asset] = []
 
@@ -69,12 +103,14 @@ class ImageImporter: Importer {
             CGImageDestinationFinalize(destination)  // TODO: Handle error here?
             assets.append(Asset(fileURL: destinationURL as URL))
 
+//            let sourceRatio =
+//
 //            let availableRect = AVFoundation.AVMakeRect(aspectRatio: image.size, insideRect: .init(origin: .zero, size: maxSize))
 //            let targetSize = availableRect.size
 
             let details = [
-                "width": 100,
-                "height": 100,
+                "width": width,
+                "height": height,
                 "filename": "cheese",
                 "url": destinationURL.relativePath.ensureLeadingSlash(),
             ] as [String: Any]
@@ -101,12 +137,13 @@ class ImageImporter: Importer {
             }
 
         let details = fileURL.basenameDetails()
+        metadata = metadata.merging(transformDetails) { $1 }
 
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
                                 type: "",
                                 date: details.date,
-                                metadata: transformDetails,
+                                metadata: metadata,
                                 contents: "",
                                 mtime: file.contentModificationDate,
                                 template: "photo.html")

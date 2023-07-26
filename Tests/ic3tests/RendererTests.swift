@@ -318,6 +318,30 @@ class RendererTests: XCTestCase {
                        "10.0")
     }
 
+
+    func testConditionalWithDate() throws {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let date = dateFormatter.date(from: "2018-12-26 13:48:00")!
+        XCTAssertEqual(try render("{% if object.date %}{{ object.date }}{% endif %}",
+                                  context: [
+                                    "object": [
+                                        "date": date
+                                    ] as [AnyHashable: Any?],
+                                  ]),
+                       "2018-12-26 23:48:00 +0000")
+    }
+
+    func testDateFormat() throws {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let date = dateFormatter.date(from: "2018-12-26 13:48:00")!
+        XCTAssertEqual(try render("{% set year = date.format(string: \"YYYY\") %}{{ year }}",
+                                  context: ["date": date]),
+                       "2018")
+    }
+
+
     // TODO: Update to use set.
 //    func testIncludeContext() async throws {
 //        try await withTemporaryDirectory { templatesURL in

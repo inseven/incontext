@@ -58,6 +58,10 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
 
             return try documents(query: QueryDescription(parent: document.url))
 
+        } else if let _ = try call.arguments(Method("parent")) {
+
+            return try documents(query: QueryDescription(url: document.parent))
+
         }
 
         throw InContextError.unknownFunction(call.signature)

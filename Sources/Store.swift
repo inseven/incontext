@@ -24,59 +24,6 @@ import Foundation
 
 import SQLite
 
-struct QueryDescription: Encodable {
-
-    let includeCategories: [String]?
-    let parent: String?
-
-    init(includeCategories: [String]? = nil, parent: String? = nil) {
-        self.includeCategories = includeCategories
-        self.parent = parent
-    }
-
-    func expression() -> Expression<Bool> {
-
-        var expressions: [Expression<Bool>] = []
-
-        if let includeCategories {
-            let includeExpression = includeCategories.reduce(Expression<Bool>(value: false)) { result, category in
-                let expression: Expression<Bool> = Store.Schema.type == category
-                return result || expression
-            }
-            expressions.append(includeExpression)
-        }
-
-        if let parent {
-            expressions.append(Store.Schema.parent == parent)
-        }
-
-        return expressions.reduce(Expression<Bool>(value: true)) { $0 && $1 }
-    }
-
-    init(definition query: Any) throws {
-        guard let structuredQuery = query as? [String: Any] else {
-            throw InContextError.invalidQueryDefinition
-        }
-        if let include = structuredQuery["include"] {
-            guard let include = include as? [String] else {
-                throw InContextError.invalidQueryDefinition
-            }
-            includeCategories = include
-        } else {
-            includeCategories = nil
-        }
-        if let parent = structuredQuery["parent"] {
-            guard let parent = parent as? String else {
-                throw InContextError.invalidQueryDefinition
-            }
-            self.parent = parent
-        } else {
-            self.parent = nil
-        }
-    }
-
-}
-
 class Store {
 
     struct Schema {
@@ -263,7 +210,7 @@ class Store {
                             parent: row[Schema.parent],
                             type: row[Schema.type],
                             date: row[Schema.date],
-                            metadata: metadata,  // TODO!
+                            metadata: metadata,
                             contents: row[Schema.contents],
                             mtime: Date(),  // TODO!
                             template: row[Schema.template])
@@ -303,6 +250,7 @@ class Store {
     }
 
     func syncDocuments(query: QueryDescription? = nil) throws -> [Document] {
+        // TODO: Cache results by query description?
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
         return try syncQueue.sync {
             try syncQueue_documents(query: query)
