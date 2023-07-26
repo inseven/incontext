@@ -21,42 +21,43 @@
 // SOFTWARE.
 
 import Foundation
-import RegexBuilder
 
-struct Handler<T: Importer> {
+struct AnyHandler {
 
-    let when: Regex<AnyRegexOutput>
-    let whenSource: String
-    let then: String
-    let importer: T
-    let settings: T.Settings
-
-    init(when: String, then: String, importer: T, settings: T.Settings) throws {
-        self.when = try Regex("^" + when + "$")
-        self.whenSource = when
-        self.then = then
-        self.importer = importer
-        self.settings = settings
-    }
-
-}
-
-extension Handler {
+    let _version: () -> Int
+    let _identifier: () -> String
+    let _process: (Site, File) async throws -> ImporterResult
+    let _matches: (String) throws -> Bool
 
     var version: Int {
-        return importer.version
+        return _version()
     }
 
     var identifier: String {
-        return importer.identifier
+        return _identifier()
+    }
+
+    init<T: Importer>(_ handler: Handler<T>) {
+        _version = {
+            return handler.version
+        }
+        _identifier = {
+            return handler.identifier
+        }
+        _process = { site, file in
+            return try await handler.process(site: site, file: file)
+        }
+        _matches = { path in
+            return try handler.matches(relativePath: path)
+        }
     }
 
     func matches(relativePath: String) throws -> Bool {
-        return try when.wholeMatch(in: relativePath) != nil
+        return try _matches(relativePath)
     }
 
     func process(site: Site, file: File) async throws -> ImporterResult {
-        return try await importer.process(site: site, file: file, settings: settings)
+        return try await _process(site, file)
     }
 
 }

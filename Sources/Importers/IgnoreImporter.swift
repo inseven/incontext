@@ -24,11 +24,19 @@ import Foundation
 
 class IgnoreImporter: Importer {
 
-    let identifier = "app.incontext.importer.ignore"
-    let legacyIdentifier = "ignore"
+    typealias Settings = EmptySettings
+
+    let identifier = "ignore"
     let version = 1
 
-    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
+    func settings(for configuration: [String : Any]) throws -> EmptySettings {
+        guard configuration["args"] == nil else {
+            throw InContextError.unexpecteArgs
+        }
+        return EmptySettings()
+    }
+
+    func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
         return ImporterResult()
     }
 

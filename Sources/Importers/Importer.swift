@@ -34,12 +34,42 @@ struct ImporterResult {
 
 }
 
+protocol ImporterSettings {
+
+}
+
 protocol Importer {
 
+    associatedtype Settings: ImporterSettings
+
     var identifier: String { get }
-    var legacyIdentifier: String { get }
     var version: Int { get }
 
-    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult
+    func settings(for configuration: [String: Any]) throws -> Settings
+    func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult
+
+}
+
+extension Importer {
+
+    func handler(settings: [String: Any]) throws -> AnyHandler {
+        let when: String = try settings.requiredValue(for: "when")
+        let then: String = try settings.requiredValue(for: "then")
+
+        // Double-check that the type is correct.
+        guard then == self.identifier else {
+            throw InContextError.internalInconsistency("Unexpected type for handler settings.")
+        }
+        let handler = try Handler(when: when,
+                                  then: then,
+                                  importer: self,
+                                  settings: try self.settings(for: settings))
+        return AnyHandler(handler)
+    }
+
+}
+
+// To be used when no settings are required; returns a struct even if not specified.
+struct EmptySettings: ImporterSettings {
 
 }

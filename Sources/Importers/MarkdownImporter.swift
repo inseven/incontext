@@ -25,11 +25,21 @@ import Yams
 
 class MarkdownImporter: Importer {
 
-    let identifier = "app.incontext.importer.markdown"
-    let legacyIdentifier = "import_markdown"
-    let version = 10
+    struct Settings: ImporterSettings {
+        let defaultCategory: String
+        let defaultTemplate: String
+    }
 
-    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
+    let identifier = "import_markdown"
+    let version = 11
+
+    func settings(for configuration: [String : Any]) throws -> Settings {
+        let args: [String: Any] = try configuration.requiredValue(for: "args")
+        return Settings(defaultCategory: try args.requiredValue(for: "default_category"),
+                        defaultTemplate: try args.requiredValue(for: "default_template"))
+    }
+
+    func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
 
         let fileURL = file.url
 
@@ -55,8 +65,7 @@ class MarkdownImporter: Importer {
                                   try decoder.decode(Metadata.self, from: result.rawMetadata) :
                                     Metadata())
 
-        let category: String = try metadata.value(for: "category",
-                                                  default: try settings.value(for: "default_category", default: ""))
+        let category: String = try metadata.value(for: "category", default: settings.defaultCategory)
 
         // TODO: There's a bunch of legacy code which detects thumbnails. *sigh*
         //       I think it might actually be possible to do this with the template engine.
@@ -68,7 +77,7 @@ class MarkdownImporter: Importer {
                                 metadata: metadata,
                                 contents: result.content,
                                 mtime: file.contentModificationDate,
-                                template: (metadata["template"] as? String) ?? "post.html")  // TODO: Use a default for this.
+                                template: (metadata["template"] as? String) ?? settings.defaultTemplate)
         return ImporterResult(documents: [document])
     }
 

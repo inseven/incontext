@@ -25,11 +25,21 @@ import Foundation
 
 class VideoImporter: Importer {
 
-    let identifier = "app.incontext.importer.video"
-    let legacyIdentifier = "import_video"
+    struct Settings: ImporterSettings {
+        let defaultCategory: String
+        let titleFromFilename: Bool
+    }
+
+    let identifier = "import_video"
     let version = 5
 
-    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
+    func settings(for configuration: [String : Any]) throws -> Settings {
+        let args: [String: Any] = try configuration.requiredValue(for: "args")
+        return Settings(defaultCategory: try args.requiredValue(for: "category"),
+                        titleFromFilename: try args.requiredValue(for: "title_from_filename"))
+    }
+
+    func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
         let video = AVAsset(url: file.url)
         let outputURL = site.outputURL(relativePath: file.url.deletingPathExtension().relativePath + ".mov")
         try FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(),

@@ -188,7 +188,7 @@ class Builder {
                     }
 
                     // Get the importer for the file.
-                    guard let (importer, settings) = try site.importer(for: fileURL) else {
+                    guard let handler = try self.site.handler(for: fileURL) else {
                         print("Ignoring unsupported file '\(fileURL.relativePath)'.")
                         continue
                     }
@@ -206,7 +206,7 @@ class Builder {
                             let fileModified = !Calendar.current.isDate(status.contentModificationDate,
                                                                         equalTo: contentModificationDate,
                                                                         toGranularity: .nanosecond)
-                            let differentImporterVersion = status.importerVersion != importer.version
+                            let differentImporterVersion = status.importerVersion != handler.version
 
                             if !fileModified && !differentImporterVersion {
                                 return []
@@ -234,15 +234,15 @@ class Builder {
                             // TODO: Clean up the existing intermediates if we know that the contents have changed.
                         }
 
-                        print("[\(importer.legacyIdentifier)] Importing '\(fileURL.relativePath)'...")
+                        print("[\(handler.identifier)] Importing '\(fileURL.relativePath)'...")
 
                         // Import the file.
                         let file = File(url: fileURL, contentModificationDate: contentModificationDate)
-                        let result = try await importer.process(site: self.site, file: file, settings: settings)
+                        let result = try await handler.process(site: self.site, file: file)
                         let status = Status(fileURL: file.url,
                                             contentModificationDate: file.contentModificationDate,
-                                            importer: importer.identifier,
-                                            importerVersion: importer.version)
+                                            importer: handler.identifier,
+                                            importerVersion: handler.version)
                         try await self.store.save(documents: result.documents, assets: result.assets, status: status)
 
                         // TODO: This should probably just return the relative paths so we can know which files to delete.

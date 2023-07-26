@@ -44,9 +44,9 @@ struct Site {
 
     let settings: [AnyHashable: Any]
 
-    let importers: [String: Importer]
+    let importers: [String: any Importer]
 
-    let handlers: [Handler]
+    let handlers: [AnyHandler]
 
     init(rootURL: URL) throws {
         self.rootURL = rootURL
@@ -73,46 +73,34 @@ struct Site {
             throw InContextError.corruptSettings
         }
 
+        let importers = ([
+            CopyImporter(),
+            IgnoreImporter(),
+            ImageImporter(),
+            MarkdownImporter(),
+            SassImporter(),
+            VideoImporter(),
+        ] as [any Importer]).reduce(into: [:]) { $0[$1.identifier] = $1 }
+        self.importers = importers
+
         let actualHandlers = try handlers.map { handler in
-            guard let when = handler["when"] as? String,
-                  let then = handler["then"] as? String
-            else {
+            guard let then = handler["then"] as? String else {
                 throw InContextError.corruptSettings
             }
-
-            let settings: [AnyHashable: Any]
-            if handler["args"] != nil {
-                guard let args = handler["args"] as? [AnyHashable: Any] else {
-                    throw InContextError.corruptSettings
-                }
-                settings = args
-            } else {
-                settings = [:]
+            guard let importer = importers[then] else {
+                throw InContextError.unknownImporter(then)
             }
-
-            return try Handler(when: when, then: then, settings: settings)
+            return try importer.handler(settings: handler)
         }
         self.handlers = actualHandlers
-
-        self.importers = ([
-                CopyImporter(),
-                IgnoreImporter(),
-                ImageImporter(),
-                MarkdownImporter(),
-                SassImporter(),
-                VideoImporter(),
-            ] as [Importer]).reduce(into: [:]) { $0[$1.legacyIdentifier] = $1 }
     }
 
-    func importer(for url: URL) throws -> (Importer, [AnyHashable: Any])? {
+    func handler(for url: URL) throws -> AnyHandler? {
         for handler in handlers {
-            guard try handler.when.wholeMatch(in: url.relativePath) != nil else {
+            guard try handler.matches(relativePath: url.relativePath) else {
                 continue
             }
-            guard let importer = importers[handler.then] else {
-                throw InContextError.unknownImporter(handler.then)
-            }
-            return (importer, handler.settings)
+            return handler
         }
         return nil
     }

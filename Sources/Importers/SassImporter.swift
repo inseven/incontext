@@ -26,15 +26,20 @@ import DartSass
 
 class SassImporter: Importer {
 
-    let identifier = "app.incontext.importer.sass"
-    let legacyIdentifier = "preprocess_stylesheet"
+    struct Settings: ImporterSettings {
+        let path: String
+    }
+
+    let identifier = "preprocess_stylesheet"
     let version = 9
 
-    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
-        guard let path = settings["path"] as? String else {
-            throw InContextError.corruptSettings
-        }
-        let inputURL = URL(filePath: path, relativeTo: site.contentURL)
+    func settings(for configuration: [String : Any]) throws -> Settings {
+        let args: [String: Any] = try configuration.requiredValue(for: "args")
+        return Settings(path: try args.requiredValue(for: "path"))
+    }
+
+    func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
+        let inputURL = URL(filePath: settings.path, relativeTo: site.contentURL)
         let outputURL = site.outputURL(relativePath: inputURL.deletingPathExtension().relativePath + ".css")
         let compiler = try Compiler()
         let results = try await compiler.compile(fileURL: inputURL)

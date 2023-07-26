@@ -25,6 +25,7 @@ import Foundation
 enum InContextError: Error {
     case unsupportedEncoding
     case unknown
+    case internalInconsistency(String)
     case unknownSymbol(String)
     case invalidKey(Any?)
     case unknownFunction(String)
@@ -33,8 +34,10 @@ enum InContextError: Error {
     case unknownSchemaVersion(Int32)
     case unknownImporter(String)
     case corruptSettings
+    case unexpecteArgs
     case notFound
     case unknownQuery(String)
     case invalidQueryDefinition
     case incorrectType(AnyHashable)
+    case missingKey(Any)
 }

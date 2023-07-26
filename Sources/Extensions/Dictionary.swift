@@ -64,4 +64,14 @@ extension Dictionary {
         return value
     }
 
+    func requiredValue<T>(for key: Key) throws -> T {
+        guard let value = self[key] else {
+            throw InContextError.missingKey(key)
+        }
+        guard let value = value as? T else {
+            throw InContextError.incorrectType(key)  // TODO: Include expects?
+        }
+        return value
+    }
+
 }

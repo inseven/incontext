@@ -24,11 +24,19 @@ import Foundation
 
 class CopyImporter: Importer {
 
-    let identifier = "app.incontext.importer.copy"
-    let legacyIdentifier = "copy_file"
+    typealias Settings = EmptySettings
+
+    let identifier = "copy_file"
     let version = 1
 
-    func process(site: Site, file: File, settings: [AnyHashable: Any]) async throws -> ImporterResult {
+    func settings(for configuration: [String : Any]) throws -> EmptySettings {
+        guard configuration["args"] == nil else {
+            throw InContextError.unexpecteArgs
+        }
+        return EmptySettings()
+    }
+
+    func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
         // TODO: Consider whether these actually get a tracking context that lets them add to the site instead of
         //       returning documents. That feels like it might be cleaner and more flexible?
         //       That approach would have the benefit of meaning that we don't really need to do significant path
