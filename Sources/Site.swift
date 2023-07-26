@@ -248,17 +248,9 @@ struct Site {
     }
 
     func environment() -> Environment {
-        // Get the template.
-
         let templatesPath = site.templatesURL.path(percentEncoded: false)
         let loader = FileSystemLoader(paths: [.init(templatesPath)])
         let environment = Environment(loader: loader, extensions: [Self.ext()])
-
-
-
-        // Pre-render the contents.
-        // TODO: Inject the site for querying.
-
         return environment
     }
 
