@@ -51,3 +51,4 @@ while I'd love to use it to build my own website in the future, we're not there 
 - [ ] Add support for generating podcast feeds
 - [ ] Typesafe configuration
 - [ ] Pass the template in as part of the default arguments
+- [ ] Consider supporting filters in the `set` tag

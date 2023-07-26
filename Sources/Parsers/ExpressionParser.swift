@@ -24,11 +24,7 @@ import Foundation
 
 import Ogma
 
-// TODO: Consider supporting filters; maybe these can be applied from the context?
-
-// TODO: Rename to parser?array
-// TODO: Remove public
-public indirect enum SetExpression {
+public indirect enum ExpressionParser {
 
     public struct Identifier {
         let name: String
@@ -37,7 +33,7 @@ public indirect enum SetExpression {
     case operation(SetOperation)
 }
 
-extension SetExpression {
+extension ExpressionParser {
 
     public enum Token: TokenProtocol {
         case set
@@ -62,10 +58,10 @@ extension SetExpression {
 
 }
 
-extension SetExpression {
+extension ExpressionParser {
 
     enum Lexer: GeneratorLexer {
-        typealias Token = SetExpression.Token
+        typealias Token = ExpressionParser.Token
 
         static let generators: Generators = [
             WhiteSpaceTokenGenerator().ignore(),
@@ -92,7 +88,7 @@ extension SetExpression {
 
 }
 
-extension SetExpression.Token {
+extension ExpressionParser.Token {
 
     var int: Int? {
         guard case .int(let int) = self else { return nil }
@@ -109,31 +105,31 @@ extension SetExpression.Token {
         return string
     }
 
-    var identifier: SetExpression.Identifier? {
+    var identifier: ExpressionParser.Identifier? {
         guard case .identifier(let name) = self else { return nil }
-        return SetExpression.Identifier(name: name)
+        return ExpressionParser.Identifier(name: name)
     }
 
 }
 
 extension Int: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = .consuming(keyPath: \.int)
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = .consuming(keyPath: \.int)
 }
 
 extension Double: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = .consuming(keyPath: \.double)
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = .consuming(keyPath: \.double)
 }
 
 extension String: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = .consuming(keyPath: \.string)
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = .consuming(keyPath: \.string)
 }
 
 extension Bool: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = Token.true.map { true } || Token.false.map { false }
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = Token.true.map { true } || Token.false.map { false }
 }
 
 extension Array: Parsable where Element == Resultable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = {
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = {
         let element = Resultable.map { $0 }
         let elements = element
             .separated(by: .comma, allowsTrailingSeparator: false, allowsEmpty: true)
@@ -144,7 +140,7 @@ extension Array: Parsable where Element == Resultable {
 }
 
 extension Dictionary: Parsable where Key == Resultable, Value == Resultable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = {
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = {
         let element = Resultable.self && .colon && Resultable.self
         return element
             .separated(by: .comma, allowsTrailingSeparator: false, allowsEmpty: true)
@@ -153,24 +149,24 @@ extension Dictionary: Parsable where Key == Resultable, Value == Resultable {
     }()
 }
 
-extension SetExpression.Identifier: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, SetExpression.Identifier> = .consuming(keyPath: \.identifier)
+extension ExpressionParser.Identifier: Parsable {
+    public static let parser: AnyParser<ExpressionParser.Token, ExpressionParser.Identifier> = .consuming(keyPath: \.identifier)
 }
 
 extension SetOperation {
     init(string: String) throws {
-        self = try Self.parse(string, using: SetExpression.Lexer.self)
+        self = try Self.parse(string, using: ExpressionParser.Lexer.self)
     }
 }
 
 extension UpdateOperation {
     init(string: String) throws {
-        self = try Self.parse(string, using: SetExpression.Lexer.self)
+        self = try Self.parse(string, using: ExpressionParser.Lexer.self)
     }
 }
 
 extension Resultable: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = {
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = {
         let int = Int.map { Self.int($0) }
         let double = Double.map { Self.double($0) }
         let string = String.map { Self.string($0) }
@@ -183,9 +179,9 @@ extension Resultable: Parsable {
 }
 
 extension Operation: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = {
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = {
         let functionCall = FunctionCall.map { Self.call($0) }
-        let lookup = SetExpression.Identifier.map { Self.lookup($0.name) }
+        let lookup = ExpressionParser.Identifier.map { Self.lookup($0.name) }
         let expression = functionCall || lookup
         return expression.map { $0 }
     }()
@@ -194,7 +190,7 @@ extension Operation: Parsable {
 extension Executable: Parsable {
 
     // TODO: Guard against unintentional iterals in after a dot.
-    public static let parser: AnyParser<SetExpression.Token, Self> = {
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = {
         let head = Resultable.map { $0 }
         let tail = Executable.map { $0 }
         let expression = head && .dot && tail
@@ -206,8 +202,8 @@ extension Executable: Parsable {
 }
 
 extension FunctionCall: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = {
-        let name = SetExpression.Identifier.map { $0.name }
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = {
+        let name = ExpressionParser.Identifier.map { $0.name }
         let result = Resultable.map { $0 }
         let argument = (name && .colon && result)
         let cheese = argument.map { NamedResultable(name: $0, result: $1) }
@@ -215,15 +211,15 @@ extension FunctionCall: Parsable {
             .separated(by: .comma, allowsTrailingSeparator: false, allowsEmpty: true)
             .map { $0 }
             .wrapped(by: .openParenthesis, and: .closeParenthesis)
-        let call = SetExpression.Identifier.map { $0.name } && arguments
+        let call = ExpressionParser.Identifier.map { $0.name } && arguments
         return call
             .map { FunctionCall(name: $0, arguments: $1) }
     }()
 }
 
 extension SetOperation: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = {
-        let identifier = SetExpression.Identifier.map { $0.name }
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = {
+        let identifier = ExpressionParser.Identifier.map { $0.name }
         let result = Resultable.map { $0 }
         let expression = identifier && .equals && result
         return (.set && expression)
@@ -232,8 +228,8 @@ extension SetOperation: Parsable {
 }
 
 extension UpdateOperation: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = {
-        let identifier = SetExpression.Identifier.map { $0.name }
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = {
+        let identifier = ExpressionParser.Identifier.map { $0.name }
         let result = Resultable.map { $0 }
         let expression = identifier && .equals && result
         return (.update && expression)
@@ -241,6 +237,6 @@ extension UpdateOperation: Parsable {
     }()
 }
 
-extension SetExpression: Parsable {
-    public static let parser: AnyParser<SetExpression.Token, Self> = SetOperation.map(SetExpression.operation)
+extension ExpressionParser: Parsable {
+    public static let parser: AnyParser<ExpressionParser.Token, Self> = SetOperation.map(ExpressionParser.operation)
 }

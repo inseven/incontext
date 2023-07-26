@@ -29,15 +29,6 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
     let store: Store
     let document: Document
 
-    func documents() throws -> [DocumentContext] {
-        let task = Task {
-            return try await store
-                .documents()
-                .map { DocumentContext(store: store, document: $0) }
-        }
-        return try task.awaitResult()
-    }
-
     func documents(query: QueryDescription) throws -> [DocumentContext] {
         return try store.syncDocuments(query: query)
             .map { DocumentContext(store: store, document: $0) }
@@ -67,8 +58,10 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
     }
 
     func lookup(_ name: String) throws -> Any? {
-        // TODO: Ensure we fail with misisng properties?
-        return self[dynamicMember: name]
+        guard let value = self[dynamicMember: name] else {
+            throw InContextError.unknownSymbol(name)
+        }
+        return value
     }
 
     // TODO: Errors if values don't exist?
