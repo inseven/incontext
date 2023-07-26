@@ -21,42 +21,19 @@
 // SOFTWARE.
 
 import Foundation
-import RegexBuilder
 
-struct Handler<T: Importer> {
+import XCTest
+@testable import ic3
 
-    let when: Regex<AnyRegexOutput>
-    let whenSource: String
-    let importer: T
-    let settings: T.Settings
+class HandlerTests: XCTestCase {
 
-    init(when: String, importer: T, settings: T.Settings) throws {
-        self.when = try Regex("^" + when + "$").ignoresCase()
-        self.whenSource = when
-        self.importer = importer
-        self.settings = settings
-    }
-
-}
-
-extension Handler {
-
-    // TODO: Perhaps this could be 'fingerprint', and also include a version for handler functionality and settings?
-    // TODO: Sufficient to just make this Hashable?
-    var version: Int {
-        return importer.version
-    }
-
-    var identifier: String {
-        return importer.identifier
-    }
-
-    func matches(relativePath: String) throws -> Bool {
-        return try when.wholeMatch(in: relativePath) != nil
-    }
-
-    func process(site: Site, file: File) async throws -> ImporterResult {
-        return try await importer.process(site: site, file: file, settings: settings)
+    func testCaseSensitivity() throws {
+        let handler: Handler<MarkdownImporter> = try .init(when: "photos.*\\.(jpg|jpeg|png|gif|tiff|heic)",
+                                                           importer: MarkdownImporter(),
+                                                           settings: .init(defaultCategory: "general",
+                                                                           defaultTemplate: "posts.html"))
+        XCTAssertTrue(try handler.matches(relativePath: "photos/snapshots/image.heic"))
+        XCTAssertTrue(try handler.matches(relativePath: "photos/snapshots/image.HEIC"))
     }
 
 }

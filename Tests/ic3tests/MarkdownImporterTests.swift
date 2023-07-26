@@ -37,6 +37,9 @@ build_steps:
       handlers:
         - when: '(.*/)?.*\\.markdown'
           then: import_markdown
+          args:
+              default_category: general
+              default_template: posts.html
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: """
 ---
@@ -46,7 +49,10 @@ title: Fromage
 These are the contents of the file.
 """)
         let importer = MarkdownImporter()
-        let result = try await importer.process(site: defaultSourceDirectory.site, file: file, settings: [:])
+        let result = try await importer.process(site: defaultSourceDirectory.site,
+                                                file: file,
+                                                settings: .init(defaultCategory: "general",
+                                                                defaultTemplate: "posts.html"))
         XCTAssertEqual(result.documents.count, 1)
         XCTAssertEqual(result.documents.first!.metadata["title"] as? String, "Fromage")
     }
@@ -61,10 +67,16 @@ build_steps:
       handlers:
         - when: '(.*/)?.*\\.markdown'
           then: import_markdown
+          args:
+              default_category: general
+              default_template: posts.html
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
         let importer = MarkdownImporter()
-        let result = try await importer.process(site: defaultSourceDirectory.site, file: file, settings: [:])
+        let result = try await importer.process(site: defaultSourceDirectory.site,
+                                                file: file,
+                                                settings: .init(defaultCategory: "general",
+                                                                defaultTemplate: "posts.html"))
         XCTAssertEqual(result.documents.count, 1)
         XCTAssertEqual(result.documents.first!.metadata["title"] as? String, "Cheese")
     }

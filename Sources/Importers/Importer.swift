@@ -61,7 +61,6 @@ extension Importer {
             throw InContextError.internalInconsistency("Unexpected type for handler settings.")
         }
         let handler = try Handler(when: when,
-                                  then: then,
                                   importer: self,
                                   settings: try self.settings(for: settings))
         return AnyHandler(handler)
