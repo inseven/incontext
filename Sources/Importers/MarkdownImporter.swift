@@ -26,8 +26,15 @@ import Yams
 class MarkdownImporter: Importer {
 
     struct Settings: ImporterSettings {
+
         let defaultCategory: String
         let defaultTemplate: String
+
+        func combine(into fingerprint: inout Fingerprint) throws {
+            try fingerprint.update(defaultCategory)
+            try fingerprint.update(defaultTemplate)
+        }
+
     }
 
     let identifier = "import_markdown"

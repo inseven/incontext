@@ -27,7 +27,13 @@ import DartSass
 class SassImporter: Importer {
 
     struct Settings: ImporterSettings {
+
         let path: String
+
+        func combine(into fingerprint: inout Fingerprint) throws {
+            try fingerprint.update(path)
+        }
+
     }
 
     let identifier = "preprocess_stylesheet"

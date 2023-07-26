@@ -24,13 +24,13 @@ import Foundation
 
 struct AnyHandler {
 
-    let _version: () -> Int
+    let _fingerprint: () throws -> String
     let _identifier: () -> String
     let _process: (Site, File) async throws -> ImporterResult
     let _matches: (String) throws -> Bool
 
-    var version: Int {
-        return _version()
+    func fingerprint() throws -> String {
+        return try _fingerprint()
     }
 
     var identifier: String {
@@ -38,8 +38,8 @@ struct AnyHandler {
     }
 
     init<T: Importer>(_ handler: Handler<T>) {
-        _version = {
-            return handler.version
+        _fingerprint = {
+            return try handler.fingerprint()
         }
         _identifier = {
             return handler.identifier

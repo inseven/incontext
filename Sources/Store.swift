@@ -45,7 +45,7 @@ class Store {
         static let relativePath = Expression<String>("relative_path")  // TODO: This should be relative source path
         static let contentModificationDate = Expression<Date>("content_modification_date")
         static let importer = Expression<String>("importer")
-        static let importerVersion = Expression<Int>("importer_version")
+        static let fingerprint = Expression<String>("fingerprint")
 
         // assets
         static let relativeAssetPath = Expression<String>("relative_asset_path")
@@ -74,7 +74,7 @@ class Store {
                 t.column(Schema.relativePath, primaryKey: true)
                 t.column(Schema.contentModificationDate)
                 t.column(Schema.importer)
-                t.column(Schema.importerVersion)
+                t.column(Schema.fingerprint)
             })
             print("create the assets table...")
             try connection.run(Schema.assets.create(ifNotExists: true) { t in
@@ -156,7 +156,7 @@ class Store {
                                                     Schema.relativePath <- status.relativePath,
                                                     Schema.contentModificationDate <- status.contentModificationDate,
                                                     Schema.importer <- status.importer,
-                                                    Schema.importerVersion <- status.importerVersion))
+                                                    Schema.fingerprint <- status.fingerprint))
         }
     }
 
@@ -168,7 +168,7 @@ class Store {
         return Status(fileURL: URL(filePath: try status.get(Schema.relativePath), relativeTo: site.contentURL),
                       contentModificationDate: try status.get(Schema.contentModificationDate),
                       importer: try status.get(Schema.importer),
-                      importerVersion: try status.get(Schema.importerVersion))
+                      fingerprint: try status.get(Schema.fingerprint))
     }
 
     private func syncQueue_assets(for relativePath: String) throws -> [Asset] {

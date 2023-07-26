@@ -34,7 +34,7 @@ struct ImporterResult {
 
 }
 
-protocol ImporterSettings {
+protocol ImporterSettings: Hashable, Fingerprintable {
 
 }
 
@@ -70,5 +70,7 @@ extension Importer {
 
 // To be used when no settings are required; returns a struct even if not specified.
 struct EmptySettings: ImporterSettings {
+
+    func combine(into fingerprint: inout Fingerprint) throws {}
 
 }

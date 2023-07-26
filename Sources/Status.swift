@@ -31,6 +31,6 @@ struct Status {
     let fileURL: URL
     let contentModificationDate: Date
     let importer: String
-    let importerVersion: Int
+    let fingerprint: String
 
 }

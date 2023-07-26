@@ -28,6 +28,11 @@ class VideoImporter: Importer {
     struct Settings: ImporterSettings {
         let defaultCategory: String
         let titleFromFilename: Bool
+
+        func combine(into fingerprint: inout Fingerprint) throws {
+            try fingerprint.update(defaultCategory)
+            try fingerprint.update(titleFromFilename)
+        }
     }
 
     let identifier = "import_video"

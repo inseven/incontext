@@ -200,13 +200,16 @@ class Builder {
                         // TODO: Database access is serial and probably introduces contention.
                         // TODO: Templates are stored in cached data so input settings need to invalidate the cache.
 
+                        // Cache metadata about the importer instance / handler.
+                        let handlerFingerprint = try handler.fingerprint()
+
                         // Check to see if the file already exists in the store and has a matching modification date.
                         if let status = try await self.store.status(for: fileURL.relativePath) {
 
                             let fileModified = !Calendar.current.isDate(status.contentModificationDate,
                                                                         equalTo: contentModificationDate,
                                                                         toGranularity: .nanosecond)
-                            let differentImporterVersion = status.importerVersion != handler.version
+                            let differentImporterVersion = status.fingerprint != handlerFingerprint
 
                             if !fileModified && !differentImporterVersion {
                                 return []
@@ -242,7 +245,7 @@ class Builder {
                         let status = Status(fileURL: file.url,
                                             contentModificationDate: file.contentModificationDate,
                                             importer: handler.identifier,
-                                            importerVersion: handler.version)
+                                            fingerprint: handlerFingerprint)
                         try await self.store.save(documents: result.documents, assets: result.assets, status: status)
 
                         // TODO: This should probably just return the relative paths so we can know which files to delete.

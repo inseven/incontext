@@ -25,6 +25,8 @@ import RegexBuilder
 
 struct Handler<T: Importer> {
 
+    let rulesVersion = 1
+
     let when: Regex<AnyRegexOutput>
     let whenSource: String
     let importer: T
@@ -39,10 +41,15 @@ struct Handler<T: Importer> {
 
 }
 
-extension Handler {
+extension Handler: Fingerprintable {
 
-    // TODO: Perhaps this could be 'fingerprint', and also include a version for handler functionality and settings?
-    // TODO: Sufficient to just make this Hashable?
+    func combine(into fingerprint: inout Fingerprint) throws {
+        try fingerprint.update(rulesVersion)
+        try fingerprint.update(importer.identifier)
+        try fingerprint.update(importer.version)
+        try fingerprint.update(settings)
+    }
+
     var version: Int {
         return importer.version
     }

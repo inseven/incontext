@@ -19,6 +19,7 @@ let package = Package(
         .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.7"),
         .package(url: "https://github.com/johnfairh/swift-sass.git", from: "1.7.0"),
         .package(url: "https://github.com/BiosTheoretikos/Ogma.git", from: "0.1.3"),
+        .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -36,6 +37,7 @@ let package = Package(
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yams", package: "Yams"),
                 .product(name: "Yaml", package: "YamlSwift"),
+                .product(name: "Crypto", package: "swift-crypto"),
             ],
             path: "Sources"),
         .testTarget(

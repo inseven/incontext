@@ -45,6 +45,11 @@ class ImageImporter: Importer {
     struct Settings: ImporterSettings {
         let defaultCategory: String
         let titleFromFilename: Bool
+
+        func combine(into fingerprint: inout Fingerprint) throws {
+            try fingerprint.update(defaultCategory)
+            try fingerprint.update(titleFromFilename)
+        }
     }
 
     let identifier = "import_photo"
@@ -75,7 +80,6 @@ class ImageImporter: Importer {
               let height = properties["PixelHeight"] as? Int else{
             throw InContextError.unknown
         }
-        print(width, height)
 
         // TODO: Calculate the aspect ratio etc.
 

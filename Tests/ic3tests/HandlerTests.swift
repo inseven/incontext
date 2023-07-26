@@ -36,4 +36,31 @@ class HandlerTests: XCTestCase {
         XCTAssertTrue(try handler.matches(relativePath: "photos/snapshots/image.HEIC"))
     }
 
+    func testFingerprint() throws {
+        let handler1: Handler<MarkdownImporter> = try .init(when: "photos.*\\.(jpg|jpeg|png|gif|tiff|heic)",
+                                                            importer: MarkdownImporter(),
+                                                            settings: .init(defaultCategory: "general",
+                                                                            defaultTemplate: "posts.html"))
+
+        let handler2: Handler<MarkdownImporter> = try .init(when: "photos.*\\.(jpg|jpeg|png|gif|tiff|heic)",
+                                                            importer: MarkdownImporter(),
+                                                            settings: .init(defaultCategory: "general",
+                                                                            defaultTemplate: "posts.html"))
+        XCTAssertEqual(try handler1.fingerprint(), try handler2.fingerprint())
+
+        let handler3: Handler<MarkdownImporter> = try .init(when: "photos.*\\.(jpg|jpeg|png|gif|tiff|heic)",
+                                                            importer: MarkdownImporter(),
+                                                            settings: .init(defaultCategory: "photos",
+                                                                            defaultTemplate: "posts.html"))
+        XCTAssertNotEqual(try handler1.fingerprint(), try handler3.fingerprint())
+    }
+
+    func testFingerprintStability() throws {
+        let handler: Handler<MarkdownImporter> = try .init(when: "photos.*\\.(jpg|jpeg|png|gif|tiff|heic)",
+                                                           importer: MarkdownImporter(),
+                                                           settings: .init(defaultCategory: "general",
+                                                                           defaultTemplate: "posts.html"))
+        XCTAssertEqual(try handler.fingerprint(), "ffHqCBy7nf2pFz1nG0D2+A==")
+    }
+
 }
