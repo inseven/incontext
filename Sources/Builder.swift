@@ -364,7 +364,7 @@ class Builder {
             // Render the documents.
             // TODO: Generate the document contexts out here.
             let documents = try await store.documents()
-            let serial = false  // TODO: Command line argument
+            let serial = true  // TODO: Command line argument
             if serial {
                 for document in try await store.documents() {
                     try await self.render(document: document,
