@@ -69,6 +69,7 @@ class Store: Queryable {
     let databaseURL: URL
     let workQueue = DispatchQueue(label: "Store.workQueue", attributes: isMultiThreaded ? .concurrent : [])
     let connection: Connection
+    let contentModificationDatesCache = Cache<QueryDescription, [Date]>()
 
     static var migrations: [Int32: (Connection) throws -> Void] = [
         1: { connection in
@@ -155,6 +156,11 @@ class Store: Queryable {
     private func syncQueue_save(documents: [Document], assets: [Asset], status: Status) throws {
         dispatchPrecondition(condition: .onQueue(workQueue))
         try connection.transaction {
+
+            // Invalidate the cache.
+            contentModificationDatesCache.removeAll()
+
+            // Write the documents.
             for document in documents {
 
                 // Serialise the metadata.
@@ -365,7 +371,12 @@ class Store: Queryable {
     func contentModificationDates(query: QueryDescription) throws -> [Date] {
         dispatchPrecondition(condition: .notOnQueue(workQueue))
         return try workQueue.sync {
-            return try syncQueue_contentModificationDates(query: query)
+            if let contentModificationDates = contentModificationDatesCache[query] {
+                return contentModificationDates
+            }
+            let contentModificationDates = try syncQueue_contentModificationDates(query: query)
+            contentModificationDatesCache[query] = contentModificationDates
+            return contentModificationDates
         }
     }
 
