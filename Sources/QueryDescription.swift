@@ -24,7 +24,7 @@ import Foundation
 
 import SQLite
 
-struct QueryDescription: Encodable {
+struct QueryDescription: Codable {
 
     let includeCategories: [String]?
     let url: String?

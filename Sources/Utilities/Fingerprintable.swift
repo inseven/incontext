@@ -52,7 +52,7 @@ struct Fingerprint {
         md5 = Insecure.MD5()
     }
 
-    public mutating func update(bufferPointer: UnsafeRawBufferPointer) {
+    mutating func update(bufferPointer: UnsafeRawBufferPointer) {
         md5.update(bufferPointer: bufferPointer)
     }
 
@@ -79,6 +79,13 @@ struct Fingerprint {
             throw CryptoError.encodingError
         }
         md5.update(data: data)
+    }
+
+    mutating func update(_ date: Date) throws {
+        var date = date.timeIntervalSinceReferenceDate
+        withUnsafeBytes(of: &date) { data in
+            self.update(bufferPointer: data)
+        }
     }
 
     fileprivate func finalize() -> String {

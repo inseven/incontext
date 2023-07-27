@@ -40,12 +40,12 @@ struct CallableBlock: EvaluationContext {
 // TODO: Perhaps this should be allowed to be anonymous?
 extension CallableBlock {
 
-    init(_ method: ic3.Method, perform: @escaping () -> Any?) {
+    init(_ method: ic3.Method, perform: @escaping () throws -> Any?) {
         self.evaluate = { call in
             guard let _ = try call.arguments(method) else {
                 throw InContextError.unknownFunction(call.signature)
             }
-            return perform()
+            return try perform()
         }
     }
 

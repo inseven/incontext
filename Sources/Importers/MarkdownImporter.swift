@@ -83,7 +83,7 @@ class MarkdownImporter: Importer {
                                 date: structuredMetadata.date ?? details.date,
                                 metadata: metadata,
                                 contents: result.content,
-                                mtime: file.contentModificationDate,
+                                contentModificationDate: file.contentModificationDate,
                                 template: (metadata["template"] as? String) ?? settings.defaultTemplate)
         return ImporterResult(documents: [document])
     }

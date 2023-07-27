@@ -24,16 +24,20 @@ import Foundation
 
 import SQLite
 
-class Store {
+class Store: Queryable {
 
     struct Schema {
 
         static let documents = Table("documents")
         static let status = Table("status")
         static let assets = Table("assets")
+        static let renderStatus = Table("render_status")
+
+        // common
+        static let url = Expression<String>("url")
+        static let contentModificationDate = Expression<Date>("content_modification_date")
 
         // documents
-        static let url = Expression<String>("url")
         static let parent = Expression<String>("parent")
         static let type = Expression<String>("type")
         static let date = Expression<Date?>("date")
@@ -43,13 +47,15 @@ class Store {
 
         // status
         static let relativePath = Expression<String>("relative_path")  // TODO: This should be relative source path
-        static let contentModificationDate = Expression<Date>("content_modification_date")
         static let importer = Expression<String>("importer")
         static let fingerprint = Expression<String>("fingerprint")
 
         // assets
         static let relativeAssetPath = Expression<String>("relative_asset_path")
         static let relativeSourcePath = Expression<String>("relative_source_path")
+
+        // render status
+        static let details = Expression<String>("details")
 
     }
 
@@ -67,6 +73,7 @@ class Store {
                 t.column(Schema.date)
                 t.column(Schema.metadata)
                 t.column(Schema.contents)
+                t.column(Schema.contentModificationDate)
                 t.column(Schema.template)
             })
             print("create the status table...")
@@ -80,6 +87,11 @@ class Store {
             try connection.run(Schema.assets.create(ifNotExists: true) { t in
                 t.column(Schema.relativeAssetPath, primaryKey: true)
                 t.column(Schema.relativeSourcePath)
+            })
+            print("create the render status table...")
+            try connection.run(Schema.renderStatus.create(ifNotExists: true) { t in
+                t.column(Schema.url, primaryKey: true)
+                t.column(Schema.details)
             })
         },
     ]
@@ -145,6 +157,7 @@ class Store {
                                                            Schema.date <- document.date,
                                                            Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
+                                                           Schema.contentModificationDate <- document.contentModificationDate,
                                                            Schema.template <- document.template))
             }
             for asset in assets {
@@ -186,6 +199,49 @@ class Store {
             .delete())
     }
 
+    private func syncQueue_renderStatus(for url: String) throws -> RenderStatus? {
+        dispatchPrecondition(condition: .onQueue(syncQueue))
+        guard let renderStatus = try connection.pluck(Schema.renderStatus.filter(Schema.url == url)) else {
+            return nil
+        }
+        // TODO: Check to see if this is costly to construct
+        let decoder = JSONDecoder()
+        guard let data = try renderStatus.get(Schema.details).data(using: .utf8) else {
+            throw InContextError.unknown
+        }
+        return try decoder.decode(RenderStatus.self, from: data)
+    }
+
+    private func syncQueue_renderStatuses() throws -> [(String, RenderStatus)] {
+        dispatchPrecondition(condition: .onQueue(syncQueue))
+        let rowIterator = try connection.prepareRowIterator(Schema.renderStatus)
+        return try rowIterator.map { row in
+            let decoder = JSONDecoder()
+            guard let data = row[Schema.details].data(using: .utf8) else {
+                throw InContextError.unknown
+            }
+            return (row[Schema.url], try decoder.decode(RenderStatus.self, from: data))
+        }
+    }
+
+    private func syncQueue_save(renderStatus: RenderStatus, for url: String) throws {
+        dispatchPrecondition(condition: .onQueue(syncQueue))
+        try connection.transaction {
+
+            // TODO: Performance
+            let encoder = JSONEncoder()
+            let renderStatus = try encoder.encode(renderStatus)
+            guard let string = String(data: renderStatus, encoding: .utf8) else {
+                // TODO: Decent error
+                throw InContextError.unknown
+            }
+
+            try connection.run(Schema.renderStatus.insert(or: .replace,
+                                                          Schema.url <- url,
+                                                          Schema.details <- string))
+        }
+    }
+
     private func syncQueue_documents(query: QueryDescription?) throws -> [Document] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
 
@@ -212,8 +268,24 @@ class Store {
                             date: row[Schema.date],
                             metadata: metadata,
                             contents: row[Schema.contents],
-                            mtime: Date(),  // TODO!
+                            contentModificationDate: row[Schema.contentModificationDate],
                             template: row[Schema.template])
+        }
+    }
+
+    private func syncQueue_contentModificationDates(query: QueryDescription?) throws -> [Date] {
+        dispatchPrecondition(condition: .onQueue(syncQueue))
+
+        let filter = query?.expression() ?? Expression<Bool>(value: true)
+
+        let query = Schema.documents
+            .select(Schema.contentModificationDate)
+            .filter(filter)
+            .order(Schema.date.desc)  // TODO: Move the order into the query.
+        let rowIterator = try connection.prepareRowIterator(query)
+
+        return try rowIterator.map { row in
+            return row[Schema.contentModificationDate]
         }
     }
 
@@ -249,11 +321,37 @@ class Store {
         }
     }
 
-    func syncDocuments(query: QueryDescription? = nil) throws -> [Document] {
+    func save(renderStatus: RenderStatus, for url: String) async throws {
+        try await run {
+            try self.syncQueue_save(renderStatus: renderStatus, for: url)
+        }
+    }
+
+    func renderStatus(for url: String) async throws -> RenderStatus? {
+        return try await run {
+            return try self.syncQueue_renderStatus(for: url)
+        }
+    }
+
+    func renderStatuses() async throws -> [(String, RenderStatus)] {
+        return try await run {
+            return try self.syncQueue_renderStatuses()
+        }
+    }
+
+    func documents(query: QueryDescription) throws -> [Document] {
         // TODO: Cache results by query description?
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
         return try syncQueue.sync {
             try syncQueue_documents(query: query)
+        }
+    }
+
+    // TODO: This can actually be async.
+    func contentModificationDates(query: QueryDescription) throws -> [Date] {
+        dispatchPrecondition(condition: .notOnQueue(syncQueue))
+        return try syncQueue.sync {
+            try syncQueue_contentModificationDates(query: query)
         }
     }
 

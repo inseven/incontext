@@ -72,7 +72,7 @@ class RendererTests: XCTestCase {
 
     func render(_ template: String, context: [String: Any] = [:]) throws -> String {
         let environment = Environment(extensions: [Site.ext()])
-        return try environment.renderTemplate(string: template, context: context)
+        return try environment.renderTemplate(string: template, context: context).0
     }
 
     func testSimple() throws {

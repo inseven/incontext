@@ -45,6 +45,13 @@ class CopyImporter: Importer {
         let fileManager = FileManager.default
         try fileManager.createDirectory(at: destinationURL.deletingLastPathComponent(),
                                         withIntermediateDirectories: true)
+
+        // TODO: This shouldn't really be necessary.
+        if fileManager.fileExists(atPath: destinationURL.path) {
+            print("Cleaning up orphaned file at '\(destinationURL.relativePath)'...")
+            try fileManager.removeItem(at: destinationURL)
+        }
+
         try fileManager.copyItem(at: file.url, to: destinationURL)
         return ImporterResult(assets: [Asset(fileURL: destinationURL)])
     }

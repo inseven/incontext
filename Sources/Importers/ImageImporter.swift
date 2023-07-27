@@ -159,7 +159,7 @@ class ImageImporter: Importer {
                                 date: details.date,
                                 metadata: metadata,
                                 contents: "",
-                                mtime: file.contentModificationDate,
+                                contentModificationDate: file.contentModificationDate,
                                 template: "photo.html")
         return ImporterResult(documents: [document], assets: assets)
     }

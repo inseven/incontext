@@ -235,9 +235,7 @@ struct Site {
         return ext
     }
 
-    func environment() -> Environment {
-        let templatesPath = site.templatesURL.path(percentEncoded: false)
-        let loader = FileSystemLoader(paths: [.init(templatesPath)])
+    func environment(loader: Loader) -> Environment {
         let environment = Environment(loader: loader, extensions: [Self.ext()])
         return environment
     }

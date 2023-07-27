@@ -30,7 +30,7 @@ struct Document {
     let date: Date?  // TODO: Perhaps this needs to be the file mtime?
     let metadata: [AnyHashable: Any]
     let contents: String
-    let mtime: Date
+    let contentModificationDate: Date
     let template: String
 
 }

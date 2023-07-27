@@ -24,13 +24,37 @@ import Foundation
 
 import Stencil
 
+protocol Queryable {
+
+    func documents(query: QueryDescription) throws -> [Document]
+
+}
+
+class QueryTracker: Queryable {
+
+    let store: Queryable
+    var queries: [QueryStatus] = []
+
+    init(store: Queryable) {
+        self.store = store
+    }
+
+    func documents(query: QueryDescription) throws -> [Document] {
+        let documents = try store.documents(query: query)
+        queries.append(QueryStatus(query: query,
+                                   contentModificationDates: documents.map({ $0.contentModificationDate })))
+        return documents
+    }
+
+}
+
 struct DocumentContext: EvaluationContext, DynamicMemberLookup {
 
-    let store: Store
+    let store: Queryable
     let document: Document
 
     func documents(query: QueryDescription) throws -> [DocumentContext] {
-        return try store.syncDocuments(query: query)
+        return try store.documents(query: query)
             .map { DocumentContext(store: store, document: $0) }
     }
 

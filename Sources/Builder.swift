@@ -104,18 +104,92 @@ extension BoundFunctionCall {
 
 }
 
+
+struct QueryStatus: Codable {
+
+    let query: QueryDescription
+    let contentModificationDates: [Date]
+
+}
+
+struct TemplateStatus: Codable {
+
+    let name: String
+    let contentModificationDate: Date
+
+}
+
+struct RenderStatus: Codable {
+
+    let contentModificationDate: Date
+    let queries: [QueryStatus]
+    let templates: [TemplateStatus]
+
+}
+
+
 class Builder {
 
     let site: Site
     let store: Store
+    let loader: CachingLoader
+    let environment: Environment
 
     init(site: Site) throws {
         try FileManager.default.createDirectory(at: site.buildURL, withIntermediateDirectories: true)
         self.site = site
         self.store = try Store(databaseURL: site.storeURL)
+
+        // TODO: Perhaps neither of these needs to be state?
+        self.loader = CachingLoader(rootURL: site.templatesURL)
+        self.environment = site.environment(loader: self.loader)
     }
 
-    func render(document: Document, environment: Environment, documents: [Document]) async throws {
+    func needsRender(document: Document, renderStatus: RenderStatus?) async throws -> Bool {
+        guard let renderStatus = renderStatus else {
+            // Since there's no render status we assume the document has never been rendered.
+            return true
+        }
+
+        // Check the document modification date.
+        if renderStatus.contentModificationDate != document.contentModificationDate {
+            // The document itself has changed.
+            return true
+        }
+
+        // Check if any of the templates have changed.
+        for templateStatus in renderStatus.templates {
+            let contentModificationTime = loader.contentModificationTime(for: templateStatus.name)
+            if templateStatus.contentModificationDate != contentModificationTime {
+                return true
+            }
+        }
+
+        // TODO: Check if any of the templates have changed.
+        // Check the query result modification dates.
+        for queryStatus in renderStatus.queries {
+            // TODO: Content modification dates query _could_ be async.
+            let contentModificationDates = try self.store.contentModificationDates(query: queryStatus.query)
+            if queryStatus.contentModificationDates != contentModificationDates {
+                return true
+            }
+        }
+
+        // TODO: Ensure we delete render statuses for documents that no longer exist!
+        return false
+    }
+
+    func render(document: Document,
+                environment: Environment,
+                documents: [Document],
+                renderStatus: RenderStatus?) async throws {
+
+        // TODO: Check the mtime first; this is a really quick way to know we need to re-render.
+        //       The whole goal is to do as few evaluations as necessary.
+
+        if !(try await needsRender(document: document, renderStatus: renderStatus)) {
+            return
+        }
 
         // TODO: Push this into the site?
         // TODO: Work out which file extension we need to use for our index file (this is currently based on the template).
@@ -124,30 +198,48 @@ class Builder {
         let destinationFileURL = destinationDirectoryURL.appendingPathComponent("index", conformingTo: .html)
         print("Rendering '\(document.url)' with template '\(document.template)'...")
 
+        let tracker = QueryTracker(store: store)
+
 
         // TODO: Inline the config loaded from the settings file
-        let store = self.store
         let context: [String: Any] = [
             "site": [
                 "title": "Jason Morley",
                 "date_format": "MMMM dd, yyyy",
                 "date_format_short": "MMMM dd",
                 "url": "https://jbmorley.co.uk",
-                "posts": CallableBlock(Method("posts")) {
+                "posts": CallableBlock(Method("posts")) { () throws -> [DocumentContext] in
                     // TODO: Consider default values for callables.
                     // TODO: Consider wrapping these elsewhere.
-                    return documents.map { DocumentContext(store: store, document: $0) }
+                    return try tracker.documents(query: QueryDescription())
+                        .map { DocumentContext(store: tracker, document: $0) }
                 }
             ] as Dictionary<String, Any>,  // TODO: as [String: Any] is different?
             "generate_uuid": CallableBlock(Method("generate_uuid")) {
                 return UUID().uuidString
             },
-            "page": DocumentContext(store: store, document: document),
+            "page": DocumentContext(store: tracker, document: document),
             "distant_past":  { (timezoneAware: Bool) in
                 return Date.distantPast
             }
         ]
-        let contents = try environment.renderTemplate(name: document.template, context: context)
+        let (contents, templates) = try environment.renderTemplate(name: document.template, context: context)
+
+        // Generate the TemplateStatus tuples with the template content modification times.
+        var templateStatuses: [TemplateStatus] = []
+        for name in templates {
+            // TODO: Rename to content modification _date_
+            guard let contentModificationTime = loader.contentModificationTime(for: name) else {
+                throw InContextError.internalInconsistency("Failed to get content modification date for template '\(name)'.")
+            }
+            templateStatuses.append(TemplateStatus(name: name, contentModificationDate: contentModificationTime))
+        }
+
+        // TODO: Save the templates too!
+        let renderStatus = RenderStatus(contentModificationDate: document.contentModificationDate,
+                                        queries: tracker.queries,
+                                        templates: templateStatuses)
+        try await store.save(renderStatus: renderStatus, for: document.url)
 
         // TODO: Fixup images.
         // TODO: Template HTML.
@@ -258,7 +350,16 @@ class Builder {
             }
             // TODO: Work out how to remove entries for deleted files.
 
-            let environment = site.environment()
+            // Warm the cache.
+            print("Loading templates...")
+            try await loader.load(environment: environment)
+
+            // Preload the existing render statuses in one batch in the hope that it's faster.
+            print("Loading render cache...")
+            let renderStatuses = try await store.renderStatuses()
+                .reduce(into: [String: RenderStatus](), { partialResult, renderStatus in
+                    partialResult[renderStatus.0] = renderStatus.1
+                })
 
             // Render the documents.
             // TODO: Generate the document contexts out here.
@@ -266,13 +367,19 @@ class Builder {
             let serial = false  // TODO: Command line argument
             if serial {
                 for document in try await store.documents() {
-                    try await self.render(document: document, environment: environment, documents: documents)
+                    try await self.render(document: document,
+                                          environment: environment, // TODO: Maybe don't bother passing the environment in?
+                                          documents: documents,
+                                          renderStatus: renderStatuses[document.url])
                 }
             } else {
                 try await withThrowingTaskGroup(of: Void.self) { group in
                     for document in documents {
                         group.addTask {
-                            try await self.render(document: document, environment: environment, documents: documents)
+                            try await self.render(document: document,
+                                                  environment: self.environment,
+                                                  documents: documents,
+                                                  renderStatus: renderStatuses[document.url])
                         }
                     }
                     // TODO: Is this necessary?
