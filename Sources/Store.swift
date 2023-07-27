@@ -59,8 +59,15 @@ class Store: Queryable {
 
     }
 
+    enum Operation {
+        case read
+        case write
+    }
+
+    static let isMultiThreaded = false
+
     let databaseURL: URL
-    let workQueue = DispatchQueue(label: "Store.syncQueue", attributes: .concurrent)
+    let workQueue = DispatchQueue(label: "Store.workQueue", attributes: isMultiThreaded ? .concurrent : [])
     let connection: Connection
 
     static var migrations: [Int32: (Connection) throws -> Void] = [
@@ -106,12 +113,19 @@ class Store: Queryable {
         }
     }
 
-    private func run<T>(flags: DispatchWorkItemFlags = [], operation: @escaping () throws -> T) async throws -> T {
-        try await withCheckedThrowingContinuation { continuation in
+    private func run<T>(_ operation: Operation = .read, perform: @escaping () throws -> T) async throws -> T {
+        let flags: DispatchWorkItemFlags
+        switch operation {
+        case .read:
+            flags = .barrier
+        case .write:
+            flags = .barrier
+        }
+        return try await withCheckedThrowingContinuation { continuation in
             workQueue.async(flags: flags) {
                 let result = Swift.Result<T, Error> {
                     try Task.checkCancellation()
-                    return try operation()
+                    return try perform()
                 }
                 continuation.resume(with: result)
             }
@@ -290,7 +304,7 @@ class Store: Queryable {
     }
 
     func save(documents: [Document], assets: [Asset], status: Status) async throws {
-        try await run(flags: .barrier) {
+        try await run(.write) {
             try self.syncQueue_save(documents: documents, assets: assets, status: status)
         }
     }
@@ -310,7 +324,7 @@ class Store: Queryable {
     }
 
     func forgetAssets(for relativePath: String) async throws {
-        try await run(flags: .barrier) {
+        try await run(.write) {
             return try self.syncQueue_forgetAssets(for: relativePath)
         }
     }
@@ -322,7 +336,7 @@ class Store: Queryable {
     }
 
     func save(renderStatus: RenderStatus, for url: String) async throws {
-        try await run(flags: .barrier) {
+        try await run(.write) {
             try self.syncQueue_save(renderStatus: renderStatus, for: url)
         }
     }
@@ -351,7 +365,7 @@ class Store: Queryable {
     func contentModificationDates(query: QueryDescription) throws -> [Date] {
         dispatchPrecondition(condition: .notOnQueue(workQueue))
         return try workQueue.sync {
-            try syncQueue_contentModificationDates(query: query)
+            return try syncQueue_contentModificationDates(query: query)
         }
     }
 

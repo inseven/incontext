@@ -47,7 +47,8 @@ class CachingLoader: Loader {
                     }
 
                     let name = fileURL.relativePath
-                    print("Loading '\(name)'...")
+                    // TODO: Debug logging
+//                    print("Loading '\(name)'...")
                     let contents = try String(contentsOf: fileURL, encoding: .utf8)
                     let template = try Template(templateString: contents, environment: environment, name: name)
                     cache[name] = (template, contentModificationDate)
