@@ -60,7 +60,7 @@ class Store: Queryable {
     }
 
     let databaseURL: URL
-    let syncQueue = DispatchQueue(label: "Store.syncQueue")
+    let workQueue = DispatchQueue(label: "Store.syncQueue", attributes: .concurrent)
     let connection: Connection
 
     static var migrations: [Int32: (Connection) throws -> Void] = [
@@ -101,14 +101,14 @@ class Store: Queryable {
     init(databaseURL: URL) throws {
         self.databaseURL = databaseURL
         self.connection = try Connection(databaseURL.path)
-        try syncQueue.sync {
+        try workQueue.sync(flags: .barrier) {
             try self.syncQueue_migrate()
         }
     }
 
-    private func run<T>(operation: @escaping () throws -> T) async throws -> T {
+    private func run<T>(flags: DispatchWorkItemFlags = [], operation: @escaping () throws -> T) async throws -> T {
         try await withCheckedThrowingContinuation { continuation in
-            syncQueue.async {
+            workQueue.async(flags: flags) {
                 let result = Swift.Result<T, Error> {
                     try Task.checkCancellation()
                     return try operation()
@@ -119,7 +119,7 @@ class Store: Queryable {
     }
 
     private func syncQueue_migrate() throws {
-        dispatchPrecondition(condition: .onQueue(syncQueue))
+        dispatchPrecondition(condition: .onQueue(workQueue))
         try connection.transaction {
             let currentVersion = connection.userVersion ?? 0
             print("version \(currentVersion)")
@@ -139,7 +139,7 @@ class Store: Queryable {
     }
 
     private func syncQueue_save(documents: [Document], assets: [Asset], status: Status) throws {
-        dispatchPrecondition(condition: .onQueue(syncQueue))
+        dispatchPrecondition(condition: .onQueue(workQueue))
         try connection.transaction {
             for document in documents {
 
@@ -174,7 +174,7 @@ class Store: Queryable {
     }
 
     private func syncQueue_status(for relativePath: String) throws -> Status? {
-        dispatchPrecondition(condition: .onQueue(syncQueue))
+        dispatchPrecondition(condition: .onQueue(workQueue))
         guard let status = try connection.pluck(Schema.status.filter(Schema.relativePath == relativePath)) else {
             return nil
         }
@@ -185,7 +185,7 @@ class Store: Queryable {
     }
 
     private func syncQueue_assets(for relativePath: String) throws -> [Asset] {
-        dispatchPrecondition(condition: .onQueue(syncQueue))
+        dispatchPrecondition(condition: .onQueue(workQueue))
         let rowIterator = try connection.prepareRowIterator(Schema.assets.filter(Schema.relativeSourcePath == relativePath))
         return try rowIterator.map { row in
             return Asset(fileURL: URL(filePath: try row.get(Schema.relativeAssetPath), relativeTo: site.filesURL))
@@ -193,14 +193,14 @@ class Store: Queryable {
     }
 
     private func syncQueue_forgetAssets(for relativePath: String) throws {
-        dispatchPrecondition(condition: .onQueue(syncQueue))
+        dispatchPrecondition(condition: .onQueue(workQueue))
         try connection.run(Schema.assets
             .filter(Schema.relativeSourcePath == relativePath)
             .delete())
     }
 
     private func syncQueue_renderStatus(for url: String) throws -> RenderStatus? {
-        dispatchPrecondition(condition: .onQueue(syncQueue))
+        dispatchPrecondition(condition: .onQueue(workQueue))
         guard let renderStatus = try connection.pluck(Schema.renderStatus.filter(Schema.url == url)) else {
             return nil
         }
@@ -213,7 +213,7 @@ class Store: Queryable {
     }
 
     private func syncQueue_renderStatuses() throws -> [(String, RenderStatus)] {
-        dispatchPrecondition(condition: .onQueue(syncQueue))
+        dispatchPrecondition(condition: .onQueue(workQueue))
         let rowIterator = try connection.prepareRowIterator(Schema.renderStatus)
         return try rowIterator.map { row in
             let decoder = JSONDecoder()
@@ -225,7 +225,7 @@ class Store: Queryable {
     }
 
     private func syncQueue_save(renderStatus: RenderStatus, for url: String) throws {
-        dispatchPrecondition(condition: .onQueue(syncQueue))
+        dispatchPrecondition(condition: .onQueue(workQueue))
         try connection.transaction {
 
             // TODO: Performance
@@ -243,7 +243,7 @@ class Store: Queryable {
     }
 
     private func syncQueue_documents(query: QueryDescription?) throws -> [Document] {
-        dispatchPrecondition(condition: .onQueue(syncQueue))
+        dispatchPrecondition(condition: .onQueue(workQueue))
 
         let filter = query?.expression() ?? Expression<Bool>(value: true)
 
@@ -274,7 +274,7 @@ class Store: Queryable {
     }
 
     private func syncQueue_contentModificationDates(query: QueryDescription?) throws -> [Date] {
-        dispatchPrecondition(condition: .onQueue(syncQueue))
+        dispatchPrecondition(condition: .onQueue(workQueue))
 
         let filter = query?.expression() ?? Expression<Bool>(value: true)
 
@@ -290,7 +290,7 @@ class Store: Queryable {
     }
 
     func save(documents: [Document], assets: [Asset], status: Status) async throws {
-        try await run {
+        try await run(flags: .barrier) {
             try self.syncQueue_save(documents: documents, assets: assets, status: status)
         }
     }
@@ -310,7 +310,7 @@ class Store: Queryable {
     }
 
     func forgetAssets(for relativePath: String) async throws {
-        try await run {
+        try await run(flags: .barrier) {
             return try self.syncQueue_forgetAssets(for: relativePath)
         }
     }
@@ -322,7 +322,7 @@ class Store: Queryable {
     }
 
     func save(renderStatus: RenderStatus, for url: String) async throws {
-        try await run {
+        try await run(flags: .barrier) {
             try self.syncQueue_save(renderStatus: renderStatus, for: url)
         }
     }
@@ -341,16 +341,16 @@ class Store: Queryable {
 
     func documents(query: QueryDescription) throws -> [Document] {
         // TODO: Cache results by query description?
-        dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        return try syncQueue.sync {
+        dispatchPrecondition(condition: .notOnQueue(workQueue))
+        return try workQueue.sync {
             try syncQueue_documents(query: query)
         }
     }
 
     // TODO: This can actually be async.
     func contentModificationDates(query: QueryDescription) throws -> [Date] {
-        dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        return try syncQueue.sync {
+        dispatchPrecondition(condition: .notOnQueue(workQueue))
+        return try workQueue.sync {
             try syncQueue_contentModificationDates(query: query)
         }
     }
