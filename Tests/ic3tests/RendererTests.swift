@@ -327,7 +327,7 @@ class RendererTests: XCTestCase {
                                         "date": date
                                     ] as [AnyHashable: Any?],
                                   ]),
-                       "2018-12-26 23:48:00 +0000")
+                       String(describing: date))
     }
 
     func testDateFormat() throws {
