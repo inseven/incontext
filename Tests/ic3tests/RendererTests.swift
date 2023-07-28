@@ -319,6 +319,9 @@ class RendererTests: XCTestCase {
 
     func testConditionalWithDate() throws {
         let dateFormatter = DateFormatter()
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .gmt
+        dateFormatter.calendar = calendar
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         let date = dateFormatter.date(from: "2018-12-26 13:48:00")!
         XCTAssertEqual(try render("{% if object.date %}{{ object.date }}{% endif %}",
