@@ -22,50 +22,6 @@
 
 import Foundation
 
-extension Array {
-
-    @inlinable func asyncFilter(_ isIncluded: @escaping (Element) async throws -> Bool) async rethrows -> [Element] {
-        var result = [Element]()
-        for element in self {
-            if try await isIncluded(element) {
-                result.append(element)
-            }
-        }
-        return result
-    }
-
-    @inlinable public func asyncMap<T>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T] {
-        var result = [T]()
-        for element in self {
-            result.append(try await transform(element))
-        }
-        return result
-    }
-
-    @inlinable public func asyncReduce<Result>(_ initialResult: Result,
-                                               _ nextPartialResult: @escaping (Result, Element) async throws -> Result) async rethrows -> Result {
-        var result = initialResult
-        for element in self {
-            result = try await nextPartialResult(result, element)
-        }
-        return result
-    }
-
-}
-
-extension Dictionary {
-
-    @inlinable public func asyncMap<T>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T] {
-        var result = [T]()
-        for element in self {
-            result.append(try await transform(element))
-        }
-        return result
-    }
-
-}
-
-
 public indirect enum Resultable: Equatable, Hashable, CustomStringConvertible {
 
     case int(Int)

@@ -22,22 +22,16 @@
 
 import Foundation
 
-protocol EvaluationContext {
-    // TODO: Rename 'evaluate' to perform.
-    // TODO: Anon argument
-    func evaluate(call: BoundFunctionCall) throws -> Any?
-    func lookup(_ name: String) throws -> Any?
-}
+enum Operation: Equatable, Hashable, CustomStringConvertible {
+    case call(FunctionCall)
+    case lookup(String)
 
-extension EvaluationContext {
-
-    func perform(_ operation: Operation, globalContext: EvaluationContext) throws -> Any? {
-        switch operation {
-        case .call(let functionCall):
-            let boundFunctionCall = BoundFunctionCall(context: globalContext, call: functionCall)
-            return try evaluate(call: boundFunctionCall)
+    var description: String {
+        switch self {
+        case .call(let call):
+            return ".call(\(call.description))"
         case .lookup(let name):
-            return try lookup(name)
+            return ".lookup(\(name))"
         }
     }
 
