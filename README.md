@@ -13,6 +13,13 @@ InContext 3 (`ic3`) is an experimental Swift rewrite that follows the design pri
 address the performance issues with some more modern language choices. It is most assuredly not production ready and,
 while I'd love to use it to build my own website in the future, we're not there yet.
 
+## Build
+
+```
+git submodule update --init --recursive
+swift build
+```
+
 ## Issues
 
 - [ ] Is MarkdownKit or Ink faster?
