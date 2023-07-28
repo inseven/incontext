@@ -41,8 +41,7 @@ class ConcurrentBox<Content> {
 
     func take() throws -> Content {
         guard let value = tryTake(until: .distantFuture) else {
-            // TODO: Interrupted?
-            throw InContextError.unknown
+            throw InContextError.interrupted
         }
         return value
     }

@@ -58,30 +58,24 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
             .map { DocumentContext(store: store, document: $0) }
     }
 
-    func evaluate(call: BoundFunctionCall) throws -> Any? {
-
-        if let name = try call.arguments(Method("query").argument("name", type: String.self)) {
-
+    func lookup(_ name: String) throws -> Any? {
+        switch name {
+        case "query": return Function { (name: String) -> [DocumentContext] in
             guard let queries = document.metadata["queries"] as? [String: Any],
                   let query = queries[name] else {
                 throw InContextError.unknownQuery(name)
             }
             return try documents(query: try QueryDescription(definition: query))
-
-        } else if let _ = try call.arguments(Method("children")) {
-
-            return try documents(query: QueryDescription(parent: document.url))
-
-        } else if let _ = try call.arguments(Method("parent")) {
-
-            return try documents(query: QueryDescription(url: document.parent))
-
         }
-
-        throw InContextError.unknownFunction(call.signature)
-    }
-
-    func lookup(_ name: String) throws -> Any? {
+        case "children": return Function { () -> [DocumentContext] in
+            return try documents(query: QueryDescription(parent: document.url))
+        }
+        case "parent": return Function { () -> DocumentContext? in
+            return try documents(query: QueryDescription(url: document.parent)).first
+        }
+        default:
+            break
+        }
         guard let value = self[dynamicMember: name] else {
             throw InContextError.unknownSymbol(name)
         }

@@ -22,26 +22,14 @@
 
 import Foundation
 
-import Yaml
+@resultBuilder struct CallablesBuilder {
 
-struct FrontmatterDocument {
+    public static func buildBlock() -> [Callable] {
+        return []
+    }
 
-    private static let frontmatterRegEx = /(?s)^(-\-\-\n)(?<metadata>.*?)(-\-\-\n)(?<content>.*)$/
-
-    let rawMetadata: String
-    let metadata: Dictionary<AnyHashable, Any>
-    let content: String
-
-    init(contents: String, generateHTML: Bool = false) throws {
-        guard let match = contents.wholeMatch(of: Self.frontmatterRegEx) else {
-            rawMetadata = ""
-            metadata = [:]
-            content = generateHTML ? contents.html() : contents
-            return
-        }
-        rawMetadata = String(match.metadata)
-        metadata = try rawMetadata.parseYAML()
-        content = generateHTML ? String(match.content).html() : String(match.content)
+    public static func buildBlock(_ callables: Callable...) -> [Callable] {
+        return callables
     }
 
 }

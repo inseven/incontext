@@ -22,11 +22,6 @@
 
 import Foundation
 
-
-// TODO: This needs to take an operand long-term.
-// TODO: Execution??
-// This is the perform. It captures the operation to perform, and the operation.
-// The recursion is achieved because resultable can be an Executable in the future.
 public struct Executable: Equatable, Hashable {
     let operand: Resultable?
     let operation: Operation
