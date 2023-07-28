@@ -74,4 +74,12 @@ extension Dictionary {
         return value
     }
 
+    @inlinable public func asyncMap<T>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T] {
+        var result = [T]()
+        for element in self {
+            result.append(try await transform(element))
+        }
+        return result
+    }
+
 }

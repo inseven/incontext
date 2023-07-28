@@ -22,18 +22,25 @@
 
 import Foundation
 
-// TODO: Move this into Executable
-enum Operation: Equatable, Hashable, CustomStringConvertible {
-    case call(FunctionCall)
-    case lookup(String)
+public struct FunctionCall: Equatable, Hashable, CustomStringConvertible {
 
-    var description: String {
-        switch self {
-        case .call(let call):
-            return ".call(\(call.description))"
-        case .lookup(let name):
-            return ".lookup(\(name))"
+    public static func == (lhs: FunctionCall, rhs: FunctionCall) -> Bool {
+        guard lhs.name == rhs.name else {
+            return false
         }
+        guard lhs.arguments == rhs.arguments else {
+            return false
+        }
+        return true
+    }
+
+    let name: String
+    let arguments: [NamedResultable]
+
+    public var description: String {
+        return arguments.map { $0.description }
+            .joined(separator: ", ")
+            .wrapped(by: "(", and: ")")
     }
 
 }

@@ -22,33 +22,21 @@
 
 import Foundation
 
-extension String {
-
-    func wrapped(by prefix: String, and suffix: String) -> String {
-        return prefix + self + suffix
-    }
-
+protocol EvaluationContext {
+    func evaluate(call: BoundFunctionCall) throws -> Any?
+    func lookup(_ name: String) throws -> Any?
 }
 
-public struct FunctionCall: Equatable, Hashable, CustomStringConvertible {
+extension EvaluationContext {
 
-    public static func == (lhs: FunctionCall, rhs: FunctionCall) -> Bool {
-        guard lhs.name == rhs.name else {
-            return false
+    func perform(_ operation: Operation, globalContext: EvaluationContext) throws -> Any? {
+        switch operation {
+        case .call(let functionCall):
+            let boundFunctionCall = BoundFunctionCall(context: globalContext, call: functionCall)
+            return try evaluate(call: boundFunctionCall)
+        case .lookup(let name):
+            return try lookup(name)
         }
-        guard lhs.arguments == rhs.arguments else {
-            return false
-        }
-        return true
-    }
-
-    let name: String
-    let arguments: [NamedResultable]
-
-    public var description: String {
-        return arguments.map { $0.description }
-            .joined(separator: ", ")
-            .wrapped(by: "(", and: ")")
     }
 
 }

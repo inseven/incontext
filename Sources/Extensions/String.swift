@@ -37,4 +37,8 @@ extension String: EvaluationContext {
         }
     }
 
+    func wrapped(by prefix: String, and suffix: String) -> String {
+        return prefix + self + suffix
+    }
+
 }
