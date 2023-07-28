@@ -24,18 +24,16 @@ import Foundation
 
 extension Date: EvaluationContext {
 
-    func evaluate(call: BoundFunctionCall) throws -> Any? {
-        if let argument = try call.arguments(Method("format").argument("string", type: String.self)) {
-            // TODO: Use the new Swift formatter styles
+    func lookup(_ name: String) throws -> Any? {
+        switch name {
+        case "format": return Function { (format: String) -> String in
             let formatter = DateFormatter()
-            formatter.dateFormat = argument
+            formatter.dateFormat = format
             return formatter.string(from: self)
         }
-        throw InContextError.unknownFunction(call.signature)
-    }
-
-    func lookup(_ name: String) throws -> Any? {
-        throw InContextError.unknownSymbol(name)
+        default:
+            throw InContextError.unknownSymbol(name)
+        }
     }
 
 }

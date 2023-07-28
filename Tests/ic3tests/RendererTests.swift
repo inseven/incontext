@@ -12,34 +12,30 @@ import XCTest
 
 import Stencil
 
-// TODO: Move this into a separate method.
 struct TestContext: EvaluationContext {
 
-    // TODO: Consider some form of typesafe subscripted object (think SQLite.swift)
-    func evaluate(call: BoundFunctionCall) throws -> Any? {
-        if let _ = try call.arguments(Method("jump")) {
-            return "*boing*"
-        } else if let argument = try call.arguments(Method("titlecase")
-            .argument("string", type: String.self)) {
-            return argument.toTitleCase()
-        } else if let argument = try call.arguments(Method("echo")
-            .argument("string", type: String.self)) {
-            return argument
-        } else if let arguments = try call.arguments(Method("prefix")
-            .argument("str1", type: String.self)
-            .argument("str2", type: String.self)) {
-            return arguments.0 + arguments.1
-        }
-        throw InContextError.unknownFunction(call.signature)
-    }
-
     func lookup(_ name: String) throws -> Any? {
-        // TODO: Throw error
-        return nil
+        switch name {
+        case "jump": return Function { () -> String in
+            return "*boing*"
+        }
+        case "titlecase": return Function { (string: String) -> String in
+            return string.toTitleCase()
+        }
+        case "echo": return Function { (string: String) -> String in
+            return string
+        }
+        case "prefix": return Function { (str1: String, str2: String) -> String in
+            return str1 + str2
+        }
+        default:
+            throw InContextError.unknownSymbol(name)
+        }
     }
 
 }
 
+// TODO: Move this into a separate file.
 public func XCTAssertEqualAsync<T>(_ expression1: @autoclosure () async throws -> T,
                                    _ expression2: @autoclosure () async throws -> T,
                                    _ message: @autoclosure () -> String = "",
@@ -214,10 +210,9 @@ class RendererTests: XCTestCase {
 
     func testContextWithCallableBlock() {
         let context = [
-            "increment": CallableBlock(Method("increment")
-                .argument("value", type: Int.self)) { value in
-                    return value + 1
-                }
+            "increment": Function { (value: Int) -> Int in
+                return value + 1
+            }
         ]
         XCTAssertEqual(try render("{% set value = increment(value: 1) %}{{ value }}",
                                   context: context),
@@ -236,7 +231,7 @@ class RendererTests: XCTestCase {
     func testContextWithDictionaryContainingCallableBlock() {
         let context = [
             "utils": [
-                "increment": CallableBlock(Method("increment").argument("value", type: Int.self)) { value in
+                "increment": Function { (value: Int) -> Int in
                     return value + 1
                 }
             ]

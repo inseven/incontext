@@ -40,4 +40,6 @@ enum InContextError: Error {
     case invalidQueryDefinition
     case incorrectType(AnyHashable)
     case missingKey(Any)
+    case interrupted
+
 }

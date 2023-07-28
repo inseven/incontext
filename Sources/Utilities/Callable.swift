@@ -22,26 +22,35 @@
 
 import Foundation
 
-import Yaml
+enum CallableError: Error {
 
-struct FrontmatterDocument {
+    case incorrectArguments
+    case incorectType
+    case noMatchingFunction
+    
+}
 
-    private static let frontmatterRegEx = /(?s)^(-\-\-\n)(?<metadata>.*?)(-\-\-\n)(?<content>.*)$/
+protocol Callable {
 
-    let rawMetadata: String
-    let metadata: Dictionary<AnyHashable, Any>
-    let content: String
+    func call(with provider: ArgumentProvider) throws -> Any?
 
-    init(contents: String, generateHTML: Bool = false) throws {
-        guard let match = contents.wholeMatch(of: Self.frontmatterRegEx) else {
-            rawMetadata = ""
-            metadata = [:]
-            content = generateHTML ? contents.html() : contents
-            return
+}
+
+extension Array: Callable where Element == Callable {
+
+    func call(with provider: ArgumentProvider) throws -> Any? {
+        return try provider.withArguments { arguments in
+            for callable in self {
+                do {
+                    return try callable.call(with: arguments)
+                } catch CallableError.incorrectArguments,
+                        CallableError.noMatchingFunction,
+                        CallableError.incorectType {
+                    continue
+                }
+            }
+            throw CallableError.noMatchingFunction
         }
-        rawMetadata = String(match.metadata)
-        metadata = try rawMetadata.parseYAML()
-        content = generateHTML ? String(match.content).html() : String(match.content)
     }
 
 }

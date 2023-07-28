@@ -22,6 +22,8 @@
 
 import Foundation
 
+import Yaml
+
 extension StringProtocol {
 
     func float() -> Float? {
@@ -31,6 +33,11 @@ extension StringProtocol {
     func date() -> Date? {
         // TODO: Does swift have an equivalent of `formatted` for parsing?
         return Formatters.dayDate.date(from: String(self))
+    }
+
+    func parseYAML() throws -> [AnyHashable: Any] {
+        let yaml = try Yaml.load(String(self))
+        return try yaml.dictionary()
     }
 
 }

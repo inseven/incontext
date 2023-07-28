@@ -22,11 +22,9 @@
 
 import Foundation
 
-extension String: EvaluationContext {
+import MarkdownKit
 
-    func evaluate(call: BoundFunctionCall) throws -> Any? {
-        throw InContextError.unknown
-    }
+extension String: EvaluationContext {
 
     func lookup(_ name: String) throws -> Any? {
         switch name {
@@ -39,6 +37,12 @@ extension String: EvaluationContext {
 
     func wrapped(by prefix: String, and suffix: String) -> String {
         return prefix + self + suffix
+    }
+
+    func html() -> String {
+        let markdown = ExtendedMarkdownParser.standard.parse(self)
+        let html = HtmlGenerator.standard.generate(doc: markdown)
+        return html
     }
 
 }

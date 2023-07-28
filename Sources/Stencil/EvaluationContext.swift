@@ -23,7 +23,6 @@
 import Foundation
 
 protocol EvaluationContext {
-    func evaluate(call: BoundFunctionCall) throws -> Any?
     func lookup(_ name: String) throws -> Any?
 }
 
@@ -32,8 +31,12 @@ extension EvaluationContext {
     func perform(_ operation: Operation, globalContext: EvaluationContext) throws -> Any? {
         switch operation {
         case .call(let functionCall):
+            let candidate = try lookup(functionCall.name)
+            guard let call = candidate as? Callable else {
+                throw InContextError.unknownFunction(functionCall.name)
+            }
             let boundFunctionCall = BoundFunctionCall(context: globalContext, call: functionCall)
-            return try evaluate(call: boundFunctionCall)
+            return try call.call(with: boundFunctionCall)
         case .lookup(let name):
             return try lookup(name)
         }

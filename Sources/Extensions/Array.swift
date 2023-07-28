@@ -22,17 +22,18 @@
 
 import Foundation
 
+// TODO: We could actually make this type-safe
 extension Array: EvaluationContext {
 
-    func evaluate(call: BoundFunctionCall) throws -> Any? {
-        if let values = try call.arguments(Method("extending").argument("values", type: [Any?].self)) {
+    func lookup(_ name: String) throws -> Any? {
+        switch name {
+        case "extending": return Function { (values: [Any?]) -> [Any?] in
             return self + values
         }
-        throw InContextError.unknownFunction(call.signature)
-    }
+        default:
+            throw InContextError.unknownSymbol(name)
+        }
 
-    func lookup(_ name: String) throws -> Any? {
-        throw InContextError.unknownSymbol(name)
     }
 
     @inlinable func asyncFilter(_ isIncluded: @escaping (Element) async throws -> Bool) async rethrows -> [Element] {

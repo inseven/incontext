@@ -22,26 +22,28 @@
 
 import Foundation
 
-import Yaml
+protocol ArgumentProvider {
 
-struct FrontmatterDocument {
+    func withArguments<Result>(perform: ([Any?]) throws -> Result) throws -> Result
 
-    private static let frontmatterRegEx = /(?s)^(-\-\-\n)(?<metadata>.*?)(-\-\-\n)(?<content>.*)$/
+}
 
-    let rawMetadata: String
-    let metadata: Dictionary<AnyHashable, Any>
-    let content: String
+extension BoundFunctionCall: ArgumentProvider {
 
-    init(contents: String, generateHTML: Bool = false) throws {
-        guard let match = contents.wholeMatch(of: Self.frontmatterRegEx) else {
-            rawMetadata = ""
-            metadata = [:]
-            content = generateHTML ? contents.html() : contents
-            return
+    func withArguments<Result>(perform: ([Any?]) throws -> Result) throws -> Result {
+        var arguments: [Any?] = []
+        for argument in call.arguments {
+            arguments.append(try argument.result.eval(context))
         }
-        rawMetadata = String(match.metadata)
-        metadata = try rawMetadata.parseYAML()
-        content = generateHTML ? String(match.content).html() : String(match.content)
+        return try perform(arguments)
+    }
+
+}
+
+extension Array: ArgumentProvider {
+
+    func withArguments<Result>(perform: ([Any?]) throws -> Result) throws -> Result {
+        return try perform(self)
     }
 
 }

@@ -31,5 +31,4 @@ struct NamedResultable: Equatable, Hashable, CustomStringConvertible {
         return "\(name):\(result.description)"
     }
 
-
 }

@@ -28,14 +28,6 @@ import Foundation
 // TODO: Not sure this is actually used at all; I think they all get wrapped by Context in the end anyhow.
 extension Dictionary: EvaluationContext where Key == AnyHashable, Value == Any {
 
-    func evaluate(call: BoundFunctionCall) throws -> Any? {
-        // We currently handle callable blocks
-        guard let callable = self[call.call.name] as? CallableBlock else {
-            throw InContextError.unknownFunction(call.signature)
-        }
-        return try callable.evaluate(call: call)
-    }
-
     func lookup(_ name: String) throws -> Any? {
         return self[name]
     }

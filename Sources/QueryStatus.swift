@@ -22,26 +22,9 @@
 
 import Foundation
 
-import Yaml
+struct QueryStatus: Codable {
 
-struct FrontmatterDocument {
-
-    private static let frontmatterRegEx = /(?s)^(-\-\-\n)(?<metadata>.*?)(-\-\-\n)(?<content>.*)$/
-
-    let rawMetadata: String
-    let metadata: Dictionary<AnyHashable, Any>
-    let content: String
-
-    init(contents: String, generateHTML: Bool = false) throws {
-        guard let match = contents.wholeMatch(of: Self.frontmatterRegEx) else {
-            rawMetadata = ""
-            metadata = [:]
-            content = generateHTML ? contents.html() : contents
-            return
-        }
-        rawMetadata = String(match.metadata)
-        metadata = try rawMetadata.parseYAML()
-        content = generateHTML ? String(match.content).html() : String(match.content)
-    }
+    let query: QueryDescription
+    let contentModificationDates: [Date]
 
 }
