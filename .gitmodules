@@ -1,3 +1,6 @@
 [submodule "Stencil"]
 	path = Dependencies/Stencil
 	url = git@github.com:jbmorley/Stencil.git
+[submodule "Dependencies/Tilt"]
+	path = Dependencies/Tilt
+	url = git@github.com:tomsci/tomscis-lua-templater.git
