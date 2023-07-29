@@ -139,65 +139,61 @@ class ParserTests: XCTestCase {
     }
 
     func testParseFunctionWithSingleArgument() throws {
-        let arguments = [NamedResultable(name: "name", result: .string("fromage"))]
+        let arguments: [Resultable] = [.string("fromage")]
         let expected = SetOperation(identifier: "cheese",
                                     result: .executable(.init(operand: nil,
                                                               operation: .call(.init(name: "titlecase",
                                                                                      arguments: arguments)))))
-        XCTAssertEqual(try SetOperation(string: "set cheese = titlecase(name: \"fromage\")"), expected)
+        XCTAssertEqual(try SetOperation(string: "set cheese = titlecase(\"fromage\")"), expected)
     }
 
     func testParseFunctionMultipleIntArguments() throws {
-        let arguments = [NamedResultable(name: "one", result: .int(1)),
-                         NamedResultable(name: "two", result: .int(2))]
+        let arguments: [Resultable] = [.int(1), .int(2)]
         let expected = SetOperation(identifier: "cheese",
                                     result: .executable(.init(operand: nil,
                                                               operation: .call(.init(name: "call",
                                                                                      arguments: arguments)))))
-        XCTAssertEqual(try SetOperation(string: "set cheese = call(one: 1, two: 2)"), expected)
+        XCTAssertEqual(try SetOperation(string: "set cheese = call(1, 2)"), expected)
     }
 
     func testParseFunctionMultipleStringArguments() throws {
-        let arguments = [NamedResultable(name: "one", result: .string("1")),
-                         NamedResultable(name: "two", result: .string("2"))]
+        let arguments: [Resultable] = [.string("1"), .string("2")]
         let expected = SetOperation(identifier: "cheese",
                                     result: .executable(.init(operand: nil,
                                                               operation: .call(.init(name: "call",
                                                                                      arguments: arguments)))))
-        XCTAssertEqual(try SetOperation(string: "set cheese = call(one: \"1\", two: \"2\")"), expected)
+        XCTAssertEqual(try SetOperation(string: "set cheese = call(\"1\", \"2\")"), expected)
     }
 
     func testParseLookupAndFunctionMultipleStringArguments() throws {
         let object = Resultable.executable(.init(operand: nil,
                                                 operation: .lookup("object")))
-        let arguments = [NamedResultable(name: "one", result: .string("1")),
-                         NamedResultable(name: "two", result: .string("2"))]
+        let arguments: [Resultable] = [.string("1"), .string("2")]
         let expected = SetOperation(identifier: "cheese",
                                     result: .executable(.init(operand: object,
                                                               operation: .call(.init(name: "call",
                                                                                      arguments: arguments)))))
-        XCTAssertEqual(try SetOperation(string: "set cheese = object.call(one: \"1\", two: \"2\")"), expected)
+        XCTAssertEqual(try SetOperation(string: "set cheese = object.call(\"1\", \"2\")"), expected)
     }
 
     func testParseArgumentsWithNumbers() throws {
         let object = Resultable.executable(.init(operand: nil,
                                                 operation: .lookup("object")))
-        let arguments = [NamedResultable(name: "str1", result: .string("abc")),
-                         NamedResultable(name: "str2", result: .string("def"))]
+        let arguments: [Resultable] = [.string("abc"), .string("def")]
         let expected = SetOperation(identifier: "value",
                                     result: .executable(.init(operand: object,
                                                               operation: .call(.init(name: "prefix",
                                                                                      arguments: arguments)))))
-        XCTAssertEqual(try SetOperation(string: "set value = object.prefix(str1: \"abc\", str2: \"def\")"), expected)
+        XCTAssertEqual(try SetOperation(string: "set value = object.prefix(\"abc\", \"def\")"), expected)
     }
 
     func testParseFunctionWithNumberedArgument() throws {
-        let arguments = [NamedResultable(name: "arg1", result: .string("cats"))]
+        let arguments: [Resultable] = [.string("cats")]
         let expected = SetOperation(identifier: "cute",
                                     result: .executable(.init(operand: nil,
                                                               operation: .call(.init(name: "call",
                                                                                      arguments: arguments)))))
-        XCTAssertEqual(try SetOperation(string: "set cute = call(arg1: \"cats\")"), expected)
+        XCTAssertEqual(try SetOperation(string: "set cute = call(\"cats\")"), expected)
     }
 
     func testParseSymbol() throws {
@@ -227,20 +223,22 @@ class ParserTests: XCTestCase {
     }
 
     func testParseStringWithCall() throws {
-        let arguments = [NamedResultable(name: "name", result: .string("fromage"))]
+        let arguments: [Resultable] = [.string("fromage")]
         let expected = SetOperation(identifier: "cheese",
                                     result: .executable(.init(operand: .string("fromage"),
                                                               operation: .call(.init(name: "titlecase",
                                                                                      arguments: arguments)))))
-        XCTAssertEqual(try SetOperation(string: "set cheese = \"fromage\".titlecase(name: \"fromage\")"), expected)
+        XCTAssertEqual(try SetOperation(string: "set cheese = \"fromage\".titlecase(\"fromage\")"), expected)
     }
 
     func testMultiLevelFunctionCall() throws {
         let post = Executable(operand: nil, operation: .lookup("post"))
         let date = Executable(operand: .executable(post), operation: .lookup("date"))
-        let format = Executable(operand: .executable(date), operation: .call(FunctionCall(name: "format", arguments: [NamedResultable(name: "string", result: .string("YYYY"))])))
+        let format = Executable(operand: .executable(date),
+                                operation: .call(FunctionCall(name: "format",
+                                                              arguments: [.string("YYYY")])))
         let expected = SetOperation(identifier: "last_year", result: .executable(format))
-        XCTAssertEqual(try SetOperation(string: "set last_year = post.date.format(string: \"YYYY\")"), expected)
+        XCTAssertEqual(try SetOperation(string: "set last_year = post.date.format(\"YYYY\")"), expected)
     }
 
     func testExecutableAppy() throws {

@@ -171,7 +171,7 @@ class RendererTests: XCTestCase {
     // TODO: Support assigning with identifiers.
 
     func testFunctionCall() {
-        XCTAssertEqual(try render("{% set value = object.titlecase(string: \"jason\") %}Hello {{ value }}!",
+        XCTAssertEqual(try render("{% set value = object.titlecase(\"jason\") %}Hello {{ value }}!",
                                   context: ["object": TestContext()]),
                        "Hello Jason!")
     }
@@ -185,25 +185,25 @@ class RendererTests: XCTestCase {
     }
 
     func testEchoCallable() {
-        XCTAssertEqual(try render("{% set value = object.echo(string: \"jason\") %}{{ value }}",
+        XCTAssertEqual(try render("{% set value = object.echo(\"jason\") %}{{ value }}",
                                   context: ["object": TestContext()]),
                        "jason")
     }
 
     func testEchoCallableLookup() {
-        XCTAssertEqual(try render("{% set value = object.echo(string: name) %}{{ value }}",
+        XCTAssertEqual(try render("{% set value = object.echo(name) %}{{ value }}",
                                   context: ["object": TestContext(), "name": "jason"]),
                        "jason")
     }
 
     func testEchoCallableChain() {
-        XCTAssertEqual(try render("{% set value = object.echo(string: object.echo(string: \"jason\")) %}{{ value }}",
+        XCTAssertEqual(try render("{% set value = object.echo(object.echo(\"jason\")) %}{{ value }}",
                                   context: ["object": TestContext(), "name": "jason"]),
                        "jason")
     }
 
     func testMultipleArguments() {
-        XCTAssertEqual(try render("{% set value = object.prefix(str1: \"abc\", str2: \"def\") %}{{ value }}",
+        XCTAssertEqual(try render("{% set value = object.prefix(\"abc\", \"def\") %}{{ value }}",
                                   context: ["object": TestContext()]),
                        "abcdef")
     }
@@ -214,15 +214,15 @@ class RendererTests: XCTestCase {
                 return value + 1
             }
         ]
-        XCTAssertEqual(try render("{% set value = increment(value: 1) %}{{ value }}",
+        XCTAssertEqual(try render("{% set value = increment(1) %}{{ value }}",
                                   context: context),
                        "2")
     }
 
     func testParseSet() throws {
-        let operation = try SetOperation(string: "set value = utils.increment(value: 1)")
+        let operation = try SetOperation(string: "set value = utils.increment(1)")
         let lookup = Executable(operand: nil, operation: .lookup("utils"))
-        let call = FunctionCall(name: "increment", arguments: [NamedResultable(name: "value", result: .int(1))])
+        let call = FunctionCall(name: "increment", arguments: [.int(1)])
         let perform = Executable(operand: Resultable.executable(lookup), operation: .call(call))
         let expected = SetOperation(identifier: "value", result: .executable(perform))
         XCTAssertEqual(operation, expected)
@@ -236,7 +236,7 @@ class RendererTests: XCTestCase {
                 }
             ]
         ]
-        XCTAssertEqual(try render("{% set value = utils.increment(value: 1) %}{{ value }}",
+        XCTAssertEqual(try render("{% set value = utils.increment(1) %}{{ value }}",
                                   context: context),
                        "2")
     }
@@ -248,7 +248,7 @@ class RendererTests: XCTestCase {
     }
 
     func testArrayExtendAssignment() {
-        XCTAssertEqual(try render("{% set values = [1, 2] %}{% set values = values.extending(values: [3, 4]) %}{% for value in values %}{{ value }},{% endfor %}",
+        XCTAssertEqual(try render("{% set values = [1, 2] %}{% set values = values.extending([3, 4]) %}{% for value in values %}{{ value }},{% endfor %}",
                                   context: ["object": TestContext()]),
                        "1,2,3,4,")
     }
@@ -281,33 +281,33 @@ class RendererTests: XCTestCase {
     func testCalculationsUsingSet() throws {
 
         // add
-        XCTAssertEqual(try render("{% set result = add(lhs: 10, rhs: 1) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = add(10, 1) %}{{ result }}", context: [:]),
                        "11")
-        XCTAssertEqual(try render("{% set result = add(lhs: 10.0, rhs: 1) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = add(10.0, 1) %}{{ result }}", context: [:]),
                        "11.0")
-        XCTAssertEqual(try render("{% set result = add(lhs: 10, rhs: 2.0) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = add(10, 2.0) %}{{ result }}", context: [:]),
                        "12.0")
-        XCTAssertEqual(try render("{% set result = add(lhs: 10.0, rhs: 3.0) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = add(10.0, 3.0) %}{{ result }}", context: [:]),
                        "13.0")
 
         // div
-        XCTAssertEqual(try render("{% set result = div(lhs: 5, rhs: 2) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = div(5, 2) %}{{ result }}", context: [:]),
                        "2")
-        XCTAssertEqual(try render("{% set result = div(lhs: 5.0, rhs: 2) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = div(5.0, 2) %}{{ result }}", context: [:]),
                        "2.5")
-        XCTAssertEqual(try render("{% set result = div(lhs: 5, rhs: 2.0) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = div(5, 2.0) %}{{ result }}", context: [:]),
                        "2.5")
-        XCTAssertEqual(try render("{% set result = div(lhs: 5.0, rhs: 2.0) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = div(5.0, 2.0) %}{{ result }}", context: [:]),
                        "2.5")
 
         // mul
-        XCTAssertEqual(try render("{% set result = mul(lhs: 2, rhs: 3) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = mul(2, 3) %}{{ result }}", context: [:]),
                        "6")
-        XCTAssertEqual(try render("{% set result = mul(lhs: 5.0, rhs: 9) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = mul(5.0, 9) %}{{ result }}", context: [:]),
                        "45.0")
-        XCTAssertEqual(try render("{% set result = mul(lhs: 3, rhs: 6.0) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = mul(3, 6.0) %}{{ result }}", context: [:]),
                        "18.0")
-        XCTAssertEqual(try render("{% set result = mul(lhs: 5.0, rhs: 2.0) %}{{ result }}", context: [:]),
+        XCTAssertEqual(try render("{% set result = mul(5.0, 2.0) %}{{ result }}", context: [:]),
                        "10.0")
     }
 
@@ -329,7 +329,7 @@ class RendererTests: XCTestCase {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         let date = dateFormatter.date(from: "2018-12-26 13:48:00")!
-        XCTAssertEqual(try render("{% set year = date.format(string: \"YYYY\") %}{{ year }}",
+        XCTAssertEqual(try render("{% set year = date.format(\"YYYY\") %}{{ year }}",
                                   context: ["date": date]),
                        "2018")
     }
