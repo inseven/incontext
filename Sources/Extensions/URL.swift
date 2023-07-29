@@ -77,8 +77,9 @@ extension URL {
     }
 
     var parentURL: String {
+        // TODO: Should be nullable.
         let relevantParentPath = relevantURL.deletingLastPathComponent().relativePath
-        if relevantParentPath == ".." {
+        if relevantParentPath == ".." || relevantParentPath == "." {
             return "/"
         }
         return relevantParentPath.ensureLeadingSlash().ensuringTrailingSlash()
