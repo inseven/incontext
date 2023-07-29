@@ -203,11 +203,8 @@ extension Executable: Parsable {
 
 extension FunctionCall: Parsable {
     public static let parser: AnyParser<ExpressionParser.Token, Self> = {
-        let name = ExpressionParser.Identifier.map { $0.name }
-        let result = Resultable.map { $0 }
-        let argument = (name && .colon && result)
-        let cheese = argument.map { NamedResultable(name: $0, result: $1) }
-        let arguments = cheese
+        let argument = Resultable.map { $0 }
+        let arguments = argument
             .separated(by: .comma, allowsTrailingSeparator: false, allowsEmpty: true)
             .map { $0 }
             .wrapped(by: .openParenthesis, and: .closeParenthesis)

@@ -35,7 +35,7 @@ public struct FunctionCall: Equatable, Hashable, CustomStringConvertible {
     }
 
     let name: String
-    let arguments: [NamedResultable]
+    let arguments: [Resultable]
 
     public var description: String {
         return arguments.map { $0.description }
