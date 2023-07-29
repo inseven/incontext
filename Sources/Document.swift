@@ -32,5 +32,6 @@ struct Document {
     let contents: String
     let contentModificationDate: Date
     let template: String
+    let relativeSourcePath: String
 
 }

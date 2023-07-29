@@ -84,7 +84,8 @@ class MarkdownImporter: Importer {
                                 metadata: metadata,
                                 contents: result.content,
                                 contentModificationDate: file.contentModificationDate,
-                                template: (metadata["template"] as? String) ?? settings.defaultTemplate)
+                                template: (metadata["template"] as? String) ?? settings.defaultTemplate,
+                                relativeSourcePath: file.relativePath)
         return ImporterResult(documents: [document])
     }
 

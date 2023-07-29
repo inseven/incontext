@@ -73,6 +73,13 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
         case "parent": return Function { () -> DocumentContext? in
             return try documents(query: QueryDescription(url: document.parent)).first
         }
+        case "child": return Function { (relativePath: String) -> DocumentContext? in
+            let rootURL = URL(fileURLWithPath: "/", isDirectory: true)
+            let documentURL = URL(filePath: document.relativeSourcePath, relativeTo: rootURL)
+            let parentURL = documentURL.deletingLastPathComponent()
+            let url = parentURL.appendingPathComponent(relativePath)
+            return try documents(query: QueryDescription(relativeSourcePath: url.relativePath)).first
+        }
         default:
             break
         }

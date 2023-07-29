@@ -107,7 +107,12 @@ class Builder {
                 "posts": Function { () throws -> [DocumentContext] in
                     return try tracker.documents(query: QueryDescription())
                         .map { DocumentContext(store: tracker, document: $0) }
-                }
+                },
+                "post": Function { (url: String) throws -> DocumentContext? in
+                    return try tracker.documents(query: QueryDescription(url: url))
+                        .map { DocumentContext(store: tracker, document: $0) }
+                        .first
+                },
             ] as Dictionary<String, Any>,  // TODO: as [String: Any] is different?
             "generate_uuid": Function {
                 return UUID().uuidString
