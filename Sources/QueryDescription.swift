@@ -29,11 +29,16 @@ struct QueryDescription: Codable, Hashable {
     let includeCategories: [String]?
     let url: String?
     let parent: String?
+    let relativeSourcePath: String?
 
-    init(includeCategories: [String]? = nil, url: String? = nil, parent: String? = nil) {
+    init(includeCategories: [String]? = nil,
+         url: String? = nil,
+         parent: String? = nil,
+         relativeSourcePath: String? = nil) {
         self.includeCategories = includeCategories
         self.url = url
         self.parent = parent
+        self.relativeSourcePath = relativeSourcePath
     }
 
     func expression() -> Expression<Bool> {
@@ -54,6 +59,10 @@ struct QueryDescription: Codable, Hashable {
 
         if let parent {
             expressions.append(Store.Schema.parent == parent)
+        }
+
+        if let relativeSourcePath {
+            expressions.append(Store.Schema.relativeSourcePath == relativeSourcePath)
         }
 
         return expressions.reduce(Expression<Bool>(value: true)) { $0 && $1 }
@@ -79,7 +88,8 @@ struct QueryDescription: Codable, Hashable {
         } else {
             self.parent = nil
         }
-        self.url = try structuredQuery.optionalValue(for: "parent") 
+        self.url = try structuredQuery.optionalValue(for: "parent")
+        self.relativeSourcePath = try structuredQuery.optionalValue(for: "relative_source_path")
     }
 
 }

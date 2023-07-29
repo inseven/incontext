@@ -30,6 +30,15 @@ extension Array: EvaluationContext {
         case "extending": return Function { (values: [Any?]) -> [Any?] in
             return self + values
         }
+        case "have_dates": return Function { (haveDates: Bool) -> [DocumentContext]  in
+            guard let documents = self as? [DocumentContext] else {
+                // TODO: Invalid type.
+                throw InContextError.unknown
+            }
+            return documents.filter { document in
+                return haveDates ? document.document.date != nil : document.document.date == nil
+            }
+        }
         default:
             throw InContextError.unknownSymbol(name)
         }

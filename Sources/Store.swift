@@ -36,6 +36,7 @@ class Store: Queryable {
         // common
         static let url = Expression<String>("url")
         static let contentModificationDate = Expression<Date>("content_modification_date")
+        static let relativeSourcePath = Expression<String>("relative_source_path")
 
         // documents
         static let parent = Expression<String>("parent")
@@ -52,7 +53,6 @@ class Store: Queryable {
 
         // assets
         static let relativeAssetPath = Expression<String>("relative_asset_path")
-        static let relativeSourcePath = Expression<String>("relative_source_path")
 
         // render status
         static let details = Expression<String>("details")
@@ -84,6 +84,7 @@ class Store: Queryable {
                 t.column(Schema.contents)
                 t.column(Schema.contentModificationDate)
                 t.column(Schema.template)
+                t.column(Schema.relativeSourcePath)
             })
             print("create the status table...")
             try connection.run(Schema.status.create(ifNotExists: true) { t in
@@ -180,7 +181,8 @@ class Store: Queryable {
                                                            Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
                                                            Schema.contentModificationDate <- document.contentModificationDate,
-                                                           Schema.template <- document.template))
+                                                           Schema.template <- document.template,
+                                                           Schema.relativeSourcePath <- document.relativeSourcePath))
             }
             for asset in assets {
                 try connection.run(Schema.assets.insert(or: .replace,
@@ -291,7 +293,8 @@ class Store: Queryable {
                             metadata: metadata,
                             contents: row[Schema.contents],
                             contentModificationDate: row[Schema.contentModificationDate],
-                            template: row[Schema.template])
+                            template: row[Schema.template],
+                            relativeSourcePath: row[Schema.relativeSourcePath])
         }
     }
 
