@@ -62,6 +62,12 @@ class UtilityTests: ContentTestCase {
         XCTAssertEqual(try task.awaitResult(), "cheese")
     }
 
+    func testRootParent() throws {
+        let rootURL = URL(filePath: "/Users/jbmorley/Projects/jbmorley.co.uk/content", directoryHint: .isDirectory)
+        XCTAssertEqual(URL(filePath: "index.markdown", relativeTo: rootURL).parentURL, "/")
+        XCTAssertEqual(URL(filePath: "about/index.markdown", relativeTo: rootURL).parentURL, "/")
+    }
+
     // TODO: Remaining filename tests.
 
 }
