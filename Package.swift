@@ -20,6 +20,7 @@ let package = Package(
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),  // Good for known structures
         .package(url: "https://github.com/jwells89/Titlecaser.git", from: "1.0.0"),
         .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.7"),
+        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.14.1"),
     ],
     targets: [
@@ -36,6 +37,7 @@ let package = Package(
                 .product(name: "Ogma", package: "Ogma"),
                 .product(name: "SQLite", package: "SQLite.swift"),
                 .product(name: "Stencil", package: "Stencil"),
+                .product(name: "SwiftSoup", package: "SwiftSoup"),
                 .product(name: "Tilt", package: "Tilt"),
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yaml", package: "YamlSwift"),

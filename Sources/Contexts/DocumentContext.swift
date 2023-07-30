@@ -23,30 +23,7 @@
 import Foundation
 
 import Stencil
-
-protocol Queryable {
-
-    func documents(query: QueryDescription) throws -> [Document]
-
-}
-
-class QueryTracker: Queryable {
-
-    let store: Queryable
-    var queries: [QueryStatus] = []
-
-    init(store: Queryable) {
-        self.store = store
-    }
-
-    func documents(query: QueryDescription) throws -> [Document] {
-        let documents = try store.documents(query: query)
-        queries.append(QueryStatus(query: query,
-                                   contentModificationDates: documents.map({ $0.contentModificationDate })))
-        return documents
-    }
-
-}
+import SwiftSoup
 
 struct DocumentContext: EvaluationContext, DynamicMemberLookup {
 
@@ -56,6 +33,62 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
     func documents(query: QueryDescription) throws -> [DocumentContext] {
         return try store.documents(query: query)
             .map { DocumentContext(store: store, document: $0) }
+    }
+
+    func relativeSourcePath(for relativePath: String) -> String {
+        let rootURL = URL(fileURLWithPath: "/", isDirectory: true)
+        let documentURL = URL(filePath: document.relativeSourcePath, relativeTo: rootURL)
+        let parentURL = documentURL.deletingLastPathComponent()
+        let url = parentURL.appendingPathComponent(relativePath)
+        return url.relativePath
+    }
+
+    // TODO: Implement the thumbnail getter.
+
+    // Generic transform; could be a protocol?
+    // Takes a selector, and outputs the replacement for the selector?
+    // Enough information injected (store, document, etc) to allow for correction of URLs and application of templates.
+    // Perhaps there are off-the-shelf ones which perform a lookup and apply a template, and ones which just rewrite URLs
+    // for matching selectors.
+    // TODO: HTML media queries sound really nice.
+    // TODO: Should the image transform _always_ place all image sizes into a fixed place?
+    // Markdown files should be handled one way, and regular HTML tags should be handled another, since there's no way
+    // that a user can write good image tags from Markdown.
+    // TODO: Perhaps all document types can have an 'inline' template that is specified in the configuration and used
+    //       whenever they're rendered inline.  ****IMPORTANT****
+    /*
+     .replaceInline("//img", .relativeLookup("@src"))  <-- this would replace all 'img' tags with an inline template
+                                                           rendered with the document based on the relative lookup of
+                                                           the src property of the tag.
+     .convertRelativePaths("//img[@src]") <-- convert any relative paths to the new primary destination in the site
+                                              note: this would require us to actually designate a primary file which
+                                              we're not currently doing in the case of an image.
+     */
+    let transforms: [Transformer] = [
+        ImageDocumentTransform(),
+    ]
+
+    // TODO: Add a render cache for pages?
+    // TODO: Unique document contexts in a cache to save loading them every time; query for the ids, and then and look
+    //       them up by URL?
+
+    func html() throws -> String {
+
+        // The current implementation _seems_ to only replace markdown generated images with the inline image.html format.
+        // It would probably be better if we could make this either an explicit function of the site, or clear in the code.
+        // How do we differentiate between things the user wants to take manual control over and things we should do ourselves?
+        // TODO: Can the template selection be done by mimetype?
+
+        let content = try SwiftSoup.parse(document.contents)
+        for transform in transforms {
+            try transform.transform(store: store, document: self, content: content)
+        }
+
+        let html = try content.html()
+
+        // TODO: Run the document's preferred templating engine on the html.
+
+        return html
     }
 
     func lookup(_ name: String) throws -> Any? {
@@ -74,11 +107,8 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
             return try documents(query: QueryDescription(url: document.parent)).first
         }
         case "child": return Function { (relativePath: String) -> DocumentContext? in
-            let rootURL = URL(fileURLWithPath: "/", isDirectory: true)
-            let documentURL = URL(filePath: document.relativeSourcePath, relativeTo: rootURL)
-            let parentURL = documentURL.deletingLastPathComponent()
-            let url = parentURL.appendingPathComponent(relativePath)
-            return try documents(query: QueryDescription(relativeSourcePath: url.relativePath)).first
+            let relativeSourcePath = relativeSourcePath(for: relativePath)
+            return try documents(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first
         }
         default:
             break
@@ -97,7 +127,8 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
         } else if member == "date" {
             return document.date
         } else if member == "html" {
-            return document.contents
+            // TODO: Don't crash!
+            return try! html()
         } else if member == "url" {
             return document.url
         }
