@@ -71,6 +71,19 @@ fileprivate func callFunctionBlock(_ L: LuaState!) -> CInt {
     }
 }
 
+fileprivate func lookupViaEvaluationContext(_ L: LuaState!) -> CInt {
+    let obj = L.toany(1) as! EvaluationContext
+    guard let memberName = L.tostring(2) else {
+        // Trying to lookup a non-string member, not happening
+        return 0
+    }
+    return L.convertThrowToError {
+        let result = try obj.lookup(memberName)
+        L.pushany(result)
+        return 1
+    }
+}
+
 fileprivate func readFile(_ L: LuaState!) -> CInt {
     guard let templateCache: TemplateCache = L.tovalue(lua_upvalueindex(1)),
           let name = L.tostring(1),
@@ -95,19 +108,8 @@ class TiltRenderer: Renderer {
         let L = env.L
 
         L.registerMetatable(for: Function.self, functions: ["__call": callFunctionBlock])
-        L.registerMetatable(for: DocumentContext.self, functions: ["__index": { (L: LuaState!) -> CInt in
-            let dc: DocumentContext = L.touserdata(1)!
-            guard let memberName = L.tostring(2) else {
-                // Trying to lookup a non-string member, not happening
-                return 0
-            }
-            return L.convertThrowToError {
-                let result = try dc.lookup(memberName)
-                L.pushany(result)
-                return 1
-            }
-        }])
-
+        L.registerMetatable(for: DocumentContext.self, functions: ["__index": lookupViaEvaluationContext])
+        L.registerMetatable(for: Date.self, functions: ["__index": lookupViaEvaluationContext])
         L.registerMetatable(for: TemplateCache.self, functions: [:])
         L.pushGlobals()
         L.pushuserdata(templateCache)
