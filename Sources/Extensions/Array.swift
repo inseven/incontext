@@ -36,7 +36,7 @@ extension Array: EvaluationContext {
                 throw InContextError.unknown
             }
             return documents.filter { document in
-                return haveDates ? document.document.date != nil : document.document.date == nil
+                return haveDates ? document.date != nil : document.date == nil
             }
         }
         default:
@@ -68,6 +68,15 @@ extension Array: EvaluationContext {
         var result = initialResult
         for element in self {
             result = try await nextPartialResult(result, element)
+        }
+        return result
+    }
+
+    @inlinable public func asyncReduce<Result>(into initialResult: Result,
+                                               _ updateAccumulatingResult: (_ partialResult: inout Result, Self.Element) async throws -> ()) async rethrows -> Result {
+        var result: Result = initialResult
+        for element in self {
+            try await updateAccumulatingResult(&result, element)
         }
         return result
     }

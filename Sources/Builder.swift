@@ -22,26 +22,32 @@
 
 import Foundation
 
-import Stencil
-
 class Builder {
 
     let site: Site
     let store: Store
-    let loader: CachingLoader
-    let environment: Environment
+    let templateCache: TemplateCache
+    let renderers: [TemplateLanguage: Renderer]
 
-    init(site: Site) throws {
+    init(site: Site) async throws {
         try FileManager.default.createDirectory(at: site.buildURL, withIntermediateDirectories: true)
         self.site = site
         self.store = try Store(databaseURL: site.storeURL)
-
-        // TODO: Perhaps neither of these needs to be state?
-        self.loader = CachingLoader(rootURL: site.templatesURL)
-        self.environment = site.environment(loader: self.loader)
+        self.templateCache = try await TemplateCache(rootURL: site.templatesURL)
+        self.renderers = [
+            .identity: IdentityRenderer(),
+            .stencil: StencilRenderer(templateCache: templateCache),
+            .tilt: TiltRenderer(),
+        ]
     }
 
     func needsRender(document: Document, renderStatus: RenderStatus?) async throws -> Bool {
+
+        // TODO: Will the render change actually cascade correctly if the document was regenerated due to an injected
+        //       settings change, but the mtime didn't change? Do we actually need to bake the fingerprint into the
+        //       document and the render tracker?
+
+
         guard let renderStatus = renderStatus else {
             // Since there's no render status we assume the document has never been rendered.
             return true
@@ -55,8 +61,8 @@ class Builder {
 
         // Check if any of the templates have changed.
         for templateStatus in renderStatus.templates {
-            let contentModificationTime = loader.contentModificationTime(for: templateStatus.name)
-            if templateStatus.contentModificationDate != contentModificationTime {
+            let modificationDate = templateCache.modificationDate(for: templateStatus.identifier)
+            if templateStatus.modificationDate != modificationDate {
                 return true
             }
         }
@@ -76,12 +82,8 @@ class Builder {
     }
 
     func render(document: Document,
-                environment: Environment,
                 documents: [Document],
                 renderStatus: RenderStatus?) async throws {
-
-        // TODO: Check the mtime first; this is a really quick way to know we need to re-render.
-        //       The whole goal is to do as few evaluations as necessary.
 
         if !(try await needsRender(document: document, renderStatus: renderStatus)) {
             return
@@ -96,10 +98,12 @@ class Builder {
 
         let tracker = QueryTracker(store: store)
 
-
         // TODO: Inline the config loaded from the settings file
+        // TODO: Does this need to get extracted so it can easily be assembled for inner renders?
         let context: [String: Any] = [
             "site": [
+                // TODO: Pull this out of the site configuration.
+                // TODO: Should it be type safe?
                 "title": "Jason Morley",
                 "date_format": "MMMM dd, yyyy",
                 "date_format_short": "MMMM dd",
@@ -122,30 +126,41 @@ class Builder {
                 return Date.distantPast
             }
         ]
-        let (contents, templates) = try environment.renderTemplate(name: document.template, context: context)
+
+        // Get the correct renderer.
+        guard let renderer = renderers[document.template.language] else {
+            throw InContextError.internalInconsistency("Failed to get renderer for language '\(document.template.language)'.")
+        }
+
+        let renderResult = try await renderer.render(document.template.name, context: context)
+
+        // TODO: WE DEFINITELY NEED TO INJECT A TRACKING TEMPLATE CACHE INTO THIS SINCE OTHERWISE WE CAN'T FIGURE OUT
+        //       WHEN THINGS CHANGE ACROSS TEMPLATES.
 
         // Generate the TemplateStatus tuples with the template content modification times.
         var templateStatuses: [TemplateStatus] = []
-        for name in templates {
-            // TODO: Rename to content modification _date_
-            guard let contentModificationTime = loader.contentModificationTime(for: name) else {
-                throw InContextError.internalInconsistency("Failed to get content modification date for template '\(name)'.")
-            }
-            templateStatuses.append(TemplateStatus(name: name, contentModificationDate: contentModificationTime))
+
+        let templateIdentifiersUsed: [TemplateIdentifier] = renderResult.templatesUsed.map { name in
+            return TemplateIdentifier(.stencil, name)
         }
 
-        // TODO: Save the templates too!
+        for identifier in templateIdentifiersUsed {
+            // TODO: Rename to content modification _date_
+            guard let modificationDate = templateCache.modificationDate(for: identifier) else {
+                throw InContextError.internalInconsistency("Failed to get content modification date for template '\(identifier)'.")
+            }
+            templateStatuses.append(TemplateStatus(identifier: identifier,
+                                                   modificationDate: modificationDate))
+        }
+
         let renderStatus = RenderStatus(contentModificationDate: document.contentModificationDate,
                                         queries: tracker.queries,
                                         templates: templateStatuses)
         try await store.save(renderStatus: renderStatus, for: document.url)
 
-        // TODO: Fixup images.
-        // TODO: Template HTML.
-
         // Write the contents to a file.
         try FileManager.default.createDirectory(at: destinationDirectoryURL, withIntermediateDirectories: true)
-        guard let data = contents.data(using: .utf8) else {
+        guard let data = renderResult.content.data(using: .utf8) else {
             throw InContextError.unsupportedEncoding
         }
         try data.write(to: destinationFileURL)
@@ -178,7 +193,7 @@ class Builder {
                         continue
                     }
 
-                    // Get the importer for the file.
+                    // Get the handler for the file.
                     guard let handler = try self.site.handler(for: fileURL) else {
                         print("Ignoring unsupported file '\(fileURL.relativePath)'.")
                         continue
@@ -195,7 +210,8 @@ class Builder {
                         let handlerFingerprint = try handler.fingerprint()
 
                         // Check to see if the file already exists in the store and has a matching modification date.
-                        if let status = try await self.store.status(for: fileURL.relativePath) {
+                        if let status = try await self.store.status(for: fileURL.relativePath,
+                                                                    contentURL: self.site.contentURL) {
 
                             let fileModified = !Calendar.current.isDate(status.contentModificationDate,
                                                                         equalTo: contentModificationDate,
@@ -214,7 +230,8 @@ class Builder {
                             // TODO: We also need to do this for files that just don't exist anymore.
                             // TODO: This needs to be a utility.
                             let fileManager = FileManager.default
-                            for asset in try await self.store.assets(for: fileURL.relativePath) {
+                            for asset in try await self.store.assets(for: fileURL.relativePath,
+                                                                     filesURL: self.site.filesURL) {
                                 print("Removing intermediate '\(asset.fileURL.relativePath)'...")
                                 guard fileManager.fileExists(atPath: asset.fileURL.path) else {
                                     print("Skipping missing file...")
@@ -243,15 +260,9 @@ class Builder {
                         return result.documents
                     }
                 }
-                for try await _ in group {
-//                    documents.append(contentsOf: documents)
-                }
+                for try await _ in group {}
             }
             // TODO: Work out how to remove entries for deleted files.
-
-            // Warm the cache.
-            print("Loading templates...")
-            try await loader.load(environment: environment)
 
             // Preload the existing render statuses in one batch in the hope that it's faster.
             print("Loading render cache...")
@@ -267,7 +278,6 @@ class Builder {
             if serial {
                 for document in try await store.documents() {
                     try await self.render(document: document,
-                                          environment: environment, // TODO: Maybe don't bother passing the environment in?
                                           documents: documents,
                                           renderStatus: renderStatuses[document.url])
                 }
@@ -276,7 +286,6 @@ class Builder {
                     for document in documents {
                         group.addTask {
                             try await self.render(document: document,
-                                                  environment: self.environment,
                                                   documents: documents,
                                                   renderStatus: renderStatuses[document.url])
                         }

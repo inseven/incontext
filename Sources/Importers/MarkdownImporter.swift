@@ -28,7 +28,7 @@ class MarkdownImporter: Importer {
     struct Settings: ImporterSettings {
 
         let defaultCategory: String
-        let defaultTemplate: String
+        let defaultTemplate: TemplateIdentifier
 
         func combine(into fingerprint: inout Fingerprint) throws {
             try fingerprint.update(defaultCategory)
@@ -43,7 +43,7 @@ class MarkdownImporter: Importer {
     func settings(for configuration: [String : Any]) throws -> Settings {
         let args: [String: Any] = try configuration.requiredValue(for: "args")
         return Settings(defaultCategory: try args.requiredValue(for: "default_category"),
-                        defaultTemplate: try args.requiredValue(for: "default_template"))
+                        defaultTemplate: try args.requiredRawRepresentable(for: "default_template"))
     }
 
     func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
@@ -84,7 +84,7 @@ class MarkdownImporter: Importer {
                                 metadata: metadata,
                                 contents: result.content,
                                 contentModificationDate: file.contentModificationDate,
-                                template: (metadata["template"] as? String) ?? settings.defaultTemplate,
+                                template: structuredMetadata.template ?? settings.defaultTemplate,
                                 relativeSourcePath: file.relativePath)
         return ImporterResult(documents: [document])
     }

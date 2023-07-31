@@ -31,7 +31,7 @@ class HandlerTests: XCTestCase {
         let handler: Handler<MarkdownImporter> = try .init(when: "photos.*\\.(jpg|jpeg|png|gif|tiff|heic)",
                                                            importer: MarkdownImporter(),
                                                            settings: .init(defaultCategory: "general",
-                                                                           defaultTemplate: "posts.html"))
+                                                                           defaultTemplate: .stencil("posts.html")))
         XCTAssertTrue(try handler.matches(relativePath: "photos/snapshots/image.heic"))
         XCTAssertTrue(try handler.matches(relativePath: "photos/snapshots/image.HEIC"))
     }
@@ -40,18 +40,18 @@ class HandlerTests: XCTestCase {
         let handler1: Handler<MarkdownImporter> = try .init(when: "photos.*\\.(jpg|jpeg|png|gif|tiff|heic)",
                                                             importer: MarkdownImporter(),
                                                             settings: .init(defaultCategory: "general",
-                                                                            defaultTemplate: "posts.html"))
+                                                                            defaultTemplate: .stencil("posts.html")))
 
         let handler2: Handler<MarkdownImporter> = try .init(when: "photos.*\\.(jpg|jpeg|png|gif|tiff|heic)",
                                                             importer: MarkdownImporter(),
                                                             settings: .init(defaultCategory: "general",
-                                                                            defaultTemplate: "posts.html"))
+                                                                            defaultTemplate: .stencil("posts.html")))
         XCTAssertEqual(try handler1.fingerprint(), try handler2.fingerprint())
 
         let handler3: Handler<MarkdownImporter> = try .init(when: "photos.*\\.(jpg|jpeg|png|gif|tiff|heic)",
                                                             importer: MarkdownImporter(),
                                                             settings: .init(defaultCategory: "photos",
-                                                                            defaultTemplate: "posts.html"))
+                                                                            defaultTemplate: .stencil("posts.html")))
         XCTAssertNotEqual(try handler1.fingerprint(), try handler3.fingerprint())
     }
 
@@ -59,8 +59,8 @@ class HandlerTests: XCTestCase {
         let handler: Handler<MarkdownImporter> = try .init(when: "photos.*\\.(jpg|jpeg|png|gif|tiff|heic)",
                                                            importer: MarkdownImporter(),
                                                            settings: .init(defaultCategory: "general",
-                                                                           defaultTemplate: "posts.html"))
-        XCTAssertEqual(try handler.fingerprint(), "ffHqCBy7nf2pFz1nG0D2+A==")
+                                                                           defaultTemplate: .stencil("posts.html")))
+        XCTAssertEqual(try handler.fingerprint(), "fXY89pkCFPfqXvGLrAOQ6w==")
     }
 
 }

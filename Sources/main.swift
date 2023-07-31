@@ -21,10 +21,14 @@
 // SOFTWARE.
 
 import Foundation
-import ImageIO
-import Ink
-import UniformTypeIdentifiers
 
-let site = try Site(rootURL: URL(filePath: "/Users/jbmorley/Projects/jbmorley.co.uk"))
-let ic = try Builder(site: site)
-try await ic.build()
+// TODO: Optional site root as an argument; or detect the root.
+
+do {
+    let site = try Site(rootURL: URL(filePath: "/Users/jbmorley/Projects/jbmorley.co.uk"))
+    let ic = try await Builder(site: site)
+    try await ic.build()
+} catch {
+    print(error.localizedDescription)
+    exit(EXIT_FAILURE)
+}

@@ -67,7 +67,7 @@ public func XCTAssertNotEqualAsync<T>(_ expression1: @autoclosure () async throw
 class RendererTests: XCTestCase {
 
     func render(_ template: String, context: [String: Any] = [:]) throws -> String {
-        let environment = Environment(extensions: [Site.ext()])
+        let environment = Environment(extensions: [StencilRenderer.stencilExtension()])
         return try environment.renderTemplate(string: template, context: context).0
     }
 

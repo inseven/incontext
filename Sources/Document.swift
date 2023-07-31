@@ -31,7 +31,7 @@ struct Document {
     let metadata: [AnyHashable: Any]
     let contents: String
     let contentModificationDate: Date
-    let template: String
+    let template: TemplateIdentifier
     let relativeSourcePath: String
 
 }

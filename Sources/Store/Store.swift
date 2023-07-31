@@ -181,7 +181,7 @@ class Store: Queryable {
                                                            Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
                                                            Schema.contentModificationDate <- document.contentModificationDate,
-                                                           Schema.template <- document.template,
+                                                           Schema.template <- document.template.rawValue,
                                                            Schema.relativeSourcePath <- document.relativeSourcePath))
             }
             for asset in assets {
@@ -197,22 +197,24 @@ class Store: Queryable {
         }
     }
 
-    private func syncQueue_status(for relativePath: String) throws -> Status? {
+    private func syncQueue_status(for relativePath: String, contentURL: URL) throws -> Status? {
         dispatchPrecondition(condition: .onQueue(workQueue))
+        precondition(contentURL.hasDirectoryPath)
         guard let status = try connection.pluck(Schema.status.filter(Schema.relativePath == relativePath)) else {
             return nil
         }
-        return Status(fileURL: URL(filePath: try status.get(Schema.relativePath), relativeTo: site.contentURL),
+        return Status(fileURL: URL(filePath: try status.get(Schema.relativePath), relativeTo: contentURL),
                       contentModificationDate: try status.get(Schema.contentModificationDate),
                       importer: try status.get(Schema.importer),
                       fingerprint: try status.get(Schema.fingerprint))
     }
 
-    private func syncQueue_assets(for relativePath: String) throws -> [Asset] {
+    private func syncQueue_assets(for relativePath: String, filesURL: URL) throws -> [Asset] {
         dispatchPrecondition(condition: .onQueue(workQueue))
+        precondition(filesURL.hasDirectoryPath)
         let rowIterator = try connection.prepareRowIterator(Schema.assets.filter(Schema.relativeSourcePath == relativePath))
         return try rowIterator.map { row in
-            return Asset(fileURL: URL(filePath: try row.get(Schema.relativeAssetPath), relativeTo: site.filesURL))
+            return Asset(fileURL: URL(filePath: try row.get(Schema.relativeAssetPath), relativeTo: filesURL))
         }
     }
 
@@ -286,6 +288,12 @@ class Store: Queryable {
                 throw InContextError.unknown
             }
 
+            // Template.
+            let templateRawValue = row[Schema.template]
+            guard let template = TemplateIdentifier(rawValue: templateRawValue) else {
+                throw InContextError.internalInconsistency("Failed to deserialise template identifier for value '\(templateRawValue)'.")
+            }
+
             return Document(url: row[Schema.url],
                             parent: row[Schema.parent],
                             type: row[Schema.type],
@@ -293,7 +301,7 @@ class Store: Queryable {
                             metadata: metadata,
                             contents: row[Schema.contents],
                             contentModificationDate: row[Schema.contentModificationDate],
-                            template: row[Schema.template],
+                            template: template,
                             relativeSourcePath: row[Schema.relativeSourcePath])
         }
     }
@@ -321,16 +329,16 @@ class Store: Queryable {
     }
 
     // TODO: Rename to relativeSourcePath
-    func status(for relativePath: String) async throws -> Status? {
+    func status(for relativePath: String, contentURL: URL) async throws -> Status? {
         return try await run {
-            return try self.syncQueue_status(for: relativePath)
+            return try self.syncQueue_status(for: relativePath, contentURL: contentURL)
         }
     }
 
     // TODO: Rename to relativeSourcePath
-    func assets(for relativePath: String) async throws -> [Asset] {
+    func assets(for relativePath: String, filesURL: URL) async throws -> [Asset] {
         return try await run {
-            return try self.syncQueue_assets(for: relativePath)
+            return try self.syncQueue_assets(for: relativePath, filesURL: filesURL)
         }
     }
 

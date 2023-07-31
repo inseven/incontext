@@ -22,42 +22,27 @@
 
 import Foundation
 
-enum InContextError: Error {
-    case unsupportedEncoding
-    case unknown
-    case internalInconsistency(String)
-    case unknownSymbol(String)
-    case invalidKey(Any?)
-    case unknownFunction(String)
-    case evaluationUnsupported(String)
-    case invalidMetadata
-    case unknownSchemaVersion(Int32)
-    case unknownImporter(String)
-    case corruptSettings
-    case unexpecteArgs
-    case notFound
-    case unknownQuery(String)
-    case invalidQueryDefinition
-    case incorrectType(AnyHashable)
-    case missingKey(Any)
-    case interrupted
-    case unknownTemplate(String)
+import Stencil
 
-}
+class CachingLoader: Loader {
 
-extension InContextError: LocalizedError {
+    let templateCache: TemplateCache
+    var cache: [String: Template] = [:]
 
-    var errorDescription: String? {
-        switch self {
-        case .unknown:
-            return "Unknown error."
-        case .unknownTemplate(let name):
-            return "Unknown template '\(name)'."
-        case .internalInconsistency(let message):
-            return message
-        default:
-            return String(describing: self)
+    init(templateCache: TemplateCache) {
+        self.templateCache = templateCache
+    }
+
+    func loadTemplate(name: String, environment: Stencil.Environment) throws -> Template {
+        if let template = cache[name] {
+            return template
         }
+        guard let details = templateCache.details(for: .stencil(name)) else {
+            throw InContextError.unknownTemplate(name)
+        }
+        let template = try Template(templateString: details.contents, environment: environment, name: name)
+        cache[name] = template
+        return template
     }
 
 }

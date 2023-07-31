@@ -24,7 +24,7 @@ import Foundation
 
 struct TemplateStatus: Codable {
 
-    let name: String
-    let contentModificationDate: Date
+    let identifier: TemplateIdentifier
+    let modificationDate: Date
 
 }
