@@ -27,6 +27,8 @@ import ArgumentParser
 @main
 struct Command: AsyncParsableCommand {
 
+    static var configuration = CommandConfiguration(commandName: "incontext")
+
     @Flag(help: "run template renders concurrently")
     var concurrentRenders = false
 
