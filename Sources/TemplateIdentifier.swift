@@ -37,7 +37,7 @@ class TemplateIdentifier: RawRepresentable, Equatable, Codable {
     }
 
     required init?(rawValue: String) {
-        let components = rawValue.split(separator: ":", maxSplits: 1)
+        let components = rawValue.split(separator: /\s*:\s*/, maxSplits: 1)
         guard components.count == 2,
               let language = TemplateLanguage(rawValue: String(components[0]))
         else {
