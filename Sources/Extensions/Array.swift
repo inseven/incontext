@@ -32,8 +32,7 @@ extension Array: EvaluationContext {
         }
         case "have_dates": return Function { (haveDates: Bool) -> [DocumentContext]  in
             guard let documents = self as? [DocumentContext] else {
-                // TODO: Invalid type.
-                throw InContextError.unknown
+                throw InContextError.internalInconsistency("'have_dates' is only supported on an array of documents.")
             }
             return documents.filter { document in
                 return haveDates ? document.date != nil : document.date == nil

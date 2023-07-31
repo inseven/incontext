@@ -169,8 +169,7 @@ class Store: Queryable {
                 // Serialise the metadata.
                 let data = try JSONSerialization.data(withJSONObject: document.metadata)
                 guard let metadata = String(data: data, encoding: .utf8) else {
-                    // TODO: Better error.
-                    throw InContextError.unknown
+                    throw InContextError.encodingError
                 }
 
                 try connection.run(Schema.documents.insert(or: .replace,
@@ -230,10 +229,9 @@ class Store: Queryable {
         guard let renderStatus = try connection.pluck(Schema.renderStatus.filter(Schema.url == url)) else {
             return nil
         }
-        // TODO: Check to see if this is costly to construct
         let decoder = JSONDecoder()
         guard let data = try renderStatus.get(Schema.details).data(using: .utf8) else {
-            throw InContextError.unknown
+            throw InContextError.encodingError
         }
         return try decoder.decode(RenderStatus.self, from: data)
     }
@@ -244,7 +242,7 @@ class Store: Queryable {
         return try rowIterator.map { row in
             let decoder = JSONDecoder()
             guard let data = row[Schema.details].data(using: .utf8) else {
-                throw InContextError.unknown
+                throw InContextError.encodingError
             }
             return (row[Schema.url], try decoder.decode(RenderStatus.self, from: data))
         }
@@ -258,8 +256,7 @@ class Store: Queryable {
             let encoder = JSONEncoder()
             let renderStatus = try encoder.encode(renderStatus)
             guard let string = String(data: renderStatus, encoding: .utf8) else {
-                // TODO: Decent error
-                throw InContextError.unknown
+                throw InContextError.encodingError
             }
 
             try connection.run(Schema.renderStatus.insert(or: .replace,
@@ -285,7 +282,7 @@ class Store: Queryable {
             guard let data = metadataString.data(using: .utf8),
                   let metadata = try JSONSerialization.jsonObject(with: data) as? [AnyHashable: Any]
             else {
-                throw InContextError.unknown
+                throw InContextError.internalInconsistency("Failed to load document metadata.")
             }
 
             // Template.

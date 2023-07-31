@@ -136,22 +136,22 @@ class Builder {
             }
         ]
 
-        // TODO: Rename this to something more like a render tracker?
-        // TODO: Perhaps the store can be injected into the render tracker too to make it all nice and clean?
-        let templateTracker = TemplateTracker()
-        let content = try await renderManager.render(templateTracker: templateTracker,
+        // TODO: Consolidate RenderTracker and QueryTracker
+        //       RenderTracker(for document: Document)?
+        let renderTracker = RenderTracker()
+        let content = try await renderManager.render(renderTracker: renderTracker,
                                                      template: document.template,
                                                      context: context)
         let renderStatus = RenderStatus(contentModificationDate: document.contentModificationDate,
                                         queries: queryTracker.queries,
-                                        renderers: templateTracker.renderers(),
-                                        templates: templateTracker.statuses())
+                                        renderers: renderTracker.renderers(),
+                                        templates: renderTracker.statuses())
         try await store.save(renderStatus: renderStatus, for: document.url)
 
         // Write the contents to a file.
         try FileManager.default.createDirectory(at: destinationDirectoryURL, withIntermediateDirectories: true)
         guard let data = content.data(using: .utf8) else {
-            throw InContextError.unsupportedEncoding
+            throw InContextError.encodingError
         }
         try data.write(to: destinationFileURL)
     }

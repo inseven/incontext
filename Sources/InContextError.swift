@@ -23,8 +23,7 @@
 import Foundation
 
 enum InContextError: Error {
-    case unsupportedEncoding
-    case unknown  // TODO: Remove this.
+    case encodingError
     case internalInconsistency(String)
     case unknownSymbol(String)
     case invalidKey(Any?)
@@ -49,8 +48,6 @@ extension InContextError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .unknown:
-            return "Unknown error."
         case .unknownTemplate(let name):
             return "Unknown template '\(name)'."
         case .internalInconsistency(let message):

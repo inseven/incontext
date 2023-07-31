@@ -43,7 +43,7 @@ class RenderManager {
         return renderer
     }
 
-    func render(templateTracker: TemplateTracker,
+    func render(renderTracker: RenderTracker,
                 template: TemplateIdentifier,
                 context: [String: Any]) async throws -> String {
         let renderer = try renderer(for: template.language)
@@ -54,7 +54,7 @@ class RenderManager {
         // Record the renderer instance used.
         // It is sufficient to record this once for the whole render operation even though multiple templates might be
         // used, as we do not allow mixing of template languages within a single top-level render.
-        templateTracker.add(RendererInstance(language: template.language, version: renderer.version))
+        renderTracker.add(RendererInstance(language: template.language, version: renderer.version))
 
         // Generate language-scoped identifiers for the templates reported as used by the renderer.
         let templatesUsed: [TemplateIdentifier] = renderResult.templatesUsed.map { name in
@@ -67,7 +67,7 @@ class RenderManager {
             guard let modificationDate = templateCache.modificationDate(for: template) else {
                 throw InContextError.internalInconsistency("Failed to get content modification date for template '\(template)'.")
             }
-            templateTracker.add(TemplateRenderStatus(identifier: template, modificationDate: modificationDate))
+            renderTracker.add(TemplateRenderStatus(identifier: template, modificationDate: modificationDate))
         }
         return renderResult.content
     }

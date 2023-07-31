@@ -57,7 +57,7 @@ struct Site {
         let settingsURL = rootURL.appendingPathComponent("site.yaml")
         let settingsData = try Data(contentsOf: settingsURL)
         guard let settingsString = String(data: settingsData, encoding: .utf8) else {
-            throw InContextError.unsupportedEncoding
+            throw InContextError.encodingError
         }
         self.settings = try (try Yaml.load(settingsString)).dictionary()
 

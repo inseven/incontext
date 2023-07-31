@@ -119,8 +119,7 @@ class StencilRenderer: Renderer {
                 throw TemplateSyntaxError("'base64' filter expects a string")
             }
             guard let data = value.data(using: .utf8) else {
-                // TODO: Correct error
-                throw InContextError.unknown
+                throw InContextError.internalInconsistency("Failed to encode input as UTF8.")
             }
             return data.base64EncodedString()
         }
@@ -129,8 +128,7 @@ class StencilRenderer: Renderer {
             if let value = value as? NSNumber {
                 return value.intValue
             }
-            // TODO: Correct error.
-            throw InContextError.unknown
+            throw InContextError.internalInconsistency("Unable to cast \(String(describing: value)) to an integer.")
         }
 
         ext.registerTag("with", parser: WithNode.parse)

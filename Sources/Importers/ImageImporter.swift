@@ -70,7 +70,7 @@ class ImageImporter: Importer {
 
         // Load the original image.
         guard let image = CGImageSourceCreateWithURL(fileURL as CFURL, nil) else {
-            throw InContextError.unknown
+            throw InContextError.internalInconsistency("Failed to open image file at '\(fileURL.relativePath)'.")
         }
 
         // TODO: Extract some of this data into the document.
@@ -78,7 +78,7 @@ class ImageImporter: Importer {
         guard let properties = CGImageSourceCopyPropertiesAtIndex(image, 0, nil) as? [String: Any],
               let width = properties["PixelWidth"] as? Int,
               let height = properties["PixelHeight"] as? Int else{
-            throw InContextError.unknown
+            throw InContextError.internalInconsistency("Filed to get dimensions of image at \(fileURL.relativePath).")
         }
 
         // TODO: Calculate the aspect ratio etc.
@@ -111,7 +111,7 @@ class ImageImporter: Importer {
                                                                     transform.format.identifier as CFString,
                                                                     1,
                                                                     nil) else {
-                throw InContextError.unknown
+                throw InContextError.internalInconsistency("Failed to resize image at '\(fileURL.relativePath)'.")
             }
             CGImageDestinationAddImage(destination, thumbnail, nil)
             CGImageDestinationFinalize(destination)  // TODO: Handle error here?
