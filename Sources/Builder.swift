@@ -130,17 +130,12 @@ class Builder {
             }
         ]
 
-        // TODO: This should almost certainly be a property of the document itself.
-        guard let template = TemplateIdentifier(rawValue: document.template) else {
-            throw InContextError.internalInconsistency("Unabe to detect language for template '\(document.template)'.")
-        }
-
         // Get the correct renderer.
-        guard let renderer = renderers[template.language] else {
-            throw InContextError.internalInconsistency("Failed to get renderer for language '\(template.language)'.")
+        guard let renderer = renderers[document.template.language] else {
+            throw InContextError.internalInconsistency("Failed to get renderer for language '\(document.template.language)'.")
         }
 
-        let renderResult = try await renderer.render(template.name, context: context)
+        let renderResult = try await renderer.render(document.template.name, context: context)
 
         // TODO: WE DEFINITELY NEED TO INJECT A TRACKING TEMPLATE CACHE INTO THIS SINCE OTHERWISE WE CAN'T FIGURE OUT
         //       WHEN THINGS CHANGE ACROSS TEMPLATES.

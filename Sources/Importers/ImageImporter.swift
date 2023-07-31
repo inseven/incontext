@@ -160,7 +160,7 @@ class ImageImporter: Importer {
                                 metadata: metadata,
                                 contents: "",
                                 contentModificationDate: file.contentModificationDate,
-                                template: "photo.html",
+                                template: .stencil("photo.html"),
                                 relativeSourcePath: file.relativePath)
         return ImporterResult(documents: [document], assets: assets)
     }

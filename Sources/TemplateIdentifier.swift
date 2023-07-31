@@ -22,7 +22,7 @@
 
 import Foundation
 
-class TemplateIdentifier: RawRepresentable, Equatable, Codable {
+class TemplateIdentifier: RawRepresentable, Equatable, Codable, Hashable {
 
     let language: TemplateLanguage
     let name: String
@@ -62,6 +62,14 @@ extension TemplateIdentifier {
 
     static func tilt(_ name: String) -> TemplateIdentifier {
         return TemplateIdentifier(.tilt, name)
+    }
+
+}
+
+extension TemplateIdentifier: Fingerprintable {
+
+    func combine(into fingerprint: inout Fingerprint) throws {
+        try fingerprint.update(rawValue)
     }
 
 }

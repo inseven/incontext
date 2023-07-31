@@ -181,7 +181,7 @@ class Store: Queryable {
                                                            Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
                                                            Schema.contentModificationDate <- document.contentModificationDate,
-                                                           Schema.template <- document.template,
+                                                           Schema.template <- document.template.rawValue,
                                                            Schema.relativeSourcePath <- document.relativeSourcePath))
             }
             for asset in assets {
@@ -288,6 +288,12 @@ class Store: Queryable {
                 throw InContextError.unknown
             }
 
+            // Template.
+            let templateRawValue = row[Schema.template]
+            guard let template = TemplateIdentifier(rawValue: templateRawValue) else {
+                throw InContextError.internalInconsistency("Failed to deserialise template identifier for value '\(templateRawValue)'.")
+            }
+
             return Document(url: row[Schema.url],
                             parent: row[Schema.parent],
                             type: row[Schema.type],
@@ -295,7 +301,7 @@ class Store: Queryable {
                             metadata: metadata,
                             contents: row[Schema.contents],
                             contentModificationDate: row[Schema.contentModificationDate],
-                            template: row[Schema.template],
+                            template: template,
                             relativeSourcePath: row[Schema.relativeSourcePath])
         }
     }
