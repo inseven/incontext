@@ -59,8 +59,7 @@ extension Executable {
         if case .executable(let executable) = self.operand {
             return Self(operand: .executable(try executable.apply(to: operand)), operation: operation)
         }
-        // TODO: Invalid function application.
-        throw InContextError.unknown
+        throw InContextError.internalInconsistency("Invalid attempt to apply a literal as a function.")
     }
 
 }

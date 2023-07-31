@@ -31,7 +31,7 @@ extension String: EvaluationContext {
         case "count":
             return count
         default:
-            throw InContextError.unknown
+            throw InContextError.unknownSymbol(name)
         }
     }
 

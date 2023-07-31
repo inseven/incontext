@@ -52,7 +52,7 @@ class MarkdownImporter: Importer {
 
         let data = try Data(contentsOf: fileURL)
         guard let contents = String(data: data, encoding: .utf8) else {
-            throw InContextError.unsupportedEncoding
+            throw InContextError.encodingError
         }
         let details = fileURL.basenameDetails()
 

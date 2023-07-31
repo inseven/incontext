@@ -22,7 +22,7 @@
 
 import Foundation
 
-class TemplateTracker {
+class RenderTracker {
 
     private var _renderers = Set<RendererInstance>()
     private var _statuses = Set<TemplateRenderStatus>()
