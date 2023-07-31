@@ -22,8 +22,11 @@
 
 import Foundation
 
-enum TemplateLanguage: String, CaseIterable, Codable {
-    case identity
-    case stencil
-    case tilt
+// Snapshot of the template identifier and template modification date used to reunder a sub-element of a full document
+// render. If either of these components change, then the render is considered invalid and needs re-running.
+struct TemplateRenderStatus: Codable, Hashable {
+
+    let identifier: TemplateIdentifier
+    let modificationDate: Date
+
 }

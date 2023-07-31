@@ -24,8 +24,8 @@ import Foundation
 
 class RenderManager {
 
-    let templateCache: TemplateCache
-    let renderers: [TemplateLanguage: Renderer]
+    private let templateCache: TemplateCache
+    private let renderers: [TemplateLanguage: Renderer]
 
     init(templateCache: TemplateCache) {
         self.templateCache = templateCache
@@ -36,26 +36,38 @@ class RenderManager {
         ]
     }
 
+    func renderer(for language: TemplateLanguage) throws -> Renderer {
+        guard let renderer = renderers[language] else {
+            throw InContextError.internalInconsistency("Failed to get renderer for language '\(language)'.")
+        }
+        return renderer
+    }
+
     func render(templateTracker: TemplateTracker,
-                identifier: TemplateIdentifier,
+                template: TemplateIdentifier,
                 context: [String: Any]) async throws -> String {
+        let renderer = try renderer(for: template.language)
 
-        guard let renderer = renderers[identifier.language] else {
-            throw InContextError.internalInconsistency("Failed to get renderer for language '\(identifier.language)'.")
-        }
+        // Perform the render.
+        let renderResult = try await renderer.render(name: template.name, context: context)
 
-        let renderResult = try await renderer.render(name: identifier.name, context: context)
+        // Record the renderer instance used.
+        // It is sufficient to record this once for the whole render operation even though multiple templates might be
+        // used, as we do not allow mixing of template languages within a single top-level render.
+        templateTracker.add(RendererInstance(language: template.language, version: renderer.version))
 
-        // Generate the TemplateStatus tuples with the template content modification times.
+        // Generate language-scoped identifiers for the templates reported as used by the renderer.
         let templatesUsed: [TemplateIdentifier] = renderResult.templatesUsed.map { name in
-            return TemplateIdentifier(identifier.language, name)
+            return TemplateIdentifier(template.language, name)
         }
 
-        for identifier in templatesUsed {
-            guard let modificationDate = templateCache.modificationDate(for: identifier) else {
-                throw InContextError.internalInconsistency("Failed to get content modification date for template '\(identifier)'.")
+        // Look-up the modification date for each template, generate an associated render status, and add this to the
+        // tracker.
+        for template in templatesUsed {
+            guard let modificationDate = templateCache.modificationDate(for: template) else {
+                throw InContextError.internalInconsistency("Failed to get content modification date for template '\(template)'.")
             }
-            templateTracker.add(TemplateStatus(identifier: identifier, modificationDate: modificationDate))
+            templateTracker.add(TemplateRenderStatus(identifier: template, modificationDate: modificationDate))
         }
         return renderResult.content
     }
