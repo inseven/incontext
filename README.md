@@ -36,9 +36,7 @@ swift build
       it would be much easier if we had a way to generate these as part of the site so importers don't have to think too
       hard
 - [ ] SQLite is mangling mtimes meaning that some files always get regenerated
-- [ ] I still don't have a good solution for many-to-one compiles
-- [ ] I could, like Jekyll have an explicit way to ignore files and then have a way for importers to explicitly return
-      their dependencies
+- [ ] I still don't have a good solution for many-to-one compiles (e.g., Sass)
 - [ ] swift-sass includes binary dependencies and is unacceptable long-term
 - [ ] It might be nice to add type checking to the frontmatter, or perhaps even Swift struct frontmatter
 - [ ] Rename 'type' to category because that's what it is and it's currently misleading
