@@ -85,9 +85,6 @@ class Builder {
                 documents: [Document],
                 renderStatus: RenderStatus?) async throws {
 
-        // TODO: Check the mtime first; this is a really quick way to know we need to re-render.
-        //       The whole goal is to do as few evaluations as necessary.
-
         if !(try await needsRender(document: document, renderStatus: renderStatus)) {
             return
         }

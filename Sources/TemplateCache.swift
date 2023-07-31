@@ -26,7 +26,6 @@ import Foundation
 // template contents.
 class TemplateCache {
 
-    // TODO: Include the details in here?
     struct Details {
         let url: URL
         let language: TemplateLanguage
@@ -35,10 +34,9 @@ class TemplateCache {
     }
 
     private let rootURL: URL
-    // TODO: This should be keyed by the TemplateIdentifier
-    private let templates: [TemplateLanguage: [String: Details]]
+    private let templates: [TemplateIdentifier: Details]
 
-    static func templates(rootURL: URL, language: TemplateLanguage) async throws -> [String: Details] {
+    static func templates(rootURL: URL, language: TemplateLanguage) async throws -> [TemplateIdentifier: Details] {
         precondition(rootURL.hasDirectoryPath)
         let fileManager = FileManager.default
         let languageRootURL = rootURL.appendingPathComponent(language.rawValue, isDirectory: true)
@@ -80,9 +78,9 @@ class TemplateCache {
                 }
             }
 
-            var templates: [String: Details] = [:]
+            var templates: [TemplateIdentifier: Details] = [:]
             for try await details in group {
-                templates[details.url.relativePath] = details
+                templates[TemplateIdentifier(language, details.url.relativePath)] = details
             }
 
             return templates
@@ -91,17 +89,20 @@ class TemplateCache {
 
     init(rootURL: URL) async throws {
         self.rootURL = rootURL
-        self.templates = try await TemplateLanguage.allCases.asyncReduce(into: [TemplateLanguage: [String: Details]]()) { partialResult, language in
-            partialResult[language] = try await Self.templates(rootURL: rootURL, language: language)
+        self.templates = try await TemplateLanguage.allCases
+            .asyncReduce(into: [TemplateIdentifier: Details]()) { partialResult, language in
+                for (identifier, details) in try await Self.templates(rootURL: rootURL, language: language) {
+                    partialResult[identifier] = details
+                }
         }
     }
 
     func details(for identifier: TemplateIdentifier) -> Details? {
-        return self.templates[identifier.language]?[identifier.name]
+        return self.templates[identifier]
     }
 
     func modificationDate(for identifier: TemplateIdentifier) -> Date? {
-        return self.templates[identifier.language]?[identifier.name]?.contentModificationDate
+        return self.templates[identifier]?.contentModificationDate
     }
 
 }
