@@ -110,6 +110,7 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
         return html
     }
 
+    // TODO: This shouldn't throw.
     func lookup(_ name: String) throws -> Any? {
         switch name {
         case "query": return Function { (name: String) -> [DocumentContext] in
@@ -132,10 +133,7 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
         default:
             break
         }
-        guard let value = self[dynamicMember: name] else {
-            throw InContextError.unknownSymbol(name)
-        }
-        return value
+        return self[dynamicMember: name]
     }
 
     subscript(dynamicMember member: String) -> Any? {
@@ -150,6 +148,8 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
             return try! html()
         } else if member == "url" {
             return document.url
+        } else if member == "last_modified" {
+            return contentModificationDate
         }
         return document.metadata[member]
     }
