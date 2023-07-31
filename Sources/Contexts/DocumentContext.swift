@@ -27,8 +27,27 @@ import SwiftSoup
 
 struct DocumentContext: EvaluationContext, DynamicMemberLookup {
 
-    let store: Queryable
-    let document: Document
+    private let store: Queryable
+    private let document: Document
+
+    var content: String {
+        // TODO: Consistent content/contents naming.
+        return document.contents
+    }
+
+    var contentModificationDate: Date {
+        return document.contentModificationDate
+    }
+
+    var date: Date? {
+        return document.date
+    }
+
+    // TODO: We need to inject the renderer into this since it should be used to render the inner HTML.
+    init(store: Queryable, document: Document) {
+        self.store = store
+        self.document = document
+    }
 
     func documents(query: QueryDescription) throws -> [DocumentContext] {
         return try store.documents(query: query)
@@ -119,13 +138,13 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
         return value
     }
 
-    // TODO: Errors if values don't exist?
-    // TODO: Support auto-executing callables in a single dispatch model.
     subscript(dynamicMember member: String) -> Any? {
         if member == "content" {
             return document.contents
         } else if member == "date" {
-            return document.date
+            return date
+        } else if member == "contentModificationDate" {
+            return contentModificationDate
         } else if member == "html" {
             // TODO: Don't crash!
             return try! html()

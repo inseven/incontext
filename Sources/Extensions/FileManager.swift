@@ -29,4 +29,14 @@ extension FileManager {
         return attr[FileAttributeKey.modificationDate] as! Date
     }
 
+    func fileExists(at url: URL, isDirectory: UnsafeMutablePointer<ObjCBool>) -> Bool {
+        return fileExists(atPath: url.path, isDirectory: isDirectory)
+    }
+
+    func directoryExists(at url: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        let fileExists = fileExists(at: url, isDirectory: &isDirectory)
+        return fileExists && isDirectory.boolValue
+    }
+
 }

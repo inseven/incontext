@@ -22,42 +22,16 @@
 
 import Foundation
 
-enum InContextError: Error {
-    case unsupportedEncoding
-    case unknown
-    case internalInconsistency(String)
-    case unknownSymbol(String)
-    case invalidKey(Any?)
-    case unknownFunction(String)
-    case evaluationUnsupported(String)
-    case invalidMetadata
-    case unknownSchemaVersion(Int32)
-    case unknownImporter(String)
-    case corruptSettings
-    case unexpecteArgs
-    case notFound
-    case unknownQuery(String)
-    case invalidQueryDefinition
-    case incorrectType(AnyHashable)
-    case missingKey(Any)
-    case interrupted
-    case unknownTemplate(String)
+// Demo renderer that outputs the contents of the document.
+class IdentityRenderer: Renderer {
 
-}
-
-extension InContextError: LocalizedError {
-
-    var errorDescription: String? {
-        switch self {
-        case .unknown:
-            return "Unknown error."
-        case .unknownTemplate(let name):
-            return "Unknown template '\(name)'."
-        case .internalInconsistency(let message):
-            return message
-        default:
-            return String(describing: self)
+    func render(_ name: String, context: [String : Any]) async throws -> RenderResult {
+        // TODO: Rename page to document?
+        guard let page = context["page"] as? DocumentContext else {
+            throw InContextError.internalInconsistency("Unable to get 'page' from render context.")
         }
+
+        return RenderResult(content: page.content, templatesUsed: [])
     }
 
 }

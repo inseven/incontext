@@ -22,8 +22,13 @@
 
 import Foundation
 
+// TODO: This should include the document fingerprint; or should it? I need to figure out how this gets replaced and
+//       add some unit tests accordingly.
+// TODO: We should version each renderer to allow us to push out bug fixes in the renderers.
 struct RenderStatus: Codable {
 
+    // TODO: This isn't the template modification date. It _is_ the document contentModificationDate.
+    //       It should be replaced with the document fingerprint.
     let contentModificationDate: Date
     let queries: [QueryStatus]
     let templates: [TemplateStatus]
