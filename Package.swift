@@ -12,6 +12,7 @@ let package = Package(
         .package(path: "Dependencies/Stencil"),
         .package(path: "Dependencies/Tilt"),
         .package(url: "https://github.com/BiosTheoretikos/Ogma.git", from: "0.1.3"),
+        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.1.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
         .package(url: "https://github.com/apple/swift-markdown.git", from: "0.2.0"),
         .package(url: "https://github.com/behrang/YamlSwift.git", from: "3.4.4"),  // Good for unknown?
@@ -29,6 +30,7 @@ let package = Package(
         .executableTarget(
             name: "ic3",
             dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "DartSass", package: "swift-sass"),
                 .product(name: "Ink", package: "ink"),
