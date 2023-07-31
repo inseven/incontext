@@ -22,13 +22,24 @@
 
 import Foundation
 
-// TODO: Optional site root as an argument; or detect the root.
+// Walk up through a directory structure yielding the directory URL at each level; terminates at the root (/).
+struct ParentIterator: Sequence, IteratorProtocol {
 
-do {
-    let site = try Site(rootURL: URL(filePath: "/Users/jbmorley/Projects/jbmorley.co.uk"))
-    let ic = try await Builder(site: site)
-    try await ic.build()
-} catch {
-    print(error.localizedDescription)
-    exit(EXIT_FAILURE)
+    var currentURL: URL?
+
+    init(_ url: URL) {
+        self.currentURL = url
+    }
+
+    mutating func next() -> URL? {
+        defer {
+            if currentURL?.path == "/" {
+                currentURL = nil
+            } else {
+                currentURL = currentURL?.deletingLastPathComponent()
+            }
+        }
+        return currentURL
+    }
+
 }

@@ -22,31 +22,36 @@
 
 import Foundation
 
-extension FileManager {
+import ArgumentParser
 
-    var currentDirectoryURL: URL {
-        return URL(filePath: currentDirectoryPath, directoryHint: .isDirectory)
+@main
+struct Command: AsyncParsableCommand {
+
+    @Flag(help: "run template renders concurrently")
+    var concurrentRenders = false
+
+    @Option(help: "path to the root of the site",
+            completion: .file(),
+            transform: URL.init(fileURLWithPath:))
+    var site: URL?
+
+    func detectSiteURL() throws -> URL {
+        let fileManager = FileManager.default
+        for directoryURL in ParentIterator(fileManager.currentDirectoryURL) {
+            let settingsURL = directoryURL.appendingPathComponent("site.yaml")
+            if fileManager.fileExists(at: settingsURL) {
+                return directoryURL
+            }
+        }
+        throw InContextError.internalInconsistency("Unable to detect site in current directory tree.")
     }
 
-    func modificationDateOfItem(at url: URL) throws -> Date {
-        let attr = try attributesOfItem(atPath: url.path)
-        return attr[FileAttributeKey.modificationDate] as! Date
-    }
-
-    func fileExists(at url: URL, isDirectory: UnsafeMutablePointer<ObjCBool>) -> Bool {
-        precondition(url.isFileURL)
-        return fileExists(atPath: url.path, isDirectory: isDirectory)
-    }
-
-    func fileExists(at url: URL) -> Bool {
-        precondition(url.isFileURL)
-        return fileExists(atPath: url.path)
-    }
-
-    func directoryExists(at url: URL) -> Bool {
-        var isDirectory: ObjCBool = false
-        let fileExists = fileExists(at: url, isDirectory: &isDirectory)
-        return fileExists && isDirectory.boolValue
+    mutating func run() async throws {
+        let siteURL = try (site ?? (try detectSiteURL()))
+        print("Using site at '\(siteURL.path)'...")
+        let site = try Site(rootURL: siteURL)
+        let ic = try await Builder(site: site)
+        try await ic.build(concurrentRenders: concurrentRenders)
     }
 
 }

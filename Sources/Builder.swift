@@ -152,7 +152,7 @@ class Builder {
         try data.write(to: destinationFileURL)
     }
 
-    func build() async throws {
+    func build(concurrentRenders: Bool) async throws {
         try FileManager.default.createDirectory(at: site.filesURL, withIntermediateDirectories: true)
 
         let fileManager = FileManager.default
@@ -286,8 +286,7 @@ class Builder {
 
             // Render the documents that need updates.
             print("Rendering \(updates.count) documents...")
-            let serial = true  // TODO: Command line argument
-            if serial {
+            if !concurrentRenders {
                 for document in updates {
                     try await self.render(document: document,
                                           documents: documents,
