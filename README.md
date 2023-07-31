@@ -22,12 +22,8 @@ swift build
 
 ## Issues
 
-- [ ] Is MarkdownKit or Ink faster?
-- [ ] Is YamlSwift fast enough?
 - [ ] What is the performance hit of using a regex in the frontmatter parser?
 - [ ] Use the Swift `Regex` DSL
-- [ ] Saved named importers and their version and intermediate data when they change
-- [ ] Titles are not being correctly saved in the store or document
 - [ ] Detect sites in roots above the current directory (git-like)
 - [ ] Support loading the existing stie configuration
 - [ ] Track resources and clean them up when files are deleted or importers change
@@ -46,18 +42,14 @@ swift build
 - [ ] swift-sass includes binary dependencies and is unacceptable long-term
 - [ ] It might be nice to add type checking to the frontmatter, or perhaps even Swift struct frontmatter
 - [ ] Rename 'type' to category because that's what it is and it's currently misleading
-- [ ] Markdown parsing seems to yield a tuple unexpectedly for some dictionaries?
 - [ ] Clean up `set`, `update`, and `with` parser errors to make them easier to understand
-- [ ] Type safe per-plugin settings (either by validating the YAML, or by using Swift DSL)
 - [ ] Support mdash in Markdown content
-- [ ] Track the queries used, and templates touched to render a page to allow for incremental template rendering
 - [ ] Consider whether I should support EXIF sidecars and, if so, handle dependency management for them
 - [ ] Store the document mime type in the database; this should make it possible to automatically select
       all images etc
 - [ ] Add support for audio
 - [ ] Add support for generating podcast feeds
 - [ ] Typesafe configuration
-- [ ] Pass the template in as part of the default arguments
 - [ ] Consider supporting filters in the `set` tag
 - [ ] Consider special files in directories for nested behaviours
 - [ ] Log at at different levels, error, warning, etc
