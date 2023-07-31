@@ -66,7 +66,19 @@ struct Function: EvaluationContext, Callable {
 
 extension Function {
 
-    init<Result>(perform: @escaping () throws -> Result) {
+    // NOTE(tomsci): It may seem more obvious that the `perform` blocks below
+    // should return `Result` rather than `Result?`, but because the return
+    // type of `_call` is `Any?`, if `Result` is itself an optional eg `Foo?`
+    // you otherwise end up with call() returning `Foo?` in the `Any` so you
+    // effectively have (after expanding the `Any`) `Optional<Optional<Foo>>`.
+    //
+    // By comparison, returning `Result?` from `perform` means a result of
+    // `Foo?` directly converts to `Any?` (with Any == Foo) with no additional
+    // `Optional` inside the `Any`. And because any non-optional can always be
+    // auto promoted to an optional, if `Result` _isn't_ an optional, `Foo` is
+    // promoted to `Any?` in the way you'd expect.
+
+    init<Result>(perform: @escaping () throws -> Result?) {
         self._call = { provider in
             try provider.withArguments { arguments in
                 try Self.checkLength(arguments, length: 0)
@@ -75,7 +87,7 @@ extension Function {
         }
     }
 
-    init<Arg1, Result>(perform: @escaping (Arg1) throws -> Result) {
+    init<Arg1, Result>(perform: @escaping (Arg1) throws -> Result?) {
         self._call = { provider in
             return try provider.withArguments { arguments in
                 try Self.checkLength(arguments, length: 1)
@@ -85,7 +97,7 @@ extension Function {
         }
     }
 
-    init<Arg1, Arg2, Result>(perform: @escaping (Arg1, Arg2) throws -> Result) {
+    init<Arg1, Arg2, Result>(perform: @escaping (Arg1, Arg2) throws -> Result?) {
         self._call = { provider in
             return try provider.withArguments { arguments in
                 try Self.checkLength(arguments, length: 2)
