@@ -20,7 +20,66 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Tilt
+import TiltC
 import Foundation
+
+fileprivate struct LuaStateArgumentProvider: ArgumentProvider {
+    let L: LuaState!
+    func withArguments<Result>(perform: ([Any?]) throws -> Result) throws -> Result {
+        var arguments: [Any?] = []
+        for i in 1 ... L.gettop() {
+            // First arg is the Function userdata itself
+            if i > 1 {
+                arguments.append(L.toany(i))
+            }
+        }
+        return try perform(arguments)
+    }
+}
+
+extension LuaStringRef: Convertible {
+    func convertToType(_ t: Any.Type) -> Any? {
+        if t == String.self {
+            return toString(encoding: .stringEncoding(.utf8))
+        } else if t == Data.self {
+            return toData()
+        } else {
+            return nil
+        }
+    }
+}
+
+extension LuaTableRef: Convertible {
+    func convertToType(_ t: Any.Type) -> Any? {
+        if t == Dictionary<AnyHashable, Any>.self {
+            return toDict()
+        } else if t == Array<Any>.self {
+            return toArray()
+        } else {
+            return nil
+        }
+    }
+}
+
+fileprivate func callFunctionBlock(_ L: LuaState!) -> CInt {
+    return L.convertThrowToError {
+        let function: Function = L.touserdata(1)!
+        let result = try function.call(with: LuaStateArgumentProvider(L: L))
+        L.pushany(result)
+        return 1
+    }
+}
+
+fileprivate func readFile(_ L: LuaState!) -> CInt {
+    guard let templateCache: TemplateCache = L.tovalue(lua_upvalueindex(1)),
+          let name = L.tostring(1),
+          let template = templateCache.details(for: .tilt(name)) else {
+        return 0
+    }
+    L.push(template.contents)
+    return 1
+}
 
 class TiltRenderer: Renderer {
 
@@ -28,13 +87,46 @@ class TiltRenderer: Renderer {
 
     let templateCache: TemplateCache
 
+    let env: TiltEnvironment
+
     init(templateCache: TemplateCache) {
         self.templateCache = templateCache
+        env = TiltEnvironment()
+        let L = env.L
+
+        L.registerMetatable(for: Function.self, functions: ["__call": callFunctionBlock])
+        L.registerMetatable(for: DocumentContext.self, functions: ["__index": { (L: LuaState!) -> CInt in
+            let dc: DocumentContext = L.touserdata(1)!
+            guard let memberName = L.tostring(2) else {
+                // Trying to lookup a non-string member, not happening
+                return 0
+            }
+            return L.convertThrowToError {
+                let result = try dc.lookup(memberName)
+                L.pushany(result)
+                return 1
+            }
+        }])
+
+        L.registerMetatable(for: TemplateCache.self, functions: [:])
+        L.pushGlobals()
+        L.pushuserdata(templateCache)
+        lua_pushcclosure(L, readFile, 1)
+        lua_setfield(L, -2, "readFile")
+    }
+
+    func setContext(_ context: [String: Any]) throws {
+        env.L.getglobal("setContext")
+        try env.L.pcall(arguments: context)
     }
 
     func render(name: String, context: [String : Any]) async throws -> RenderResult {
-        // Trivial. Left as an exercise for the reader.
-        return RenderResult(content: "", templatesUsed: [])
+        try setContext(context)
+        guard let template = templateCache.details(for: .tilt(name)) else {
+            fatalError("Wat? No template?")
+        }
+        let result = try env.parse(filename: name, contents: template.contents)
+        return RenderResult(content: result.text, templatesUsed: [name] + result.includes)
     }
 
 }
