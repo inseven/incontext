@@ -96,11 +96,6 @@ class TemplateCache {
         }
     }
 
-    // TODO: Remove this implementation
-    func details(language: TemplateLanguage, name: String) -> Details? {
-        return self.templates[language]?[name]
-    }
-
     func details(for identifier: TemplateIdentifier) -> Details? {
         return self.templates[identifier.language]?[identifier.name]
     }

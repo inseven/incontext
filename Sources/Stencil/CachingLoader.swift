@@ -37,7 +37,7 @@ class CachingLoader: Loader {
         if let template = cache[name] {
             return template
         }
-        guard let details = templateCache.details(language: .stencil, name: name) else {
+        guard let details = templateCache.details(for: .stencil(name)) else {
             throw InContextError.unknownTemplate(name)
         }
         let template = try Template(templateString: details.contents, environment: environment, name: name)
