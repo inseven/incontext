@@ -22,13 +22,17 @@
 
 import Foundation
 
-class TemplateIdentifier: RawRepresentable, Equatable, Codable, Hashable {
+class TemplateIdentifier: RawRepresentable, Equatable, Codable, Hashable, CustomStringConvertible {
 
     let language: TemplateLanguage
     let name: String
 
     var rawValue: String {
         return "\(language.rawValue):\(name)"
+    }
+
+    var description: String {
+        return rawValue
     }
 
     init(_ language: TemplateLanguage, _ name: String) {
