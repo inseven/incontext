@@ -30,6 +30,9 @@ extension String: EvaluationContext {
         switch name {
         case "count":
             return count
+        case "titlecase": return Function {
+            return self.toTitleCase()
+        }
         default:
             throw InContextError.unknownSymbol(name)
         }
