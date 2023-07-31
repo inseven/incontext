@@ -105,7 +105,7 @@ class TemplateCache {
         return self.templates[identifier.language]?[identifier.name]
     }
 
-    func contentModificationTime(for identifier: TemplateIdentifier) -> Date? {
+    func modificationDate(for identifier: TemplateIdentifier) -> Date? {
         return self.templates[identifier.language]?[identifier.name]?.contentModificationDate
     }
 

@@ -61,8 +61,8 @@ class Builder {
 
         // Check if any of the templates have changed.
         for templateStatus in renderStatus.templates {
-            let contentModificationTime = templateCache.contentModificationTime(for: templateStatus.identifier)
-            if templateStatus.contentModificationDate != contentModificationTime {
+            let modificationDate = templateCache.modificationDate(for: templateStatus.identifier)
+            if templateStatus.modificationDate != modificationDate {
                 return true
             }
         }
@@ -149,11 +149,11 @@ class Builder {
 
         for identifier in templateIdentifiersUsed {
             // TODO: Rename to content modification _date_
-            guard let contentModificationTime = templateCache.contentModificationTime(for: identifier) else {
+            guard let modificationDate = templateCache.modificationDate(for: identifier) else {
                 throw InContextError.internalInconsistency("Failed to get content modification date for template '\(identifier)'.")
             }
             templateStatuses.append(TemplateStatus(identifier: identifier,
-                                                   contentModificationDate: contentModificationTime))
+                                                   modificationDate: modificationDate))
         }
 
         let renderStatus = RenderStatus(contentModificationDate: document.contentModificationDate,
