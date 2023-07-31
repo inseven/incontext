@@ -41,6 +41,7 @@ enum InContextError: Error {
     case missingKey(Any)
     case interrupted
     case unknownTemplate(String)
+    case importError(URL, Error)
 
 }
 
@@ -52,6 +53,8 @@ extension InContextError: LocalizedError {
             return "Unknown template '\(name)'."
         case .internalInconsistency(let message):
             return message
+        case .importError(let fileURL, let error):
+            return "Failed to import file '\(fileURL.relativePath)' with error '\(error.localizedDescription)'."
         default:
             return String(describing: self)
         }

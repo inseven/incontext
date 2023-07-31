@@ -235,15 +235,17 @@ class Builder {
 
                         // Import the file.
                         let file = File(url: fileURL, contentModificationDate: contentModificationDate)
-                        let result = try await handler.process(site: self.site, file: file)
-                        let status = Status(fileURL: file.url,
-                                            contentModificationDate: file.contentModificationDate,
-                                            importer: handler.identifier,
-                                            fingerprint: handlerFingerprint)
-                        try await self.store.save(documents: result.documents, assets: result.assets, status: status)
-
-                        // TODO: This should probably just return the relative paths so we can know which files to delete.
-                        return result.documents
+                        do {
+                            let result = try await handler.process(site: self.site, file: file)
+                            let status = Status(fileURL: file.url,
+                                                contentModificationDate: file.contentModificationDate,
+                                                importer: handler.identifier,
+                                                fingerprint: handlerFingerprint)
+                            try await self.store.save(documents: result.documents, assets: result.assets, status: status)
+                            return result.documents
+                        } catch {
+                            throw InContextError.importError(fileURL, error)
+                        }
                     }
                 }
                 for try await _ in group {}
