@@ -56,20 +56,19 @@ class MarkdownImporter: Importer {
         }
         let details = fileURL.basenameDetails()
 
-        // TODO: Rename to frontmatter
-        let result = try FrontmatterDocument(contents: contents, generateHTML: true)
+        let frontmatter = try FrontmatterDocument(contents: contents, generateHTML: true)
 
         // Set the title if it doesn't exist.
         var metadata = [AnyHashable: Any]()
-        metadata.merge(result.metadata) { $1 }
+        metadata.merge(frontmatter.metadata) { $1 }
         if metadata["title"] == nil {
             metadata["title"] = details.title
         }
 
         // Strict metadata parsing.
         let decoder = YAMLDecoder()
-        let structuredMetadata = (!result.rawMetadata.isEmpty ?
-                                  try decoder.decode(Metadata.self, from: result.rawMetadata) :
+        let structuredMetadata = (!frontmatter.rawMetadata.isEmpty ?
+                                  try decoder.decode(Metadata.self, from: frontmatter.rawMetadata) :
                                     Metadata())
 
         let category: String = try metadata.value(for: "category", default: settings.defaultCategory)
@@ -82,7 +81,7 @@ class MarkdownImporter: Importer {
                                 type: category,
                                 date: structuredMetadata.date ?? details.date,
                                 metadata: metadata,
-                                contents: result.content,
+                                contents: frontmatter.content,
                                 contentModificationDate: file.contentModificationDate,
                                 template: structuredMetadata.template ?? settings.defaultTemplate,
                                 relativeSourcePath: file.relativePath)

@@ -46,12 +46,11 @@ extension Yaml {
         case .string(let value):
             return value
         case .array(let values):
-            return values.compactMap {  // TODO: Is compact map safe here?
+            return values.compactMap {
                 $0.native()
             }
         case .dictionary(let values):
-            // TODO: Is a compact map too permissive?
-            let nativeValues: [(AnyHashable, Any)] = values.compactMap { (key, value) in  // TODO: Compact map?
+            let nativeValues: [(AnyHashable, Any)] = values.compactMap { (key, value) in
                 guard let key = key.native() as? AnyHashable,
                       let value = value.native() else {
                     return nil

@@ -155,5 +155,3 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
     }
 
 }
-
-// TODO: I could support initializing sets to make it easier to generate tags efficiently.

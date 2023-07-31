@@ -49,10 +49,10 @@ class VideoImporter: Importer {
         let outputURL = site.outputURL(relativePath: file.url.deletingPathExtension().relativePath + ".mov")
         try FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(),
                                                 withIntermediateDirectories: true)
-        await export(video: video,
-                     withPreset: AVAssetExportPresetHighestQuality,
-                     toFileType: .mov,
-                     atURL: outputURL)
+        try await export(video: video,
+                         withPreset: AVAssetExportPresetHighestQuality,
+                         toFileType: .mov,
+                         atURL: outputURL)
 
 //        https://img.ly/blog/working-with-large-video-and-image-files-on-ios-with-swift/#resizingavideo
 //        let newAsset = AVAsset(url:Bundle.main.url(forResource: "jumping-man", withExtension: "mov")!) //1
@@ -73,23 +73,19 @@ class VideoImporter: Importer {
     func export(video: AVAsset,
                 withPreset preset: String = AVAssetExportPresetHighestQuality,
                 toFileType outputFileType: AVFileType = .mov,
-                atURL outputURL: URL) async {
+                atURL outputURL: URL) async throws {
 
         // Check the compatibility of the preset to export the video to the output file type.
         guard await AVAssetExportSession.compatibility(ofExportPreset: preset,
                                                        with: video,
                                                        outputFileType: outputFileType) else {
-            // TODO: Fail!
-            print("The preset can't export the video to the output file type.")
-            return
+            throw InContextError.internalInconsistency("The preset can't export the video to the output file type.")
         }
 
         // Create and configure the export session.
         guard let exportSession = AVAssetExportSession(asset: video,
                                                        presetName: preset) else {
-            // TODO: Fail!
-            print("Failed to create export session.")
-            return
+            throw InContextError.internalInconsistency("Failed to create export session.")
         }
         exportSession.outputFileType = outputFileType
         exportSession.outputURL = outputURL
