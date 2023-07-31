@@ -22,18 +22,6 @@
 
 import Foundation
 
-// TODO: Conisder whether callables should be anonymous by default and everything before () should be lookups?
-// TODO: This could lead to just one method on EvaluationContext; might be nice?
-
-// TODO: Not sure this is actually used at all; I think they all get wrapped by Context in the end anyhow.
-extension Dictionary: EvaluationContext where Key == AnyHashable, Value == Any {
-
-    func lookup(_ name: String) throws -> Any? {
-        return self[name]
-    }
-
-}
-
 extension Dictionary {
 
     func value<T>(for key: Key, default defaultValue: T) throws -> T {
@@ -61,7 +49,7 @@ extension Dictionary {
             throw InContextError.missingKey(key)
         }
         guard let value = value as? T else {
-            throw InContextError.incorrectType(key)  // TODO: Include expects?
+            throw InContextError.incorrectType(key)
         }
         return value
     }
@@ -80,6 +68,14 @@ extension Dictionary {
             result.append(try await transform(element))
         }
         return result
+    }
+
+}
+
+extension Dictionary: EvaluationContext where Key == AnyHashable, Value == Any {
+
+    func lookup(_ name: String) throws -> Any? {
+        return self[name]
     }
 
 }
