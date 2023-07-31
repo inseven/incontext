@@ -24,17 +24,26 @@ import Foundation
 
 class TemplateTracker {
 
-    private var statuses = Set<TemplateStatus>()
+    private var _renderers = Set<RendererInstance>()
+    private var _statuses = Set<TemplateRenderStatus>()
 
     init() {
     }
 
-    func add(_ templateStatus: TemplateStatus) {
-        statuses.insert(templateStatus)
+    func add(_ rendererInstance: RendererInstance) {
+        _renderers.insert(rendererInstance)
     }
 
-    func result() -> [TemplateStatus] {
-        return Array(statuses)
+    func add(_ templateStatus: TemplateRenderStatus) {
+        _statuses.insert(templateStatus)
+    }
+
+    func renderers() -> [RendererInstance] {
+        return Array(_renderers)
+    }
+
+    func statuses() -> [TemplateRenderStatus] {
+        return Array(_statuses)
     }
 
 }

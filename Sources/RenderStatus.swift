@@ -31,6 +31,7 @@ struct RenderStatus: Codable {
     //       It should be replaced with the document fingerprint.
     let contentModificationDate: Date
     let queries: [QueryStatus]
-    let templates: [TemplateStatus]
+    let renderers: [RendererInstance]
+    let templates: [TemplateRenderStatus]
 
 }

@@ -29,4 +29,9 @@ struct RenderResult {
     let content: String
     let templatesUsed: [String]
 
+    init(content: String, templatesUsed: [String]) {
+        self.content = content
+        self.templatesUsed = templatesUsed
+    }
+
 }

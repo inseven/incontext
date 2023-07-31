@@ -26,6 +26,8 @@ import Stencil
 
 class StencilRenderer: Renderer {
 
+    let version = 1
+
     static func stencilExtension() -> Extension {
 
         let ext = Extension()

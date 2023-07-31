@@ -43,7 +43,11 @@ class Builder {
         // TODO: Will the render change actually cascade correctly if the document was regenerated due to an injected
         //       settings change, but the mtime didn't change? Do we actually need to bake the fingerprint into the
         //       document and the render tracker?
-
+        //       This will _only_ happen if we correctly delete the render cache at injest time. I'm not actually sure
+        //       if that is the right choice though; perhaps it is better to treat them as fairly independent stages?
+        //       Deleting the render cache feels like it's an optimisation which should improve performance.
+        //       It would be good to be able to run the import and render phases separately for integration testing
+        //       purposes to check that the correct side effects have happened.
 
         guard let renderStatus = renderStatus else {
             // Since there's no render status we assume the document has never been rendered.
@@ -56,7 +60,16 @@ class Builder {
             return true
         }
 
-        // Check if any of the templates have changed.
+        // Check to see if any of the renderers have changed.
+        for renderer in renderStatus.renderers {
+            let currentRenderer = try renderManager.renderer(for: renderer.language)
+            if renderer.version != currentRenderer.version {
+                // One of the renderers used has been updated.
+                return true
+            }
+        }
+
+        // Check if any of the templates have changed, or if the renderer version used has changed.
         for templateStatus in renderStatus.templates {
             let modificationDate = templateCache.modificationDate(for: templateStatus.identifier)
             if templateStatus.modificationDate != modificationDate {
@@ -64,7 +77,6 @@ class Builder {
             }
         }
 
-        // TODO: Check if any of the templates have changed.
         // Check the query result modification dates.
         for queryStatus in renderStatus.queries {
             // TODO: Content modification dates query _could_ be async.
@@ -124,13 +136,16 @@ class Builder {
             }
         ]
 
+        // TODO: Rename this to something more like a render tracker?
+        // TODO: Perhaps the store can be injected into the render tracker too to make it all nice and clean?
         let templateTracker = TemplateTracker()
         let content = try await renderManager.render(templateTracker: templateTracker,
-                                                     identifier: document.template,
+                                                     template: document.template,
                                                      context: context)
         let renderStatus = RenderStatus(contentModificationDate: document.contentModificationDate,
                                         queries: queryTracker.queries,
-                                        templates: templateTracker.result())
+                                        renderers: templateTracker.renderers(),
+                                        templates: templateTracker.statuses())
         try await store.save(renderStatus: renderStatus, for: document.url)
 
         // Write the contents to a file.

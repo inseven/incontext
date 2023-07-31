@@ -22,9 +22,9 @@
 
 import Foundation
 
-struct TemplateStatus: Codable, Hashable {
+struct RendererInstance: Hashable, Codable {
 
-    let identifier: TemplateIdentifier
-    let modificationDate: Date
-
+    let language: TemplateLanguage
+    let version: Int
+    
 }

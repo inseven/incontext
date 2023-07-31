@@ -25,6 +25,8 @@ import Foundation
 // Demo renderer that outputs the contents of the document.
 class IdentityRenderer: Renderer {
 
+    let version = 2
+
     let templateCache: TemplateCache
 
     init(templateCache: TemplateCache) {

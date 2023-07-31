@@ -24,6 +24,8 @@ import Foundation
 
 class TiltRenderer: Renderer {
 
+    let version = 1
+
     let templateCache: TemplateCache
 
     init(templateCache: TemplateCache) {
