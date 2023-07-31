@@ -55,7 +55,7 @@ class Store: Queryable {
         static let relativeAssetPath = Expression<String>("relative_asset_path")
 
         // render status
-        static let details = Expression<String>("details")
+        static let details = Expression<Data>("details")
 
     }
 
@@ -230,9 +230,7 @@ class Store: Queryable {
             return nil
         }
         let decoder = JSONDecoder()
-        guard let data = try renderStatus.get(Schema.details).data(using: .utf8) else {
-            throw InContextError.encodingError
-        }
+        let data = try renderStatus.get(Schema.details)
         return try decoder.decode(RenderStatus.self, from: data)
     }
 
@@ -241,27 +239,18 @@ class Store: Queryable {
         let rowIterator = try connection.prepareRowIterator(Schema.renderStatus)
         return try rowIterator.map { row in
             let decoder = JSONDecoder()
-            guard let data = row[Schema.details].data(using: .utf8) else {
-                throw InContextError.encodingError
-            }
-            return (row[Schema.url], try decoder.decode(RenderStatus.self, from: data))
+            return (row[Schema.url], try decoder.decode(RenderStatus.self, from: row[Schema.details]))
         }
     }
 
     private func syncQueue_save(renderStatus: RenderStatus, for url: String) throws {
         dispatchPrecondition(condition: .onQueue(workQueue))
         try connection.transaction {
-
-            // TODO: Performance
             let encoder = JSONEncoder()
             let renderStatus = try encoder.encode(renderStatus)
-            guard let string = String(data: renderStatus, encoding: .utf8) else {
-                throw InContextError.encodingError
-            }
-
             try connection.run(Schema.renderStatus.insert(or: .replace,
                                                           Schema.url <- url,
-                                                          Schema.details <- string))
+                                                          Schema.details <- renderStatus))
         }
     }
 

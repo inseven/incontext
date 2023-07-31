@@ -54,6 +54,17 @@ extension Array: EvaluationContext {
         return result
     }
 
+    @inlinable public func asyncCompactMap<T>(_ transform: @escaping (Element) async throws -> T?) async rethrows -> [T] {
+        var result = [T]()
+        for element in self {
+            guard let newElement = try await transform(element) else {
+                continue
+            }
+            result.append(newElement)
+        }
+        return result
+    }
+
     @inlinable public func asyncMap<T>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T] {
         var result = [T]()
         for element in self {

@@ -94,10 +94,6 @@ class Builder {
                 documents: [Document],
                 renderStatus: RenderStatus?) async throws {
 
-        if !(try await needsRender(document: document, renderStatus: renderStatus)) {
-            return
-        }
-
         // TODO: Push this into the site?
         // TODO: Work out which file extension we need to use for our index file (this is currently based on the template).
         // TODO: Guess the template mimetype.
@@ -261,19 +257,45 @@ class Builder {
                     partialResult[renderStatus.0] = renderStatus.1
                 })
 
-            // Render the documents.
-            // TODO: Generate the document contexts out here.
+            print("Getting documents...")
             let documents = try await store.documents()
+
+            // TODO: It should be possible to check whether we need to re-render asynchronously as it doesn't do
+            //       anything complicated other than hit the database.
+
+            print("Checking for changes...")
+            let updates = try await withThrowingTaskGroup(of: (Document?).self) { group in
+                for document in documents {
+                    group.addTask {
+                        if try await self.needsRender(document: document, renderStatus: renderStatuses[document.url]) {
+                            return document
+                        } else {
+                            return nil
+                        }
+                    }
+                }
+                var result: [Document] = []
+                for try await document in group {
+                    guard let document else {
+                        continue
+                    }
+                    result.append(document)
+                }
+                return result
+            }
+
+            // Render the documents that need updates.
+            print("Rendering \(updates.count) documents...")
             let serial = true  // TODO: Command line argument
             if serial {
-                for document in try await store.documents() {
+                for document in updates {
                     try await self.render(document: document,
                                           documents: documents,
                                           renderStatus: renderStatuses[document.url])
                 }
             } else {
                 try await withThrowingTaskGroup(of: Void.self) { group in
-                    for document in documents {
+                    for document in updates {
                         group.addTask {
                             try await self.render(document: document,
                                                   documents: documents,
