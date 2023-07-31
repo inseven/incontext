@@ -44,8 +44,6 @@ struct Site {
 
     let settings: [AnyHashable: Any]
 
-    let importers: [String: any Importer]
-
     let handlers: [AnyHandler]
 
     init(rootURL: URL) throws {
@@ -81,7 +79,6 @@ struct Site {
             SassImporter(),
             VideoImporter(),
         ] as [any Importer]).reduce(into: [:]) { $0[$1.identifier] = $1 }
-        self.importers = importers
 
         let actualHandlers = try handlers.map { handler in
             guard let then = handler["then"] as? String else {
@@ -103,16 +100,6 @@ struct Site {
             return handler
         }
         return nil
-    }
-
-    // TODO: Use a thread-safe cache.
-    func template(named name: String) throws -> String {
-        let templateURL = templatesURL.appending(component: name)
-        let data = try Data(contentsOf: templateURL)
-        guard let template = String(data: data, encoding: .utf8) else {
-            throw InContextError.unsupportedEncoding
-        }
-        return template
     }
 
     func outputURL(relativePath: String) -> URL {

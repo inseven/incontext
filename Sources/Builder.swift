@@ -193,7 +193,7 @@ class Builder {
                         continue
                     }
 
-                    // Get the importer for the file.
+                    // Get the handler for the file.
                     guard let handler = try self.site.handler(for: fileURL) else {
                         print("Ignoring unsupported file '\(fileURL.relativePath)'.")
                         continue
@@ -260,9 +260,7 @@ class Builder {
                         return result.documents
                     }
                 }
-                for try await _ in group {
-//                    documents.append(contentsOf: documents)
-                }
+                for try await _ in group {}
             }
             // TODO: Work out how to remove entries for deleted files.
 

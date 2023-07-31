@@ -43,7 +43,7 @@ class TemplateCache {
 
         var isDirectory: ObjCBool = false
         guard fileManager.fileExists(at: languageRootURL, isDirectory: &isDirectory) else {
-            print("Skipping loading '\(language)' templates...")
+            print("Skipping loading '\(language)' templates (missing directory)...")
             return [:]
         }
         guard isDirectory.boolValue else {
