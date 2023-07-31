@@ -25,8 +25,13 @@ import Foundation
 // Demo renderer that outputs the contents of the document.
 class IdentityRenderer: Renderer {
 
-    func render(_ name: String, context: [String : Any]) async throws -> RenderResult {
-        // TODO: Rename page to document?
+    let templateCache: TemplateCache
+
+    init(templateCache: TemplateCache) {
+        self.templateCache = templateCache
+    }
+
+    func render(name: String, context: [String : Any]) async throws -> RenderResult {
         guard let page = context["page"] as? DocumentContext else {
             throw InContextError.internalInconsistency("Unable to get 'page' from render context.")
         }

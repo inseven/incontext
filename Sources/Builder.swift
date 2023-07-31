@@ -27,20 +27,17 @@ class Builder {
     let site: Site
     let store: Store
     let templateCache: TemplateCache
-    let renderers: [TemplateLanguage: Renderer]
+    let renderManager: RenderManager
 
     init(site: Site) async throws {
         try FileManager.default.createDirectory(at: site.buildURL, withIntermediateDirectories: true)
         self.site = site
         self.store = try Store(databaseURL: site.storeURL)
-        self.templateCache = try await TemplateCache(rootURL: site.templatesURL)
-        self.renderers = [
-            .identity: IdentityRenderer(),
-            .stencil: StencilRenderer(templateCache: templateCache),
-            .tilt: TiltRenderer(),
-        ]
+        self.templateCache = try await TemplateCache(rootURL: site.templatesURL)  // TODO: Does this need to exist here?
+        self.renderManager = RenderManager(templateCache: templateCache)
     }
 
+    // TODO: Perhaps this can get pushed into the RenderManager?
     func needsRender(document: Document, renderStatus: RenderStatus?) async throws -> Bool {
 
         // TODO: Will the render change actually cascade correctly if the document was regenerated due to an injected
@@ -96,7 +93,7 @@ class Builder {
         let destinationFileURL = destinationDirectoryURL.appendingPathComponent("index", conformingTo: .html)
         print("Rendering '\(document.url)' with template '\(document.template)'...")
 
-        let tracker = QueryTracker(store: store)
+        let queryTracker = QueryTracker(store: store)
 
         // TODO: Inline the config loaded from the settings file
         // TODO: Does this need to get extracted so it can easily be assembled for inner renders?
@@ -109,58 +106,36 @@ class Builder {
                 "date_format_short": "MMMM dd",
                 "url": "https://jbmorley.co.uk",
                 "posts": Function { () throws -> [DocumentContext] in
-                    return try tracker.documents(query: QueryDescription())
-                        .map { DocumentContext(store: tracker, document: $0) }
+                    return try queryTracker.documents(query: QueryDescription())
+                        .map { DocumentContext(store: queryTracker, document: $0) }
                 },
                 "post": Function { (url: String) throws -> DocumentContext? in
-                    return try tracker.documents(query: QueryDescription(url: url))
-                        .map { DocumentContext(store: tracker, document: $0) }
+                    return try queryTracker.documents(query: QueryDescription(url: url))
+                        .map { DocumentContext(store: queryTracker, document: $0) }
                         .first
                 },
             ] as Dictionary<String, Any>,  // TODO: as [String: Any] is different?
             "generate_uuid": Function {
                 return UUID().uuidString
             },
-            "page": DocumentContext(store: tracker, document: document),
+            "page": DocumentContext(store: queryTracker, document: document),
             "distant_past":  { (timezoneAware: Bool) in
                 return Date.distantPast
             }
         ]
 
-        // Get the correct renderer.
-        guard let renderer = renderers[document.template.language] else {
-            throw InContextError.internalInconsistency("Failed to get renderer for language '\(document.template.language)'.")
-        }
-
-        let renderResult = try await renderer.render(document.template.name, context: context)
-
-        // TODO: WE DEFINITELY NEED TO INJECT A TRACKING TEMPLATE CACHE INTO THIS SINCE OTHERWISE WE CAN'T FIGURE OUT
-        //       WHEN THINGS CHANGE ACROSS TEMPLATES.
-
-        // Generate the TemplateStatus tuples with the template content modification times.
-        var templateStatuses: [TemplateStatus] = []
-
-        let templateIdentifiersUsed: [TemplateIdentifier] = renderResult.templatesUsed.map { name in
-            return TemplateIdentifier(.stencil, name)
-        }
-
-        for identifier in templateIdentifiersUsed {
-            // TODO: Rename to content modification _date_
-            guard let modificationDate = templateCache.modificationDate(for: identifier) else {
-                throw InContextError.internalInconsistency("Failed to get content modification date for template '\(identifier)'.")
-            }
-            templateStatuses.append(TemplateStatus(identifier: identifier,
-                                                   modificationDate: modificationDate))
-        }
-
+        let templateTracker = TemplateTracker()
+        let content = try await renderManager.render(templateTracker: templateTracker,
+                                                     identifier: document.template,
+                                                     context: context)
         let renderStatus = RenderStatus(contentModificationDate: document.contentModificationDate,
-                                        queries: tracker.queries,
-                                        templates: templateStatuses)
+                                        queries: queryTracker.queries,
+                                        templates: templateTracker.result())
         try await store.save(renderStatus: renderStatus, for: document.url)
 
         // Write the contents to a file.
         try FileManager.default.createDirectory(at: destinationDirectoryURL, withIntermediateDirectories: true)
-        guard let data = renderResult.content.data(using: .utf8) else {
+        guard let data = content.data(using: .utf8) else {
             throw InContextError.unsupportedEncoding
         }
         try data.write(to: destinationFileURL)
