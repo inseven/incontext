@@ -52,3 +52,4 @@ swift build
 - [ ] Consider special files in directories for nested behaviours
 - [ ] Log at at different levels, error, warning, etc
 - [ ] Rename page to document in the render context
+    
