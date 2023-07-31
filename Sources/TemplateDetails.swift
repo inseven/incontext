@@ -22,11 +22,11 @@
 
 import Foundation
 
-// TODO: Include the renderer version. It's currently unclear to me if this needs to be bound to the top-level result or
-//       to each template individually.
-struct RenderResult {
+struct TemplateDetails: Hashable {
 
-    let content: String
-    let templatesUsed: [String]
+    let url: URL
+    let language: TemplateLanguage
+    let modificationDate: Date
+    let contents: String
 
 }

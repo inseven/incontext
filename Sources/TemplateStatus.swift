@@ -22,7 +22,7 @@
 
 import Foundation
 
-struct TemplateStatus: Codable {
+struct TemplateStatus: Codable, Hashable {
 
     let identifier: TemplateIdentifier
     let modificationDate: Date

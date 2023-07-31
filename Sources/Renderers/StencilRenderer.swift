@@ -150,7 +150,7 @@ class StencilRenderer: Renderer {
         self.environment = Environment(loader: loader, extensions: [Self.stencilExtension()])
     }
 
-    func render(_ name: String, context: [String : Any]) async throws -> RenderResult {
+    func render(name: String, context: [String : Any]) async throws -> RenderResult {
         // TODO: Is it possible to track the templates used externally?
         let (content, templates) = try environment.renderTemplate(name: name, context: context)
         return RenderResult(content: content, templatesUsed: templates)

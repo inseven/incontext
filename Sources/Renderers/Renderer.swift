@@ -24,6 +24,6 @@ import Foundation
 
 protocol Renderer {
 
-    func render(_ name: String, context: [String: Any]) async throws -> RenderResult
+    func render(name: String, context: [String: Any]) async throws -> RenderResult
 
 }

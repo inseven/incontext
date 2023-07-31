@@ -22,11 +22,19 @@
 
 import Foundation
 
-// TODO: Include the renderer version. It's currently unclear to me if this needs to be bound to the top-level result or
-//       to each template individually.
-struct RenderResult {
+class TemplateTracker {
 
-    let content: String
-    let templatesUsed: [String]
+    private var statuses = Set<TemplateStatus>()
+
+    init() {
+    }
+
+    func add(_ templateStatus: TemplateStatus) {
+        statuses.insert(templateStatus)
+    }
+
+    func result() -> [TemplateStatus] {
+        return Array(statuses)
+    }
 
 }

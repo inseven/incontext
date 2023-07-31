@@ -27,7 +27,7 @@ import Stencil
 class CachingLoader: Loader {
 
     let templateCache: TemplateCache
-    var cache: [String: Template] = [:]
+    let cache = Cache<String, Template>()
 
     init(templateCache: TemplateCache) {
         self.templateCache = templateCache

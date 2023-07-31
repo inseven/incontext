@@ -24,7 +24,13 @@ import Foundation
 
 class TiltRenderer: Renderer {
 
-    func render(_ name: String, context: [String : Any]) async throws -> RenderResult {
+    let templateCache: TemplateCache
+
+    init(templateCache: TemplateCache) {
+        self.templateCache = templateCache
+    }
+
+    func render(name: String, context: [String : Any]) async throws -> RenderResult {
         // Trivial. Left as an exercise for the reader.
         return RenderResult(content: "", templatesUsed: [])
     }

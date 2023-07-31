@@ -26,17 +26,10 @@ import Foundation
 // template contents.
 class TemplateCache {
 
-    struct Details {
-        let url: URL
-        let language: TemplateLanguage
-        let contentModificationDate: Date
-        let contents: String
-    }
-
     private let rootURL: URL
-    private let templates: [TemplateIdentifier: Details]
+    private let templates: [TemplateIdentifier: TemplateDetails]
 
-    static func templates(rootURL: URL, language: TemplateLanguage) async throws -> [TemplateIdentifier: Details] {
+    static func templates(rootURL: URL, language: TemplateLanguage) async throws -> [TemplateIdentifier: TemplateDetails] {
         precondition(rootURL.hasDirectoryPath)
         let fileManager = FileManager.default
         let languageRootURL = rootURL.appendingPathComponent(language.rawValue, isDirectory: true)
@@ -54,7 +47,7 @@ class TemplateCache {
         let directoryEnumerator = fileManager.enumerator(at: languageRootURL,
                                                          includingPropertiesForKeys: Array(resourceKeys),
                                                          options: [.skipsHiddenFiles, .producesRelativePathURLs])!
-        return try await withThrowingTaskGroup(of: Details.self) { group in
+        return try await withThrowingTaskGroup(of: TemplateDetails.self) { group in
             for case let fileURL as URL in directoryEnumerator {
 
                 let isDirectory = try fileURL
@@ -70,15 +63,15 @@ class TemplateCache {
 
                 group.addTask {
                     let contents = try String(contentsOf: fileURL, encoding: .utf8)
-                    let details = Details(url: fileURL,
-                                          language: .stencil,
-                                          contentModificationDate: contentModificationDate,
-                                          contents: contents)
+                    let details = TemplateDetails(url: fileURL,
+                                                  language: .stencil,
+                                                  modificationDate: contentModificationDate,
+                                                  contents: contents)
                     return details
                 }
             }
 
-            var templates: [TemplateIdentifier: Details] = [:]
+            var templates: [TemplateIdentifier: TemplateDetails] = [:]
             for try await details in group {
                 templates[TemplateIdentifier(language, details.url.relativePath)] = details
             }
@@ -90,19 +83,19 @@ class TemplateCache {
     init(rootURL: URL) async throws {
         self.rootURL = rootURL
         self.templates = try await TemplateLanguage.allCases
-            .asyncReduce(into: [TemplateIdentifier: Details]()) { partialResult, language in
+            .asyncReduce(into: [TemplateIdentifier: TemplateDetails]()) { partialResult, language in
                 for (identifier, details) in try await Self.templates(rootURL: rootURL, language: language) {
                     partialResult[identifier] = details
                 }
         }
     }
 
-    func details(for identifier: TemplateIdentifier) -> Details? {
+    func details(for identifier: TemplateIdentifier) -> TemplateDetails? {
         return self.templates[identifier]
     }
 
     func modificationDate(for identifier: TemplateIdentifier) -> Date? {
-        return self.templates[identifier]?.contentModificationDate
+        return self.templates[identifier]?.modificationDate
     }
 
 }

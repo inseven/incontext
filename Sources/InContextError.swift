@@ -24,7 +24,7 @@ import Foundation
 
 enum InContextError: Error {
     case unsupportedEncoding
-    case unknown
+    case unknown  // TODO: Remove this.
     case internalInconsistency(String)
     case unknownSymbol(String)
     case invalidKey(Any?)
