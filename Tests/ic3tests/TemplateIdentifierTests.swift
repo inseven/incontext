@@ -23,7 +23,7 @@
 import Foundation
 
 import XCTest
-@testable import ic3
+@testable import incontext
 
 class TemplateIdentifierTests: XCTestCase {
 
