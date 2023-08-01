@@ -130,6 +130,29 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
             let relativeSourcePath = relativeSourcePath(for: relativePath)
             return try documents(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first
         }
+        case "relative_source_path": return Function { (relativePath: String) -> String in
+            return relativeSourcePath(for: relativePath)
+        }
+        case "abspath": return Function { (relativePath: String) -> String in
+            return relativeSourcePath(for: relativePath).ensureLeadingSlash()
+        }
+        case "resolve": return Function { (relativePath: String) -> String in
+            // Return the canonical in-site file for a path relative to the source document.
+            // TODO: Consider throwing if this is called with unexpected arguments or the target file couldn't be found
+            //       (or doesn't exist in the site).
+            // TODO: This is currently guess-work and should be far more rigorously coded with updates to Document in
+            //       the future.
+            let relativeSourcePath = relativeSourcePath(for: relativePath)
+
+            // We currently special-case image documents that follow a known structure.
+            if let child = try documents(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first,
+               let image = child.document.metadata["image"] as? [String: Any],
+               let url = image["url"] as? String {
+                return url
+            }
+            
+            return relativeSourcePath.ensureLeadingSlash()
+        }
         default:
             break
         }
