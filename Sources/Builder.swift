@@ -126,9 +126,16 @@ class Builder {
             "generate_uuid": Function {
                 return UUID().uuidString
             },
+            "titlecase": Function { (string: String) -> String in
+                return string.toTitleCase()
+            },
             "page": DocumentContext(store: queryTracker, document: document),
             "distant_past": Function { (timezoneAware: Bool) in
                 return Date.distantPast
+            },
+            "markdown": Function { (string: String) -> String in
+                // TODO: Actually process the markdown
+                return string
             },
             "iso_8601_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
         ]
