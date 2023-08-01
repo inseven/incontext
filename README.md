@@ -48,3 +48,5 @@ swift build
 - [ ] Log at at different levels, error, warning, etc
 - [ ] Rename page to document in the render context
 - [ ] Evaluation EvaluationContexts should be enumerable to assist with documentation
+- [ ] RenderStatus needs to fingerprint documents
+- [ ] Intoduce a render-time `resolve` method that can figure out what happened to a document and include it
