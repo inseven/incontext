@@ -127,7 +127,7 @@ class Builder {
                 return UUID().uuidString
             },
             "page": DocumentContext(store: queryTracker, document: document),
-            "distant_past":  { (timezoneAware: Bool) in
+            "distant_past": Function { (timezoneAware: Bool) in
                 return Date.distantPast
             }
         ]
