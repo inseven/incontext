@@ -129,7 +129,8 @@ class Builder {
             "page": DocumentContext(store: queryTracker, document: document),
             "distant_past": Function { (timezoneAware: Bool) in
                 return Date.distantPast
-            }
+            },
+            "iso_8601_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
         ]
 
         // TODO: Consolidate RenderTracker and QueryTracker
