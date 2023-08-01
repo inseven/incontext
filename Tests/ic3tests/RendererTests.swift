@@ -8,7 +8,7 @@
 import Foundation
 
 import XCTest
-@testable import ic3
+@testable import incontext
 
 import Stencil
 

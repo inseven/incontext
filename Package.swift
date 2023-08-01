@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "ic3",
+    name: "incontext",
     platforms: [
         .macOS(.v13),
     ],
@@ -28,7 +28,7 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .executableTarget(
-            name: "ic3",
+            name: "incontext",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Crypto", package: "swift-crypto"),
@@ -48,7 +48,7 @@ let package = Package(
             path: "Sources"),
         .testTarget(
             name: "ic3tests",
-            dependencies: ["ic3"]),
+            dependencies: ["incontext"]),
     ]
 )
 

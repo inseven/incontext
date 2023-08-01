@@ -22,7 +22,7 @@
 
 import Foundation
 
-@testable import ic3
+@testable import incontext
 
 class SourceDirectory {
 
