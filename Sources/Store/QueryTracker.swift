@@ -22,12 +22,12 @@
 
 import Foundation
 
-class QueryTracker: Queryable {
+class QueryTracker {
 
-    let store: Queryable
+    let store: Store
     var queries: [QueryStatus] = []
 
-    init(store: Queryable) {
+    init(store: Store) {
         self.store = store
     }
 
@@ -37,6 +37,11 @@ class QueryTracker: Queryable {
         queries.append(QueryStatus(query: query,
                                    contentModificationDates: documents.map({ $0.contentModificationDate })))
         return documents
+    }
+
+    func documentContexts(query: QueryDescription) throws -> [DocumentContext] {
+        return try documents(query: query)
+            .map { DocumentContext(store: self, document: $0) }
     }
 
 }

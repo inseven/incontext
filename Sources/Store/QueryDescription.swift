@@ -80,15 +80,8 @@ struct QueryDescription: Codable, Hashable {
         } else {
             includeCategories = nil
         }
-        if let parent = structuredQuery["parent"] {
-            guard let parent = parent as? String else {
-                throw InContextError.invalidQueryDefinition
-            }
-            self.parent = parent
-        } else {
-            self.parent = nil
-        }
-        self.url = try structuredQuery.optionalValue(for: "parent")
+        self.parent = try structuredQuery.optionalValue(for: "parent")
+        self.url = try structuredQuery.optionalValue(for: "url")
         self.relativeSourcePath = try structuredQuery.optionalValue(for: "relative_source_path")
     }
 

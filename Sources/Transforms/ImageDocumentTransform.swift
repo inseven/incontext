@@ -22,7 +22,6 @@
 
 import Foundation
 
-import Stencil
 import SwiftSoup
 
 // Corrects relative paths for images have been stored in the database.
@@ -32,7 +31,7 @@ import SwiftSoup
 // TODO: These transforms also need rigorous testing
 struct ImageDocumentTransform: Transformer {
 
-    func transform(store: Queryable, document: DocumentContext, content: SwiftSoup.Document) throws {
+    func transform(store: QueryTracker, document: DocumentContext, content: SwiftSoup.Document) throws {
         for img in try content.getElementsByTag("img") {
             if img.hasAttr("src") {
                 let src = try img.attr("src")

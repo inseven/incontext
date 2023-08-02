@@ -27,7 +27,7 @@ import SwiftSoup
 
 struct DocumentContext: EvaluationContext, DynamicMemberLookup {
 
-    private let store: Queryable
+    private let store: QueryTracker
     private let document: Document
 
     var content: String {
@@ -44,14 +44,9 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
     }
 
     // TODO: We need to inject the renderer into this since it should be used to render the inner HTML.
-    init(store: Queryable, document: Document) {
+    init(store: QueryTracker, document: Document) {
         self.store = store
         self.document = document
-    }
-
-    func documents(query: QueryDescription) throws -> [DocumentContext] {
-        return try store.documents(query: query)
-            .map { DocumentContext(store: store, document: $0) }
     }
 
     func relativeSourcePath(for relativePath: String) -> String {
@@ -82,9 +77,15 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
      .convertRelativePaths("//img[@src]") <-- convert any relative paths to the new primary destination in the site
                                               note: this would require us to actually designate a primary file which
                                               we're not currently doing in the case of an image.
+
+     .transformElements("//img", .replaceElement(.inlineRender("src")))
+     .transformElements("//img", .convertRelativeAttributePaths(for: "src"))
+     .transformElements("//img", .replaceElement(.string("Cheese"))
+
      */
     let transforms: [Transformer] = [
         ImageDocumentTransform(),
+        RelativeSourceTransform(selector: "img", attribute: "src"),
     ]
 
     // TODO: Add a render cache for pages?
@@ -118,17 +119,17 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
                   let query = queries[name] else {
                 throw InContextError.unknownQuery(name)
             }
-            return try documents(query: try QueryDescription(definition: query))
+            return try store.documentContexts(query: try QueryDescription(definition: query))
         }
         case "children": return Function { () -> [DocumentContext] in
-            return try documents(query: QueryDescription(parent: document.url))
+            return try store.documentContexts(query: QueryDescription(parent: document.url))
         }
         case "parent": return Function { () -> DocumentContext? in
-            return try documents(query: QueryDescription(url: document.parent)).first
+            return try store.documentContexts(query: QueryDescription(url: document.parent)).first
         }
         case "child": return Function { (relativePath: String) -> DocumentContext? in
             let relativeSourcePath = relativeSourcePath(for: relativePath)
-            return try documents(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first
+            return try store.documentContexts(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first
         }
         case "relative_source_path": return Function { (relativePath: String) -> String in
             return relativeSourcePath(for: relativePath)
@@ -137,6 +138,11 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
             return relativeSourcePath(for: relativePath).ensureLeadingSlash()
         }
         case "resolve": return Function { (relativePath: String) -> String in
+            // Documentation: Resolve a relative or absolute source path, converting it into it's destination in the
+            // output site. If this is a file, it will attempt to find the canonical representation of the file in the
+            // new site.
+            // TODO: We might wish to have a resolve_document equivalent which clearly finds the document in the
+            // destination.
             // Return the canonical in-site file for a path relative to the source document.
             // TODO: Consider throwing if this is called with unexpected arguments or the target file couldn't be found
             //       (or doesn't exist in the site).
@@ -145,7 +151,7 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
             let relativeSourcePath = relativeSourcePath(for: relativePath)
 
             // We currently special-case image documents that follow a known structure.
-            if let child = try documents(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first,
+            if let child = try store.documentContexts(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first,
                let image = child.document.metadata["image"] as? [String: Any],
                let url = image["url"] as? String {
                 return url
