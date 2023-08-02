@@ -24,7 +24,7 @@ import Foundation
 
 import SQLite
 
-class Store: Queryable {
+class Store {
 
     struct Schema {
 

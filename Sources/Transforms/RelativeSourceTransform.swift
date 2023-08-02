@@ -22,8 +22,29 @@
 
 import Foundation
 
-protocol Queryable {
+import SwiftSoup
 
-    func documents(query: QueryDescription) throws -> [Document]
+struct RelativeSourceTransform: Transformer {
+
+    let selector: String
+    let attribute: String
+
+    func transform(store: QueryTracker, document: DocumentContext, content: SwiftSoup.Document) throws {
+        for element in try content.select(selector) {
+            guard element.hasAttr(attribute) else {
+                continue
+            }
+            let value = try element.attr(attribute)
+            // TODO: This should not make a change if path is a fully qualified URL.
+            guard !value.hasPrefix("/") else {
+                continue
+            }
+
+            let newValue = document.relativeSourcePath(for: value)
+            print("!!!!!!!")
+            print(newValue)
+            try element.attr(attribute, newValue)
+        }
+    }
 
 }

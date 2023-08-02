@@ -115,18 +115,15 @@ class Builder {
                 "date_format_short": "MMMM dd",
                 "url": "https://jbmorley.co.uk",
                 "posts": Function { () throws -> [DocumentContext] in
-                    return try queryTracker.documents(query: QueryDescription())
-                        .map { DocumentContext(store: queryTracker, document: $0) }
-                },
-                "children": Function { (parent: String) throws -> [DocumentContext] in
-                    return try queryTracker.documents(query: QueryDescription(parent: parent))
-                        .map { DocumentContext(store: queryTracker, document: $0) }
+                    return try queryTracker.documentContexts(query: QueryDescription())
                 },
                 "post": Function { (url: String) throws -> DocumentContext? in
-                    return try queryTracker.documents(query: QueryDescription(url: url))
-                        .map { DocumentContext(store: queryTracker, document: $0) }
-                        .first
+                    return try queryTracker.documentContexts(query: QueryDescription(url: url)).first
                 },
+                "query": Function { (definition: [AnyHashable: Any]) throws -> [DocumentContext] in
+                    let query = try QueryDescription(definition: definition)
+                    return try queryTracker.documentContexts(query: query)
+                }
             ] as Dictionary<String, Any>,  // TODO: as [String: Any] is different?
             "generate_uuid": Function {
                 return UUID().uuidString
