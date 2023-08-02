@@ -64,7 +64,9 @@ extension LuaTableRef: Convertible {
 
 fileprivate func callFunctionBlock(_ L: LuaState!) -> CInt {
     return L.convertThrowToError {
-        let function: Function = L.touserdata(1)!
+        guard let function: Callable = L.touserdata(1) else {
+            throw LuaCallError("Object does not support Callable")
+        }
         let result = try function.call(with: LuaStateArgumentProvider(L: L))
         L.pushany(result)
         return 1
@@ -72,12 +74,14 @@ fileprivate func callFunctionBlock(_ L: LuaState!) -> CInt {
 }
 
 fileprivate func lookupViaEvaluationContext(_ L: LuaState!) -> CInt {
-    let obj = L.toany(1) as! EvaluationContext
-    guard let memberName = L.tostring(2) else {
-        // Trying to lookup a non-string member, not happening
-        return 0
-    }
     return L.convertThrowToError {
+        guard let obj: EvaluationContext = L.touserdata(1) else {
+            throw LuaCallError("Object does not support EvaluationContext")
+        }
+        guard let memberName = L.tostring(2) else {
+            // Trying to lookup a non-string member, not happening
+            return 0
+        }
         let result = try obj.lookup(memberName)
         L.pushany(result)
         return 1
@@ -94,6 +98,14 @@ fileprivate func readFile(_ L: LuaState!) -> CInt {
     return 1
 }
 
+fileprivate func warning(_ L: LuaState!) -> CInt {
+    guard let text = L.tostring(1) else {
+        return 0
+    }
+    print(text)
+    return 0
+}
+
 class TiltRenderer: Renderer {
 
     let version = 1
@@ -107,14 +119,22 @@ class TiltRenderer: Renderer {
         env = TiltEnvironment()
         let L = env.L
 
-        L.registerMetatable(for: Function.self, functions: ["__call": callFunctionBlock])
-        L.registerMetatable(for: DocumentContext.self, functions: ["__index": lookupViaEvaluationContext])
-        L.registerMetatable(for: Date.self, functions: ["__index": lookupViaEvaluationContext])
         L.registerMetatable(for: TemplateCache.self, functions: [:])
+        L.registerDefaultMetatable(functions: [
+            "__call": callFunctionBlock,
+            "__index": lookupViaEvaluationContext
+        ])
+
         L.pushGlobals()
+
         L.pushuserdata(templateCache)
         lua_pushcclosure(L, readFile, 1)
         lua_setfield(L, -2, "readFile")
+
+        lua_pushcfunction(L, warning)
+        lua_setfield(L, -2, "printWarning")
+
+        L.pop() // globals
     }
 
     func setContext(_ context: [String: Any]) throws {
@@ -128,7 +148,7 @@ class TiltRenderer: Renderer {
             fatalError("Wat? No template?")
         }
         let result = try env.parse(filename: name, contents: template.contents)
-        return RenderResult(content: result.text, templatesUsed: [name] + result.includes)
+        return RenderResult(content: result.text, templatesUsed: result.includes)
     }
 
 }
