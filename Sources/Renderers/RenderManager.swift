@@ -22,6 +22,8 @@
 
 import Foundation
 
+import SwiftSoup
+
 class RenderManager {
 
     private let templateCache: TemplateCache
@@ -69,7 +71,10 @@ class RenderManager {
             }
             renderTracker.add(TemplateRenderStatus(identifier: template, modificationDate: modificationDate))
         }
-        return renderResult.content
+
+        // Prettify the HTML output to make debugging a little easier.
+        let dom = try SwiftSoup.parse(renderResult.content)
+        return try dom.html()
     }
 
 }
