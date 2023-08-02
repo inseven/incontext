@@ -76,7 +76,6 @@ struct Site {
             IgnoreImporter(),
             ImageImporter(),
             MarkdownImporter(),
-            SassImporter(),
             VideoImporter(),
         ] as [any Importer]).reduce(into: [:]) { $0[$1.identifier] = $1 }
 
