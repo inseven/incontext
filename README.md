@@ -50,3 +50,6 @@ swift build
 - [ ] Evaluation EvaluationContexts should be enumerable to assist with documentation
 - [ ] RenderStatus needs to fingerprint documents
 - [ ] Intoduce a render-time `resolve` method that can figure out what happened to a document and include it
+- [ ] Promote metadata dates
+- [ ] Support querying for posts without or with dates
+
