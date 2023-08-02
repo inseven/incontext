@@ -106,6 +106,7 @@ class Builder {
         // TODO: Inline the config loaded from the settings file
         // TODO: Does this need to get extracted so it can easily be assembled for inner renders?
         let context: [String: Any] = [
+            // TODO: Consider separating the store and the site metadata.
             "site": [
                 // TODO: Pull this out of the site configuration.
                 // TODO: Should it be type safe?
@@ -115,6 +116,10 @@ class Builder {
                 "url": "https://jbmorley.co.uk",
                 "posts": Function { () throws -> [DocumentContext] in
                     return try queryTracker.documents(query: QueryDescription())
+                        .map { DocumentContext(store: queryTracker, document: $0) }
+                },
+                "children": Function { (parent: String) throws -> [DocumentContext] in
+                    return try queryTracker.documents(query: QueryDescription(parent: parent))
                         .map { DocumentContext(store: queryTracker, document: $0) }
                 },
                 "post": Function { (url: String) throws -> DocumentContext? in
