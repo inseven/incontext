@@ -27,18 +27,21 @@ import SwiftSoup
 class RenderManager {
 
     private let templateCache: TemplateCache
+    private let concurrent: Bool
     private let renderers: [TemplateLanguage: Renderer]
 
-    init(templateCache: TemplateCache) {
+    init(templateCache: TemplateCache, concurrent: Bool) {
         self.templateCache = templateCache
+        self.concurrent = concurrent
         self.renderers = [
-            .identity: IdentityRenderer(templateCache: templateCache),
-            .stencil: StencilRenderer(templateCache: templateCache),
             .tilt: TiltRenderer(templateCache: templateCache),
         ]
     }
 
     func renderer(for language: TemplateLanguage) throws -> Renderer {
+        if concurrent && language == .tilt {
+            return TiltRenderer(templateCache: templateCache)
+        }
         guard let renderer = renderers[language] else {
             throw InContextError.internalInconsistency("Failed to get renderer for language '\(language)'.")
         }

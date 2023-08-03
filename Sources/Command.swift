@@ -52,8 +52,8 @@ struct Command: AsyncParsableCommand {
         let siteURL = try (site ?? (try detectSiteURL()))
         print("Using site at '\(siteURL.path)'...")
         let site = try Site(rootURL: siteURL)
-        let ic = try await Builder(site: site)
-        try await ic.build(concurrentRenders: concurrentRenders)
+        let ic = try await Builder(site: site, concurrentRenders: concurrentRenders)
+        try await ic.build()
     }
 
 }
