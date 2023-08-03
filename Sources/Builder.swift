@@ -25,16 +25,18 @@ import Foundation
 class Builder {
 
     let site: Site
+    let concurrentRenders: Bool
     let store: Store
     let templateCache: TemplateCache
     let renderManager: RenderManager
 
-    init(site: Site) async throws {
+    init(site: Site, concurrentRenders: Bool) async throws {
         try FileManager.default.createDirectory(at: site.buildURL, withIntermediateDirectories: true)
         self.site = site
+        self.concurrentRenders = concurrentRenders
         self.store = try Store(databaseURL: site.storeURL)
         self.templateCache = try await TemplateCache(rootURL: site.templatesURL)  // TODO: Does this need to exist here?
-        self.renderManager = RenderManager(templateCache: templateCache)
+        self.renderManager = RenderManager(templateCache: templateCache, concurrent: concurrentRenders)
     }
 
     // TODO: Perhaps this can get pushed into the RenderManager?
@@ -162,7 +164,7 @@ class Builder {
         try data.write(to: destinationFileURL)
     }
 
-    func build(concurrentRenders: Bool) async throws {
+    func build() async throws {
         try FileManager.default.createDirectory(at: site.filesURL, withIntermediateDirectories: true)
 
         let fileManager = FileManager.default
