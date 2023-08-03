@@ -56,7 +56,7 @@ class TemplateIdentifierTests: XCTestCase {
         XCTAssertEqual(TemplateIdentifier(rawValue: "tilt : default.html"), TemplateIdentifier(.tilt, "default.html"))
 
         // Legacy identifiers.
-        XCTAssertEqual(TemplateIdentifier(rawValue: "default.html"), TemplateIdentifier(.stencil, "default.html"))
+        XCTAssertEqual(TemplateIdentifier(rawValue: "default.html"), TemplateIdentifier(.tilt, "default.html"))
     }
 
 
