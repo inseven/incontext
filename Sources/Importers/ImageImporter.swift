@@ -42,6 +42,22 @@ import ImageIO
 
 class ImageImporter: Importer {
 
+    enum CompassDirection: String {
+        case north = "N"
+        case south = "S"
+        case east = "E"
+        case west = "W"
+
+        var multiplier: Double {
+            switch self {
+            case .north, .east:
+                return 1
+            case .west, .south:
+                return -1
+            }
+        }
+    }
+
     struct Settings: ImporterSettings {
         let defaultCategory: String
         let titleFromFilename: Bool
@@ -53,7 +69,7 @@ class ImageImporter: Importer {
     }
 
     let identifier = "import_photo"
-    let version = 6
+    let version = 7
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         let args: [String: Any] = try configuration.requiredValue(for: "args")
@@ -83,14 +99,30 @@ class ImageImporter: Importer {
 
         // TODO: Calculate the aspect ratio etc.
 
-        let title: String = (try properties.optionalValue(for: "Title") ??
+        // Metadata.
+        var metadata: [String: Any] = [:]
+
+        // Title.
+        if let title: String = (try properties.optionalValue(for: "Title") ??
                              (try properties.optionalValue(for: "DisplayName")) ??
                              (try properties.optionalValue(for: "ObjectName")) ??
-                             "")
+                                "") {
+            metadata["title"] = title
+        }
 
-        var metadata: [String: Any] = [
-            "title": title
-        ]
+        // Location.
+        if let gps: [String: Any] = try properties.optionalValue(for: "{GPS}"),
+           let latitude: Double = try gps.optionalValue(for: "Latitude"),
+           let latitudeRef: CompassDirection = try gps.optionalRawRepresentable(for: "LatitudeRef"),
+           let longitude: Double = try gps.optionalValue(for: "Longitude"),
+           let longitudeRef: CompassDirection = try gps.optionalRawRepresentable(for: "LongitudeRef") {
+            let location = [
+                "latitude": latitude * latitudeRef.multiplier,
+                "longitude": longitude * longitudeRef.multiplier,
+            ]
+            metadata["location"] = location
+        }
+
 
         var assets: [Asset] = []
 
