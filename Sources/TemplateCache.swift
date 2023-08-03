@@ -32,19 +32,8 @@ class TemplateCache {
     static func templates(rootURL: URL, language: TemplateLanguage) async throws -> [TemplateIdentifier: TemplateDetails] {
         precondition(rootURL.hasDirectoryPath)
         let fileManager = FileManager.default
-        let languageRootURL = rootURL.appendingPathComponent(language.rawValue, isDirectory: true)
-
-        var isDirectory: ObjCBool = false
-        guard fileManager.fileExists(at: languageRootURL, isDirectory: &isDirectory) else {
-            print("Skipping loading '\(language)' templates (missing directory)...")
-            return [:]
-        }
-        guard isDirectory.boolValue else {
-            throw InContextError.internalInconsistency("Failed to load templates for '\(language)' (incorrect directory structure).")
-        }
-
         let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey, .contentModificationDateKey])
-        let directoryEnumerator = fileManager.enumerator(at: languageRootURL,
+        let directoryEnumerator = fileManager.enumerator(at: rootURL,
                                                          includingPropertiesForKeys: Array(resourceKeys),
                                                          options: [.skipsHiddenFiles, .producesRelativePathURLs])!
         return try await withThrowingTaskGroup(of: TemplateDetails.self) { group in
