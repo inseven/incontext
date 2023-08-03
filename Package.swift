@@ -10,7 +10,6 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "Dependencies/Tilt"),
-        .package(url: "https://github.com/BiosTheoretikos/Ogma.git", from: "0.1.3"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.1.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
         .package(url: "https://github.com/apple/swift-markdown.git", from: "0.2.0"),
@@ -33,7 +32,6 @@ let package = Package(
                 .product(name: "Ink", package: "ink"),
                 .product(name: "Markdown", package: "swift-markdown"),
                 .product(name: "MarkdownKit", package: "swift-markdownkit"),
-                .product(name: "Ogma", package: "Ogma"),
                 .product(name: "SQLite", package: "SQLite.swift"),
                 .product(name: "SwiftSoup", package: "SwiftSoup"),
                 .product(name: "Tilt", package: "Tilt"),
