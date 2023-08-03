@@ -62,6 +62,16 @@ extension Dictionary {
         return value
     }
 
+    func optionalRawRepresentable<T: RawRepresentable>(for key: Key) throws -> T? {
+        guard let rawValue: T.RawValue = try optionalValue(for: key) else {
+            return nil
+        }
+        guard let value = T(rawValue: rawValue) else {
+            throw InContextError.incorrectType(key)
+        }
+        return value
+    }
+
     @inlinable public func asyncMap<T>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T] {
         var result = [T]()
         for element in self {

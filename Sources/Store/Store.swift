@@ -258,10 +258,11 @@ class Store {
         dispatchPrecondition(condition: .onQueue(workQueue))
 
         let filter = query?.expression() ?? Expression<Bool>(value: true)
+        let order = query?.order() ?? [Schema.date.asc]
 
         let query = Schema.documents
             .filter(filter)
-            .order(Schema.date.desc)
+            .order(order)
         let rowIterator = try connection.prepareRowIterator(query)
 
         return try rowIterator.map { row in

@@ -111,8 +111,8 @@ class Builder {
                 // TODO: Pull this out of the site configuration.
                 // TODO: Should it be type safe?
                 "title": "Jason Morley",
-                "date_format": "MMMM dd, yyyy",
-                "date_format_short": "MMMM dd",
+                "date_format": "MMMM d, yyyy",
+                "date_format_short": "MMMM d",
                 "url": "https://jbmorley.co.uk",
                 "posts": Function { () throws -> [DocumentContext] in
                     return try queryTracker.documentContexts(query: QueryDescription())

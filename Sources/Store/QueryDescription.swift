@@ -26,22 +26,30 @@ import SQLite
 
 struct QueryDescription: Codable, Hashable {
 
+    enum Sort: String, Codable {
+        case ascending
+        case descending
+    }
+
     let includeCategories: [String]?
     let url: String?
     let parent: String?
     let relativeSourcePath: String?
     let tag: String?
+    let sort: Sort?
 
     init(includeCategories: [String]? = nil,
          url: String? = nil,
          parent: String? = nil,
          relativeSourcePath: String? = nil,
-         tag: String? = nil) {
+         tag: String? = nil,
+         sort: Sort? = nil) {
         self.includeCategories = includeCategories
         self.url = url
         self.parent = parent
         self.relativeSourcePath = relativeSourcePath
         self.tag = tag
+        self.sort = sort
     }
 
     func expression() -> Expression<Bool> {
@@ -76,6 +84,19 @@ struct QueryDescription: Codable, Hashable {
         return expressions.reduce(Expression<Bool>(value: true)) { $0 && $1 }
     }
 
+    func order() -> [Expressible] {
+        // TODO: Order by title (aka. promote title to speed things up)
+        guard let sort else {
+            return [Store.Schema.date.desc]
+        }
+        switch sort {
+        case .ascending:
+            return [Store.Schema.date.asc]
+        case .descending:
+            return [Store.Schema.date.desc]
+        }
+    }
+
     init(definition query: Any) throws {
         guard let structuredQuery = query as? [String: Any] else {
             throw InContextError.invalidQueryDefinition
@@ -92,6 +113,7 @@ struct QueryDescription: Codable, Hashable {
         self.url = try structuredQuery.optionalValue(for: "url")
         self.relativeSourcePath = try structuredQuery.optionalValue(for: "relative_source_path")
         self.tag = try structuredQuery.optionalValue(for: "tag")
+        self.sort = try structuredQuery.optionalRawRepresentable(for: "sort")
     }
 
 }
