@@ -142,6 +142,14 @@ class Builder {
                 return string
             },
             "iso_8601_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
+            "date": Function { (string: String) -> Date in
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
+                guard let date = dateFormatter.date(from: string) else {
+                    throw InContextError.internalInconsistency("Unable to construct date from string '\(string)'.")
+                }
+                return date
+            }
         ]
 
         // TODO: Consolidate RenderTracker and QueryTracker
