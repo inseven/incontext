@@ -127,6 +127,14 @@ struct DocumentContext: EvaluationContext, DynamicMemberLookup {
         case "parent": return Function { () -> DocumentContext? in
             return try store.documentContexts(query: QueryDescription(url: document.parent)).first
         }
+        case "previous": return Function { () -> DocumentContext? in
+            // TODO: Implement me!
+            return nil
+        }
+        case "next": return Function { () -> DocumentContext? in
+            // TODO: Implement me!
+            return nil
+        }
         case "child": return Function { (relativePath: String) -> DocumentContext? in
             let relativeSourcePath = relativeSourcePath(for: relativePath)
             return try store.documentContexts(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first
