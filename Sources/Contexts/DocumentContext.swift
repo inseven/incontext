@@ -22,10 +22,9 @@
 
 import Foundation
 
-import Stencil
 import SwiftSoup
 
-struct DocumentContext: EvaluationContext, DynamicMemberLookup {
+struct DocumentContext: EvaluationContext {
 
     private let store: QueryTracker
     private let document: Document

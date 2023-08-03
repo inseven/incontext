@@ -22,8 +22,6 @@
 
 import Foundation
 
-import Stencil
-
 class ConcurrentBox<Content> {
 
     let condition = NSCondition()

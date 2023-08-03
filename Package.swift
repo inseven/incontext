@@ -9,7 +9,6 @@ let package = Package(
         .macOS(.v13),
     ],
     dependencies: [
-        .package(path: "Dependencies/Stencil"),
         .package(path: "Dependencies/Tilt"),
         .package(url: "https://github.com/BiosTheoretikos/Ogma.git", from: "0.1.3"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.1.0"),
@@ -36,7 +35,6 @@ let package = Package(
                 .product(name: "MarkdownKit", package: "swift-markdownkit"),
                 .product(name: "Ogma", package: "Ogma"),
                 .product(name: "SQLite", package: "SQLite.swift"),
-                .product(name: "Stencil", package: "Stencil"),
                 .product(name: "SwiftSoup", package: "SwiftSoup"),
                 .product(name: "Tilt", package: "Tilt"),
                 .product(name: "Titlecaser", package: "Titlecaser"),
