@@ -48,7 +48,7 @@ class TemplateIdentifier: RawRepresentable, Equatable, Codable, Hashable, Custom
             // In order to support legacy Jinja 2 based InContext sites (probably only jbmorley.co.uk), template names
             // without an explicit language are assumed to be Stencil templates as this is the closest in behaviour to
             // Jinja 2.
-            self.language = .stencil
+            self.language = .tilt
             self.name = rawValue
             return
         }
