@@ -73,6 +73,7 @@ class RenderManager {
         }
 
         // Prettify the HTML output to make debugging a little easier.
+        // TODO: Only do this if the MIME type is HTML!!
         let dom = try SwiftSoup.parse(renderResult.content)
         return try dom.html()
     }

@@ -145,7 +145,7 @@ class TiltRenderer: Renderer {
     func render(name: String, context: [String : Any]) async throws -> RenderResult {
         try setContext(context)
         guard let template = templateCache.details(for: .tilt(name)) else {
-            fatalError("Wat? No template?")
+            throw InContextError.unknownTemplate(TemplateIdentifier.tilt(name).rawValue)
         }
         let result = try env.parse(filename: name, contents: template.contents)
         return RenderResult(content: result.text, templatesUsed: result.includes)
