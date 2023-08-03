@@ -30,15 +30,18 @@ struct QueryDescription: Codable, Hashable {
     let url: String?
     let parent: String?
     let relativeSourcePath: String?
+    let tag: String?
 
     init(includeCategories: [String]? = nil,
          url: String? = nil,
          parent: String? = nil,
-         relativeSourcePath: String? = nil) {
+         relativeSourcePath: String? = nil,
+         tag: String? = nil) {
         self.includeCategories = includeCategories
         self.url = url
         self.parent = parent
         self.relativeSourcePath = relativeSourcePath
+        self.tag = tag
     }
 
     func expression() -> Expression<Bool> {
@@ -65,6 +68,11 @@ struct QueryDescription: Codable, Hashable {
             expressions.append(Store.Schema.relativeSourcePath == relativeSourcePath)
         }
 
+        if let tag {
+            let expression: Expression<Bool> = Expression("EXISTS (SELECT * FROM json_each(json_extract(metadata, '$.tags')) WHERE json_each.value = ?)", [tag])
+            expressions.append(expression)
+        }
+
         return expressions.reduce(Expression<Bool>(value: true)) { $0 && $1 }
     }
 
@@ -83,6 +91,7 @@ struct QueryDescription: Codable, Hashable {
         self.parent = try structuredQuery.optionalValue(for: "parent")
         self.url = try structuredQuery.optionalValue(for: "url")
         self.relativeSourcePath = try structuredQuery.optionalValue(for: "relative_source_path")
+        self.tag = try structuredQuery.optionalValue(for: "tag")
     }
 
 }
