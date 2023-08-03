@@ -61,10 +61,12 @@ class ImageImporter: Importer {
     struct Settings: ImporterSettings {
         let defaultCategory: String
         let titleFromFilename: Bool
+        let defaultTemplate: TemplateIdentifier
 
         func combine(into fingerprint: inout Fingerprint) throws {
             try fingerprint.update(defaultCategory)
             try fingerprint.update(titleFromFilename)
+            try fingerprint.update(defaultTemplate)
         }
     }
 
@@ -74,7 +76,8 @@ class ImageImporter: Importer {
     func settings(for configuration: [String : Any]) throws -> Settings {
         let args: [String: Any] = try configuration.requiredValue(for: "args")
         return Settings(defaultCategory: try args.requiredValue(for: "category"),
-                        titleFromFilename: try args.requiredValue(for: "title_from_filename"))
+                        titleFromFilename: try args.requiredValue(for: "title_from_filename"),
+                        defaultTemplate: try args.requiredRawRepresentable(for: "default_template"))
     }
 
     func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
@@ -110,6 +113,23 @@ class ImageImporter: Importer {
             metadata["title"] = title
         }
 
+        // Content.
+        var content: FrontmatterDocument? = nil
+        if let tiff: [String: Any] = try properties.optionalValue(for: "{TIFF}") {
+
+            if let description: String = try tiff.optionalValue(for: "ImageDescription") {
+                let frontmatter = try FrontmatterDocument(contents: description, generateHTML: true)
+                for (key, value) in frontmatter.metadata {
+                    guard let key = key as? String else {
+                        throw InContextError.internalInconsistency("Unexpected key type for metadata")
+                    }
+                    metadata[key] = value
+                }
+                content = frontmatter
+            }
+
+        }
+
         // Location.
         if let gps: [String: Any] = try properties.optionalValue(for: "{GPS}"),
            let latitude: Double = try gps.optionalValue(for: "Latitude"),
@@ -122,7 +142,6 @@ class ImageImporter: Importer {
             ]
             metadata["location"] = location
         }
-
 
         var assets: [Asset] = []
 
@@ -190,9 +209,9 @@ class ImageImporter: Importer {
                                 type: "",
                                 date: details.date,
                                 metadata: metadata,
-                                contents: "",
+                                contents: content?.content ?? "",
                                 contentModificationDate: file.contentModificationDate,
-                                template: .stencil("photo.html"),
+                                template: settings.defaultTemplate,
                                 relativeSourcePath: file.relativePath)
         return ImporterResult(documents: [document], assets: assets)
     }
