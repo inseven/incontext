@@ -64,7 +64,7 @@ class TemplateCache {
                 group.addTask {
                     let contents = try String(contentsOf: fileURL, encoding: .utf8)
                     let details = TemplateDetails(url: fileURL,
-                                                  language: .stencil,
+                                                  language: language,
                                                   modificationDate: contentModificationDate,
                                                   contents: contents)
                     return details

@@ -60,10 +60,6 @@ class TemplateIdentifier: RawRepresentable, Equatable, Codable, Hashable, Custom
 
 extension TemplateIdentifier {
 
-    static func stencil(_ name: String) -> TemplateIdentifier {
-        return TemplateIdentifier(.stencil, name)
-    }
-
     static func tilt(_ name: String) -> TemplateIdentifier {
         return TemplateIdentifier(.tilt, name)
     }

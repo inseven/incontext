@@ -28,31 +28,21 @@ import XCTest
 class TemplateIdentifierTests: XCTestCase {
 
     func testEquality() {
-        XCTAssertEqual(TemplateIdentifier(.stencil, "default.html"),
-                       TemplateIdentifier(.stencil, "default.html"))
-        XCTAssertNotEqual(TemplateIdentifier(.stencil, "page.html"),
-                          TemplateIdentifier(.stencil, "default.html"))
-        XCTAssertNotEqual(TemplateIdentifier(.stencil, "default.html"),
-                          TemplateIdentifier(.tilt, "default.html"))
-        XCTAssertNotEqual(TemplateIdentifier(.stencil, "page.html"),
+        XCTAssertEqual(TemplateIdentifier(.tilt, "default.html"),
+                       TemplateIdentifier(.tilt, "default.html"))
+        XCTAssertNotEqual(TemplateIdentifier(.tilt, "page.html"),
                           TemplateIdentifier(.tilt, "default.html"))
     }
 
     func testConvenienceConstructors() {
-        XCTAssertEqual(TemplateIdentifier(.stencil, "default.html"), .stencil("default.html"))
-        XCTAssertEqual(TemplateIdentifier(.tilt, "post.html"), .tilt("post.html"))
-    }
+        XCTAssertEqual(TemplateIdentifier(.tilt, "default.html"), .tilt("default.html"))    }
 
     func testInitRawValue() {
 
         // Scoped identifiers.
-        XCTAssertEqual(TemplateIdentifier(rawValue: "stencil:posts.html"), TemplateIdentifier(.stencil, "posts.html"))
         XCTAssertEqual(TemplateIdentifier(rawValue: "tilt:default.html"), TemplateIdentifier(.tilt, "default.html"))
-        XCTAssertEqual(TemplateIdentifier(rawValue: "stencil: posts.html"), TemplateIdentifier(.stencil, "posts.html"))
         XCTAssertEqual(TemplateIdentifier(rawValue: "tilt: default.html"), TemplateIdentifier(.tilt, "default.html"))
-        XCTAssertEqual(TemplateIdentifier(rawValue: "stencil :posts.html"), TemplateIdentifier(.stencil, "posts.html"))
         XCTAssertEqual(TemplateIdentifier(rawValue: "tilt :default.html"), TemplateIdentifier(.tilt, "default.html"))
-        XCTAssertEqual(TemplateIdentifier(rawValue: "stencil : posts.html"), TemplateIdentifier(.stencil, "posts.html"))
         XCTAssertEqual(TemplateIdentifier(rawValue: "tilt : default.html"), TemplateIdentifier(.tilt, "default.html"))
 
         // Legacy identifiers.
@@ -61,12 +51,7 @@ class TemplateIdentifierTests: XCTestCase {
 
 
     func testRawValue() {
-        XCTAssertEqual(TemplateIdentifier(.stencil, "gallery.html").rawValue, "stencil:gallery.html")
         XCTAssertEqual(TemplateIdentifier(.tilt, "video.html").rawValue, "tilt:video.html")
-    }
-
-    func testYAML() {
-        // Since these identifiers are stored in YAML files, we should be able to load them in a type-safe way.
     }
 
 }

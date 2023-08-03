@@ -28,18 +28,6 @@ protocol ArgumentProvider {
 
 }
 
-extension BoundFunctionCall: ArgumentProvider {
-
-    func withArguments<Result>(perform: ([Any?]) throws -> Result) throws -> Result {
-        var arguments: [Any?] = []
-        for argument in call.arguments {
-            arguments.append(try argument.eval(context))
-        }
-        return try perform(arguments)
-    }
-
-}
-
 extension Array: ArgumentProvider {
 
     func withArguments<Result>(perform: ([Any?]) throws -> Result) throws -> Result {

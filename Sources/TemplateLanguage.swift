@@ -23,7 +23,5 @@
 import Foundation
 
 enum TemplateLanguage: String, CaseIterable, Codable {
-    case identity
-    case stencil
     case tilt
 }

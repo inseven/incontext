@@ -23,7 +23,6 @@
 import Foundation
 import UniformTypeIdentifiers
 
-import Stencil
 import Yaml
 
 struct Site {

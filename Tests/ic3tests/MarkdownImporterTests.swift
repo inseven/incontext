@@ -52,7 +52,7 @@ These are the contents of the file.
         let result = try await importer.process(site: defaultSourceDirectory.site,
                                                 file: file,
                                                 settings: .init(defaultCategory: "general",
-                                                                defaultTemplate: .stencil("posts.html")))
+                                                                defaultTemplate: .tilt("posts.html")))
         XCTAssertEqual(result.documents.count, 1)
         XCTAssertEqual(result.documents.first!.metadata["title"] as? String, "Fromage")
     }
@@ -76,7 +76,7 @@ build_steps:
         let result = try await importer.process(site: defaultSourceDirectory.site,
                                                 file: file,
                                                 settings: .init(defaultCategory: "general",
-                                                                defaultTemplate: .stencil("posts.html")))
+                                                                defaultTemplate: .tilt("posts.html")))
         XCTAssertEqual(result.documents.count, 1)
         XCTAssertEqual(result.documents.first!.metadata["title"] as? String, "Cheese")
     }
