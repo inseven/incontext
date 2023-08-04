@@ -149,7 +149,13 @@ class Builder {
                     throw InContextError.internalInconsistency("Unable to construct date from string '\(string)'.")
                 }
                 return date
-            }
+            },
+            "base64": Function { (string: String) -> String in
+                guard let data = string.data(using: .utf8) else {
+                    throw InContextError.internalInconsistency("Unable to encode string as UTF-8 data.")
+                }
+                return data.base64EncodedString()
+            },
         ]
 
         // TODO: Consolidate RenderTracker and QueryTracker
