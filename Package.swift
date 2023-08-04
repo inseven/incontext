@@ -19,6 +19,7 @@ let package = Package(
         .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.7"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.14.1"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "1.7.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -28,6 +29,8 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "Hummingbird", package: "hummingbird"),
+                .product(name: "HummingbirdFoundation", package: "hummingbird"),
                 .product(name: "Markdown", package: "swift-markdown"),
                 .product(name: "MarkdownKit", package: "swift-markdownkit"),
                 .product(name: "SQLite", package: "SQLite.swift"),

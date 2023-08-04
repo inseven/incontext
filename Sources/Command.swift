@@ -23,21 +23,31 @@
 import Foundation
 
 import ArgumentParser
+import Hummingbird
+import HummingbirdFoundation
 
 @main
 struct Command: AsyncParsableCommand {
 
-    static var configuration = CommandConfiguration(commandName: "incontext")
+    static var configuration = CommandConfiguration(commandName: "incontext",
+                                                    subcommands: [
+                                                        Build.self,
+                                                        Serve.self
+                                                    ])
 
-    @Flag(help: "run template renders concurrently")
-    var concurrentRenders = false
+}
+
+struct Options: ParsableArguments {
 
     @Option(help: "path to the root of the site",
             completion: .file(),
             transform: URL.init(fileURLWithPath:))
     var site: URL?
 
-    func detectSiteURL() throws -> URL {
+    func resolveSite() throws -> URL {
+        if let site {
+            return site
+        }
         let fileManager = FileManager.default
         for directoryURL in ParentIterator(fileManager.currentDirectoryURL) {
             let settingsURL = directoryURL.appendingPathComponent("site.yaml")
@@ -48,12 +58,46 @@ struct Command: AsyncParsableCommand {
         throw InContextError.internalInconsistency("Unable to detect site in current directory tree.")
     }
 
-    mutating func run() async throws {
-        let siteURL = try (site ?? (try detectSiteURL()))
-        print("Using site at '\(siteURL.path)'...")
-        let site = try Site(rootURL: siteURL)
-        let ic = try await Builder(site: site, concurrentRenders: concurrentRenders)
-        try await ic.build()
+}
+
+extension Command {
+
+    struct Build: AsyncParsableCommand {
+
+        static var configuration = CommandConfiguration(commandName: "build",
+                                                        abstract: "build the website")
+
+        @Flag(help: "run template renders concurrently")
+        var concurrentRenders = false
+
+        @OptionGroup var options: Options
+
+        mutating func run() async throws {
+            let siteURL = try options.resolveSite()
+            print("Using site at '\(siteURL.path)'...")
+            let site = try Site(rootURL: siteURL)
+            let ic = try await Builder(site: site, concurrentRenders: concurrentRenders)
+            try await ic.build()
+        }
+
+    }
+
+    struct Serve: AsyncParsableCommand {
+
+        static var configuration = CommandConfiguration(commandName: "serve",
+                                                        abstract: "run a local web server for development")
+
+        @OptionGroup var options: Options
+
+        mutating func run() async throws {
+            let app = HBApplication(configuration: .init(address: .hostname("127.0.0.1", port: 8000)))
+            let site = try Site(rootURL: try options.resolveSite())
+            let middleware = HBFileMiddleware(site.filesURL.path, searchForIndexHtml: true, application: app)
+            app.middleware.add(middleware)
+            try app.start()
+            app.wait()
+        }
+
     }
 
 }
