@@ -24,19 +24,7 @@ import Foundation
 
 import MarkdownKit
 
-extension String: EvaluationContext {
-
-    func lookup(_ name: String) throws -> Any? {
-        switch name {
-        case "count":
-            return count
-        case "titlecase": return Function {
-            return self.toTitleCase()
-        }
-        default:
-            throw InContextError.unknownSymbol(name)
-        }
-    }
+extension String {
 
     func wrapped(by prefix: String, and suffix: String) -> String {
         return prefix + self + suffix
