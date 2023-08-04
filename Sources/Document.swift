@@ -26,7 +26,7 @@ struct Document {
 
     let url: String
     let parent: String
-    let type: String  // TODO: Is this really the type? I think it might be the category? Needs renaming?
+    let category: String
     let date: Date?
     let metadata: [AnyHashable: Any]
     let contents: String

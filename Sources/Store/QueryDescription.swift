@@ -58,7 +58,7 @@ struct QueryDescription: Codable, Hashable {
 
         if let includeCategories {
             let includeExpression = includeCategories.reduce(Expression<Bool>(value: false)) { result, category in
-                let expression: Expression<Bool> = Store.Schema.type == category
+                let expression: Expression<Bool> = Store.Schema.category == category
                 return result || expression
             }
             expressions.append(includeExpression)

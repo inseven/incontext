@@ -40,7 +40,7 @@ class Store {
 
         // documents
         static let parent = Expression<String>("parent")
-        static let type = Expression<String>("type")
+        static let category = Expression<String>("category")
         static let date = Expression<Date?>("date")
         static let metadata = Expression<String>("metadata")
         static let contents = Expression<String>("contents")
@@ -78,7 +78,7 @@ class Store {
             try connection.run(Schema.documents.create(ifNotExists: true) { t in
                 t.column(Schema.url, primaryKey: true)
                 t.column(Schema.parent)
-                t.column(Schema.type)
+                t.column(Schema.category)
                 t.column(Schema.date)
                 t.column(Schema.metadata)
                 t.column(Schema.contents)
@@ -175,7 +175,7 @@ class Store {
                 try connection.run(Schema.documents.insert(or: .replace,
                                                            Schema.url <- document.url,
                                                            Schema.parent <- document.parent,
-                                                           Schema.type <- document.type,
+                                                           Schema.category <- document.category,
                                                            Schema.date <- document.date,
                                                            Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
@@ -283,7 +283,7 @@ class Store {
 
             return Document(url: row[Schema.url],
                             parent: row[Schema.parent],
-                            type: row[Schema.type],
+                            category: row[Schema.category],
                             date: row[Schema.date],
                             metadata: metadata,
                             contents: row[Schema.contents],
