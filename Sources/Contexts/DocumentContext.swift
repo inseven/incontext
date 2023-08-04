@@ -49,6 +49,12 @@ struct DocumentContext: EvaluationContext {
     }
 
     func relativeSourcePath(for relativePath: String) -> String {
+
+        // Do not touch absolute paths.
+        guard !relativePath.hasPrefix("/") else {
+            return relativePath
+        }
+
         let rootURL = URL(fileURLWithPath: "/", isDirectory: true)
         let documentURL = URL(filePath: document.relativeSourcePath, relativeTo: rootURL)
         let parentURL = documentURL.deletingLastPathComponent()
