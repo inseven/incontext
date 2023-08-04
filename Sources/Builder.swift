@@ -100,7 +100,10 @@ class Builder {
         // TODO: Work out which file extension we need to use for our index file (this is currently based on the template).
         // TODO: Guess the template mimetype.
         let destinationDirectoryURL = site.filesURL.appendingPathComponent(document.url)
-        let destinationFileURL = destinationDirectoryURL.appendingPathComponent("index", conformingTo: .html)
+
+        let destinationFileURL = destinationDirectoryURL
+            .appendingPathComponent("index")
+            .appendingPathExtension(document.template.pathExtension)
         print("Rendering '\(document.url)' with template '\(document.template)'...")
 
         let queryTracker = QueryTracker(store: store)

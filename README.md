@@ -65,3 +65,5 @@ swift build
 - [ ] Adopt the latest Tilt
 - [ ] Video documents aren't being loaded correctly
 - [ ] Figure out how to do per-item templates (inline templates)?
+- [ ] Better error reporting for incorrect types
+- [ ] Consider making thumbnail an explicit property on document types and moving user metadata into a substructure

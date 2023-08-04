@@ -22,6 +22,8 @@
 
 import Foundation
 
+import UniformTypeIdentifiers
+
 class TemplateIdentifier: RawRepresentable, Equatable, Codable, Hashable, CustomStringConvertible {
 
     let language: TemplateLanguage
@@ -70,6 +72,18 @@ extension TemplateIdentifier: Fingerprintable {
 
     func combine(into fingerprint: inout Fingerprint) throws {
         try fingerprint.update(rawValue)
+    }
+
+}
+
+extension TemplateIdentifier {
+
+    var pathExtension: String {
+        return URL(filePath: name).pathExtension
+    }
+
+    var type: UTType? {
+        return UTType(filenameExtension: pathExtension)
     }
 
 }
