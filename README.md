@@ -52,4 +52,13 @@ swift build
 - [ ] Intoduce a render-time `resolve` method that can figure out what happened to a document and include it
 - [ ] Promote metadata dates
 - [ ] Support querying for posts without or with dates
+- [ ] Queries should support a maximum count
+- [ ] Specify default sort by title
+- [ ] Update jbmorley.co.uk to include the common.lua conveniences
+  - [ ] Adaptive image
+  - [ ] Video
+  - [ ] STL
+  - [ ] Audio
+
+- [ ] Add a --Werror flag
 
