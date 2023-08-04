@@ -59,6 +59,5 @@ swift build
   - [ ] Video
   - [ ] STL
   - [ ] Audio
-
 - [ ] Add a --Werror flag
-
+- [ ] Consider using SQLite.swift custom type support (https://github.com/stephencelis/SQLite.swift/blob/master/Documentation/Index.md#custom-types)
