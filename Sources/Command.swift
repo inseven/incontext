@@ -32,7 +32,8 @@ struct Command: AsyncParsableCommand {
     static var configuration = CommandConfiguration(commandName: "incontext",
                                                     subcommands: [
                                                         Build.self,
-                                                        Serve.self
+                                                        Clean.self,
+                                                        Serve.self,
                                                     ])
 
 }
@@ -44,15 +45,15 @@ struct Options: ParsableArguments {
             transform: URL.init(fileURLWithPath:))
     var site: URL?
 
-    func resolveSite() throws -> URL {
+    func resolveSite() throws -> Site {
         if let site {
-            return site
+            return try Site(rootURL: site)
         }
         let fileManager = FileManager.default
         for directoryURL in ParentIterator(fileManager.currentDirectoryURL) {
             let settingsURL = directoryURL.appendingPathComponent("site.yaml")
             if fileManager.fileExists(at: settingsURL) {
-                return directoryURL
+                return try Site(rootURL: directoryURL)
             }
         }
         throw InContextError.internalInconsistency("Unable to detect site in current directory tree.")
@@ -73,9 +74,7 @@ extension Command {
         @OptionGroup var options: Options
 
         mutating func run() async throws {
-            let siteURL = try options.resolveSite()
-            print("Using site at '\(siteURL.path)'...")
-            let site = try Site(rootURL: siteURL)
+            let site = try options.resolveSite()
             let ic = try await Builder(site: site, concurrentRenders: concurrentRenders)
             try await ic.build()
         }
@@ -91,11 +90,25 @@ extension Command {
 
         mutating func run() async throws {
             let app = HBApplication(configuration: .init(address: .hostname("127.0.0.1", port: 8000)))
-            let site = try Site(rootURL: try options.resolveSite())
+            let site = try options.resolveSite()
             let middleware = HBFileMiddleware(site.filesURL.path, searchForIndexHtml: true, application: app)
             app.middleware.add(middleware)
             try app.start()
             app.wait()
+        }
+
+    }
+
+    struct Clean: AsyncParsableCommand {
+
+        @OptionGroup var options: Options
+
+        static var configuration = CommandConfiguration(commandName: "clean",
+                                                        abstract: "remove the build directory")
+
+        mutating func run() async throws {
+            let site = try options.resolveSite()
+            try FileManager.default.removeItem(at: site.buildURL)
         }
 
     }
