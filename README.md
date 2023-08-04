@@ -61,3 +61,7 @@ swift build
   - [ ] Audio
 - [ ] Add a --Werror flag
 - [ ] Consider using SQLite.swift custom type support (https://github.com/stephencelis/SQLite.swift/blob/master/Documentation/Index.md#custom-types)
+- [ ] Import image dates
+- [ ] Adopt the latest Tilt
+- [ ] Video documents aren't being loaded correctly
+- [ ] Figure out how to do per-item templates (inline templates)?
