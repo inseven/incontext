@@ -22,7 +22,6 @@
 
 import Foundation
 
-// TODO: We could actually make this type-safe
 extension Array {
     
     @inlinable func asyncFilter(_ isIncluded: @escaping (Element) async throws -> Bool) async rethrows -> [Element] {
