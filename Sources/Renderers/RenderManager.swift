@@ -75,8 +75,10 @@ class RenderManager {
             renderTracker.add(TemplateRenderStatus(identifier: template, modificationDate: modificationDate))
         }
 
-        // Prettify the HTML output to make debugging a little easier.
-        // TODO: Only do this if the MIME type is HTML!!
+        // Prettify HTML output to make debugging a little easier.
+        guard template.type?.conforms(to: .html) ?? false else {
+            return renderResult.content
+        }
         let dom = try SwiftSoup.parse(renderResult.content)
         return try dom.html()
     }
