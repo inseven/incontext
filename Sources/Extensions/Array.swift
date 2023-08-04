@@ -22,28 +22,8 @@
 
 import Foundation
 
-// TODO: We could actually make this type-safe
-extension Array: EvaluationContext {
-
-    func lookup(_ name: String) throws -> Any? {
-        switch name {
-        case "extending": return Function { (values: [Any?]) -> [Any?] in
-            return self + values
-        }
-        case "have_dates": return Function { (haveDates: Bool) -> [DocumentContext]  in
-            guard let documents = self as? [DocumentContext] else {
-                throw InContextError.internalInconsistency("'have_dates' is only supported on an array of documents.")
-            }
-            return documents.filter { document in
-                return haveDates ? document.date != nil : document.date == nil
-            }
-        }
-        default:
-            throw InContextError.unknownSymbol(name)
-        }
-
-    }
-
+extension Array {
+    
     @inlinable func asyncFilter(_ isIncluded: @escaping (Element) async throws -> Bool) async rethrows -> [Element] {
         var result = [Element]()
         for element in self {
