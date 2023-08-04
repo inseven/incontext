@@ -78,7 +78,7 @@ class MarkdownImporter: Importer {
 
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
-                                type: category,
+                                category: category,
                                 date: structuredMetadata.date ?? details.date,
                                 metadata: metadata,
                                 contents: frontmatter.content,

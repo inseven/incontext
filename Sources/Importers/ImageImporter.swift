@@ -206,7 +206,7 @@ class ImageImporter: Importer {
 
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
-                                type: "",
+                                category: settings.defaultCategory,
                                 date: details.date,
                                 metadata: metadata,
                                 contents: content?.content ?? "",
