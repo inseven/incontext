@@ -85,15 +85,14 @@ struct QueryDescription: Codable, Hashable {
     }
 
     func order() -> [Expressible] {
-        // TODO: Order by title (aka. promote title to speed things up)
         guard let sort else {
-            return [Store.Schema.date.desc]
+            return [Store.Schema.date.desc, Store.Schema.title.asc]
         }
         switch sort {
         case .ascending:
-            return [Store.Schema.date.asc]
+            return [Store.Schema.date.asc, Store.Schema.title.asc]
         case .descending:
-            return [Store.Schema.date.desc]
+            return [Store.Schema.date.desc, Store.Schema.title.asc]
         }
     }
 

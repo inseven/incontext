@@ -42,6 +42,7 @@ class Store {
         static let parent = Expression<String>("parent")
         static let category = Expression<String>("category")
         static let date = Expression<Date?>("date")
+        static let title = Expression<String?>("title")
         static let metadata = Expression<String>("metadata")
         static let contents = Expression<String>("contents")
         static let template = Expression<String>("template")
@@ -80,6 +81,7 @@ class Store {
                 t.column(Schema.parent)
                 t.column(Schema.category)
                 t.column(Schema.date)
+                t.column(Schema.title)
                 t.column(Schema.metadata)
                 t.column(Schema.contents)
                 t.column(Schema.contentModificationDate)
@@ -177,6 +179,7 @@ class Store {
                                                            Schema.parent <- document.parent,
                                                            Schema.category <- document.category,
                                                            Schema.date <- document.date,
+                                                           Schema.title <- document.title,
                                                            Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
                                                            Schema.contentModificationDate <- document.contentModificationDate,
@@ -254,15 +257,12 @@ class Store {
         }
     }
 
-    private func syncQueue_documents(query: QueryDescription?) throws -> [Document] {
+    private func syncQueue_documents(query: QueryDescription) throws -> [Document] {
         dispatchPrecondition(condition: .onQueue(workQueue))
 
-        let filter = query?.expression() ?? Expression<Bool>(value: true)
-        let order = query?.order() ?? [Schema.date.asc]
-
         let query = Schema.documents
-            .filter(filter)
-            .order(order)
+            .filter(query.expression())
+            .order(query.order())
         let rowIterator = try connection.prepareRowIterator(query)
 
         return try rowIterator.map { row in
@@ -285,6 +285,7 @@ class Store {
                             parent: row[Schema.parent],
                             category: row[Schema.category],
                             date: row[Schema.date],
+                            title: row[Schema.title],
                             metadata: metadata,
                             contents: row[Schema.contents],
                             contentModificationDate: row[Schema.contentModificationDate],
@@ -337,7 +338,7 @@ class Store {
 
     func documents() async throws -> [Document] {
         return try await run {
-            return try self.syncQueue_documents(query: nil)
+            return try self.syncQueue_documents(query: QueryDescription())
         }
     }
 

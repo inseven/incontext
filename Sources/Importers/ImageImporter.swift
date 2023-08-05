@@ -208,6 +208,7 @@ class ImageImporter: Importer {
                                 parent: fileURL.parentURL,
                                 category: settings.defaultCategory,
                                 date: details.date,
+                                title: metadata["title"] as? String,
                                 metadata: metadata,
                                 contents: content?.content ?? "",
                                 contentModificationDate: file.contentModificationDate,

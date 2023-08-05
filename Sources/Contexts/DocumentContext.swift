@@ -98,27 +98,18 @@ struct DocumentContext: EvaluationContext {
     //       them up by URL?
 
     func html() throws -> String {
-
-        // The current implementation _seems_ to only replace markdown generated images with the inline image.html format.
-        // It would probably be better if we could make this either an explicit function of the site, or clear in the code.
-        // How do we differentiate between things the user wants to take manual control over and things we should do ourselves?
-        // TODO: Can the template selection be done by mimetype?
-
         let content = try SwiftSoup.parse(document.contents)
         for transform in transforms {
             try transform.transform(store: store, document: self, content: content)
         }
-
-        let html = try content.html()
-
-        // TODO: Run the document's preferred templating engine on the html.
-
-        return html
+        return try content.html()
     }
 
     // TODO: This shouldn't throw.
     func lookup(_ name: String) throws -> Any? {
         switch name {
+        case "title":
+            return document.title
         case "query": return Function { (name: String) -> [DocumentContext] in
             guard let queries = document.metadata["queries"] as? [String: Any],
                   let query = queries[name] else {

@@ -28,6 +28,7 @@ struct Document {
     let parent: String
     let category: String
     let date: Date?
+    let title: String?
     let metadata: [AnyHashable: Any]
     let contents: String
     let contentModificationDate: Date
