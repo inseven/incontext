@@ -92,12 +92,22 @@ extension Command {
         @OptionGroup var options: Options
 
         mutating func run() async throws {
+
+            // Start the server.
             let app = HBApplication(configuration: .init(address: .hostname("127.0.0.1", port: 8000)))
             let site = try options.resolveSite()
             let middleware = HBFileMiddleware(site.filesURL.path, searchForIndexHtml: true, application: app)
             app.middleware.add(middleware)
             try app.start()
-            app.wait()
+
+            guard options.watch else {
+                // If we're not watching for builds, we need to wait on the web server.
+                app.wait()
+                return
+            }
+
+            let ic = try await Builder(site: site, concurrentRenders: options.concurrentRenders)
+            try await ic.build(watch: options.watch)
         }
 
     }

@@ -348,6 +348,8 @@ class Builder {
         try prepare()
 
         // Prepare to watch for changes in case we've been asked to watch.
+        // We create the change observer here (already started) to ensure we don't miss any changes that happen during
+        // our initial build.
         let changeObserver = try ChangeObserver(fileURL: site.contentURL)
 
         let clock = ContinuousClock()
