@@ -181,164 +181,190 @@ class Builder {
         try data.write(to: destinationFileURL)
     }
 
-    func build() async throws {
-        try FileManager.default.createDirectory(at: site.filesURL, withIntermediateDirectories: true)
+    func importContent() async throws {
 
         let fileManager = FileManager.default
+
         let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey, .contentModificationDateKey])
         let directoryEnumerator = fileManager.enumerator(at: site.contentURL,
                                                          includingPropertiesForKeys: Array(resourceKeys),
                                                          options: [.skipsHiddenFiles, .producesRelativePathURLs])!
 
-        let clock = ContinuousClock()
-        let duration = try await clock.measure {
-            try await withThrowingTaskGroup(of: [Document].self) { group in
-                for case let fileURL as URL in directoryEnumerator {
+        try await withThrowingTaskGroup(of: [Document].self) { group in
+            for case let fileURL as URL in directoryEnumerator {
 
-                    // Get the file metadata.
-                    let isDirectory = try fileURL
-                        .resourceValues(forKeys: [.isDirectoryKey])
-                        .isDirectory!
-                    let contentModificationDate = try fileURL
-                        .resourceValues(forKeys: [.contentModificationDateKey])
-                        .contentModificationDate!
+                // Get the file metadata.
+                let isDirectory = try fileURL
+                    .resourceValues(forKeys: [.isDirectoryKey])
+                    .isDirectory!
+                let contentModificationDate = try fileURL
+                    .resourceValues(forKeys: [.contentModificationDateKey])
+                    .contentModificationDate!
 
-                    // Ignore directories.
-                    if isDirectory {
-                        continue
-                    }
+                // Ignore directories.
+                if isDirectory {
+                    continue
+                }
 
-                    // Get the handler for the file.
-                    guard let handler = try self.site.handler(for: fileURL) else {
-                        print("Ignoring unsupported file '\(fileURL.relativePath)'.")
-                        continue
-                    }
+                // Get the handler for the file.
+                guard let handler = try self.site.handler(for: fileURL) else {
+                    print("Ignoring unsupported file '\(fileURL.relativePath)'.")
+                    continue
+                }
 
-                    // Schedule the import.
-                    group.addTask {
+                // Schedule the import.
+                group.addTask {
 
-                        // TODO: Consider moving this out into a separate function.
-                        // TODO: Database access is serial and probably introduces contention.
-                        // TODO: Templates are stored in cached data so input settings need to invalidate the cache.
+                    // TODO: Consider moving this out into a separate function.
+                    // TODO: Database access is serial and probably introduces contention.
+                    // TODO: Templates are stored in cached data so input settings need to invalidate the cache.
 
-                        // Cache metadata about the importer instance / handler.
-                        let handlerFingerprint = try handler.fingerprint()
+                    // Cache metadata about the importer instance / handler.
+                    let handlerFingerprint = try handler.fingerprint()
 
-                        // Check to see if the file already exists in the store and has a matching modification date.
-                        if let status = try await self.store.status(for: fileURL.relativePath,
-                                                                    contentURL: self.site.contentURL) {
+                    // Check to see if the file already exists in the store and has a matching modification date.
+                    if let status = try await self.store.status(for: fileURL.relativePath,
+                                                                contentURL: self.site.contentURL) {
 
-                            let fileModified = !Calendar.current.isDate(status.contentModificationDate,
-                                                                        equalTo: contentModificationDate,
-                                                                        toGranularity: .nanosecond)
-                            let differentImporterVersion = status.fingerprint != handlerFingerprint
+                        let fileModified = !Calendar.current.isDate(status.contentModificationDate,
+                                                                    equalTo: contentModificationDate,
+                                                                    toGranularity: .nanosecond)
+                        let differentImporterVersion = status.fingerprint != handlerFingerprint
 
-                            if !fileModified && !differentImporterVersion {
-                                return []
+                        if !fileModified && !differentImporterVersion {
+                            return []
 
-                                // TODO: Consider whether this would actually be a good time to read the cached documents.
-                                //       Importing the documents at this point might be a little memory intensive.
+                            // TODO: Consider whether this would actually be a good time to read the cached documents.
+                            //       Importing the documents at this point might be a little memory intensive.
 
-                            }
-
-                            // Clean up the existing assets.
-                            // TODO: We also need to do this for files that just don't exist anymore.
-                            // TODO: This needs to be a utility.
-                            let fileManager = FileManager.default
-                            for asset in try await self.store.assets(for: fileURL.relativePath,
-                                                                     filesURL: self.site.filesURL) {
-                                print("Removing intermediate '\(asset.fileURL.relativePath)'...")
-                                guard fileManager.fileExists(atPath: asset.fileURL.path) else {
-                                    print("Skipping missing file...")
-                                    continue
-                                }
-                                try FileManager.default.removeItem(at: asset.fileURL)
-                            }
-                            try await self.store.forgetAssets(for: fileURL.relativePath)
-
-
-                            // TODO: Clean up the existing intermediates if we know that the contents have changed.
                         }
 
-                        print("[\(handler.identifier)] Importing '\(fileURL.relativePath)'...")
-
-                        // Import the file.
-                        let file = File(url: fileURL, contentModificationDate: contentModificationDate)
-                        do {
-                            let result = try await handler.process(site: self.site, file: file)
-                            let status = Status(fileURL: file.url,
-                                                contentModificationDate: file.contentModificationDate,
-                                                importer: handler.identifier,
-                                                fingerprint: handlerFingerprint)
-                            try await self.store.save(documents: result.documents, assets: result.assets, status: status)
-                            return result.documents
-                        } catch {
-                            throw InContextError.importError(fileURL, error)
+                        // Clean up the existing assets.
+                        // TODO: We also need to do this for files that just don't exist anymore.
+                        // TODO: This needs to be a utility.
+                        let fileManager = FileManager.default
+                        for asset in try await self.store.assets(for: fileURL.relativePath,
+                                                                 filesURL: self.site.filesURL) {
+                            print("Removing intermediate '\(asset.fileURL.relativePath)'...")
+                            guard fileManager.fileExists(atPath: asset.fileURL.path) else {
+                                print("Skipping missing file...")
+                                continue
+                            }
+                            try FileManager.default.removeItem(at: asset.fileURL)
                         }
+                        try await self.store.forgetAssets(for: fileURL.relativePath)
+
+
+                        // TODO: Clean up the existing intermediates if we know that the contents have changed.
+                    }
+
+                    print("[\(handler.identifier)] Importing '\(fileURL.relativePath)'...")
+
+                    // Import the file.
+                    let file = File(url: fileURL, contentModificationDate: contentModificationDate)
+                    do {
+                        let result = try await handler.process(site: self.site, file: file)
+                        let status = Status(fileURL: file.url,
+                                            contentModificationDate: file.contentModificationDate,
+                                            importer: handler.identifier,
+                                            fingerprint: handlerFingerprint)
+                        try await self.store.save(documents: result.documents, assets: result.assets, status: status)
+                        return result.documents
+                    } catch {
+                        throw InContextError.importError(fileURL, error)
                     }
                 }
+            }
+            for try await _ in group {}
+        }
+        // TODO: Work out how to remove entries for deleted files.
+    }
+
+    func renderContent() async throws {
+
+        // Preload the existing render statuses in one batch in the hope that it's faster.
+        print("Loading render cache...")
+        let renderStatuses = try await store.renderStatuses()
+            .reduce(into: [String: RenderStatus](), { partialResult, renderStatus in
+                partialResult[renderStatus.0] = renderStatus.1
+            })
+
+        print("Getting documents...")
+        let documents = try await store.documents()
+
+        // TODO: It should be possible to check whether we need to re-render asynchronously as it doesn't do
+        //       anything complicated other than hit the database.
+
+        print("Checking for changes...")
+        let updates = try await withThrowingTaskGroup(of: (Document?).self) { group in
+            for document in documents {
+                group.addTask {
+                    if try await self.needsRender(document: document, renderStatus: renderStatuses[document.url]) {
+                        return document
+                    } else {
+                        return nil
+                    }
+                }
+            }
+            var result: [Document] = []
+            for try await document in group {
+                guard let document else {
+                    continue
+                }
+                result.append(document)
+            }
+            return result
+        }
+
+        // Render the documents that need updates.
+        print("Rendering \(updates.count) documents...")
+        if !concurrentRenders {
+            for document in updates {
+                try await self.render(document: document,
+                                      documents: documents,
+                                      renderStatus: renderStatuses[document.url])
+            }
+        } else {
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for document in updates {
+                    group.addTask {
+                        try await self.render(document: document,
+                                              documents: documents,
+                                              renderStatus: renderStatuses[document.url])
+                    }
+                }
+                // TODO: Is this necessary?
                 for try await _ in group {}
             }
-            // TODO: Work out how to remove entries for deleted files.
+        }
 
-            // Preload the existing render statuses in one batch in the hope that it's faster.
-            print("Loading render cache...")
-            let renderStatuses = try await store.renderStatuses()
-                .reduce(into: [String: RenderStatus](), { partialResult, renderStatus in
-                    partialResult[renderStatus.0] = renderStatus.1
-                })
+    }
 
-            print("Getting documents...")
-            let documents = try await store.documents()
+    func prepare() throws {
+        try FileManager.default.createDirectory(at: site.filesURL, withIntermediateDirectories: true)
+    }
 
-            // TODO: It should be possible to check whether we need to re-render asynchronously as it doesn't do
-            //       anything complicated other than hit the database.
+    func build(watch: Bool = false) async throws {
+        try prepare()
 
-            print("Checking for changes...")
-            let updates = try await withThrowingTaskGroup(of: (Document?).self) { group in
-                for document in documents {
-                    group.addTask {
-                        if try await self.needsRender(document: document, renderStatus: renderStatuses[document.url]) {
-                            return document
-                        } else {
-                            return nil
-                        }
-                    }
-                }
-                var result: [Document] = []
-                for try await document in group {
-                    guard let document else {
-                        continue
-                    }
-                    result.append(document)
-                }
-                return result
-            }
+        // Prepare to watch for changes in case we've been asked to watch.
+        let changeObserver = try ChangeObserver(fileURL: site.contentURL)
 
-            // Render the documents that need updates.
-            print("Rendering \(updates.count) documents...")
-            if !concurrentRenders {
-                for document in updates {
-                    try await self.render(document: document,
-                                          documents: documents,
-                                          renderStatus: renderStatuses[document.url])
-                }
-            } else {
-                try await withThrowingTaskGroup(of: Void.self) { group in
-                    for document in updates {
-                        group.addTask {
-                            try await self.render(document: document,
-                                                  documents: documents,
-                                                  renderStatus: renderStatuses[document.url])
-                        }
-                    }
-                    // TODO: Is this necessary?
-                    for try await _ in group {}
-                }
-            }
-
+        let clock = ContinuousClock()
+        let duration = try await clock.measure {
+            try await importContent()
+            try await renderContent()
         }
         print("Import took \(duration).")
+
+        // Watch for changes and rebuild.
+        while true {
+            try changeObserver.wait()
+            try await importContent()
+            try await renderContent()
+            print("Done")
+        }
+
     }
 
 }
