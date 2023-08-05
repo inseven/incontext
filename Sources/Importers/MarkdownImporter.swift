@@ -49,21 +49,13 @@ class MarkdownImporter: Importer {
     func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
 
         let fileURL = file.url
-
-        let data = try Data(contentsOf: fileURL)
-        guard let contents = String(data: data, encoding: .utf8) else {
-            throw InContextError.encodingError
-        }
         let details = fileURL.basenameDetails()
+        let frontmatter = try FrontmatterDocument(contentsOf: fileURL, generateHTML: true)
 
-        let frontmatter = try FrontmatterDocument(contents: contents, generateHTML: true)
-
-        // Set the title if it doesn't exist.
+        // Merge the details and metadata.
         var metadata = [AnyHashable: Any]()
+        metadata["title"] = details.title
         metadata.merge(frontmatter.metadata) { $1 }
-        if metadata["title"] == nil {
-            metadata["title"] = details.title
-        }
 
         // Strict metadata parsing.
         let decoder = YAMLDecoder()
@@ -73,13 +65,11 @@ class MarkdownImporter: Importer {
 
         let category: String = try metadata.value(for: "category", default: settings.defaultCategory)
 
-        // TODO: There's a bunch of legacy code which detects thumbnails. *sigh*
-        //       I think it might actually be possible to do this with the template engine.
-
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
                                 category: category,
                                 date: structuredMetadata.date ?? details.date,
+                                title: structuredMetadata.title ?? details.title,
                                 metadata: metadata,
                                 contents: frontmatter.content,
                                 contentModificationDate: file.contentModificationDate,

@@ -44,4 +44,12 @@ struct FrontmatterDocument {
         content = generateHTML ? String(match.content).html() : String(match.content)
     }
 
+    init(contentsOf url: URL, generateHTML: Bool = false) throws {
+        let data = try Data(contentsOf: url)
+        guard let contents = String(data: data, encoding: .utf8) else {
+            throw InContextError.encodingError
+        }
+        try self.init(contents: contents, generateHTML: generateHTML)
+    }
+
 }
