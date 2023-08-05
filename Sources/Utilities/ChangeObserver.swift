@@ -22,52 +22,37 @@
 
 import Foundation
 
-class ConcurrentBox<Content> {
+import FSEventsWrapper
 
-    let condition = NSCondition()
-    var value: Content? = nil
+class ChangeObserver {
 
-    func tryPut(_ value: Content) -> Bool {
-        condition.withLock {
-            guard self.value == nil else {
-                return false
+    let box: ConcurrentBox<Bool>
+    let stream: FSEventStream?
+
+    init(fileURL: URL) throws {
+        precondition(fileURL.isFileURL)
+
+        let box = ConcurrentBox<Bool>()
+        let stream = FSEventStream(path: fileURL.path) { stream, event in
+            switch event {
+            case .itemClonedAtPath:
+                return
+            default:
+                _ = box.tryPut(true)
             }
-            self.value = value
-            condition.broadcast()
-            return true
         }
+        guard let stream else {
+            throw InContextError.internalInconsistency("Failed to monitor '\(fileURL.path)'.")
+        }
+
+        self.box = box
+        self.stream = stream
+
+        stream.startWatching()
     }
 
-    func put(_ value: Content) {
-        condition.withLock {
-            while self.value != nil {
-                condition.wait()
-            }
-            self.value = value
-            condition.broadcast()
-        }
-    }
-
-    func take() throws -> Content {
-        guard let value = tryTake(until: .distantFuture) else {
-            throw InContextError.interrupted
-        }
-        return value
-    }
-
-    func tryTake(until date: Date) -> Content? {
-        condition.withLock {
-            while self.value == nil {
-                let signalled = condition.wait(until: date)
-                guard signalled else {
-                    return nil
-                }
-            }
-            let value = self.value
-            self.value = nil
-            condition.broadcast()
-            return value
-        }
+    func wait() throws {
+        _ = try box.take()
     }
 
 }

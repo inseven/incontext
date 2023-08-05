@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "fseventswrapper",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Frizlab/FSEventsWrapper.git",
+      "state" : {
+        "revision" : "70bbea4b108221fcabfce8dbced8502831c0ae04",
+        "version" : "2.1.0"
+      }
+    },
+    {
       "identity" : "hummingbird",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hummingbird-project/hummingbird.git",

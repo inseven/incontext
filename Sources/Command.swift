@@ -45,6 +45,12 @@ struct Options: ParsableArguments {
             transform: URL.init(fileURLWithPath:))
     var site: URL?
 
+    @Flag(help: "run template renders concurrently")
+    var concurrentRenders = false
+
+    @Flag(help: "watch for changes to the content directory")
+    var watch = false
+
     func resolveSite() throws -> Site {
         if let site {
             return try Site(rootURL: site)
@@ -68,15 +74,12 @@ extension Command {
         static var configuration = CommandConfiguration(commandName: "build",
                                                         abstract: "build the website")
 
-        @Flag(help: "run template renders concurrently")
-        var concurrentRenders = false
-
         @OptionGroup var options: Options
 
         mutating func run() async throws {
             let site = try options.resolveSite()
-            let ic = try await Builder(site: site, concurrentRenders: concurrentRenders)
-            try await ic.build()
+            let ic = try await Builder(site: site, concurrentRenders: options.concurrentRenders)
+            try await ic.build(watch: options.watch)
         }
 
     }
@@ -89,12 +92,22 @@ extension Command {
         @OptionGroup var options: Options
 
         mutating func run() async throws {
+
+            // Start the server.
             let app = HBApplication(configuration: .init(address: .hostname("127.0.0.1", port: 8000)))
             let site = try options.resolveSite()
             let middleware = HBFileMiddleware(site.filesURL.path, searchForIndexHtml: true, application: app)
             app.middleware.add(middleware)
             try app.start()
-            app.wait()
+
+            guard options.watch else {
+                // If we're not watching for builds, we need to wait on the web server.
+                app.wait()
+                return
+            }
+
+            let ic = try await Builder(site: site, concurrentRenders: options.concurrentRenders)
+            try await ic.build(watch: options.watch)
         }
 
     }
