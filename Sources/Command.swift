@@ -23,8 +23,10 @@
 import Foundation
 
 import ArgumentParser
+import FSEventsWrapper
 import Hummingbird
 import HummingbirdFoundation
+import CoreServices
 
 @main
 struct Command: AsyncParsableCommand {
@@ -34,6 +36,7 @@ struct Command: AsyncParsableCommand {
                                                         Build.self,
                                                         Clean.self,
                                                         Serve.self,
+                                                        Watch.self,
                                                     ])
 
 }
@@ -109,6 +112,32 @@ extension Command {
         mutating func run() async throws {
             let site = try options.resolveSite()
             try FileManager.default.removeItem(at: site.buildURL)
+        }
+
+    }
+
+    struct Watch: AsyncParsableCommand {
+
+        @OptionGroup var options: Options
+
+        mutating func run() async throws {
+            let site = try options.resolveSite()
+            let box = ConcurrentBox<Bool>()
+            let stream = FSEventStream(path: site.contentURL.path) { stream, event in
+                switch event {
+                case .itemClonedAtPath:
+                    return
+                default:
+                    print("EVENT: \(event)")
+                    _ = box.tryPut(true)
+                }
+            }
+            stream?.startWatching()
+            while true {
+                _ = try box.take()
+                let ic = try await Builder(site: site, concurrentRenders: false)
+                try await ic.build()
+            }
         }
 
     }

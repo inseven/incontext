@@ -27,6 +27,17 @@ class ConcurrentBox<Content> {
     let condition = NSCondition()
     var value: Content? = nil
 
+    func tryPut(_ value: Content) -> Bool {
+        condition.withLock {
+            guard self.value == nil else {
+                return false
+            }
+            self.value = value
+            condition.broadcast()
+            return true
+        }
+    }
+
     func put(_ value: Content) {
         condition.withLock {
             while self.value != nil {

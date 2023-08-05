@@ -20,6 +20,7 @@ let package = Package(
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.14.1"),
         .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "1.7.0"),
+        .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -39,6 +40,7 @@ let package = Package(
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yaml", package: "YamlSwift"),
                 .product(name: "Yams", package: "Yams"),
+                .product(name: "FSEventsWrapper", package: "FSEventsWrapper"),
             ],
             path: "Sources"),
         .testTarget(
