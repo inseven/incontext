@@ -147,7 +147,7 @@ class TiltRenderer: Renderer {
         guard let template = templateCache.details(for: .tilt(name)) else {
             throw InContextError.unknownTemplate(TemplateIdentifier.tilt(name).rawValue)
         }
-        let result = try env.parse(filename: name, contents: template.contents)
+        let result = try env.render(filename: name, contents: template.contents)
         return RenderResult(content: result.text, templatesUsed: result.includes)
     }
 
