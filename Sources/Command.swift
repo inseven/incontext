@@ -26,7 +26,6 @@ import ArgumentParser
 import FSEventsWrapper
 import Hummingbird
 import HummingbirdFoundation
-import CoreServices
 
 @main
 struct Command: AsyncParsableCommand {
