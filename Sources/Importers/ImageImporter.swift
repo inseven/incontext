@@ -25,38 +25,7 @@ import CoreGraphics
 import Foundation
 import ImageIO
 
-// Metadata import details from Python.
-//METADATA_SCHEMA = Dictionary({
-//
-//    "title": String(First(Key("Title"), Key("DisplayName"), Key("ObjectName"), Empty())),
-//    "content": String(First(Key("ImageDescription"), Key("Description"), Key("ArtworkContentDescription"), Default(None))),
-//    "date": First(EXIFDate(First(Key("DateTimeOriginal"), Key("ContentCreateDate"), Key("CreationDate"))), Empty()),
-//    "projection": First(Key("ProjectionType"), Empty()),
-//    "location": First(Dictionary({
-//        "latitude": GPSCoordinate(Key("GPSLatitude")),
-//        "longitude": GPSCoordinate(Key("GPSLongitude")),
-//    }), Empty())
-//
-//})
-
-
 class ImageImporter: Importer {
-
-    enum CompassDirection: String {
-        case north = "N"
-        case south = "S"
-        case east = "E"
-        case west = "W"
-
-        var multiplier: Double {
-            switch self {
-            case .north, .east:
-                return 1
-            case .west, .south:
-                return -1
-            }
-        }
-    }
 
     struct Settings: ImporterSettings {
         let defaultCategory: String
@@ -71,7 +40,7 @@ class ImageImporter: Importer {
     }
 
     let identifier = "import_photo"
-    let version = 7
+    let version = 9
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         let args: [String: Any] = try configuration.requiredValue(for: "args")
@@ -94,53 +63,39 @@ class ImageImporter: Importer {
 
         // TODO: Extract some of this data into the document.
 
-        guard let properties = CGImageSourceCopyPropertiesAtIndex(image, 0, nil) as? [String: Any],
-              let width = properties["PixelWidth"] as? Int,
-              let height = properties["PixelHeight"] as? Int else{
+        guard let exif = try EXIF(image, 0),
+              let width = try exif.pixelWidth,
+              let height = try exif.pixelHeight else {
             throw InContextError.internalInconsistency("Filed to get dimensions of image at \(fileURL.relativePath).")
         }
+
+        print(exif.properties)
 
         // TODO: Calculate the aspect ratio etc.
 
         // Metadata.
         var metadata: [String: Any] = [:]
 
-        // Title.
-        if let title: String = (try properties.optionalValue(for: "Title") ??
-                             (try properties.optionalValue(for: "DisplayName")) ??
-                             (try properties.optionalValue(for: "ObjectName")) ??
-                                "") {
-            metadata["title"] = title
-        }
+        let title = try exif.firstTitle
 
         // Content.
         var content: FrontmatterDocument? = nil
-        if let tiff: [String: Any] = try properties.optionalValue(for: "{TIFF}") {
-
-            if let description: String = try tiff.optionalValue(for: "ImageDescription") {
-                let frontmatter = try FrontmatterDocument(contents: description, generateHTML: true)
-                for (key, value) in frontmatter.metadata {
-                    guard let key = key as? String else {
-                        throw InContextError.internalInconsistency("Unexpected key type for metadata")
-                    }
-                    metadata[key] = value
-                }
-                content = frontmatter
+        if let imageDescription = try exif.imageDescription {
+            let frontmatter = try FrontmatterDocument(contents: imageDescription, generateHTML: true)
+            guard let contentMetadata = frontmatter.metadata as? [String: Any] else {
+                throw InContextError.internalInconsistency("Unexpected key type for metadata")
             }
-
+            metadata.merge(contentMetadata) { $1 }
+            content = frontmatter
         }
 
         // Location.
-        if let gps: [String: Any] = try properties.optionalValue(for: "{GPS}"),
-           let latitude: Double = try gps.optionalValue(for: "Latitude"),
-           let latitudeRef: CompassDirection = try gps.optionalRawRepresentable(for: "LatitudeRef"),
-           let longitude: Double = try gps.optionalValue(for: "Longitude"),
-           let longitudeRef: CompassDirection = try gps.optionalRawRepresentable(for: "LongitudeRef") {
-            let location = [
-                "latitude": latitude * latitudeRef.multiplier,
-                "longitude": longitude * longitudeRef.multiplier,
+        if let latitude = try exif.signedLatitude,
+           let longitude = try exif.signedLongitude {
+            metadata["location"] = [
+                "latitude": latitude,
+                "longitude": longitude,
             ]
-            metadata["location"] = location
         }
 
         var assets: [Asset] = []
@@ -208,7 +163,7 @@ class ImageImporter: Importer {
                                 parent: fileURL.parentURL,
                                 category: settings.defaultCategory,
                                 date: details.date,
-                                title: metadata["title"] as? String,
+                                title: title ?? content?.structuredMetadata.title,
                                 metadata: metadata,
                                 contents: content?.content ?? "",
                                 contentModificationDate: file.contentModificationDate,

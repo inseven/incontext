@@ -34,6 +34,19 @@ extension Dictionary {
         return value
     }
 
+    func optionalValue<T>(for path: [Key]) throws -> T? {
+        guard let key = path.first else {
+            throw InContextError.internalInconsistency("Failed to get the first key for path \(path).")
+        }
+        if path.count == 1 {
+            return try optionalValue(for: key)
+        }
+        guard let dictionary: [Key: Any] = try optionalValue(for: key) else {
+            return nil
+        }
+        return try dictionary.optionalValue(for: Array(path[1...]))
+    }
+
     func optionalValue<T>(for key: Key) throws -> T? {
         guard let value = self[key] else {
             return nil
@@ -70,6 +83,19 @@ extension Dictionary {
             throw InContextError.incorrectType(key)
         }
         return value
+    }
+
+    func optionalRawRepresentable<T: RawRepresentable>(for path: [Key]) throws -> T? {
+        guard let key = path.first else {
+            throw InContextError.internalInconsistency("Failed to get the first key for path \(path).")
+        }
+        if path.count == 1 {
+            return try optionalRawRepresentable(for: key)
+        }
+        guard let dictionary: [Key: Any] = try optionalValue(for: key) else {
+            return nil
+        }
+        return try dictionary.optionalRawRepresentable(for: Array(path[1...]))
     }
 
     @inlinable public func asyncMap<T>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T] {

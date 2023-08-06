@@ -23,23 +23,28 @@
 import Foundation
 
 import Yaml
+import Yams
 
 struct FrontmatterDocument {
 
     private static let frontmatterRegEx = /(?s)^(-\-\-\n)(?<metadata>.*?)(-\-\-\n)(?<content>.*)$/
 
     let rawMetadata: String
+    let structuredMetadata: Metadata
     let metadata: Dictionary<AnyHashable, Any>
     let content: String
 
     init(contents: String, generateHTML: Bool = false) throws {
         guard let match = contents.wholeMatch(of: Self.frontmatterRegEx) else {
             rawMetadata = ""
+            structuredMetadata = Metadata()
             metadata = [:]
             content = generateHTML ? contents.html() : contents
             return
         }
         rawMetadata = String(match.metadata)
+        structuredMetadata = (!rawMetadata.isEmpty ?
+                              try YAMLDecoder().decode(Metadata.self, from: rawMetadata) : Metadata())
         metadata = try rawMetadata.parseYAML()
         content = generateHTML ? String(match.content).html() : String(match.content)
     }
