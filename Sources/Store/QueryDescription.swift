@@ -37,22 +37,25 @@ struct QueryDescription: Codable, Hashable {
     let relativeSourcePath: String?
     let tag: String?
     let sort: Sort?
+    let limit: Int?
 
     init(includeCategories: [String]? = nil,
          url: String? = nil,
          parent: String? = nil,
          relativeSourcePath: String? = nil,
          tag: String? = nil,
-         sort: Sort? = nil) {
+         sort: Sort? = nil,
+         limit: Int? = nil) {
         self.includeCategories = includeCategories
         self.url = url
         self.parent = parent
         self.relativeSourcePath = relativeSourcePath
         self.tag = tag
         self.sort = sort
+        self.limit = limit
     }
 
-    func expression() -> Expression<Bool> {
+    private func expression() -> Expression<Bool> {
 
         var expressions: [Expression<Bool>] = []
 
@@ -84,7 +87,7 @@ struct QueryDescription: Codable, Hashable {
         return expressions.reduce(Expression<Bool>(value: true)) { $0 && $1 }
     }
 
-    func order() -> [Expressible] {
+    private func order() -> [Expressible] {
         guard let sort else {
             return [Store.Schema.date.desc, Store.Schema.title.asc]
         }
@@ -94,6 +97,14 @@ struct QueryDescription: Codable, Hashable {
         case .descending:
             return [Store.Schema.date.desc, Store.Schema.title.asc]
         }
+    }
+
+    func query() -> Table {
+
+        Store.Schema.documents
+            .filter(expression())
+            .order(order())
+            .limit(limit)
     }
 
     init(definition query: Any) throws {
@@ -113,6 +124,7 @@ struct QueryDescription: Codable, Hashable {
         self.relativeSourcePath = try structuredQuery.optionalValue(for: "relative_source_path")
         self.tag = try structuredQuery.optionalValue(for: "tag")
         self.sort = try structuredQuery.optionalRawRepresentable(for: "sort")
+        self.limit = try structuredQuery.optionalValue(for: "limit")
     }
 
 }

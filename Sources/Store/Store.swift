@@ -260,10 +260,7 @@ class Store {
     private func syncQueue_documents(query: QueryDescription) throws -> [Document] {
         dispatchPrecondition(condition: .onQueue(workQueue))
 
-        let query = Schema.documents
-            .filter(query.expression())
-            .order(query.order())
-        let rowIterator = try connection.prepareRowIterator(query)
+        let rowIterator = try connection.prepareRowIterator(query.query())
 
         return try rowIterator.map { row in
 
@@ -294,16 +291,13 @@ class Store {
         }
     }
 
-    private func syncQueue_contentModificationDates(query: QueryDescription?) throws -> [Date] {
+    private func syncQueue_contentModificationDates(query: QueryDescription) throws -> [Date] {
         dispatchPrecondition(condition: .onQueue(workQueue))
 
-        let filter = query?.expression() ?? Expression<Bool>(value: true)
-
-        let query = Schema.documents
+        let select = query
+            .query()
             .select(Schema.contentModificationDate)
-            .filter(filter)
-            .order(Schema.date.desc)  // TODO: Move the order into the query.
-        let rowIterator = try connection.prepareRowIterator(query)
+        let rowIterator = try connection.prepareRowIterator(select)
 
         return try rowIterator.map { row in
             return row[Schema.contentModificationDate]
