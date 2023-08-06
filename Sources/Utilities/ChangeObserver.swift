@@ -27,28 +27,33 @@ import FSEventsWrapper
 class ChangeObserver {
 
     let box: ConcurrentBox<Bool>
-    let stream: FSEventStream?
+    let streams: [FSEventStream]
 
-    init(fileURL: URL) throws {
-        precondition(fileURL.isFileURL)
-
+    init(fileURLs: [URL]) throws {
+        for fileURL in fileURLs {
+            precondition(fileURL.isFileURL)
+        }
         let box = ConcurrentBox<Bool>()
-        let stream = FSEventStream(path: fileURL.path) { stream, event in
-            switch event {
-            case .itemClonedAtPath:
-                return
-            default:
-                _ = box.tryPut(true)
-            }
-        }
-        guard let stream else {
-            throw InContextError.internalInconsistency("Failed to monitor '\(fileURL.path)'.")
-        }
 
         self.box = box
-        self.stream = stream
+        self.streams = try fileURLs.map { fileURL in
+            let stream = FSEventStream(path: fileURL.path) { stream, event in
+                switch event {
+                case .itemClonedAtPath:
+                    return
+                default:
+                    _ = box.tryPut(true)
+                }
+            }
+            guard let stream else {
+                throw InContextError.internalInconsistency("Failed to monitor '\(fileURL.path)'.")
+            }
+            return stream
+        }
 
-        stream.startWatching()
+        streams.forEach { stream in
+            stream.startWatching()
+        }
     }
 
     func wait() throws {

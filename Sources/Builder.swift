@@ -350,7 +350,10 @@ class Builder {
         // Prepare to watch for changes in case we've been asked to watch.
         // We create the change observer here (already started) to ensure we don't miss any changes that happen during
         // our initial build.
-        let changeObserver = try ChangeObserver(fileURL: site.contentURL)
+        let changeObserver = try ChangeObserver(fileURLs: [
+            site.contentURL,
+            site.templatesURL
+        ])
 
         let clock = ContinuousClock()
         let duration = try await clock.measure {
@@ -358,6 +361,11 @@ class Builder {
             try await renderContent()
         }
         print("Import took \(duration).")
+
+        // Check to see if we should watch for changes.
+        guard watch else {
+            return
+        }
 
         // Watch for changes and rebuild.
         while true {
