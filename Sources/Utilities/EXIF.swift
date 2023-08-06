@@ -1,0 +1,137 @@
+// MIT License
+//
+// Copyright (c) 2023 Jason Barrie Morley
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+import Foundation
+
+import ImageIO
+
+// Metadata import details from Python.
+//METADATA_SCHEMA = Dictionary({
+//
+//    "title": String(First(Key("Title"), Key("DisplayName"), Key("ObjectName"), Empty())),
+//    "content": String(First(Key("ImageDescription"), Key("Description"), Key("ArtworkContentDescription"), Default(None))),
+//    "date": First(EXIFDate(First(Key("DateTimeOriginal"), Key("ContentCreateDate"), Key("CreationDate"))), Empty()),
+//    "projection": First(Key("ProjectionType"), Empty()),
+//    "location": First(Dictionary({
+//        "latitude": GPSCoordinate(Key("GPSLatitude")),
+//        "longitude": GPSCoordinate(Key("GPSLongitude")),
+//    }), Empty())
+//
+//})
+
+struct EXIF {
+
+    enum CompassDirection: String {
+        case north = "N"
+        case south = "S"
+        case east = "E"
+        case west = "W"
+
+        var multiplier: Double {
+            switch self {
+            case .north, .east:
+                return 1
+            case .west, .south:
+                return -1
+            }
+        }
+    }
+
+    let properties: [String: Any]
+
+    init(properties: [String: Any]) {
+        self.properties = properties
+    }
+
+    init?(_ imageSource: CGImageSource, _ index: Int) throws {
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, index, nil) else {
+            return nil
+        }
+        guard let typedProperties = properties as? [String: Any] else {
+            throw InContextError.internalInconsistency("Failed to load EXIF data")
+        }
+        self.properties = typedProperties
+    }
+
+    var pixelWidth: Int? {
+        get throws { return try properties.optionalValue(for: "PixelWidth") }
+    }
+
+    var pixelHeight: Int? {
+        get throws { return try properties.optionalValue(for: "PixelHeight") }
+    }
+
+    var title: String? {
+        get throws { return try properties.optionalValue(for: "Title") }
+    }
+
+    var displayName: String? {
+        get throws { return try properties.optionalValue(for: "DisplayName") }
+    }
+
+    var objectName: String? {
+        get throws { return try properties.optionalValue(for: ["{IPTC}", "ObjectName"]) }
+    }
+
+    var imageDescription: String? {
+        get throws { return try properties.optionalValue(for: ["{TIFF}", "ImageDescription"])}
+    }
+
+    var latitude: Double? {
+        get throws { return try properties.optionalValue(for: ["{GPS}", "Latitude"])}
+    }
+
+    var latitudeRef: CompassDirection? {
+        get throws { return try properties.optionalRawRepresentable(for: ["{GPS}", "LatitudeRef"])}
+    }
+
+    var longitude: Double? {
+        get throws { return try properties.optionalValue(for: ["{GPS}", "Longitude"])}
+    }
+
+    var longitudeRef: CompassDirection? {
+        get throws { return try properties.optionalRawRepresentable(for: ["{GPS}", "LongitudeRef"])}
+    }
+
+    var signedLatitude: Double? {
+        get throws {
+            guard let latitude = try latitude, let latitudeRef = try latitudeRef else {
+                return nil
+            }
+            return latitude * latitudeRef.multiplier
+        }
+    }
+
+    var signedLongitude: Double? {
+        get throws {
+            guard let longitude = try longitude, let longitudeRef = try longitudeRef else {
+                return nil
+            }
+            return longitude * longitudeRef.multiplier
+        }
+    }
+
+    var firstTitle: String? {
+        get throws { return try (try title) ?? (try displayName) ?? (try objectName) }
+    }
+
+}

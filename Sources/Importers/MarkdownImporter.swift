@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 import Foundation
-import Yams
 
 class MarkdownImporter: Importer {
 
@@ -57,23 +56,17 @@ class MarkdownImporter: Importer {
         metadata["title"] = details.title
         metadata.merge(frontmatter.metadata) { $1 }
 
-        // Strict metadata parsing.
-        let decoder = YAMLDecoder()
-        let structuredMetadata = (!frontmatter.rawMetadata.isEmpty ?
-                                  try decoder.decode(Metadata.self, from: frontmatter.rawMetadata) :
-                                    Metadata())
-
         let category: String = try metadata.value(for: "category", default: settings.defaultCategory)
 
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
                                 category: category,
-                                date: structuredMetadata.date ?? details.date,
-                                title: structuredMetadata.title ?? details.title,
+                                date: frontmatter.structuredMetadata.date ?? details.date,
+                                title: frontmatter.structuredMetadata.title ?? details.title,
                                 metadata: metadata,
                                 contents: frontmatter.content,
                                 contentModificationDate: file.contentModificationDate,
-                                template: structuredMetadata.template ?? settings.defaultTemplate,
+                                template: frontmatter.structuredMetadata.template ?? settings.defaultTemplate,
                                 relativeSourcePath: file.relativePath)
         return ImporterResult(documents: [document])
     }
