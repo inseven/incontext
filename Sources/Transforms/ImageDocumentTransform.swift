@@ -36,7 +36,7 @@ struct ImageDocumentTransform: Transformer {
             if img.hasAttr("src") {
                 let src = try img.attr("src")
                 let newSrc = document.relativeSourcePath(for: src)
-                print("\(src) -> \(newSrc)")
+//                print("\(src) -> \(newSrc)")
                 let query = QueryDescription(relativeSourcePath: newSrc)
                 guard let document = try store.documents(query: query).first else {
                     print("Failed to update src for '\(src)'.")
