@@ -45,7 +45,9 @@ class Store {
         static let title = Expression<String?>("title")
         static let metadata = Expression<String>("metadata")
         static let contents = Expression<String>("contents")
-        static let template = Expression<String>("template")
+        static let template = Expression<TemplateIdentifier>("template")
+        static let inlineTemplate = Expression<TemplateIdentifier?>("inline_template")
+        static let format = Expression<Document.Format>("format")
 
         // status
         static let relativePath = Expression<String>("relative_path")  // TODO: This should be relative source path
@@ -86,7 +88,9 @@ class Store {
                 t.column(Schema.contents)
                 t.column(Schema.contentModificationDate)
                 t.column(Schema.template)
+                t.column(Schema.inlineTemplate)
                 t.column(Schema.relativeSourcePath)
+                t.column(Schema.format)
             })
             print("create the status table...")
             try connection.run(Schema.status.create(ifNotExists: true) { t in
@@ -183,8 +187,10 @@ class Store {
                                                            Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
                                                            Schema.contentModificationDate <- document.contentModificationDate,
-                                                           Schema.template <- document.template.rawValue,
-                                                           Schema.relativeSourcePath <- document.relativeSourcePath))
+                                                           Schema.template <- document.template,
+                                                           Schema.inlineTemplate <- document.inlineTemplate,
+                                                           Schema.relativeSourcePath <- document.relativeSourcePath,
+                                                           Schema.format <- document.format))
             }
             for asset in assets {
                 try connection.run(Schema.assets.insert(or: .replace,
@@ -272,12 +278,6 @@ class Store {
                 throw InContextError.internalInconsistency("Failed to load document metadata.")
             }
 
-            // Template.
-            let templateRawValue = row[Schema.template]
-            guard let template = TemplateIdentifier(rawValue: templateRawValue) else {
-                throw InContextError.internalInconsistency("Failed to deserialise template identifier for value '\(templateRawValue)'.")
-            }
-
             return Document(url: row[Schema.url],
                             parent: row[Schema.parent],
                             category: row[Schema.category],
@@ -286,8 +286,10 @@ class Store {
                             metadata: metadata,
                             contents: row[Schema.contents],
                             contentModificationDate: row[Schema.contentModificationDate],
-                            template: template,
-                            relativeSourcePath: row[Schema.relativeSourcePath])
+                            template: row[Schema.template],
+                            inlineTemplate: row[Schema.inlineTemplate],
+                            relativeSourcePath: row[Schema.relativeSourcePath],
+                            format: row[Schema.format])
         }
     }
 

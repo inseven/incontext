@@ -27,64 +27,54 @@ import Foundation
 class TemplateCache {
 
     private let rootURL: URL
-    private let templates: [TemplateIdentifier: TemplateDetails]
+    private let cache = Cache<TemplateIdentifier, TemplateDetails>()
 
-    static func templates(rootURL: URL, language: TemplateLanguage) async throws -> [TemplateIdentifier: TemplateDetails] {
-        precondition(rootURL.hasDirectoryPath)
-        let fileManager = FileManager.default
-        let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey, .contentModificationDateKey])
-        let directoryEnumerator = fileManager.enumerator(at: rootURL,
-                                                         includingPropertiesForKeys: Array(resourceKeys),
-                                                         options: [.skipsHiddenFiles, .producesRelativePathURLs])!
-        return try await withThrowingTaskGroup(of: TemplateDetails.self) { group in
-            for case let fileURL as URL in directoryEnumerator {
-
-                let isDirectory = try fileURL
-                    .resourceValues(forKeys: [.isDirectoryKey])
-                    .isDirectory!
-                let contentModificationDate = try fileURL
-                    .resourceValues(forKeys: [.contentModificationDateKey])
-                    .contentModificationDate!
-
-                guard !isDirectory else {
-                    continue
-                }
-
-                group.addTask {
-                    let contents = try String(contentsOf: fileURL, encoding: .utf8)
-                    let details = TemplateDetails(url: fileURL,
-                                                  language: language,
-                                                  modificationDate: contentModificationDate,
-                                                  contents: contents)
-                    return details
-                }
-            }
-
-            var templates: [TemplateIdentifier: TemplateDetails] = [:]
-            for try await details in group {
-                templates[TemplateIdentifier(language, details.url.relativePath)] = details
-            }
-
-            return templates
-        }
-    }
 
     init(rootURL: URL) async throws {
+        precondition(rootURL.hasDirectoryPath)
         self.rootURL = rootURL
-        self.templates = try await TemplateLanguage.allCases
-            .asyncReduce(into: [TemplateIdentifier: TemplateDetails]()) { partialResult, language in
-                for (identifier, details) in try await Self.templates(rootURL: rootURL, language: language) {
-                    partialResult[identifier] = details
-                }
+    }
+
+    func details(for identifier: TemplateIdentifier) throws -> TemplateDetails? {
+
+        // Check the cache.
+        if let details = cache[identifier] {
+            return details
         }
+
+        // Load the template.
+        let fileManager = FileManager.default
+        let templateURL = URL(filePath: identifier.name, relativeTo: rootURL)
+        guard fileManager.fileExists(at: templateURL) else {
+            throw InContextError.unknownTemplate(identifier.name)
+        }
+
+        // N.B. Since we can't read the mtime and contents atomically, we read the mtime first to ensure it only ever
+        // lags behind the contents and, if they're out of sync, we'll over render, not under render. This means we may
+        // miss changes during a render, but our cached mtimes will be such that they will be correctly picked up on a
+        // subsequent render.
+        let attributes = try FileManager.default.attributesOfItem(atPath: templateURL.path)
+        guard let modificationDate = attributes[FileAttributeKey.modificationDate] as? Date else {
+            throw InContextError.internalInconsistency("Unable to load modification date for template '\(identifier.name)'.")
+        }
+        let contents = try String(contentsOf: templateURL, encoding: .utf8)
+        let details = TemplateDetails(url: templateURL,
+                                      language: .tilt,
+                                      modificationDate: modificationDate,
+                                      contents: contents)
+
+        // Cache the template.
+        cache[identifier] = details
+
+        return details
     }
 
-    func details(for identifier: TemplateIdentifier) -> TemplateDetails? {
-        return self.templates[identifier]
+    func modificationDate(for identifier: TemplateIdentifier) throws -> Date? {
+        return try details(for: identifier)?.modificationDate
     }
 
-    func modificationDate(for identifier: TemplateIdentifier) -> Date? {
-        return self.templates[identifier]?.modificationDate
+    func clear() {
+        cache.removeAll()
     }
 
 }

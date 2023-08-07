@@ -24,6 +24,12 @@ import Foundation
 
 struct Document {
 
+    enum Format: String, Codable {
+        case text
+        case image
+        case video
+    }
+
     let url: String
     let parent: String
     let category: String
@@ -33,6 +39,8 @@ struct Document {
     let contents: String
     let contentModificationDate: Date
     let template: TemplateIdentifier
+    let inlineTemplate: TemplateIdentifier?
     let relativeSourcePath: String
+    let format: Format
 
 }

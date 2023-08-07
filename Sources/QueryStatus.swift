@@ -22,7 +22,7 @@
 
 import Foundation
 
-struct QueryStatus: Codable {
+struct QueryStatus: Codable, Hashable {
 
     let query: QueryDescription
     let contentModificationDates: [Date]

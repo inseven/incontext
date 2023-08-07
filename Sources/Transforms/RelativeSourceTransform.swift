@@ -29,7 +29,7 @@ struct RelativeSourceTransform: Transformer {
     let selector: String
     let attribute: String
 
-    func transform(store: QueryTracker, document: DocumentContext, content: SwiftSoup.Document) throws {
+    func transform(renderTracker: RenderTracker, document: DocumentContext, content: SwiftSoup.Document) throws {
         for element in try content.select(selector) {
             guard element.hasAttr(attribute) else {
                 continue

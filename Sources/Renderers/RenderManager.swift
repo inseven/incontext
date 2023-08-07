@@ -69,7 +69,7 @@ class RenderManager {
         // Look-up the modification date for each template, generate an associated render status, and add this to the
         // tracker.
         for template in templatesUsed {
-            guard let modificationDate = templateCache.modificationDate(for: template) else {
+            guard let modificationDate = try templateCache.modificationDate(for: template) else {
                 throw InContextError.internalInconsistency("Failed to get content modification date for template '\(template)'.")
             }
             renderTracker.add(TemplateRenderStatus(identifier: template, modificationDate: modificationDate))
@@ -81,6 +81,10 @@ class RenderManager {
         }
         let dom = try SwiftSoup.parse(renderResult.content)
         return try dom.html()
+    }
+
+    func clearCache() {
+        templateCache.clear()
     }
 
 }

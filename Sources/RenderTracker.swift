@@ -24,26 +24,42 @@ import Foundation
 
 class RenderTracker {
 
-    private var _renderers = Set<RendererInstance>()
-    private var _statuses = Set<TemplateRenderStatus>()
+    private let store: Store
+    private let renderManager: RenderManager
+    private var queries = Set<QueryStatus>()
+    private var renderers = Set<RendererInstance>()
+    private var statuses = Set<TemplateRenderStatus>()
 
-    init() {
+    init(store: Store, renderManager: RenderManager) {
+        self.store = store
+        self.renderManager = renderManager
     }
 
     func add(_ rendererInstance: RendererInstance) {
-        _renderers.insert(rendererInstance)
+        renderers.insert(rendererInstance)
     }
 
     func add(_ templateStatus: TemplateRenderStatus) {
-        _statuses.insert(templateStatus)
+        statuses.insert(templateStatus)
     }
 
-    func renderers() -> [RendererInstance] {
-        return Array(_renderers)
+    func documents(query: QueryDescription) throws -> [Document] {
+        let documents = try store.documents(query: query)
+        queries.insert(QueryStatus(query: query,
+                                   contentModificationDates: documents.map({ $0.contentModificationDate })))
+        return documents
     }
 
-    func statuses() -> [TemplateRenderStatus] {
-        return Array(_statuses)
+    func documentContexts(query: QueryDescription) throws -> [DocumentContext] {
+        return try documents(query: query)
+            .map { DocumentContext(renderTracker: self, document: $0) }
+    }
+
+    func renderStatus(for document: Document) -> RenderStatus {
+        return RenderStatus(contentModificationDate: document.contentModificationDate,
+                            queries: Array(queries),
+                            renderers: Array(renderers),
+                            templates: Array(statuses))
     }
 
 }

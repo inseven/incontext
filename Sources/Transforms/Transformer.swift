@@ -26,6 +26,6 @@ import SwiftSoup
 
 protocol Transformer {
 
-    func transform(store: QueryTracker, document: DocumentContext, content: SwiftSoup.Document) throws
+    func transform(renderTracker: RenderTracker, document: DocumentContext, content: SwiftSoup.Document) throws
 
 }
