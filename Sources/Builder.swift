@@ -24,6 +24,60 @@ import Foundation
 
 class Builder {
 
+    static func context(for document: Document, renderTracker: RenderTracker) -> [String: Any] {
+
+        // TODO: Inline the config loaded from the settings file
+        // TODO: Consider separating the store and the site metadata.
+        return [
+            "site": [
+                // TODO: Pull this out of the site configuration (and make required configuration type-safe)
+                "title": "Jason Morley",
+                "date_format": "MMMM d, yyyy",
+                "date_format_short": "MMMM d",
+                "url": "https://jbmorley.co.uk",
+                "posts": Function { () throws -> [DocumentContext] in
+                    return try renderTracker.documentContexts(query: QueryDescription())
+                },
+                "post": Function { (url: String) throws -> DocumentContext? in
+                    return try renderTracker.documentContexts(query: QueryDescription(url: url)).first
+                },
+                "query": Function { (definition: [AnyHashable: Any]) throws -> [DocumentContext] in
+                    let query = try QueryDescription(definition: definition)
+                    return try renderTracker.documentContexts(query: query)
+                }
+            ] as Dictionary<String, Any>,  // TODO: as [String: Any] is different?
+            "generate_uuid": Function {
+                return UUID().uuidString
+            },
+            "titlecase": Function { (string: String) -> String in
+                return string.toTitleCase()
+            },
+            "page": DocumentContext(renderTracker: renderTracker, document: document),
+            "distant_past": Function { (timezoneAware: Bool) in
+                return Date.distantPast
+            },
+            "markdown": Function { (string: String) -> String in
+                // TODO: Actually process the markdown
+                return string
+            },
+            "iso_8601_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
+            "date": Function { (string: String) -> Date in
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
+                guard let date = dateFormatter.date(from: string) else {
+                    throw InContextError.internalInconsistency("Unable to construct date from string '\(string)'.")
+                }
+                return date
+            },
+            "base64": Function { (string: String) -> String in
+                guard let data = string.data(using: .utf8) else {
+                    throw InContextError.internalInconsistency("Unable to encode string as UTF-8 data.")
+                }
+                return data.base64EncodedString()
+            },
+        ]
+    }
+
     let site: Site
     let concurrentRenders: Bool
     let store: Store
@@ -96,74 +150,18 @@ class Builder {
                 documents: [Document],
                 renderStatus: RenderStatus?) async throws {
 
-        // TODO: Push this into the site?
-        // TODO: Work out which file extension we need to use for our index file (this is currently based on the template).
-        // TODO: Guess the template mimetype.
         let destinationDirectoryURL = site.filesURL.appendingPathComponent(document.url)
-
         let destinationFileURL = destinationDirectoryURL
             .appendingPathComponent("index")
             .appendingPathExtension(document.template.pathExtension)
         print("Rendering '\(document.url)' with template '\(document.template)'...")
 
+        // Render the document using its top-level template.
+        // This is tracked using our document-specific `RenderTracker` instance to allow us to track dependencies
+        // (queries and templates) and see if they've changed on future incremental builds.
         let renderTracker = RenderTracker(store: store, renderManager: renderManager)
-
-        // TODO: Inline the config loaded from the settings file
-        // TODO: Does this need to get extracted so it can easily be assembled for inner renders?
-        let context: [String: Any] = [
-            // TODO: Consider separating the store and the site metadata.
-            "site": [
-                // TODO: Pull this out of the site configuration.
-                // TODO: Should it be type safe?
-                "title": "Jason Morley",
-                "date_format": "MMMM d, yyyy",
-                "date_format_short": "MMMM d",
-                "url": "https://jbmorley.co.uk",
-                "posts": Function { () throws -> [DocumentContext] in
-                    return try renderTracker.documentContexts(query: QueryDescription())
-                },
-                "post": Function { (url: String) throws -> DocumentContext? in
-                    return try renderTracker.documentContexts(query: QueryDescription(url: url)).first
-                },
-                "query": Function { (definition: [AnyHashable: Any]) throws -> [DocumentContext] in
-                    let query = try QueryDescription(definition: definition)
-                    return try renderTracker.documentContexts(query: query)
-                }
-            ] as Dictionary<String, Any>,  // TODO: as [String: Any] is different?
-            "generate_uuid": Function {
-                return UUID().uuidString
-            },
-            "titlecase": Function { (string: String) -> String in
-                return string.toTitleCase()
-            },
-            "page": DocumentContext(renderTracker: renderTracker, document: document),
-            "distant_past": Function { (timezoneAware: Bool) in
-                return Date.distantPast
-            },
-            "markdown": Function { (string: String) -> String in
-                // TODO: Actually process the markdown
-                return string
-            },
-            "iso_8601_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
-            "date": Function { (string: String) -> Date in
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd"
-                guard let date = dateFormatter.date(from: string) else {
-                    throw InContextError.internalInconsistency("Unable to construct date from string '\(string)'.")
-                }
-                return date
-            },
-            "base64": Function { (string: String) -> String in
-                guard let data = string.data(using: .utf8) else {
-                    throw InContextError.internalInconsistency("Unable to encode string as UTF-8 data.")
-                }
-                return data.base64EncodedString()
-            },
-        ]
-
-        let content = try await renderManager.render(renderTracker: renderTracker,
-                                                     template: document.template,
-                                                     context: context)
+        let context = Self.context(for: document, renderTracker: renderTracker)
+        let content = try await renderTracker.render(template: document.template, context: context)
         let renderStatus = renderTracker.renderStatus(for: document)
         try await store.save(renderStatus: renderStatus, for: document.url)
 
@@ -285,9 +283,6 @@ class Builder {
 
         print("Getting documents...")
         let documents = try await store.documents()
-
-        // TODO: It should be possible to check whether we need to re-render asynchronously as it doesn't do
-        //       anything complicated other than hit the database.
 
         print("Checking for changes...")
         let updates = try await withThrowingTaskGroup(of: (Document?).self) { group in

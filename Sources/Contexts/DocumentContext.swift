@@ -26,7 +26,7 @@ import SwiftSoup
 
 struct DocumentContext: EvaluationContext {
 
-    private let renderTracker: RenderTracker  // TODO: Rename to rendertracker
+    private let renderTracker: RenderTracker
     private let document: Document
 
     var url: String {
