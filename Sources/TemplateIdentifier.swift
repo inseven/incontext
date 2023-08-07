@@ -22,6 +22,7 @@
 
 import Foundation
 
+import SQLite
 import UniformTypeIdentifiers
 
 class TemplateIdentifier: RawRepresentable, Equatable, Codable, Hashable, CustomStringConvertible {
@@ -84,6 +85,24 @@ extension TemplateIdentifier {
 
     var type: UTType? {
         return UTType(filenameExtension: pathExtension)
+    }
+
+}
+
+extension TemplateIdentifier: Value {
+
+    typealias Datatype = String
+
+    static var declaredDatatype: String {
+        "text"
+    }
+
+    static func fromDatatypeValue(_ datatypeValue: String) -> TemplateIdentifier {
+        return .init(rawValue: datatypeValue)!
+    }
+
+    var datatypeValue: String {
+        return rawValue
     }
 
 }

@@ -26,7 +26,7 @@ import SwiftSoup
 
 struct DocumentContext: EvaluationContext {
 
-    private let store: QueryTracker
+    private let renderTracker: RenderTracker  // TODO: Rename to rendertracker
     private let document: Document
 
     var content: String {
@@ -42,9 +42,8 @@ struct DocumentContext: EvaluationContext {
         return document.date
     }
 
-    // TODO: We need to inject the renderer into this since it should be used to render the inner HTML.
-    init(store: QueryTracker, document: Document) {
-        self.store = store
+    init(renderTracker: RenderTracker, document: Document) {
+        self.renderTracker = renderTracker
         self.document = document
     }
 
@@ -100,7 +99,7 @@ struct DocumentContext: EvaluationContext {
     func html() throws -> String {
         let content = try SwiftSoup.parse(document.contents)
         for transform in transforms {
-            try transform.transform(store: store, document: self, content: content)
+            try transform.transform(renderTracker: renderTracker, document: self, content: content)
         }
         return try content.html()
     }
@@ -110,18 +109,20 @@ struct DocumentContext: EvaluationContext {
         switch name {
         case "title":
             return document.title
+        case "format":
+            return document.format.rawValue
         case "query": return Function { (name: String) -> [DocumentContext] in
             guard let queries = document.metadata["queries"] as? [String: Any],
                   let query = queries[name] else {
                 throw InContextError.unknownQuery(name)
             }
-            return try store.documentContexts(query: try QueryDescription(definition: query))
+            return try renderTracker.documentContexts(query: try QueryDescription(definition: query))
         }
         case "children": return Function { () -> [DocumentContext] in
-            return try store.documentContexts(query: QueryDescription(parent: document.url))
+            return try renderTracker.documentContexts(query: QueryDescription(parent: document.url))
         }
         case "parent": return Function { () -> DocumentContext? in
-            return try store.documentContexts(query: QueryDescription(url: document.parent)).first
+            return try renderTracker.documentContexts(query: QueryDescription(url: document.parent)).first
         }
         case "previous": return Function { () -> DocumentContext? in
             // TODO: Implement me!
@@ -133,7 +134,7 @@ struct DocumentContext: EvaluationContext {
         }
         case "child": return Function { (relativePath: String) -> DocumentContext? in
             let relativeSourcePath = relativeSourcePath(for: relativePath)
-            return try store.documentContexts(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first
+            return try renderTracker.documentContexts(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first
         }
         case "relative_source_path": return Function { (relativePath: String) -> String in
             return relativeSourcePath(for: relativePath)
@@ -155,7 +156,7 @@ struct DocumentContext: EvaluationContext {
             let relativeSourcePath = relativeSourcePath(for: relativePath)
 
             // We currently special-case image documents that follow a known structure.
-            if let child = try store.documentContexts(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first,
+            if let child = try renderTracker.documentContexts(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first,
                let image = child.document.metadata["image"] as? [String: Any],
                let url = image["url"] as? String {
                 return url

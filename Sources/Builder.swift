@@ -73,7 +73,7 @@ class Builder {
 
         // Check if any of the templates have changed, or if the renderer version used has changed.
         for templateStatus in renderStatus.templates {
-            let modificationDate = templateCache.modificationDate(for: templateStatus.identifier)
+            let modificationDate = try templateCache.modificationDate(for: templateStatus.identifier)
             if templateStatus.modificationDate != modificationDate {
                 return true
             }
@@ -106,7 +106,7 @@ class Builder {
             .appendingPathExtension(document.template.pathExtension)
         print("Rendering '\(document.url)' with template '\(document.template)'...")
 
-        let queryTracker = QueryTracker(store: store)
+        let renderTracker = RenderTracker(store: store, renderManager: renderManager)
 
         // TODO: Inline the config loaded from the settings file
         // TODO: Does this need to get extracted so it can easily be assembled for inner renders?
@@ -120,14 +120,14 @@ class Builder {
                 "date_format_short": "MMMM d",
                 "url": "https://jbmorley.co.uk",
                 "posts": Function { () throws -> [DocumentContext] in
-                    return try queryTracker.documentContexts(query: QueryDescription())
+                    return try renderTracker.documentContexts(query: QueryDescription())
                 },
                 "post": Function { (url: String) throws -> DocumentContext? in
-                    return try queryTracker.documentContexts(query: QueryDescription(url: url)).first
+                    return try renderTracker.documentContexts(query: QueryDescription(url: url)).first
                 },
                 "query": Function { (definition: [AnyHashable: Any]) throws -> [DocumentContext] in
                     let query = try QueryDescription(definition: definition)
-                    return try queryTracker.documentContexts(query: query)
+                    return try renderTracker.documentContexts(query: query)
                 }
             ] as Dictionary<String, Any>,  // TODO: as [String: Any] is different?
             "generate_uuid": Function {
@@ -136,7 +136,7 @@ class Builder {
             "titlecase": Function { (string: String) -> String in
                 return string.toTitleCase()
             },
-            "page": DocumentContext(store: queryTracker, document: document),
+            "page": DocumentContext(renderTracker: renderTracker, document: document),
             "distant_past": Function { (timezoneAware: Bool) in
                 return Date.distantPast
             },
@@ -161,16 +161,10 @@ class Builder {
             },
         ]
 
-        // TODO: Consolidate RenderTracker and QueryTracker
-        //       RenderTracker(for document: Document)?
-        let renderTracker = RenderTracker()
         let content = try await renderManager.render(renderTracker: renderTracker,
                                                      template: document.template,
                                                      context: context)
-        let renderStatus = RenderStatus(contentModificationDate: document.contentModificationDate,
-                                        queries: queryTracker.queries,
-                                        renderers: renderTracker.renderers(),
-                                        templates: renderTracker.statuses())
+        let renderStatus = renderTracker.renderStatus(for: document)
         try await store.save(renderStatus: renderStatus, for: document.url)
 
         // Write the contents to a file.
@@ -370,6 +364,7 @@ class Builder {
         // Watch for changes and rebuild.
         while true {
             try changeObserver.wait()
+            renderManager.clearCache()
             try await importContent()
             try await renderContent()
             print("Done")

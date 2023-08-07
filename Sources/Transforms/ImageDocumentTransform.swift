@@ -22,6 +22,7 @@
 
 import Foundation
 
+import SQLite
 import SwiftSoup
 
 // Corrects relative paths for images have been stored in the database.
@@ -31,14 +32,14 @@ import SwiftSoup
 // TODO: These transforms also need rigorous testing
 struct ImageDocumentTransform: Transformer {
 
-    func transform(store: QueryTracker, document: DocumentContext, content: SwiftSoup.Document) throws {
+    func transform(renderTracker: RenderTracker, document: DocumentContext, content: SwiftSoup.Document) throws {
         for img in try content.getElementsByTag("img") {
             if img.hasAttr("src") {
                 let src = try img.attr("src")
                 let newSrc = document.relativeSourcePath(for: src)
 //                print("\(src) -> \(newSrc)")
                 let query = QueryDescription(relativeSourcePath: newSrc)
-                guard let document = try store.documents(query: query).first else {
+                guard let document = try renderTracker.documents(query: query).first else {
                     print("Failed to update src for '\(src)'.")
                     continue
                 }
@@ -49,6 +50,24 @@ struct ImageDocumentTransform: Transformer {
                 try img.attr("src", url)
             }
         }
+    }
+
+}
+
+extension Document.Format: Value {
+
+    typealias Datatype = String
+
+    static var declaredDatatype: String {
+        "text"
+    }
+
+    static func fromDatatypeValue(_ datatypeValue: String) -> Document.Format {
+        return .init(rawValue: datatypeValue)!
+    }
+
+    var datatypeValue: String {
+        return rawValue
     }
 
 }

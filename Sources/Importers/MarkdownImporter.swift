@@ -67,7 +67,9 @@ class MarkdownImporter: Importer {
                                 contents: frontmatter.content,
                                 contentModificationDate: file.contentModificationDate,
                                 template: frontmatter.structuredMetadata.template ?? settings.defaultTemplate,
-                                relativeSourcePath: file.relativePath)
+                                inlineTemplate: nil,
+                                relativeSourcePath: file.relativePath,
+                                format: .text)
         return ImporterResult(documents: [document])
     }
 
