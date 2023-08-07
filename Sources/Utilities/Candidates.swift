@@ -35,15 +35,13 @@ class Candidates: Callable {
             for callable in self.callables {
                 do {
                     return try callable.call(with: arguments)
-                } catch CallableError.incorrectArguments {
-                    continue
-                } catch CallableError.noMatchingFunction {
-                    continue
-                } catch CallableError.incorectType {
+                } catch InContextError.incorrectArguments,
+                        InContextError.noMatchingFunction,
+                        InContextError.incorrectType {
                     continue
                 }
             }
-            throw CallableError.noMatchingFunction
+            throw InContextError.noMatchingFunction
         }
     }
 

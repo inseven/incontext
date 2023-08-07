@@ -23,6 +23,7 @@
 import Foundation
 
 enum InContextError: Error {
+    
     case encodingError
     case internalInconsistency(String)
     case unknownSymbol(String)
@@ -37,12 +38,15 @@ enum InContextError: Error {
     case notFound
     case unknownQuery(String)
     case invalidQueryDefinition
-    case incorrectType(AnyHashable)
     case missingKey(Any)
     case interrupted
     case unknownTemplate(String)
     case importError(URL, Error)
 
+    // Function calls.
+    case incorrectType(expected: Any.Type, received: Any?)
+    case incorrectArguments
+    case noMatchingFunction
 }
 
 extension InContextError: LocalizedError {
@@ -55,6 +59,11 @@ extension InContextError: LocalizedError {
             return message
         case .importError(let fileURL, let error):
             return "Failed to import file '\(fileURL.relativePath)' with error '\(error.localizedDescription)'."
+        case .incorrectType(expected: let expected, received: let received):
+            guard let received else {
+                return "Incorrect type: expected '\(expected)', got nil."
+            }
+            return "Incorrect type: expected '\(expected)', got '\(received)' ('\(type(of: received))')."
         default:
             return String(describing: self)
         }

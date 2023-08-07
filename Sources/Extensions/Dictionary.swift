@@ -29,7 +29,7 @@ extension Dictionary {
             return defaultValue
         }
         guard let value = value as? T else {
-            throw InContextError.incorrectType(key)
+            throw InContextError.incorrectType(expected: T.Type.self, received: value)
         }
         return value
     }
@@ -52,7 +52,7 @@ extension Dictionary {
             return nil
         }
         guard let value = value as? T else {
-            throw InContextError.incorrectType(key)
+            throw InContextError.incorrectType(expected: T.Type.self, received: value)
         }
         return value
     }
@@ -62,7 +62,7 @@ extension Dictionary {
             throw InContextError.missingKey(key)
         }
         guard let value = value as? T else {
-            throw InContextError.incorrectType(key)
+            throw InContextError.incorrectType(expected: T.Type.self, received: value)
         }
         return value
     }
@@ -70,7 +70,7 @@ extension Dictionary {
     func requiredRawRepresentable<T: RawRepresentable>(for key: Key) throws -> T {
         let rawValue: T.RawValue = try requiredValue(for: key)
         guard let value = T(rawValue: rawValue) else {
-            throw InContextError.incorrectType(key)
+            throw InContextError.incorrectType(expected: T.Type.self, received: rawValue)
         }
         return value
     }
@@ -80,7 +80,7 @@ extension Dictionary {
             return nil
         }
         guard let value = T(rawValue: rawValue) else {
-            throw InContextError.incorrectType(key)
+            throw InContextError.incorrectType(expected: T.Type.self, received: rawValue)
         }
         return value
     }
