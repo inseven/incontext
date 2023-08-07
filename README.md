@@ -19,7 +19,7 @@ swift build
 
 - [ ] What is the performance hit of using a regex in the frontmatter parser?
 - [ ] Use the Swift `Regex` DSL
-- [ ] Support loading the existing stie configuration
+- [ ] Support loading the existing site configuration
 - [ ] Track resources and clean them up when files are deleted or importers change
 - [ ] Try using a multi-reader / single-writer model for the database to improve template render performance
 - [ ] Use Swift DSL to unify file and image handlers (this would allow easy checking of glob, regex, extension, and mime
@@ -49,9 +49,8 @@ swift build
   - [ ] STL
   - [ ] Audio
 - [ ] Add a --Werror flag
-- [ ] Consider using SQLite.swift custom type support (https://github.com/stephencelis/SQLite.swift/blob/master/Documentation/Index.md#custom-types)
 - [ ] Import image dates
 - [ ] Video documents aren't being loaded correctly
 - [ ] Figure out how to do per-item templates (inline templates)?
-- [ ] Better error reporting for incorrect types
 - [ ] Consider making thumbnail an explicit property on document types and moving user metadata into a substructure
+- [ ] Port legacy InContext 2 tests
