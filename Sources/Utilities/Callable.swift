@@ -22,14 +22,6 @@
 
 import Foundation
 
-enum CallableError: Error {
-
-    case incorrectArguments
-    case incorectType
-    case noMatchingFunction
-    
-}
-
 protocol Callable {
 
     func call(with provider: ArgumentProvider) throws -> Any?
@@ -43,13 +35,13 @@ extension Array: Callable where Element == Callable {
             for callable in self {
                 do {
                     return try callable.call(with: arguments)
-                } catch CallableError.incorrectArguments,
-                        CallableError.noMatchingFunction,
-                        CallableError.incorectType {
+                } catch InContextError.incorrectArguments,
+                        InContextError.noMatchingFunction,
+                        InContextError.incorrectType {
                     continue
                 }
             }
-            throw CallableError.noMatchingFunction
+            throw InContextError.noMatchingFunction
         }
     }
 

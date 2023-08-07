@@ -29,6 +29,19 @@ struct DocumentContext: EvaluationContext {
     private let renderTracker: RenderTracker  // TODO: Rename to rendertracker
     private let document: Document
 
+    var url: String {
+        return document.url
+    }
+
+    var title: String? {
+        return document.title
+    }
+
+    var format: Document.Format {
+        return document.format
+    }
+
+    // TODO: Rename to `text` to differentiate it from `html`
     var content: String {
         // TODO: Consistent content/contents naming.
         return document.contents
@@ -104,13 +117,23 @@ struct DocumentContext: EvaluationContext {
         return try content.html()
     }
 
-    // TODO: This shouldn't throw.
     func lookup(_ name: String) throws -> Any? {
         switch name {
+        case "url":
+            return url
         case "title":
-            return document.title
+            return title
         case "format":
-            return document.format.rawValue
+            return format.rawValue
+        case "content":
+            return content
+        case "html":
+            // TODO: Make this a method to make it apparent to the template that it's doing work.
+            return try html()
+        case "date":
+            return date
+        case "contentModificationDate", "last_modified":
+            return contentModificationDate
         case "query": return Function { (name: String) -> [DocumentContext] in
             guard let queries = document.metadata["queries"] as? [String: Any],
                   let query = queries[name] else {
@@ -165,27 +188,8 @@ struct DocumentContext: EvaluationContext {
             return relativeSourcePath.ensureLeadingSlash()
         }
         default:
-            break
+            return document.metadata[name]
         }
-        return self[dynamicMember: name]
-    }
-
-    subscript(dynamicMember member: String) -> Any? {
-        if member == "content" {
-            return document.contents
-        } else if member == "date" {
-            return date
-        } else if member == "contentModificationDate" {
-            return contentModificationDate
-        } else if member == "html" {
-            // TODO: Don't crash!
-            return try! html()
-        } else if member == "url" {
-            return document.url
-        } else if member == "last_modified" {
-            return contentModificationDate
-        }
-        return document.metadata[member]
     }
 
 }

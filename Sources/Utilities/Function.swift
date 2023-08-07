@@ -32,7 +32,7 @@ struct Function: EvaluationContext, Callable {
 
     static func checkLength<T>(_ array: [T], length: Int) throws {
         guard array.count == length else {
-            throw CallableError.incorrectArguments
+            throw InContextError.incorrectArguments
         }
     }
 
@@ -48,7 +48,7 @@ struct Function: EvaluationContext, Callable {
             // return a typed result.
             return converted as! T
         } else {
-            throw CallableError.incorectType
+            throw InContextError.incorrectType(expected: T.Type.self, received: value)
         }
     }
 
