@@ -26,6 +26,6 @@ protocol Renderer {
 
     var version: Int { get }
 
-    func render(name: String, context: [String: Any]) async throws -> RenderResult
+    func render(name: String, context: [String: Any]) throws -> RenderResult
 
 }

@@ -36,18 +36,20 @@ struct ImageDocumentTransform: Transformer {
         for img in try content.getElementsByTag("img") {
             if img.hasAttr("src") {
                 let src = try img.attr("src")
-                let newSrc = document.relativeSourcePath(for: src)
-//                print("\(src) -> \(newSrc)")
-                let query = QueryDescription(relativeSourcePath: newSrc)
+                let query = QueryDescription(relativeSourcePath: document.relativeSourcePath(for: src))
                 guard let document = try renderTracker.documents(query: query).first else {
                     print("Failed to update src for '\(src)'.")
                     continue
                 }
-                guard let image = document.metadata["image"] as? [String: Any],
-                      let url = image["url"] as? String else {
-                    throw InContextError.internalInconsistency("Failed to fetch image metadata")
+                guard let inlineTemplate = document.inlineTemplate else {
+                    throw InContextError.internalInconsistency("No inline template specified for '\(document.url)'.")
                 }
-                try img.attr("src", url)
+                let inlineContent = try renderTracker.render(document, template: inlineTemplate)
+                let dom = try SwiftSoup.parseBodyFragment(inlineContent)
+                guard let node = dom.body() else {
+                    throw InContextError.internalInconsistency("Unable to parse inline template fragment")
+                }
+                try img.replaceWith(node)
             }
         }
     }

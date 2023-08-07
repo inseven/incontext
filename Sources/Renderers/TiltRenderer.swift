@@ -142,7 +142,7 @@ class TiltRenderer: Renderer {
         try env.L.pcall(arguments: context)
     }
 
-    func render(name: String, context: [String : Any]) async throws -> RenderResult {
+    func render(name: String, context: [String : Any]) throws -> RenderResult {
         try setContext(context)
         guard let template = try templateCache.details(for: .tilt(name)) else {
             throw InContextError.unknownTemplate(TemplateIdentifier.tilt(name).rawValue)

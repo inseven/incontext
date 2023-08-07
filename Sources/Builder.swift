@@ -160,8 +160,7 @@ class Builder {
         // This is tracked using our document-specific `RenderTracker` instance to allow us to track dependencies
         // (queries and templates) and see if they've changed on future incremental builds.
         let renderTracker = RenderTracker(store: store, renderManager: renderManager)
-        let context = Self.context(for: document, renderTracker: renderTracker)
-        let content = try await renderTracker.render(template: document.template, context: context)
+        let content = try renderTracker.render(document)
         let renderStatus = renderTracker.renderStatus(for: document)
         try await store.save(renderStatus: renderStatus, for: document.url)
 
