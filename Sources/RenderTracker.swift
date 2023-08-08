@@ -62,9 +62,10 @@ class RenderTracker {
                             templates: Array(statuses))
     }
 
-    func render(template: TemplateIdentifier,
-                context: [String: Any]) async throws -> String {
-        return try await renderManager.render(renderTracker: self, template: template, context: context)
+    func render(_ document: Document, template: TemplateIdentifier? = nil) throws -> String {
+        let template = template ?? document.template
+        let context = Builder.context(for: document, renderTracker: self)
+        return try renderManager.render(renderTracker: self, template: template, context: context)
     }
 
 }

@@ -50,11 +50,11 @@ class RenderManager {
 
     func render(renderTracker: RenderTracker,
                 template: TemplateIdentifier,
-                context: [String: Any]) async throws -> String {
+                context: [String: Any]) throws -> String {
         let renderer = try renderer(for: template.language)
 
         // Perform the render.
-        let renderResult = try await renderer.render(name: template.name, context: context)
+        let renderResult = try renderer.render(name: template.name, context: context)
 
         // Record the renderer instance used.
         // It is sufficient to record this once for the whole render operation even though multiple templates might be
