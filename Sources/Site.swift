@@ -81,7 +81,6 @@ struct Site {
         }
         self.settings = try (try Yaml.load(settingsString)).dictionary()
 
-
         guard let buildSteps = settings["build_steps"] as? [[String: Any]],
               let processFiles = buildSteps.first,
               processFiles["task"] as? String == "process_files",
