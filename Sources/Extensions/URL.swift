@@ -91,23 +91,3 @@ extension URL {
     }
 
 }
-
-struct BasenameDetails: CustomStringConvertible {
-
-    let date: Date?
-    let title: String
-    let scale: Float?
-
-    var description: String {
-        var components: [String] = []
-        if let date {
-            components.append("date = \(date)")
-        }
-        components.append("title = '\(title)'")
-        if let scale {
-            components.append("scale = \(scale)")
-        }
-        return "{\(components.joined(separator: ", "))}"
-    }
-
-}
