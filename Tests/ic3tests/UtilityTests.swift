@@ -54,6 +54,15 @@ class UtilityTests: ContentTestCase {
         XCTAssertEqual(url.parentURL, "/posts/")
     }
 
+    func testScale() throws {
+        let rootURL = URL(filePath: "/tmp", directoryHint: .isDirectory)
+        let url = URL(filePath: "books@2x.png", relativeTo: rootURL)
+        let details = url.basenameDetails()
+        XCTAssertEqual(details.title, "Books")
+        XCTAssertEqual(details.scale, 2)
+        XCTAssertEqual(details.date, nil)
+    }
+
     func testConcurrentBox() throws {
         let task = Task {
             try await Task.sleep(nanoseconds: 1000000000)

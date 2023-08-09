@@ -41,7 +41,7 @@ class ImageImporter: Importer {
     }
 
     let identifier = "import_photo"
-    let version = 9
+    let version = 10
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         let args: [String: Any] = try configuration.requiredValue(for: "args")
@@ -71,14 +71,11 @@ class ImageImporter: Importer {
             throw InContextError.internalInconsistency("Filed to get dimensions of image at \(fileURL.relativePath).")
         }
 
-        print(exif.properties)
-
         // TODO: Calculate the aspect ratio etc.
+//        print(exif.properties)
 
         // Metadata.
         var metadata: [String: Any] = [:]
-
-        let title = try exif.firstTitle
 
         // Content.
         var content: FrontmatterDocument? = nil
@@ -161,11 +158,15 @@ class ImageImporter: Importer {
         let details = fileURL.basenameDetails()
         metadata = metadata.merging(transformDetails) { $1 }
 
+        if let scale = details.scale {
+            metadata["scale"] = scale
+        }
+
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
                                 category: settings.defaultCategory,
                                 date: details.date,
-                                title: title ?? content?.structuredMetadata.title,
+                                title: try exif.firstTitle ?? content?.structuredMetadata.title ?? details.title,
                                 metadata: metadata,
                                 contents: content?.content ?? "",
                                 contentModificationDate: file.contentModificationDate,
