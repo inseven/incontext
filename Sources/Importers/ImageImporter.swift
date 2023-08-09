@@ -209,7 +209,7 @@ struct _Resize: _Transform {
         let details = [
             "width": width,
             "height": height,
-            "filename": "cheese",
+            "filename": "cheese", // TODO: Remove??
             "url": destinationURL.relativePath.ensureLeadingSlash(),
         ] as [String: Any]
 
@@ -327,9 +327,9 @@ class ImageImporter: Importer {
 
         let fileURL = file.url
 
-        // TODO: Rename this.
-        let resourceURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: site.filesURL)  // TODO: Make this a utiltiy and test it
-        try FileManager.default.createDirectory(at: resourceURL, withIntermediateDirectories: true)
+        // Create the assets directory.
+        let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: site.filesURL)  // TODO: Make this a utiltiy and test it
+        try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
         // Load the original image.
         guard let image = CGImageSourceCreateWithURL(fileURL as CFURL, nil) else {
@@ -378,7 +378,7 @@ class ImageImporter: Importer {
         var context = TransformContext(fileURL: fileURL,
                                        imageSource: image,
                                        exif: exif,
-                                       assetsURL: resourceURL,
+                                       assetsURL: assetsURL,
                                        metadata: metadata,
                                        assets: [])
         for operation in configuration.operations {
