@@ -27,34 +27,6 @@ import Yaml
 
 struct Site {
 
-    // TODO: Replicate the InContext 2 transforms:
-    //profiles:
-    //
-    //    default:
-    //
-    //      - where: metadata(projection="equirectangular")
-    //        transforms:
-    //          - resize("large", width=10000, sets=["image"])
-    //          - fisheye("preview-small", width=480, format="image/png", sets=["thumbnail", "previews"])
-    //          - fisheye("preview-large", width=960, format="image/png", sets=["previews"])
-    //
-    //      - where: glob("*.heic") or glob("*.tiff")
-    //        transforms:
-    //          - resize("large", width=1600, format="image/jpeg", sets=["image", "previews"])
-    //          - resize("small", width=480, format="image/jpeg", sets=["thumbnail", "previews"])
-    //
-    //      - where: glob("*")
-    //        transforms:
-    //          - resize("large", width=1600, sets=["image", "previews"])
-    //          - resize("small", width=480, sets=["thumbnail", "previews"])
-
-    // TODO: These are hardcoded as resize operations; they should have custom names and be able to apply 'filters'.
-    // TODO: Need to be able to always clamp to specific dimension.
-    let transforms = [
-        ImageTransform(basename: "large", width: 1600, format: .jpeg, sets: ["image", "previews"]),
-        ImageTransform(basename: "small", width: 480, format: .jpeg, sets: ["thumbnail", "previews"]),
-    ]
-
     let rootURL: URL
     let contentURL: URL
     let templatesURL: URL

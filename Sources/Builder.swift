@@ -79,18 +79,20 @@ class Builder {
     }
 
     let site: Site
-    let concurrentRenders: Bool
+    let serializeImport: Bool
+    let serializeRender: Bool
     let store: Store
     let templateCache: TemplateCache
     let renderManager: RenderManager
 
-    init(site: Site, concurrentRenders: Bool) async throws {
+    init(site: Site, serializeImport: Bool, serializeRender: Bool) async throws {
         try FileManager.default.createDirectory(at: site.buildURL, withIntermediateDirectories: true)
         self.site = site
-        self.concurrentRenders = concurrentRenders
+        self.serializeImport = serializeImport
+        self.serializeRender = serializeRender
         self.store = try Store(databaseURL: site.storeURL)
         self.templateCache = try await TemplateCache(rootURL: site.templatesURL)  // TODO: Does this need to exist here?
-        self.renderManager = RenderManager(templateCache: templateCache, concurrent: concurrentRenders)
+        self.renderManager = RenderManager(templateCache: templateCache, concurrent: !serializeRender)
     }
 
     // TODO: Perhaps this can get pushed into the RenderManager?
@@ -181,7 +183,7 @@ class Builder {
                                                          includingPropertiesForKeys: Array(resourceKeys),
                                                          options: [.skipsHiddenFiles, .producesRelativePathURLs])!
 
-        try await withThrowingTaskGroup(of: [Document].self) { group in
+        _ = try await withTaskRunner(of: [Document].self, concurrent: !serializeImport) { tasks in
             for case let fileURL as URL in directoryEnumerator {
 
                 // Get the file metadata.
@@ -204,7 +206,8 @@ class Builder {
                 }
 
                 // Schedule the import.
-                group.addTask {
+
+                tasks.add {
 
                     // TODO: Consider moving this out into a separate function.
                     // TODO: Database access is serial and probably introduces contention.
@@ -223,7 +226,7 @@ class Builder {
                         let differentImporterVersion = status.fingerprint != handlerFingerprint
 
                         if !fileModified && !differentImporterVersion {
-                            return []
+                            return nil
 
                             // TODO: Consider whether this would actually be a good time to read the cached documents.
                             //       Importing the documents at this point might be a little memory intensive.
@@ -266,12 +269,11 @@ class Builder {
                     }
                 }
             }
-            for try await _ in group {}
         }
         // TODO: Work out how to remove entries for deleted files.
     }
 
-    func renderContent() async throws {
+    func renderContent(concurrent: Bool) async throws {
 
         // Preload the existing render statuses in one batch in the hope that it's faster.
         print("Loading render cache...")
@@ -306,23 +308,13 @@ class Builder {
 
         // Render the documents that need updates.
         print("Rendering \(updates.count) documents...")
-        if !concurrentRenders {
+        _ = try await withTaskRunner(of: Void.self, concurrent: concurrent) { tasks in
             for document in updates {
-                try await self.render(document: document,
-                                      documents: documents,
-                                      renderStatus: renderStatuses[document.url])
-            }
-        } else {
-            try await withThrowingTaskGroup(of: Void.self) { group in
-                for document in updates {
-                    group.addTask {
-                        try await self.render(document: document,
-                                              documents: documents,
-                                              renderStatus: renderStatuses[document.url])
-                    }
+                tasks.add {
+                    try await self.render(document: document,
+                                          documents: documents,
+                                          renderStatus: renderStatuses[document.url])
                 }
-                // TODO: Is this necessary?
-                for try await _ in group {}
             }
         }
 
@@ -346,7 +338,7 @@ class Builder {
         let clock = ContinuousClock()
         let duration = try await clock.measure {
             try await importContent()
-            try await renderContent()
+            try await renderContent(concurrent: !serializeRender)
         }
         print("Import took \(duration).")
 
@@ -360,7 +352,7 @@ class Builder {
             try changeObserver.wait()
             renderManager.clearCache()
             try await importContent()
-            try await renderContent()
+            try await renderContent(concurrent: !serializeRender)
             print("Done")
         }
 
