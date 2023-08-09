@@ -28,14 +28,6 @@ import RegexBuilder
 
 extension String {
 
-    func ensuringTrailingSlash() -> String {
-        return hasSuffix("/") ? self : self + "/"
-    }
-
-    func ensureLeadingSlash() -> String {
-        return hasPrefix("/") ? self : "/" + self
-    }
-
     // TODO: Move the title processing into here?
     // TODO: Consolidate?
     func splitBasenameComponents() -> (Date?, String, Float?) {
@@ -74,7 +66,7 @@ extension URL {
         if relevantRelativePath.hasPrefix(".") {
             return "/"
         }
-        return relevantRelativePath.ensureLeadingSlash().ensuringTrailingSlash()
+        return relevantRelativePath.ensuringLeadingSlash().ensuringTrailingSlash()
     }
 
     var parentURL: String {
@@ -83,7 +75,7 @@ extension URL {
         if relevantParentPath == ".." || relevantParentPath == "." {
             return "/"
         }
-        return relevantParentPath.ensureLeadingSlash().ensuringTrailingSlash()
+        return relevantParentPath.ensuringLeadingSlash().ensuringTrailingSlash()
     }
 
     func basenameDetails() -> BasenameDetails {

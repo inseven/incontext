@@ -196,7 +196,7 @@ struct _Resize: _Transform {
             "width": width,
             "height": height,
             "filename": "cheese", // TODO: Remove??
-            "url": destinationURL.relativePath.ensureLeadingSlash(),
+            "url": destinationURL.relativePath.ensuringLeadingSlash(),
         ] as [String: Any]
 
         // Add the results to the metadata.

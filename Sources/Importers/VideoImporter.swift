@@ -121,14 +121,14 @@ class VideoImporter: Importer {
 //        resizeComposition.renderSize = newSize //5
 
         let thumbnailDetails: [String: Any] = [
-            "url": thumbnailURL.relativePath.ensureLeadingSlash(),
+            "url": thumbnailURL.relativePath.ensuringLeadingSlash(),
             "width": size.width,
             "height": size.height,
             "filename": "cheese",
         ]
 
         let videoDetails: [String: Any] = [
-            "url": videoURL.relativePath.ensureLeadingSlash(),
+            "url": videoURL.relativePath.ensuringLeadingSlash(),
             "width": size.width,
             "height": size.height,
             "filename": "cheese",

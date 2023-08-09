@@ -28,6 +28,14 @@ extension String {
 
     private static let schemeRegex = /[a-z]+:/.ignoresCase()
 
+    func ensuringTrailingSlash() -> String {
+        return hasSuffix("/") ? self : self + "/"
+    }
+
+    func ensuringLeadingSlash() -> String {
+        return hasPrefix("/") ? self : "/" + self
+    }
+
     func wrapped(by prefix: String, and suffix: String) -> String {
         return prefix + self + suffix
     }
@@ -42,6 +50,13 @@ extension String {
         get throws {
             return try Self.schemeRegex.prefixMatch(in: self) != nil
         }
+    }
+
+    var deletingLastPathComponent: String? {
+        guard self != "/" else {
+            return nil
+        }
+        return (self as NSString).deletingLastPathComponent
     }
 
 }

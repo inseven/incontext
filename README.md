@@ -59,3 +59,13 @@ swift build
 - [ ] Extract location data from videos
 - [ ] Don't automatically replace non-Markdown image tags 
 - [ ] Provide a mechanism to specify the sort of child queries
+
+# Templates
+
+Renders are performed using Tilt.
+
+## DocumentContext
+
+- `nearestAnscestor() -> DocumentContext?`
+
+  Returns the first document found by walking up the document path; nil if no ancestor can be found.

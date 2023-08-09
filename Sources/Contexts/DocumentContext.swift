@@ -147,6 +147,19 @@ struct DocumentContext: EvaluationContext {
         case "parent": return Function { () -> DocumentContext? in
             return try renderTracker.documentContexts(query: QueryDescription(url: document.parent)).first
         }
+        case "closestAncestor": return Function { () -> DocumentContext? in
+            var testURL: String? = url
+            while true {
+                testURL = testURL?.deletingLastPathComponent?.ensuringTrailingSlash()
+                guard let testURL else {
+                    return nil
+                }
+                guard let parent = try renderTracker.documentContexts(query: QueryDescription(url: testURL)).first else {
+                    continue
+                }
+                return parent
+            }
+        }
         case "previous": return Function { () -> DocumentContext? in
             // TODO: Implement me!
             return nil
@@ -163,7 +176,7 @@ struct DocumentContext: EvaluationContext {
             return relativeSourcePath(for: relativePath)
         }
         case "abspath": return Function { (relativePath: String) -> String in
-            return relativeSourcePath(for: relativePath).ensureLeadingSlash()
+            return relativeSourcePath(for: relativePath).ensuringLeadingSlash()
         }
         case "resolve": return Function { (relativePath: String) -> String in
             // Documentation: Resolve a relative or absolute source path, converting it into it's destination in the
@@ -185,7 +198,7 @@ struct DocumentContext: EvaluationContext {
                 return url
             }
             
-            return relativeSourcePath.ensureLeadingSlash()
+            return relativeSourcePath.ensuringLeadingSlash()
         }
         default:
             return document.metadata[name]
