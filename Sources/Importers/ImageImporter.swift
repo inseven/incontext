@@ -142,6 +142,20 @@ protocol _Transform {
     func apply(to context: inout TransformContext) throws
 }
 
+struct Size {
+    let width: Int
+    let height: Int
+
+    func fit(width: Int) -> Size {
+        if self.width <= width {
+            return self
+        }
+        let ratio = Double(self.width) / Double(self.height)
+        let height = Double(width) / ratio
+        return Size(width: width, height: Int(height))
+    }
+}
+
 struct _Resize: _Transform {
 
     let basename: String
@@ -159,9 +173,19 @@ struct _Resize: _Transform {
 
     func apply(to context: inout TransformContext) throws {
 
+        guard let width = try context.exif.pixelWidth,
+              let height = try context.exif.pixelHeight
+        else {
+            throw InContextError.internalInconsistency("Failed to get dimensions of image at \(context.fileURL.relativePath).")
+        }
+
+        let size = Size(width: width, height: height)
+        let targetSize = size.fit(width: self.width)
+        let maxPixelSize = max(targetSize.width, targetSize.height)
+
         let options = [kCGImageSourceCreateThumbnailWithTransform: kCFBooleanTrue,
-                   kCGImageSourceCreateThumbnailFromImageIfAbsent: kCFBooleanTrue,
-                              kCGImageSourceThumbnailMaxPixelSize: width as NSNumber] as CFDictionary
+                     kCGImageSourceCreateThumbnailFromImageAlways: kCFBooleanTrue,
+                              kCGImageSourceThumbnailMaxPixelSize: maxPixelSize as NSNumber] as CFDictionary
 
         guard let format = self.format ?? context.fileURL.type else {
             throw InContextError.internalInconsistency("Failed to detect output type for '\(context.fileURL.relativePath)'.")
@@ -181,15 +205,6 @@ struct _Resize: _Transform {
         CGImageDestinationAddImage(destination, thumbnail, nil)
         CGImageDestinationFinalize(destination)  // TODO: Handle error here?
         context.assets.append(Asset(fileURL: destinationURL as URL))
-
-//            let availableRect = AVFoundation.AVMakeRect(aspectRatio: image.size, insideRect: .init(origin: .zero, size: maxSize))
-//            let targetSize = availableRect.size
-
-        guard let width = try context.exif.pixelWidth,
-              let height = try context.exif.pixelHeight
-        else {
-            throw InContextError.internalInconsistency("Filed to get dimensions of image at \(context.fileURL.relativePath).")
-        }
 
         let details = [
             "width": width,
