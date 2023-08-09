@@ -54,6 +54,15 @@ class UtilityTests: ContentTestCase {
         XCTAssertEqual(url.parentURL, "/posts/")
     }
 
+    func testRootIndexNoTitle() {
+        let rootURL = URL(filePath: "/tmp", directoryHint: .isDirectory)
+        let url = URL(filePath: "index.markdown", relativeTo: rootURL)
+        let details = url.basenameDetails()
+        XCTAssertNil(details.date)
+        XCTAssertNil(details.title)
+        XCTAssertNil(details.scale)
+    }
+
     func testScale() throws {
         let rootURL = URL(filePath: "/tmp", directoryHint: .isDirectory)
         let url = URL(filePath: "books@2x.png", relativeTo: rootURL)

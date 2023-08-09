@@ -323,14 +323,9 @@ class ImageImporter: Importer {
             throw InContextError.internalInconsistency("Failed to open image file at '\(fileURL.relativePath)'.")
         }
 
-        // TODO: Extract some of this data into the document.
-
         guard let exif = try EXIF(image, 0) else {
             throw InContextError.internalInconsistency("Failed to load metadata for image at '\(fileURL.relativePath)'.")
         }
-
-        // TODO: Calculate the aspect ratio etc.
-        print(exif.properties)
 
         let details = fileURL.basenameDetails()
 
@@ -381,8 +376,7 @@ class ImageImporter: Importer {
 
         let filenameTitle = settings.titleFromFilename ? details.title : nil
 
-        // N.B. The EXIF 'DateTimeOriginal' field sometimes appears to be invalid, containing a '00' month (e.g.,
-        //      
+        // N.B. The EXIF 'DateTimeOriginal' field sometimes appears to be invalid so we fall back on DateTimeDigitized.
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
                                 category: settings.defaultCategory,
