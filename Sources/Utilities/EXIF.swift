@@ -56,6 +56,12 @@ struct EXIF {
         }
     }
 
+    private static let dateTimeForatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
+        return formatter
+    }()
+
     let properties: [String: Any]
 
     init(properties: [String: Any]) {
@@ -78,6 +84,20 @@ struct EXIF {
 
     var pixelHeight: Int? {
         get throws { return try properties.optionalValue(for: "PixelHeight") }
+    }
+
+    // TODO: Use EXIF timezones if they exist.
+
+    var dateTimeOriginal: Date? {
+        get throws {
+            guard let string: String = try properties.optionalValue(for: ["{Exif}", "DateTimeOriginal"]) else {
+                return nil
+            }
+            guard let date = Self.dateTimeForatter.date(from: string) else {
+                throw InContextError.internalInconsistency("Failed to parse EXIF date string")
+            }
+            return date
+        }
     }
 
     var title: String? {
