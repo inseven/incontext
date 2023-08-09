@@ -381,10 +381,12 @@ class ImageImporter: Importer {
 
         let filenameTitle = settings.titleFromFilename ? details.title : nil
 
+        // N.B. The EXIF 'DateTimeOriginal' field sometimes appears to be invalid, containing a '00' month (e.g.,
+        //      
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
                                 category: settings.defaultCategory,
-                                date: try exif.dateTimeOriginal ?? details.date,
+                                date: try (try? exif.dateTimeOriginal) ?? (try exif.dateTimeDigitized) ?? details.date,
                                 title: try exif.firstTitle ?? content?.structuredMetadata.title ?? filenameTitle,
                                 metadata: context.metadata,
                                 contents: content?.content ?? "",
