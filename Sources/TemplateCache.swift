@@ -59,7 +59,6 @@ class TemplateCache {
         }
         let contents = try String(contentsOf: templateURL, encoding: .utf8)
         let details = TemplateDetails(url: templateURL,
-                                      language: .tilt,
                                       modificationDate: modificationDate,
                                       contents: contents)
 

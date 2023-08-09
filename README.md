@@ -56,3 +56,5 @@ swift build
 - [ ] Port legacy InContext 2 tests
 - [ ] Remove template language from the identifiers
 - [ ] Rename the importers to simply 'image', 'markdown', etc.
+- [ ] Extract location data from videos
+- [ ] Don't automatically replace non-Markdown image tags 

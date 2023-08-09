@@ -24,7 +24,6 @@ import Foundation
 
 struct RendererInstance: Hashable, Codable {
 
-    let language: TemplateLanguage
     let version: Int
     
 }

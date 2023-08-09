@@ -25,7 +25,6 @@ import Foundation
 struct TemplateDetails: Hashable {
 
     let url: URL
-    let language: TemplateLanguage
     let modificationDate: Date
     let contents: String
 

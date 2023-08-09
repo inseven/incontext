@@ -28,30 +28,18 @@ import XCTest
 class TemplateIdentifierTests: XCTestCase {
 
     func testEquality() {
-        XCTAssertEqual(TemplateIdentifier(.tilt, "default.html"),
-                       TemplateIdentifier(.tilt, "default.html"))
-        XCTAssertNotEqual(TemplateIdentifier(.tilt, "page.html"),
-                          TemplateIdentifier(.tilt, "default.html"))
+        XCTAssertEqual(TemplateIdentifier("default.html"),
+                       TemplateIdentifier("default.html"))
+        XCTAssertNotEqual(TemplateIdentifier("page.html"),
+                          TemplateIdentifier("default.html"))
     }
-
-    func testConvenienceConstructors() {
-        XCTAssertEqual(TemplateIdentifier(.tilt, "default.html"), .tilt("default.html"))    }
 
     func testInitRawValue() {
-
-        // Scoped identifiers.
-        XCTAssertEqual(TemplateIdentifier(rawValue: "tilt:default.html"), TemplateIdentifier(.tilt, "default.html"))
-        XCTAssertEqual(TemplateIdentifier(rawValue: "tilt: default.html"), TemplateIdentifier(.tilt, "default.html"))
-        XCTAssertEqual(TemplateIdentifier(rawValue: "tilt :default.html"), TemplateIdentifier(.tilt, "default.html"))
-        XCTAssertEqual(TemplateIdentifier(rawValue: "tilt : default.html"), TemplateIdentifier(.tilt, "default.html"))
-
-        // Legacy identifiers.
-        XCTAssertEqual(TemplateIdentifier(rawValue: "default.html"), TemplateIdentifier(.tilt, "default.html"))
-    }
+        XCTAssertEqual(TemplateIdentifier(rawValue: "default.html"), TemplateIdentifier("default.html"))    }
 
 
     func testRawValue() {
-        XCTAssertEqual(TemplateIdentifier(.tilt, "video.html").rawValue, "tilt:video.html")
+        XCTAssertEqual(TemplateIdentifier("video.html").rawValue, "video.html")
     }
 
 }

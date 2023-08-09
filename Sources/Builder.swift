@@ -120,7 +120,7 @@ class Builder {
 
         // Check to see if any of the renderers have changed.
         for renderer in renderStatus.renderers {
-            let currentRenderer = try renderManager.renderer(for: renderer.language)
+            let currentRenderer = renderManager.staticRenderer
             if renderer.version != currentRenderer.version {
                 // One of the renderers used has been updated.
                 return true
