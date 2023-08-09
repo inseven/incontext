@@ -20,10 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import AVFoundation
 import CoreGraphics
 import Foundation
 import ImageIO
+import UniformTypeIdentifiers
 
 protocol _Test {
     // TODO: This needs to pass in the metadata
@@ -140,20 +140,6 @@ struct TransformContext {
 //       Perhaps an image transform could allow for a bunch of type-constrained resize transforms in a pipeline?
 protocol _Transform {
     func apply(to context: inout TransformContext) throws
-}
-
-struct Size {
-    let width: Int
-    let height: Int
-
-    func fit(width: Int) -> Size {
-        if self.width <= width {
-            return self
-        }
-        let ratio = Double(self.width) / Double(self.height)
-        let height = Double(width) / ratio
-        return Size(width: width, height: Int(height))
-    }
 }
 
 struct _Resize: _Transform {
@@ -344,7 +330,7 @@ class ImageImporter: Importer {
         }
 
         // TODO: Calculate the aspect ratio etc.
-//        print(exif.properties)
+        print(exif.properties)
 
         let details = fileURL.basenameDetails()
 
@@ -398,7 +384,7 @@ class ImageImporter: Importer {
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
                                 category: settings.defaultCategory,
-                                date: details.date,
+                                date: try exif.dateTimeOriginal ?? details.date,
                                 title: try exif.firstTitle ?? content?.structuredMetadata.title ?? filenameTitle,
                                 metadata: context.metadata,
                                 contents: content?.content ?? "",

@@ -89,7 +89,7 @@ struct QueryDescription: Codable, Hashable {
 
     private func order() -> [Expressible] {
         guard let sort else {
-            return [Store.Schema.date.desc, Store.Schema.title.asc]
+            return [Store.Schema.date.asc, Store.Schema.title.asc]
         }
         switch sort {
         case .ascending:

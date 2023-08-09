@@ -40,7 +40,7 @@ class VideoImporter: Importer {
     }
 
     let identifier = "import_video"
-    let version = 7
+    let version = 8
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         let args: [String: Any] = try configuration.requiredValue(for: "args")
@@ -58,18 +58,55 @@ class VideoImporter: Importer {
         let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: site.filesURL)
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
-        let video = AVAsset(url: file.url)
+        let asset = AVAsset(url: file.url)
+
+//        // Load the metadata.
+//        for format in try await asset.load(.availableMetadataFormats) {
+//            let metadata = try await asset.loadMetadata(for: format)
+//            print(metadata)
+//            // Process the format-specific metadata collection.
+//        }
+
+        // Get the first track to guess the dimensions.
+        let videoTracks = try await asset.load(.tracks).filter { track in
+            return track.mediaType == .video
+        }
+
+        guard let naturalSize = try await videoTracks.first?.load(.naturalSize) else {
+            throw InContextError.internalInconsistency("Failed to determine size of video '\(fileURL.relativePath)'.")
+        }
+        let size = Size(naturalSize)
+
+        let quickTimeMetadata = try await asset.loadMetadata(for: .quickTimeMetadata)
+
+        let date: Date?
+        if let creationDateItem = AVMetadataItem.metadataItems(from: quickTimeMetadata,
+                                                               filteredByIdentifier: .quickTimeMetadataCreationDate).first,
+           let creationDate = try await creationDateItem.load(.dateValue) {
+            date = creationDate
+        } else {
+            date = nil
+        }
+
+        let content: FrontmatterDocument?
+        if let descriptionItem = AVMetadataItem.metadataItems(from: quickTimeMetadata,
+                                                          filteredByIdentifier: .quickTimeMetadataDescription).first,
+           let description = try await descriptionItem.load(.stringValue) {
+            content = try FrontmatterDocument(contents: description, generateHTML: true)
+        } else {
+            content = nil
+        }
 
         // TODO: Scale video.
         let videoURL = assetsURL.appendingPathComponent("video.mov")
-        try await export(video: video,
+        try await export(video: asset,
                          withPreset: AVAssetExportPresetHighestQuality,
                          toFileType: .mov,
                          atURL: videoURL)
 
         // TODO: Scale thumbnail.
         let thumbnailURL = assetsURL.appendingPathComponent("thumbnail", conformingTo: .jpeg)
-        try await thumbnail(asset: video, destinationURL: thumbnailURL)
+        try await thumbnail(asset: asset, destinationURL: thumbnailURL)
 
 //        https://img.ly/blog/working-with-large-video-and-image-files-on-ios-with-swift/#resizingavideo
 //        let newAsset = AVAsset(url:Bundle.main.url(forResource: "jumping-man", withExtension: "mov")!) //1
@@ -85,15 +122,15 @@ class VideoImporter: Importer {
 
         let thumbnailDetails: [String: Any] = [
             "url": thumbnailURL.relativePath.ensureLeadingSlash(),
-            "width": 100,
-            "height": 100,
+            "width": size.width,
+            "height": size.height,
             "filename": "cheese",
         ]
 
         let videoDetails: [String: Any] = [
             "url": videoURL.relativePath.ensureLeadingSlash(),
-            "width": 100,
-            "height": 100,
+            "width": size.width,
+            "height": size.height,
             "filename": "cheese",
         ]
 
@@ -105,10 +142,10 @@ class VideoImporter: Importer {
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
                                 category: settings.defaultCategory,
-                                date: Date(),  // TODO: Date
-                                title: nil,  // TODO: Title
+                                date: content?.structuredMetadata.date ?? date,
+                                title: content?.structuredMetadata.title,  // TODO: Title
                                 metadata: metadata,
-                                contents: "",
+                                contents: content?.content ?? "",
                                 contentModificationDate: file.contentModificationDate,
                                 template: settings.defaultTemplate,
                                 inlineTemplate: settings.inlineTemplate,
