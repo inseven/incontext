@@ -392,11 +392,13 @@ class ImageImporter: Importer {
             break
         }
 
+        let filenameTitle = settings.titleFromFilename ? details.title : nil
+
         let document = Document(url: fileURL.siteURL,
                                 parent: fileURL.parentURL,
                                 category: settings.defaultCategory,
                                 date: details.date,
-                                title: try exif.firstTitle ?? content?.structuredMetadata.title ?? details.title,
+                                title: try exif.firstTitle ?? content?.structuredMetadata.title ?? filenameTitle,
                                 metadata: context.metadata,
                                 contents: content?.content ?? "",
                                 contentModificationDate: file.contentModificationDate,
