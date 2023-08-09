@@ -58,3 +58,4 @@ swift build
 - [ ] Rename the importers to simply 'image', 'markdown', etc.
 - [ ] Extract location data from videos
 - [ ] Don't automatically replace non-Markdown image tags 
+- [ ] Provide a mechanism to specify the sort of child queries
