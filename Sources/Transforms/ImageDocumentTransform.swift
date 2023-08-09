@@ -32,6 +32,7 @@ import SwiftSoup
 // TODO: These transforms also need rigorous testing
 struct ImageDocumentTransform: Transformer {
 
+    // TODO: Persist alt text
     func transform(renderTracker: RenderTracker, document: DocumentContext, content: SwiftSoup.Document) throws {
         for img in try content.getElementsByTag("img") {
             if img.hasAttr("src") {

@@ -309,6 +309,7 @@ class ImageImporter: Importer {
             try fingerprint.update(defaultCategory)
             try fingerprint.update(titleFromFilename)
             try fingerprint.update(defaultTemplate)
+            try fingerprint.update(inlineTemplate)
         }
     }
 
