@@ -28,20 +28,26 @@ class VideoImporter: Importer {
     struct Settings: ImporterSettings {
         let defaultCategory: String
         let titleFromFilename: Bool
+        let defaultTemplate: TemplateIdentifier
+        let inlineTemplate: TemplateIdentifier
 
         func combine(into fingerprint: inout Fingerprint) throws {
             try fingerprint.update(defaultCategory)
             try fingerprint.update(titleFromFilename)
+            try fingerprint.update(defaultTemplate)
+            try fingerprint.update(inlineTemplate)
         }
     }
 
     let identifier = "import_video"
-    let version = 6
+    let version = 7
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         let args: [String: Any] = try configuration.requiredValue(for: "args")
         return Settings(defaultCategory: try args.requiredValue(for: "category"),
-                        titleFromFilename: try args.requiredValue(for: "title_from_filename"))
+                        titleFromFilename: try args.requiredValue(for: "title_from_filename"),
+                        defaultTemplate: try args.requiredRawRepresentable(for: "default_template"),
+                        inlineTemplate: try args.requiredRawRepresentable(for: "inline_template"))
     }
 
     func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
@@ -104,8 +110,8 @@ class VideoImporter: Importer {
                                 metadata: metadata,
                                 contents: "",
                                 contentModificationDate: file.contentModificationDate,
-                                template: TemplateIdentifier(.tilt, "photo.html"),  // TODO: Inject this
-                                inlineTemplate: nil,  // TODO: Inject this
+                                template: settings.defaultTemplate,
+                                inlineTemplate: settings.inlineTemplate,
                                 relativeSourcePath: file.relativePath,
                                 format: .video)
 
