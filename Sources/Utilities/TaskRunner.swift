@@ -22,29 +22,49 @@
 
 import Foundation
 
-import SwiftSoup
+struct Tasks<T> {
 
-struct RelativeSourceTransform: Transformer {
+    fileprivate var tasks: [() async throws -> T?] = []
 
-    let selector: String
-    let attribute: String
+    mutating func add(task: @escaping () async throws -> T?) {
+        tasks.append(task)
+    }
+}
 
-    func transform(renderTracker: RenderTracker, document: DocumentContext, content: SwiftSoup.Document) throws {
-        for element in try content.select(selector) {
-            guard element.hasAttr(attribute) else {
+func withTaskRunner<T>(of: T.Type, concurrent: Bool, body: (inout Tasks<T>) async throws -> Void) async throws -> [T] {
+
+    var tasks = Tasks<T>()
+    try await body(&tasks)
+
+    guard concurrent else {
+
+        var results = [T]()
+        for task in tasks.tasks {
+            guard let result = try await task() else {
                 continue
             }
-            let value = try element.attr(attribute)
-
-            // Don't replace values which look like absolute paths, or look like fully qualified URLs.
-            guard !value.hasPrefix("/"),
-                  !(try value.hasScheme)
-            else {
-                continue
-            }
-
-            try element.attr(attribute, document.relativeSourcePath(for: value))
+            results.append(result)
         }
+
+        return results
+    }
+
+    return try await withThrowingTaskGroup(of: Optional<T>.self) { group in
+
+        for task in tasks.tasks {
+            group.addTask {
+                return try await task()
+            }
+        }
+
+        var results: [T] = []
+        for try await result in group {
+            guard let result else {
+                continue
+            }
+            results.append(result)
+        }
+        return results
     }
 
 }

@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 import Foundation
+import UniformTypeIdentifiers
 
 import Titlecaser
 import RegexBuilder
@@ -88,6 +89,10 @@ extension URL {
     func basenameDetails() -> BasenameDetails {
         let (date, title, scale) = relevantBasename.splitBasenameComponents()
         return BasenameDetails(date: date, title: title.replacingOccurrences(of: "-", with: " ").toTitleCase(), scale: scale)
+    }
+
+    var type: UTType? {
+        return UTType(filenameExtension: pathExtension)
     }
 
 }

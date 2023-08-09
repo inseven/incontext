@@ -26,6 +26,8 @@ import MarkdownKit
 
 extension String {
 
+    private static let schemeRegex = /[a-z]+:/.ignoresCase()
+
     func wrapped(by prefix: String, and suffix: String) -> String {
         return prefix + self + suffix
     }
@@ -34,6 +36,12 @@ extension String {
         let markdown = ExtendedMarkdownParser.standard.parse(self)
         let html = HtmlGenerator.standard.generate(doc: markdown)
         return html
+    }
+
+    var hasScheme: Bool {
+        get throws {
+            return try Self.schemeRegex.prefixMatch(in: self) != nil
+        }
     }
 
 }

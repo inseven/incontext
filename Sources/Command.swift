@@ -45,8 +45,11 @@ struct Options: ParsableArguments {
             transform: URL.init(fileURLWithPath:))
     var site: URL?
 
-    @Flag(help: "run template renders concurrently")
-    var concurrentRenders = false
+    @Flag(help: "serialize import")
+    var serializeImport = false
+
+    @Flag(help: "serialize template render")
+    var serializeRender = false
 
     @Flag(help: "watch for changes to the content directory")
     var watch = false
@@ -78,7 +81,9 @@ extension Command {
 
         mutating func run() async throws {
             let site = try options.resolveSite()
-            let ic = try await Builder(site: site, concurrentRenders: options.concurrentRenders)
+            let ic = try await Builder(site: site,
+                                       serializeImport: options.serializeImport,
+                                       serializeRender: options.serializeRender)
             try await ic.build(watch: options.watch)
         }
 
@@ -106,7 +111,9 @@ extension Command {
                 return
             }
 
-            let ic = try await Builder(site: site, concurrentRenders: options.concurrentRenders)
+            let ic = try await Builder(site: site,
+                                       serializeImport: options.serializeImport,
+                                       serializeRender: options.serializeRender)
             try await ic.build(watch: options.watch)
         }
 

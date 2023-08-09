@@ -25,6 +25,263 @@ import CoreGraphics
 import Foundation
 import ImageIO
 
+protocol _Test {
+    // TODO: This needs to pass in the metadata
+    func evaluate(fileURL: URL) -> Bool
+}
+
+struct _True: _Test {
+
+    func evaluate(fileURL: URL) -> Bool {
+        return true
+    }
+
+}
+
+struct _Metadata: _Test {
+
+    let key: String
+    let value: String
+
+    init(_ key: String, equals value: String) {
+        self.key = key
+        self.value = value
+    }
+
+    func evaluate(fileURL: URL) -> Bool {
+        return true
+    }
+
+}
+
+func ||<T: _Test, Q: _Test>(lhs: T, rhs: Q) -> _Or<T, Q> {
+    return _Or(lhs, rhs)
+}
+
+func &&<T: _Test, Q: _Test>(lhs: T, rhs: Q) -> _And<T, Q> {
+    return _And(lhs, rhs)
+}
+
+struct _Type: _Test {
+
+    let type: UTType
+
+    init(_ type: UTType) {
+        self.type = type
+    }
+
+    func evaluate(fileURL: URL) -> Bool {
+        guard let fileType = fileURL.type else {
+            return false
+        }
+        return fileType.conforms(to: type)
+    }
+
+}
+
+struct _Where {
+
+    let test: _Test
+    let transforms: [_Transform]
+
+    init(_ test: _Test, @TransformsBuilder transforms: () -> [_Transform]) {
+        self.test = test
+        self.transforms = transforms()
+    }
+
+}
+
+struct _And<A: _Test, B: _Test>: _Test {
+
+    let lhs: A
+    let rhs: B
+
+    init(_ lhs: A, _ rhs: B) {
+        self.lhs = lhs
+        self.rhs = rhs
+    }
+
+    func evaluate(fileURL: URL) -> Bool {
+        return lhs.evaluate(fileURL: fileURL) && rhs.evaluate(fileURL: fileURL)
+    }
+
+}
+
+struct _Or<A: _Test, B: _Test>: _Test {
+
+    let lhs: A
+    let rhs: B
+
+    init(_ lhs: A, _ rhs: B) {
+        self.lhs = lhs
+        self.rhs = rhs
+    }
+
+    func evaluate(fileURL: URL) -> Bool {
+        return lhs.evaluate(fileURL: fileURL) || rhs.evaluate(fileURL: fileURL)
+    }
+
+}
+
+struct TransformContext {
+
+    let fileURL: URL
+    let imageSource: CGImageSource
+    let exif: EXIF
+
+    let assetsURL: URL
+
+    var metadata: [String: Any]
+    var assets: [Asset]
+
+}
+
+// TODO: Consider making the data that's injected in generic? That way this could be used in multiple places?
+//       Perhaps an image transform could allow for a bunch of type-constrained resize transforms in a pipeline?
+protocol _Transform {
+    func apply(to context: inout TransformContext) throws
+}
+
+struct _Resize: _Transform {
+
+    let basename: String
+    let width: Int  // TODO: Consider making this richer.
+    let format: UTType?  // TODO: Rename to outputType
+    let sets: [String]
+
+    init(basename: String, width: Int, format: UTType? = nil, sets: [String]) {
+        precondition(!sets.isEmpty, "Resize output must be stored in at least one set.")
+        self.basename = basename
+        self.width = width
+        self.format = format
+        self.sets = sets
+    }
+
+    func apply(to context: inout TransformContext) throws {
+
+        let options = [kCGImageSourceCreateThumbnailWithTransform: kCFBooleanTrue,
+                   kCGImageSourceCreateThumbnailFromImageIfAbsent: kCFBooleanTrue,
+                              kCGImageSourceThumbnailMaxPixelSize: width as NSNumber] as CFDictionary
+
+        guard let format = self.format ?? context.fileURL.type else {
+            throw InContextError.internalInconsistency("Failed to detect output type for '\(context.fileURL.relativePath)'.")
+        }
+
+        // TODO: Honour the input format if we don't have one.
+        let destinationFilename = basename + "." + (format.preferredFilenameExtension ?? "")
+        let destinationURL = context.assetsURL.appending(component: destinationFilename)
+
+        let thumbnail = CGImageSourceCreateThumbnailAtIndex(context.imageSource, 0, options)!
+        guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL,
+                                                                format.identifier as CFString,
+                                                                1,
+                                                                nil) else {
+            throw InContextError.internalInconsistency("Failed to resize image at '\(context.fileURL.relativePath)'.")
+        }
+        CGImageDestinationAddImage(destination, thumbnail, nil)
+        CGImageDestinationFinalize(destination)  // TODO: Handle error here?
+        context.assets.append(Asset(fileURL: destinationURL as URL))
+
+//            let availableRect = AVFoundation.AVMakeRect(aspectRatio: image.size, insideRect: .init(origin: .zero, size: maxSize))
+//            let targetSize = availableRect.size
+
+        guard let width = try context.exif.pixelWidth,
+              let height = try context.exif.pixelHeight
+        else {
+            throw InContextError.internalInconsistency("Filed to get dimensions of image at \(context.fileURL.relativePath).")
+        }
+
+        let details = [
+            "width": width,
+            "height": height,
+            "filename": "cheese",
+            "url": destinationURL.relativePath.ensureLeadingSlash(),
+        ] as [String: Any]
+
+        // Add the results to the metadata.
+        // This is unpleasantly nuanced as it attempts to replicate behaviour from InContext 2 that ensures sets with a
+        // single entry are dictionaries, and sets with multiple entries are arrays. Hopefully we can remove this
+        // behaviour in the future.
+        for set in sets {
+            guard let opaqueContainer = context.metadata[set] else {
+                // Create a single entry container when no images exist.
+                context.metadata[set] = details
+                continue
+            }
+            guard var container = opaqueContainer as? [[String: Any]] else {
+                // Try to promote a single entry container to an array.
+                guard let entry = opaqueContainer as? [String: Any] else {
+                    throw InContextError.internalInconsistency("Unexpected data in image set '\(set)'.")
+                }
+                context.metadata[set] = [entry, details]
+                continue
+            }
+            container.append(details)
+            context.metadata[set] = container
+        }
+
+    }
+
+}
+
+@resultBuilder struct TransformsBuilder {
+
+    public static func buildBlock() -> [_Transform] {
+        return []
+    }
+
+    public static func buildBlock(_ transforms: _Transform...) -> [_Transform] {
+        return transforms
+    }
+
+}
+
+@resultBuilder struct OperationsBuilder {
+
+    public static func buildBlock() -> [_Where] {
+        return []
+    }
+
+    public static func buildBlock(_ operations: _Where...) -> [_Where] {
+        return operations
+    }
+
+}
+
+struct _Configuration {
+
+    let operations: [_Where]
+
+    init(operations: [_Where]) {
+        self.operations = operations
+    }
+
+    init(@OperationsBuilder operations: () -> [_Where]) {
+        self.operations = operations()
+    }
+
+}
+
+let configuration = _Configuration {
+
+//    _Where(_Metadata("projection", equals: "equirectangular")) {
+//        _Resize(basename: "large", width: 10000, sets: ["image"])
+//        _Fisheye(basename: "preview-small", width: 480, format: .jpeg, sets: ["thumbnail", "previews"])
+//        _Fisheye(basename: "preview-large", width: 960, format: .jpeg, sets: ["previews"])
+//    }
+
+    _Where(_Type(.heic) || _Type(.tiff)) {
+        _Resize(basename: "large", width: 1600, format: .jpeg, sets: ["image", "previews"])
+        _Resize(basename: "small", width: 480, format: .jpeg, sets: ["thumbnail", "previews"])
+    }
+
+    _Where(_True()) {
+        _Resize(basename: "large", width: 1600, sets: ["image", "previews"])
+        _Resize(basename: "small", width: 480, sets: ["thumbnail", "previews"])
+    }
+
+}
+
 class ImageImporter: Importer {
 
     struct Settings: ImporterSettings {
@@ -55,6 +312,7 @@ class ImageImporter: Importer {
 
         let fileURL = file.url
 
+        // TODO: Rename this.
         let resourceURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: site.filesURL)  // TODO: Make this a utiltiy and test it
         try FileManager.default.createDirectory(at: resourceURL, withIntermediateDirectories: true)
 
@@ -65,17 +323,21 @@ class ImageImporter: Importer {
 
         // TODO: Extract some of this data into the document.
 
-        guard let exif = try EXIF(image, 0),
-              let width = try exif.pixelWidth,
-              let height = try exif.pixelHeight else {
-            throw InContextError.internalInconsistency("Filed to get dimensions of image at \(fileURL.relativePath).")
+        guard let exif = try EXIF(image, 0) else {
+            throw InContextError.internalInconsistency("Failed to load metadata for image at '\(fileURL.relativePath)'.")
         }
 
         // TODO: Calculate the aspect ratio etc.
 //        print(exif.properties)
 
+        let details = fileURL.basenameDetails()
+
         // Metadata.
         var metadata: [String: Any] = [:]
+
+        if let scale = details.scale {
+            metadata["scale"] = scale
+        }
 
         // Content.
         var content: FrontmatterDocument? = nil
@@ -97,69 +359,22 @@ class ImageImporter: Importer {
             ]
         }
 
-        var assets: [Asset] = []
-
         // Perform the transforms.
-        var transformMetadata: [String: [[String: Any]]] = [:]
-        for transform in site.transforms {
-
-            let options = [kCGImageSourceCreateThumbnailWithTransform: kCFBooleanTrue,
-                       kCGImageSourceCreateThumbnailFromImageIfAbsent: kCFBooleanTrue,
-                                  kCGImageSourceThumbnailMaxPixelSize: transform.width as NSNumber] as CFDictionary
-
-            let destinationFilename = transform.basename + "." + (transform.format.preferredFilenameExtension ?? "")
-            let destinationURL = resourceURL.appending(component: destinationFilename)
-
-            // TODO: Doesn't work with SVG.
-            let thumbnail = CGImageSourceCreateThumbnailAtIndex(image, 0, options)!
-            guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL,
-                                                                    transform.format.identifier as CFString,
-                                                                    1,
-                                                                    nil) else {
-                throw InContextError.internalInconsistency("Failed to resize image at '\(fileURL.relativePath)'.")
+        var context = TransformContext(fileURL: fileURL,
+                                       imageSource: image,
+                                       exif: exif,
+                                       assetsURL: resourceURL,
+                                       metadata: metadata,
+                                       assets: [])
+        for operation in configuration.operations {
+            guard operation.test.evaluate(fileURL: fileURL) else {
+                continue
             }
-            CGImageDestinationAddImage(destination, thumbnail, nil)
-            CGImageDestinationFinalize(destination)  // TODO: Handle error here?
-            assets.append(Asset(fileURL: destinationURL as URL))
-
-//            let sourceRatio =
-//
-//            let availableRect = AVFoundation.AVMakeRect(aspectRatio: image.size, insideRect: .init(origin: .zero, size: maxSize))
-//            let targetSize = availableRect.size
-
-            let details = [
-                "width": width,
-                "height": height,
-                "filename": "cheese",
-                "url": destinationURL.relativePath.ensureLeadingSlash(),
-            ] as [String: Any]
-
-            for setName in transform.sets {
-                transformMetadata[setName] = (transformMetadata[setName] ?? []) + [details]
+            for transform in operation.transforms {
+                try transform.apply(to: &context)
             }
-        }
-
-        // Flatten the transform metadata to promote categories with single entires to top-level dictionaries.
-        // TODO: This is legacy behaviour from InContext 2 and we should probably reconsider whether it makes sense
-        let transformDetails = transformMetadata
-            .compactMap { key, value -> (String, Any)? in
-                guard !value.isEmpty else {
-                    return nil
-                }
-                if value.count == 1 {
-                    return (key, value[0])
-                }
-                return (key, value)
-            }
-            .reduce(into: [String: Any]()) { partialResult, element in
-                partialResult[element.0] = element.1
-            }
-
-        let details = fileURL.basenameDetails()
-        metadata = metadata.merging(transformDetails) { $1 }
-
-        if let scale = details.scale {
-            metadata["scale"] = scale
+            // We only run the first matching operation!
+            break
         }
 
         let document = Document(url: fileURL.siteURL,
@@ -167,14 +382,14 @@ class ImageImporter: Importer {
                                 category: settings.defaultCategory,
                                 date: details.date,
                                 title: try exif.firstTitle ?? content?.structuredMetadata.title ?? details.title,
-                                metadata: metadata,
+                                metadata: context.metadata,
                                 contents: content?.content ?? "",
                                 contentModificationDate: file.contentModificationDate,
                                 template: settings.defaultTemplate,
                                 inlineTemplate: settings.inlineTemplate,
                                 relativeSourcePath: file.relativePath,
                                 format: .image)
-        return ImporterResult(documents: [document], assets: assets)
+        return ImporterResult(documents: [document], assets: context.assets)
     }
 
 }
