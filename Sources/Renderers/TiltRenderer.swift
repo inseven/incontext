@@ -91,7 +91,7 @@ fileprivate func lookupViaEvaluationContext(_ L: LuaState!) -> CInt {
 fileprivate func readFile(_ L: LuaState!) -> CInt {
     guard let templateCache: TemplateCache = L.tovalue(lua_upvalueindex(1)),
           let name = L.tostring(1),
-          let template = try? templateCache.details(for: .tilt(name)) else {
+          let template = try? templateCache.details(for: TemplateIdentifier(name)) else {
         return 0
     }
     L.push(template.contents)
@@ -144,8 +144,8 @@ class TiltRenderer: Renderer {
 
     func render(name: String, context: [String : Any]) throws -> RenderResult {
         try setContext(context)
-        guard let template = try templateCache.details(for: .tilt(name)) else {
-            throw InContextError.unknownTemplate(TemplateIdentifier.tilt(name).rawValue)
+        guard let template = try templateCache.details(for: TemplateIdentifier(name)) else {
+            throw InContextError.unknownTemplate(name)
         }
         let result = try env.render(filename: name, contents: template.contents)
         return RenderResult(content: result.text, templatesUsed: result.includes)

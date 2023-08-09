@@ -28,30 +28,26 @@ class RenderManager {
 
     private let templateCache: TemplateCache
     private let concurrent: Bool
-    private let renderers: [TemplateLanguage: Renderer]
+    let staticRenderer: Renderer
 
     init(templateCache: TemplateCache, concurrent: Bool) {
         self.templateCache = templateCache
         self.concurrent = concurrent
-        self.renderers = [
-            .tilt: TiltRenderer(templateCache: templateCache),
-        ]
+        self.staticRenderer = TiltRenderer(templateCache: templateCache)
     }
 
-    func renderer(for language: TemplateLanguage) throws -> Renderer {
-        if concurrent && language == .tilt {
+    func renderer() -> Renderer {
+        if concurrent {
+            // TODO: This should do renderer pooling to minimise Lua environment creation
             return TiltRenderer(templateCache: templateCache)
         }
-        guard let renderer = renderers[language] else {
-            throw InContextError.internalInconsistency("Failed to get renderer for language '\(language)'.")
-        }
-        return renderer
+        return staticRenderer
     }
 
     func render(renderTracker: RenderTracker,
                 template: TemplateIdentifier,
                 context: [String: Any]) throws -> String {
-        let renderer = try renderer(for: template.language)
+        let renderer = renderer()
 
         // Perform the render.
         let renderResult = try renderer.render(name: template.name, context: context)
@@ -59,11 +55,11 @@ class RenderManager {
         // Record the renderer instance used.
         // It is sufficient to record this once for the whole render operation even though multiple templates might be
         // used, as we do not allow mixing of template languages within a single top-level render.
-        renderTracker.add(RendererInstance(language: template.language, version: renderer.version))
+        renderTracker.add(RendererInstance(version: renderer.version))
 
         // Generate language-scoped identifiers for the templates reported as used by the renderer.
         let templatesUsed: [TemplateIdentifier] = renderResult.templatesUsed.map { name in
-            return TemplateIdentifier(template.language, name)
+            return TemplateIdentifier(name)
         }
 
         // Look-up the modification date for each template, generate an associated render status, and add this to the
