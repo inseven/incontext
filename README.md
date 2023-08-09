@@ -54,3 +54,5 @@ swift build
 - [ ] Figure out how to do per-item templates (inline templates)?
 - [ ] Consider making thumbnail an explicit property on document types and moving user metadata into a substructure
 - [ ] Port legacy InContext 2 tests
+- [ ] Remove template language from the identifiers
+- [ ] Rename the importers to simply 'image', 'markdown', etc.

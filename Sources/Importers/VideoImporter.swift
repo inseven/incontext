@@ -36,7 +36,7 @@ class VideoImporter: Importer {
     }
 
     let identifier = "import_video"
-    let version = 5
+    let version = 6
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         let args: [String: Any] = try configuration.requiredValue(for: "args")
@@ -45,14 +45,25 @@ class VideoImporter: Importer {
     }
 
     func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
+
+        let fileURL = file.url
+
+        // Create the assets directory.
+        let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: site.filesURL)
+        try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
+
         let video = AVAsset(url: file.url)
-        let outputURL = site.outputURL(relativePath: file.url.deletingPathExtension().relativePath + ".mov")
-        try FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(),
-                                                withIntermediateDirectories: true)
+
+        // TODO: Scale video.
+        let videoURL = assetsURL.appendingPathComponent("video.mov")
         try await export(video: video,
                          withPreset: AVAssetExportPresetHighestQuality,
                          toFileType: .mov,
-                         atURL: outputURL)
+                         atURL: videoURL)
+
+        // TODO: Scale thumbnail.
+        let thumbnailURL = assetsURL.appendingPathComponent("thumbnail", conformingTo: .jpeg)
+        try await thumbnail(asset: video, destinationURL: thumbnailURL)
 
 //        https://img.ly/blog/working-with-large-video-and-image-files-on-ios-with-swift/#resizingavideo
 //        let newAsset = AVAsset(url:Bundle.main.url(forResource: "jumping-man", withExtension: "mov")!) //1
@@ -66,8 +77,60 @@ class VideoImporter: Importer {
 //        })
 //        resizeComposition.renderSize = newSize //5
 
-        return ImporterResult(assets: [Asset(fileURL: outputURL)])
+        let thumbnailDetails: [String: Any] = [
+            "url": thumbnailURL.relativePath.ensureLeadingSlash(),
+            "width": 100,
+            "height": 100,
+            "filename": "cheese",
+        ]
+
+        let videoDetails: [String: Any] = [
+            "url": videoURL.relativePath.ensureLeadingSlash(),
+            "width": 100,
+            "height": 100,
+            "filename": "cheese",
+        ]
+
+        let metadata: [String: Any] = [
+            "thumbnail": thumbnailDetails,
+            "video": videoDetails,
+        ]
+
+        let document = Document(url: fileURL.siteURL,
+                                parent: fileURL.parentURL,
+                                category: settings.defaultCategory,
+                                date: Date(),  // TODO: Date
+                                title: nil,  // TODO: Title
+                                metadata: metadata,
+                                contents: "",
+                                contentModificationDate: file.contentModificationDate,
+                                template: TemplateIdentifier(.tilt, "photo.html"),  // TODO: Inject this
+                                inlineTemplate: nil,  // TODO: Inject this
+                                relativeSourcePath: file.relativePath,
+                                format: .video)
+
+        return ImporterResult(documents: [document], assets: [Asset(fileURL: videoURL), Asset(fileURL: thumbnailURL)])
     }
+
+    func thumbnail(asset: AVAsset, destinationURL: URL) async throws {
+        let generator = AVAssetImageGenerator(asset: asset)
+        generator.appliesPreferredTrackTransform = true
+        let time = CMTime(seconds: 1, preferredTimescale: 1)
+        let result = try await generator.image(at: time)
+
+        let format: UTType = .jpeg
+
+        guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL,
+                                                                format.identifier as CFString,
+                                                                1,
+                                                                nil) else {
+            throw InContextError.internalInconsistency("Failed to save thumbnail at '\(destinationURL.relativePath)'.")
+        }
+        CGImageDestinationAddImage(destination, result.image, nil)
+        CGImageDestinationFinalize(destination)  // TODO: Handle error here?
+
+    }
+
 
     // https://developer.apple.com/documentation/avfoundation/media_reading_and_writing/exporting_video_to_alternative_formats
     func export(video: AVAsset,
