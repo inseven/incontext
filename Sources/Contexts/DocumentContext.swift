@@ -117,6 +117,11 @@ struct DocumentContext: EvaluationContext {
         return try content.html()
     }
 
+    func render(template: TemplateIdentifier? = nil) throws -> String {
+        // TODO: Perhaps the render tracker method could be promoted to here?
+        return try renderTracker.render(document, template: template)
+    }
+
     func children(sort: QueryDescription.Sort? = nil) throws -> [DocumentContext] {
         let sort = sort ?? .ascending
         return try renderTracker.documentContexts(query: QueryDescription(parent: document.url, sort: sort))
