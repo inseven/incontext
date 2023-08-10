@@ -36,7 +36,7 @@ build_steps:
     args:
       handlers:
         - when: '(.*/)?.*\\.markdown'
-          then: import_markdown
+          then: markdown
           args:
               default_category: general
               default_template: posts.html
@@ -66,7 +66,7 @@ build_steps:
     args:
       handlers:
         - when: '(.*/)?.*\\.markdown'
-          then: import_markdown
+          then: markdown
           args:
               default_category: general
               default_template: posts.html

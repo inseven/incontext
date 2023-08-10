@@ -68,17 +68,17 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 - `nearestAnscestor() -> Document?`
 
   **Description**
-  
+
   Returns the first document found by walking up the document path; nil if no ancestor can be found.
-  
+
 - `children(sort: String = "ascending") -> [Document]`
 
   **Description**
-  
+
   Return all immediate children, sorted by date, "ascending" or "descending".
-  
+
   **Example**
-  
+
   ```lua
   <ul>
       {% for _, child in ipairs(site.children { sort = "descending" }) %}
@@ -101,9 +101,8 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 - Pass-through site metadata so that things like tags can be rendered correctly
 - Check TODOs in code
 - Next / previous functions always return nil
-- Rename the importers to simply 'image', 'markdown', etc.
 - Check that gifs are transformed correctly
-- Don't automatically replace non-Markdown image tags 
+- Don't automatically replace non-Markdown image tags
 - Markdown issues
   - Footnotes don't work
   - Strikethrough doesn't work
