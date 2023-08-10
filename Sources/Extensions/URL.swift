@@ -26,22 +26,6 @@ import UniformTypeIdentifiers
 import Titlecaser
 import RegexBuilder
 
-extension String {
-
-    // TODO: Move the title processing into here?
-    // TODO: Consolidate?
-    func splitBasenameComponents() -> (Date?, String, Float?) {
-        let regex = /^((\d{4}-\d{2}-\d{2})-)?(.*?)(@([0-9])x)?$/
-        guard let match = firstMatch(of: regex) else {
-            return (nil, self, nil)
-        }
-        // TODO: Time zones?
-
-        return (match.2?.date(), String(match.3), match.5?.float())
-    }
-
-}
-
 extension URL {
 
     var isIndex: Bool {
@@ -56,13 +40,10 @@ extension URL {
         return relevantURL.relativePath
     }
 
-    var relevantBasename: String {
-        return relevantURL.deletingPathExtension().lastPathComponent
-    }
-
     // TODO: Rename this.
     var siteURL: String {
         let relevantRelativePath = relevantRelativePath
+        // TODO: This feels broken!
         if relevantRelativePath.hasPrefix(".") {
             return "/"
         }
@@ -79,8 +60,11 @@ extension URL {
     }
 
     func basenameDetails() -> BasenameDetails {
-        let (date, title, scale) = relevantBasename.splitBasenameComponents()
-        return BasenameDetails(date: date, title: title.replacingOccurrences(of: "-", with: " ").toTitleCase(), scale: scale)
+        if relevantURL.relativePath == "." {
+            return BasenameDetails(date: nil, title: nil, scale: nil)
+        }
+        let relevantBasename = relevantURL.deletingPathExtension().lastPathComponent
+        return BasenameDetails(basename: relevantBasename)
     }
 
     var type: UTType? {

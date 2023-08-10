@@ -24,16 +24,40 @@ import Foundation
 
 struct BasenameDetails: CustomStringConvertible {
 
+    static let regex = /^((\d{4}-\d{2}-\d{2})-)?(.*?)(@([0-9])x)?$/
+
     let date: Date?
-    let title: String
+    let title: String?
     let scale: Float?
+
+    init(date: Date?, title: String?, scale: Float?) {
+        self.date = date
+        self.title = title
+        self.scale = scale
+    }
+
+    init(basename: String) {
+        let regex = /^((\d{4}-\d{2}-\d{2})-)?(.*?)(@([0-9])x)?$/
+        guard let match = basename.firstMatch(of: regex) else {
+            self.date = nil
+            self.title = basename
+            self.scale = nil
+            return
+        }
+        // TODO: Decide on, and document, the timezone policy.
+        self.date = match.2?.date()
+        self.title = String(match.3).replacingOccurrences(of: "-", with: " ").toTitleCase()
+        self.scale = match.5?.float()
+    }
 
     var description: String {
         var components: [String] = []
         if let date {
             components.append("date = \(date)")
         }
-        components.append("title = '\(title)'")
+        if let title {
+            components.append("title = '\(title)'")
+        }
         if let scale {
             components.append("scale = \(scale)")
         }
