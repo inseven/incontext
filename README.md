@@ -89,64 +89,62 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 
 ## Issues
 
-- [ ] What is the performance hit of using a regex in the frontmatter parser?
-- [ ] Use the Swift `Regex` DSL
-- [ ] Support loading the existing site configuration
-- [ ] Track resources and clean them up when files are deleted or importers change
-- [ ] Try using a multi-reader / single-writer model for the database to improve template render performance
-- [ ] Use Swift DSL to unify file and image handlers (this would allow easy checking of glob, regex, extension, and mime
-      type)
-- [ ] Check that gifs are transformed correctly
-- [ ] Test that the relative paths are correct for the destination directory; this likely needs to be per-importer, but
-      it would be much easier if we had a way to generate these as part of the site so importers don't have to think too
-      hard
-- [ ] SQLite is mangling mtimes meaning that some files always get regenerated
-- [ ] Typesafe configuration
-  - [ ] Explicit user-defined metadata section in the site and frontmatter
-- [ ] Support mdash in Markdown content
-- [ ] Consider whether I should support EXIF sidecars and, if so, handle dependency management for them
-- [ ] Store the document mime type in the database; this should make it possible to automatically select
-      all images etc
-- [ ] Consider special files in directories for nested behaviours
-- [ ] Log at at different levels, error, warning, etc
-- [ ] Rename page to document in the render context
-- [ ] Evaluation EvaluationContexts should be enumerable to assist with documentation
-- [ ] RenderStatus needs to fingerprint documents
-- [ ] Intoduce a render-time `resolve` method that can figure out what happened to a document and include it
-- [ ] Promote metadata dates
-- [ ] Support querying for posts without or with dates
-- [ ] Update jbmorley.co.uk to include working examples of the common.lua conveniences
-  - [ ] Adaptive image
-  - [ ] Video
-  - [ ] STL
-  - [ ] Audio
-- [ ] Add a --Werror flag
-- [ ] Import image dates
-- [ ] Video documents aren't being loaded correctly
-- [ ] Figure out how to do per-item templates (inline templates)?
-- [ ] Consider making thumbnail an explicit property on document types and moving user metadata into a substructure
-- [ ] Port legacy InContext 2 tests
-- [ ] Remove template language from the identifiers
-- [ ] Rename the importers to simply 'image', 'markdown', etc.
-- [ ] Extract location data from videos
-- [ ] Don't automatically replace non-Markdown image tags 
-- [ ] Provide a mechanism to specify the sort of child queries
-- [ ] Footnotes don't work
-- [ ] Strikethrough doesn't work
-- [ ] Markdown m-dashes don't work
-- [ ] Not all image titles work
-- [ ] 360 photos aren't processed correctly
-- [ ] Thumbnail detection doesn't work
-- [ ] Video playback doesn't work with the built-in web server
-- [ ] The `serve` command doesn't cancel cleanly with the `--watch` flag
-- [ ] Check that the JSON feed works
-- [ ] The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
-- [ ] It needs to be possible to pass-through site metadata so that things like tags can be rendered correctly
-- [ ] Next / previous functions always return nil
-- [ ] InContext is currently macOS only
-- [ ] The game list and reading lists are broken
-- [ ] Provide a simple, clean API to inline a relative document
-- [ ] The current `resolve` implementation is hand-tuned and isn't guaranteed to work with new document types
-- [ ] The derived thumbnail property is overwriting the user metadata (this should somehow be protected)
-- [ ] Detect circular rendering dependencies
+### High Priority
 
+- Promote metadata dates (see the reading and game lists)
+- Scale videos
+- Extract location data from videos
+- Check that the JSON feed works
+- The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
+- 360 photos aren't processed correctly
+- Not all image titles work
+- Pass-through site metadata so that things like tags can be rendered correctly
+- Check TODOs in code
+- Next / previous functions always return nil
+- Rename the importers to simply 'image', 'markdown', etc.
+- Check that gifs are transformed correctly
+- Don't automatically replace non-Markdown image tags 
+- Markdown issues
+  - Footnotes don't work
+  - Strikethrough doesn't work
+  - Markdown mdash don't work
+- Check adaptive images work
+- Migrate EXIF sidecars
+
+### Background
+
+- Support loading the existing site configuration
+- Track resources and clean them up when files are deleted or importers change
+
+- Test that the relative paths are correct for the destination directory; this likely needs to be per-importer, but it would be much easier if we had a way to generate these as part of the site so importers don't have to think too hard
+- SQLite is mangling mtimes meaning that some files always get regenerated
+
+- Store the origin mime type in the database and expose through `DocumentContext`
+- Log at at different levels, error, warning, etc
+- Rename page to document in the render context
+- RenderStatus needs to fingerprint documents
+- Intoduce a render-time `resolve` method that can figure out what happened to a document and include it
+
+- Update jbmorley.co.uk to include working examples of the common.lua conveniences
+  - Adaptive image
+  - STL
+- Add a --Werror flag
+- Port legacy InContext 2 tests
+- Video playback doesn't work with the built-in web server
+- The `serve` command doesn't cancel cleanly with the `--watch` flag
+- Provide a simple, clean API to inline a relative document
+- The current `resolve` implementation is hand-tuned and isn't guaranteed to work with new document types
+- Detect circular rendering dependencies
+- Build failures with `--watch` cause the command to exit
+
+### Improvements
+
+- Try using a multi-reader / single-writer model for the database to improve template render performance
+- Use Swift DSL to unify file and image handlers (this would allow easy checking of glob, regex, extension, and mime type)
+- Typesafe configuration
+  - Explicit user-defined metadata section in the site and frontmatter
+  - The derived thumbnail property is overwriting the user metadata (this should somehow be protected)
+- Evaluation EvaluationContexts should be enumerable to assist with documentation
+- Linux support
+- Consider special files in directories for nested behaviours
+- Support querying for posts without or with dates
