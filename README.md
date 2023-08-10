@@ -148,4 +148,5 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 - [ ] Provide a simple, clean API to inline a relative document
 - [ ] The current `resolve` implementation is hand-tuned and isn't guaranteed to work with new document types
 - [ ] The derived thumbnail property is overwriting the user metadata (this should somehow be protected)
+- [ ] Detect circular rendering dependencies
 
