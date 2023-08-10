@@ -117,6 +117,11 @@ struct DocumentContext: EvaluationContext {
         return try content.html()
     }
 
+    func children(sort: QueryDescription.Sort? = nil) throws -> [DocumentContext] {
+        let sort = sort ?? .ascending
+        return try renderTracker.documentContexts(query: QueryDescription(parent: document.url, sort: sort))
+    }
+
     func lookup(_ name: String) throws -> Any? {
         switch name {
         case "url":
@@ -141,8 +146,17 @@ struct DocumentContext: EvaluationContext {
             }
             return try renderTracker.documentContexts(query: try QueryDescription(definition: query))
         }
-        case "children": return Function { () -> [DocumentContext] in
-            return try renderTracker.documentContexts(query: QueryDescription(parent: document.url))
+        case "children": return Candidates {
+            Function { () throws -> [DocumentContext] in
+                return try children()
+            }
+            Function { (definition: [AnyHashable: Any]) throws -> [DocumentContext] in
+                guard let definition = definition as? [String: Any] else {
+                    throw InContextError.incorrectType(expected: [String: Any].self, received: definition)
+                }
+                let sort: QueryDescription.Sort? = try definition.optionalRawRepresentable(for: "sort")
+                return try children(sort: sort)
+            }
         }
         case "parent": return Function { () -> DocumentContext? in
             return try renderTracker.documentContexts(query: QueryDescription(url: document.parent)).first

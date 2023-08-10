@@ -68,4 +68,23 @@ Renders are performed using Tilt.
 
 - `nearestAnscestor() -> DocumentContext?`
 
+  **Description**
+  
   Returns the first document found by walking up the document path; nil if no ancestor can be found.
+  
+- `children(sort: String = "ascending") -> [DocumentContext]`
+
+  **Description**
+  
+  Return all immediate children, sorted by date, "ascending" or "descending".
+  
+  **Example**
+  
+  ```lua
+  <ul>
+      {% for child in site.children { sort = "descending" } %}
+          <li>{{ child.title }}</li>
+      {% end %}
+  </ul>
+  ```
+
