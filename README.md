@@ -68,17 +68,17 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 - `nearestAnscestor() -> Document?`
 
   **Description**
-  
+
   Returns the first document found by walking up the document path; nil if no ancestor can be found.
-  
+
 - `children(sort: String = "ascending") -> [Document]`
 
   **Description**
-  
+
   Return all immediate children, sorted by date, "ascending" or "descending".
-  
+
   **Example**
-  
+
   ```lua
   <ul>
       {% for _, child in ipairs(site.children { sort = "descending" }) %}
@@ -91,25 +91,26 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 
 ### High Priority
 
-- Promote metadata dates (see the reading and game lists)
-- Scale videos
-- Extract location data from videos
-- Check that the JSON feed works
-- The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
-- 360 photos aren't processed correctly
-- Not all image titles work
-- Pass-through site metadata so that things like tags can be rendered correctly
-- Check TODOs in code
-- Next / previous functions always return nil
-- Rename the importers to simply 'image', 'markdown', etc.
-- Check that gifs are transformed correctly
-- Don't automatically replace non-Markdown image tags 
-- Markdown issues
-  - Footnotes don't work
-  - Strikethrough doesn't work
-  - Markdown mdash don't work
-- Check adaptive images work
-- Migrate EXIF sidecars
+These changes impact the rendering of jbmorley.co.uk and block switching to InContext 3.
+
+1. **Check TODOs in code**
+2. **Not all image titles work**
+3. **Next / previous functions always return nil**
+4. **Don't automatically replace non-Markdown image tags**
+5. **Extract location data from videos**
+6. **Check adaptive images work**
+7. **Promote metadata dates (see the reading and game lists)**
+8. **Check that the JSON feed works**
+9. Pass-through site metadata so that things like tags can be rendered correctly
+10. Check that gifs are transformed correctly
+11. 360 photos aren't processed correctly
+12. Migrate EXIF sidecars
+13. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
+14. Markdown issues
+   - Footnotes don't work
+   - Strikethrough doesn't work
+   - Markdown mdash don't work
+15. Scale videos
 
 ### Background
 
@@ -133,6 +134,7 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 - The current `resolve` implementation is hand-tuned and isn't guaranteed to work with new document types
 - Detect circular rendering dependencies
 - Build failures with `--watch` cause the command to exit
+- Show progress when rendering by default instead of logging for every file
 
 ### Improvements
 

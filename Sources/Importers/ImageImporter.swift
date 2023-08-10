@@ -299,7 +299,7 @@ class ImageImporter: Importer {
         }
     }
 
-    let identifier = "import_photo"
+    let identifier = "image"
     let version = 10
 
     func settings(for configuration: [String : Any]) throws -> Settings {

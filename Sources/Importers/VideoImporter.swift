@@ -39,7 +39,7 @@ class VideoImporter: Importer {
         }
     }
 
-    let identifier = "import_video"
+    let identifier = "video"
     let version = 8
 
     func settings(for configuration: [String : Any]) throws -> Settings {

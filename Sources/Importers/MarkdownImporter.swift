@@ -36,7 +36,7 @@ class MarkdownImporter: Importer {
 
     }
 
-    let identifier = "import_markdown"
+    let identifier = "markdown"
     let version = 11
 
     func settings(for configuration: [String : Any]) throws -> Settings {

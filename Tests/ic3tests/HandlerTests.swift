@@ -60,7 +60,7 @@ class HandlerTests: XCTestCase {
                                                            importer: MarkdownImporter(),
                                                            settings: .init(defaultCategory: "general",
                                                                            defaultTemplate: TemplateIdentifier("posts.html")))
-        XCTAssertEqual(try handler.fingerprint(), "ffHqCBy7nf2pFz1nG0D2+A==")
+        XCTAssertEqual(try handler.fingerprint(), "Yavt2P/FvK5i++ZjqpQOLw==")
     }
 
 }
