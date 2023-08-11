@@ -96,15 +96,16 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 2. **Not all image titles work**
 3. **Don't automatically replace non-Markdown image tags**
 4. **Extract location data from videos**
-5. **Check adaptive images work**
-6. **Promote metadata dates (see the reading and game lists)**
-7. **Check that the JSON feed works**
-8. Pass-through site metadata so that things like tags can be rendered correctly
-9. Check that gifs are transformed correctly
-10. 360 degree viewer isn't used
-11. Migrate EXIF sidecars
-12. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
-13. Markdown issues
+5. **Extract titles from videos**
+6. **Check adaptive images work**
+7. **Promote metadata dates (see the reading and game lists)**
+8. **Check that the JSON feed works**
+9. Pass-through site metadata so that things like tags can be rendered correctly
+10. Check that gifs are transformed correctly
+11. 360 degree viewer isn't used
+12. Migrate EXIF sidecars
+13. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
+14. Markdown issues
    - Footnotes don't work
    - Strikethrough doesn't work
    - Markdown mdash don't work
@@ -113,6 +114,7 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 16. Timezone handling is currently inconsistent and unclear
 17. Render caching currently means that it's not possible to use incremental builds for deployments
 18. 360 degree mini worlds aren't generated
+19. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
 
 ### Background
 
@@ -138,6 +140,7 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 - Build failures with `--watch` cause the command to exit
 - Show progress when rendering by default instead of logging for every file
 - Address TODOs in code
+- Test resolving relative paths '.'
 
 ### Improvements
 
