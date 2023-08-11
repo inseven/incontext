@@ -25,6 +25,8 @@ import XCTest
 
 class ContentTestCase: XCTestCase {
 
+    let bundle: Bundle = .module
+
     lazy var defaultSourceDirectory = {
         try! SourceDirectory(rootURL: directoryURL)
     }()

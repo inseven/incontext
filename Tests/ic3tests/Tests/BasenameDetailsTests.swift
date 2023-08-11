@@ -25,7 +25,7 @@ import Foundation
 import XCTest
 @testable import incontext
 
-class UtilityTests: ContentTestCase {
+class BasenameDetailsTests: XCTestCase {
 
     func testPostNoDate() {
         let url = URL(filePath: "/posts/this-is-a-post.markdown")
@@ -72,14 +72,6 @@ class UtilityTests: ContentTestCase {
         XCTAssertEqual(details.date, nil)
     }
 
-    func testConcurrentBox() throws {
-        let task = Task {
-            try await Task.sleep(nanoseconds: 1000000000)
-            return "cheese"
-        }
-        XCTAssertEqual(try task.awaitResult(), "cheese")
-    }
-
     func testRootParent() throws {
         let rootURL = URL(filePath: "/Users/jbmorley/Projects/jbmorley.co.uk/content", directoryHint: .isDirectory)
         XCTAssertEqual(URL(filePath: "index.markdown", relativeTo: rootURL).parentURL, "/")
@@ -89,4 +81,3 @@ class UtilityTests: ContentTestCase {
     // TODO: Remaining filename tests.
 
 }
-

@@ -22,34 +22,13 @@
 
 import Foundation
 
-extension FileManager {
+extension Bundle {
 
-    var currentDirectoryURL: URL {
-        return URL(filePath: currentDirectoryPath, directoryHint: .isDirectory)
-    }
-
-    func modificationDateOfItem(at url: URL) throws -> Date {
-        let attr = try attributesOfItem(atPath: url.path)
-        guard let modificationDate = attr[FileAttributeKey.modificationDate] as? Date else {
-            throw InContextError.internalInconsistency("Failed to get modification date for '\(url.relativePath)'")
+    func throwingURL(forResource name: String?, withExtension ext: String? = nil) throws -> URL {
+        guard let url = url(forResource: name, withExtension: ext) else {
+            throw TestError.missingResource((name ?? "").appending(ext ?? ""))
         }
-        return modificationDate
-    }
-
-    func fileExists(at url: URL, isDirectory: UnsafeMutablePointer<ObjCBool>) -> Bool {
-        precondition(url.isFileURL)
-        return fileExists(atPath: url.path, isDirectory: isDirectory)
-    }
-
-    func fileExists(at url: URL) -> Bool {
-        precondition(url.isFileURL)
-        return fileExists(atPath: url.path)
-    }
-
-    func directoryExists(at url: URL) -> Bool {
-        var isDirectory: ObjCBool = false
-        let fileExists = fileExists(at: url, isDirectory: &isDirectory)
-        return fileExists && isDirectory.boolValue
+        return url
     }
 
 }

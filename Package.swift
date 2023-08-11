@@ -45,7 +45,10 @@ let package = Package(
             path: "Sources"),
         .testTarget(
             name: "ic3tests",
-            dependencies: ["incontext"]),
+            dependencies: ["incontext"],
+            resources: [
+                .process("Resources")
+            ]),
     ]
 )
 
