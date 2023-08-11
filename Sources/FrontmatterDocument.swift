@@ -27,7 +27,7 @@ import Yams
 
 struct FrontmatterDocument {
 
-    private static let frontmatterRegEx = /(?s)^(-\-\-\n)(?<metadata>.*?)(-\-\-\n)(?<content>.*)$/
+    private static let frontmatterRegEx = /(?s)^(---\n)(?<metadata>.*?)(---)(\n(?<content>.*))?$/
 
     let rawMetadata: String
     let structuredMetadata: Metadata
@@ -46,7 +46,8 @@ struct FrontmatterDocument {
         structuredMetadata = (!rawMetadata.isEmpty ?
                               try YAMLDecoder().decode(Metadata.self, from: rawMetadata) : Metadata())
         metadata = try rawMetadata.parseYAML()
-        content = generateHTML ? String(match.content).html() : String(match.content)
+        let content = String(match.content ?? "")
+        self.content = generateHTML ? content.html() : content
     }
 
     init(contentsOf url: URL, generateHTML: Bool = false) throws {
