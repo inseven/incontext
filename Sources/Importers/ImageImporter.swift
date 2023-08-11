@@ -324,7 +324,7 @@ class ImageImporter: Importer {
         }
 
         guard let exif = try EXIF(image, 0) else {
-            throw InContextError.internalInconsistency("Failed to load metadata for image at '\(fileURL.relativePath)'.")
+            throw InContextError.internalInconsistency("Failed to load properties for image at '\(fileURL.relativePath)'.")
         }
 
         let details = fileURL.basenameDetails()
@@ -334,6 +334,10 @@ class ImageImporter: Importer {
 
         if let scale = details.scale {
             metadata["scale"] = scale
+        }
+
+        if let projectionType = try exif.projectionType {
+            metadata["projection"] = projectionType
         }
 
         // Content.

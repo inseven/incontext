@@ -229,6 +229,11 @@ struct DocumentContext: EvaluationContext {
             //       (or doesn't exist in the site).
             // TODO: This is currently guess-work and should be far more rigorously coded with updates to Document in
             //       the future.
+
+            if relativePath == "." {
+                return url
+            }
+
             let relativeSourcePath = relativeSourcePath(for: relativePath)
 
             // We currently special-case image documents that follow a known structure.
@@ -238,7 +243,7 @@ struct DocumentContext: EvaluationContext {
                 return url
             }
             
-            return relativeSourcePath.ensuringLeadingSlash()
+            return relativeSourcePath.ensuringLeadingSlash().ensuringTrailingSlash()
         }
         default:
             return document.metadata[name]
