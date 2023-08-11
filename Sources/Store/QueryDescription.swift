@@ -29,7 +29,18 @@ struct QueryDescription: Codable, Hashable {
     enum Sort: String, Codable {
         case ascending
         case descending
+
+        static prefix func !(sort: Sort) -> Sort {
+            switch sort {
+            case .ascending:
+                return .descending
+            case .descending:
+                return .ascending
+            }
+        }
     }
+
+    static let defaultSort: Sort = .ascending
 
     let includeCategories: [String]?
     let url: String?
@@ -88,10 +99,7 @@ struct QueryDescription: Codable, Hashable {
     }
 
     private func order() -> [Expressible] {
-        guard let sort else {
-            return [Store.Schema.date.asc, Store.Schema.title.asc]
-        }
-        switch sort {
+        switch sort ?? Self.defaultSort {
         case .ascending:
             return [Store.Schema.date.asc, Store.Schema.title.asc]
         case .descending:

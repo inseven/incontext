@@ -95,7 +95,6 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 
 1. **Check TODOs in code**
 2. **Not all image titles work**
-3. **Next / previous functions always return nil**
 4. **Don't automatically replace non-Markdown image tags**
 5. **Extract location data from videos**
 6. **Check adaptive images work**
@@ -147,3 +146,4 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 - Linux support
 - Consider special files in directories for nested behaviours
 - Support querying for posts without or with dates
+- Clean up and document the context variables and functions
