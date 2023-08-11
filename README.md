@@ -115,9 +115,12 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 17. Render caching currently means that it's not possible to use incremental builds for deployments
 18. 360 degree mini worlds aren't generated
 19. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
+20. Comments aren't correctly parsed as Markdown
+21. Video of Mike is broken
 
 ### Background
 
+- Don't pass the site into the Importer `process` function
 - Support loading the existing site configuration
 - Track resources and clean them up when files are deleted or importers change
 - Test that the relative paths are correct for the destination directory; this likely needs to be per-importer, but it would be much easier if we had a way to generate these as part of the site so importers don't have to think too hard

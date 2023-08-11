@@ -57,7 +57,7 @@ build_steps:
                                                inlineTemplate: TemplateIdentifier("image.html"))
         let result = try await importer.process(site: defaultSourceDirectory.site, file: file, settings: settings)
         XCTAssertEqual(result.documents.count, 1)
-//        XCTAssertEqual(result.documents.first?.title, "Hallgrímskirkja Church")
+        XCTAssertEqual(result.documents.first?.title, "Hallgrímskirkja Church")
     }
 
 }
