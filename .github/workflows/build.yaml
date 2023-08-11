@@ -21,6 +21,7 @@ jobs:
       with:
         token: ${{ secrets.ACCESS_TOKEN }}
         submodules: recursive
+        lfs: true
 
     - name: Build and test
       run: |
