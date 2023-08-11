@@ -93,30 +93,31 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 
 These changes impact the rendering of jbmorley.co.uk and block switching to InContext 3.
 
-2. **Not all image titles work**
-3. **Don't automatically replace non-Markdown image tags**
-4. **Extract location data from videos**
-5. **Extract titles from videos**
-6. **Check adaptive images work**
-7. **Promote metadata dates (see the reading and game lists)**
-8. **Check that the JSON feed works**
-9. Pass-through site metadata so that things like tags can be rendered correctly
-10. Check that gifs are transformed correctly
-11. 360 degree viewer isn't used
-12. Migrate EXIF sidecars
-13. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
-14. Markdown issues
-   - Footnotes don't work
-   - Strikethrough doesn't work
-   - Markdown mdash don't work
-14. Scale videos
-15. Preserve image and video alt-text when transforming markdown media
-16. Timezone handling is currently inconsistent and unclear
-17. Render caching currently means that it's not possible to use incremental builds for deployments
-18. 360 degree mini worlds aren't generated
-19. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
-20. Comments aren't correctly parsed as Markdown
-21. Video of Mike is broken
+1. **Check adaptive images work**
+2. **Don't automatically replace non-Markdown image tags**
+3. **Videos**
+   1. Location
+
+   1. Titles
+4. **Promote metadata dates (see the reading and game lists)**
+5. **Check that the JSON feed works**
+6. Pass-through site metadata so that things like tags can be rendered correctly
+7. Check that gifs are transformed correctly
+8. Migrate EXIF sidecars
+9. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
+10. Markdown issues
+       1. Footnotes don't work
+       2. Strikethrough doesn't work
+       3. Markdown mdash don't work
+
+
+11. Scale videos
+12. Preserve image and video alt-text when transforming markdown media
+13. Timezone handling is currently inconsistent and unclear
+14. Render caching currently means that it's not possible to use incremental builds for deployments
+15. 360 degree mini worlds aren't generated
+16. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
+17. Comments aren't correctly parsed as Markdown
 
 ### Background
 

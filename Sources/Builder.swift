@@ -64,6 +64,7 @@ class Builder {
                 return string
             },
             "iso_8601_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
+            "rfc_3339_format": "yyyy'-'MM'-'dd'T'HH':'mm':'ssZ",
             "date": Function { (string: String) -> Date in
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd"
