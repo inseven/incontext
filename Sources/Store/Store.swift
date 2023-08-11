@@ -357,7 +357,6 @@ class Store {
     }
 
     func documents(query: QueryDescription) throws -> [Document] {
-        // TODO: Cache results by query description?
         dispatchPrecondition(condition: .notOnQueue(workQueue))
         return try workQueue.sync {
             if let documents = documentsCache[query] {
