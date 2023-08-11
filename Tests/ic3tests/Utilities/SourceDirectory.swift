@@ -41,6 +41,7 @@ class SourceDirectory {
     init(rootURL: URL) throws {
         self.rootURL = rootURL
         self.contentURL = rootURL.appendingPathComponent("content", isDirectory: true)
+        try FileManager.default.createDirectory(at: contentURL, withIntermediateDirectories: true)
     }
 
     func url(for location: Location) -> URL {
@@ -59,7 +60,14 @@ class SourceDirectory {
         let directoryURL = fileURL.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
         try contents.write(to: fileURL, atomically: true, encoding: .utf8)
-        return File(url: fileURL, contentModificationDate: try FileManager.default.modificationDateOfItem(at: fileURL))
+        return try File(url: fileURL)
+    }
+
+    func copy(_ sourceURL: URL, to path: String, location: Location = .root) throws -> File {
+        let rootURL = url(for: location)
+        let destinationURL = URL(filePath: path, relativeTo: rootURL)
+        try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
+        return try File(url: destinationURL)
     }
 
 }

@@ -30,4 +30,14 @@ struct File {
 
     let url: URL
     let contentModificationDate: Date
+
+    init(url: URL, contentModificationDate: Date) {
+        self.url = url
+        self.contentModificationDate = contentModificationDate
+    }
+
+    init(url: URL) throws {
+        self.url = url
+        self.contentModificationDate = try FileManager.default.modificationDateOfItem(at: url)
+    }
 }

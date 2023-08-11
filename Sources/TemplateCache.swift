@@ -53,10 +53,8 @@ class TemplateCache {
         // lags behind the contents and, if they're out of sync, we'll over render, not under render. This means we may
         // miss changes during a render, but our cached mtimes will be such that they will be correctly picked up on a
         // subsequent render.
-        let attributes = try FileManager.default.attributesOfItem(atPath: templateURL.path)
-        guard let modificationDate = attributes[FileAttributeKey.modificationDate] as? Date else {
-            throw InContextError.internalInconsistency("Unable to load modification date for template '\(identifier.name)'.")
-        }
+
+        let modificationDate = try FileManager.default.modificationDateOfItem(at: templateURL)
         let contents = try String(contentsOf: templateURL, encoding: .utf8)
         let details = TemplateDetails(url: templateURL,
                                       modificationDate: modificationDate,

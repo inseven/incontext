@@ -22,34 +22,17 @@
 
 import Foundation
 
-extension FileManager {
+import XCTest
+@testable import incontext
 
-    var currentDirectoryURL: URL {
-        return URL(filePath: currentDirectoryPath, directoryHint: .isDirectory)
-    }
+class ConcurrentBoxTests: XCTestCase {
 
-    func modificationDateOfItem(at url: URL) throws -> Date {
-        let attr = try attributesOfItem(atPath: url.path)
-        guard let modificationDate = attr[FileAttributeKey.modificationDate] as? Date else {
-            throw InContextError.internalInconsistency("Failed to get modification date for '\(url.relativePath)'")
+    func testConcurrentBox() throws {
+        let task = Task {
+            try await Task.sleep(nanoseconds: 1000000000)
+            return "cheese"
         }
-        return modificationDate
+        XCTAssertEqual(try task.awaitResult(), "cheese")
     }
-
-    func fileExists(at url: URL, isDirectory: UnsafeMutablePointer<ObjCBool>) -> Bool {
-        precondition(url.isFileURL)
-        return fileExists(atPath: url.path, isDirectory: isDirectory)
-    }
-
-    func fileExists(at url: URL) -> Bool {
-        precondition(url.isFileURL)
-        return fileExists(atPath: url.path)
-    }
-
-    func directoryExists(at url: URL) -> Bool {
-        var isDirectory: ObjCBool = false
-        let fileExists = fileExists(at: url, isDirectory: &isDirectory)
-        return fileExists && isDirectory.boolValue
-    }
-
+    
 }
