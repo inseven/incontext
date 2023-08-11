@@ -62,35 +62,39 @@ struct EXIF {
         return formatter
     }()
 
-    let properties: [String: Any]
-
-    init(properties: [String: Any]) {
-        self.properties = properties
-    }
+    let _properties: [String: Any]
+    let _metadata: CGImageMetadata
 
     init?(_ imageSource: CGImageSource, _ index: Int) throws {
         guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, index, nil) else {
             return nil
         }
         guard let typedProperties = properties as? [String: Any] else {
-            throw InContextError.internalInconsistency("Failed to load EXIF data")
+            throw InContextError.internalInconsistency("Failed to load image properties")
         }
-        self.properties = typedProperties
+
+        // Image metadata, not image properties?
+        guard let imageMetadata = CGImageSourceCopyMetadataAtIndex(imageSource, 0, nil) else {
+            throw InContextError.internalInconsistency("Failed to load image metadata")
+        }
+
+        self._properties = typedProperties
+        self._metadata = imageMetadata
     }
 
     var pixelWidth: Int? {
-        get throws { return try properties.optionalValue(for: "PixelWidth") }
+        get throws { return try _properties.optionalValue(for: "PixelWidth") }
     }
 
     var pixelHeight: Int? {
-        get throws { return try properties.optionalValue(for: "PixelHeight") }
+        get throws { return try _properties.optionalValue(for: "PixelHeight") }
     }
 
     // TODO: Use EXIF timezones if they exist.
 
     var dateTimeOriginal: Date? {
         get throws {
-            guard let string: String = try properties.optionalValue(for: ["{Exif}", "DateTimeOriginal"]) else {
+            guard let string: String = try _properties.optionalValue(for: ["{Exif}", "DateTimeOriginal"]) else {
                 return nil
             }
             guard let date = Self.dateTimeForatter.date(from: string) else {
@@ -102,7 +106,7 @@ struct EXIF {
 
     var dateTimeDigitized: Date? {
         get throws {
-            guard let string: String = try properties.optionalValue(for: ["{Exif}", "DateTimeDigitized"]) else {
+            guard let string: String = try _properties.optionalValue(for: ["{Exif}", "DateTimeDigitized"]) else {
                 return nil
             }
             guard let date = Self.dateTimeForatter.date(from: string) else {
@@ -114,35 +118,48 @@ struct EXIF {
     }
 
     var title: String? {
-        get throws { return try properties.optionalValue(for: "Title") }
+        get throws { return try _properties.optionalValue(for: "Title") }
     }
 
     var displayName: String? {
-        get throws { return try properties.optionalValue(for: "DisplayName") }
+        get throws { return try _properties.optionalValue(for: "DisplayName") }
     }
 
     var objectName: String? {
-        get throws { return try properties.optionalValue(for: ["{IPTC}", "ObjectName"]) }
+        get throws { return try _properties.optionalValue(for: ["{IPTC}", "ObjectName"]) }
     }
 
     var imageDescription: String? {
-        get throws { return try properties.optionalValue(for: ["{TIFF}", "ImageDescription"])}
+        get throws { return try _properties.optionalValue(for: ["{TIFF}", "ImageDescription"])}
     }
 
     var latitude: Double? {
-        get throws { return try properties.optionalValue(for: ["{GPS}", "Latitude"])}
+        get throws { return try _properties.optionalValue(for: ["{GPS}", "Latitude"])}
     }
 
     var latitudeRef: CompassDirection? {
-        get throws { return try properties.optionalRawRepresentable(for: ["{GPS}", "LatitudeRef"])}
+        get throws { return try _properties.optionalRawRepresentable(for: ["{GPS}", "LatitudeRef"])}
     }
 
     var longitude: Double? {
-        get throws { return try properties.optionalValue(for: ["{GPS}", "Longitude"])}
+        get throws { return try _properties.optionalValue(for: ["{GPS}", "Longitude"])}
     }
 
     var longitudeRef: CompassDirection? {
-        get throws { return try properties.optionalRawRepresentable(for: ["{GPS}", "LongitudeRef"])}
+        get throws { return try _properties.optionalRawRepresentable(for: ["{GPS}", "LongitudeRef"])}
+    }
+
+    var projectionType: String? {
+        get throws {
+            guard let tag = CGImageMetadataCopyTagWithPath(_metadata, nil, "GPano:ProjectionType" as NSString) else {
+                return nil
+            }
+            guard let value = CGImageMetadataTagCopyValue(tag) as? String else {
+                // TODO: Consider making this a little cleaner
+                throw InContextError.internalInconsistency("Unexpected value for image property 'ProjectionType'")
+            }
+            return value
+        }
     }
 
     var signedLatitude: Double? {

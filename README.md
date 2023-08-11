@@ -101,7 +101,7 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 7. **Check that the JSON feed works**
 8. Pass-through site metadata so that things like tags can be rendered correctly
 9. Check that gifs are transformed correctly
-10. 360 photos aren't processed correctly
+10. 360 degree viewer isn't used
 11. Migrate EXIF sidecars
 12. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
 13. Markdown issues
@@ -112,6 +112,7 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 15. Preserve image and video alt-text when transforming markdown media
 16. Timezone handling is currently inconsistent and unclear
 17. Render caching currently means that it's not possible to use incremental builds for deployments
+18. 360 degree mini worlds aren't generated
 
 ### Background
 
