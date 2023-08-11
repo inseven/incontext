@@ -24,6 +24,13 @@ import Foundation
 
 import SwiftSoup
 
+func cast<T>(_ value: Any) throws -> T {
+    guard let value = value as? T else {
+        throw InContextError.incorrectType(expected: T.Type.self, received: value)
+    }
+    return value
+}
+
 struct DocumentContext: EvaluationContext {
 
     private let renderTracker: RenderTracker
@@ -74,20 +81,8 @@ struct DocumentContext: EvaluationContext {
         return url.relativePath
     }
 
-    // TODO: Implement the thumbnail getter.
-
-    // Generic transform; could be a protocol?
-    // Takes a selector, and outputs the replacement for the selector?
-    // Enough information injected (store, document, etc) to allow for correction of URLs and application of templates.
-    // Perhaps there are off-the-shelf ones which perform a lookup and apply a template, and ones which just rewrite URLs
-    // for matching selectors.
-    // TODO: HTML media queries sound really nice.
-    // TODO: Should the image transform _always_ place all image sizes into a fixed place?
-    // Markdown files should be handled one way, and regular HTML tags should be handled another, since there's no way
-    // that a user can write good image tags from Markdown.
-    // TODO: Perhaps all document types can have an 'inline' template that is specified in the configuration and used
-    //       whenever they're rendered inline.  ****IMPORTANT****
     /*
+     TODO: Possible, more flexible approach:
      .replaceInline("//img", .relativeLookup("@src"))  <-- this would replace all 'img' tags with an inline template
                                                            rendered with the document based on the relative lookup of
                                                            the src property of the tag.
@@ -98,17 +93,13 @@ struct DocumentContext: EvaluationContext {
      .transformElements("//img", .replaceElement(.inlineRender("src")))
      .transformElements("//img", .convertRelativeAttributePaths(for: "src"))
      .transformElements("//img", .replaceElement(.string("Cheese"))
-
      */
     let transforms: [Transformer] = [
         ImageDocumentTransform(),
         RelativeSourceTransform(selector: "img", attribute: "src"),
     ]
 
-    // TODO: Add a render cache for pages?
-    // TODO: Unique document contexts in a cache to save loading them every time; query for the ids, and then and look
-    //       them up by URL?
-
+    // TODO: Add per-document render cache, uniqued by URL (and fingerprint?)
     func html() throws -> String {
         let content = try SwiftSoup.parse(document.contents)
         for transform in transforms {
@@ -123,8 +114,28 @@ struct DocumentContext: EvaluationContext {
     }
 
     func children(sort: QueryDescription.Sort? = nil) throws -> [DocumentContext] {
-        let sort = sort ?? .ascending
+        let sort = sort ?? QueryDescription.defaultSort
         return try renderTracker.documentContexts(query: QueryDescription(parent: document.url, sort: sort))
+    }
+
+    func nextSibling(sort: QueryDescription.Sort) throws -> DocumentContext? {
+        let siblings = try renderTracker.documents(query: QueryDescription(parent: document.parent, sort: sort))
+        guard let index = siblings.firstIndex(where: { $0.url == url }) else {
+            return nil
+        }
+        let nextIndex = index + 1
+        guard nextIndex < siblings.count else {
+            return nil
+        }
+        return DocumentContext(renderTracker: renderTracker, document: siblings[nextIndex])
+    }
+
+    func previous(sort: QueryDescription.Sort? = nil) throws -> DocumentContext? {
+        return try nextSibling(sort: !(sort ?? QueryDescription.defaultSort))
+    }
+
+    func next(sort: QueryDescription.Sort? = nil) throws -> DocumentContext? {
+        return try nextSibling(sort: sort ?? QueryDescription.defaultSort)
     }
 
     func lookup(_ name: String) throws -> Any? {
@@ -156,9 +167,7 @@ struct DocumentContext: EvaluationContext {
                 return try children()
             }
             Function { (definition: [AnyHashable: Any]) throws -> [DocumentContext] in
-                guard let definition = definition as? [String: Any] else {
-                    throw InContextError.incorrectType(expected: [String: Any].self, received: definition)
-                }
+                let definition: [String: Any] = try cast(definition)
                 let sort: QueryDescription.Sort? = try definition.optionalRawRepresentable(for: "sort")
                 return try children(sort: sort)
             }
@@ -179,13 +188,25 @@ struct DocumentContext: EvaluationContext {
                 return parent
             }
         }
-        case "previous": return Function { () -> DocumentContext? in
-            // TODO: Implement me!
-            return nil
+        case "previous", "previousSibling": return Candidates {
+            Function { () -> DocumentContext? in
+                return try previous()
+            }
+            Function { (definition: [AnyHashable: Any]) throws -> DocumentContext? in
+                let definition: [String: Any] = try cast(definition)
+                let sort: QueryDescription.Sort? = try definition.optionalRawRepresentable(for: "sort")
+                return try previous(sort: sort)
+            }
         }
-        case "next": return Function { () -> DocumentContext? in
-            // TODO: Implement me!
-            return nil
+        case "next", "nextSibling": return Candidates {
+            Function { () -> DocumentContext? in
+                return try next()
+            }
+            Function { (definition: [AnyHashable: Any]) throws -> DocumentContext? in
+                let definition: [String: Any] = try cast(definition)
+                let sort: QueryDescription.Sort? = try definition.optionalRawRepresentable(for: "sort")
+                return try next(sort: sort)
+            }
         }
         case "child": return Function { (relativePath: String) -> DocumentContext? in
             let relativeSourcePath = relativeSourcePath(for: relativePath)
