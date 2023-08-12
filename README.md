@@ -93,34 +93,29 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 
 These changes impact the rendering of jbmorley.co.uk and block switching to InContext 3.
 
-1. **Check adaptive images work**
-2. **Don't automatically replace non-Markdown image tags**
-3. **Videos**
-   1. Location
-
-   1. Titles
-4. **Promote metadata dates (see the reading and game lists)**
-5. **Check that the JSON feed works**
-6. Pass-through site metadata so that things like tags can be rendered correctly
-7. Check that gifs are transformed correctly
-8. Migrate EXIF sidecars
-9. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
-10. Markdown issues
-       1. Footnotes don't work
-       2. Strikethrough doesn't work
-       3. Markdown mdash don't work
-
-
-11. Scale videos
-12. Preserve image and video alt-text when transforming markdown media
-13. Timezone handling is currently inconsistent and unclear
-14. Render caching currently means that it's not possible to use incremental builds for deployments
-15. 360 degree mini worlds aren't generated
-16. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
-17. Comments aren't correctly parsed as Markdown
+1. **Deleted documents aren't removed from the store**
+2. **Incremental builds don't notice settings changes**
+3. **Check adaptive images work**
+4. **Don't automatically replace non-Markdown image tags**
+5. **Videos** (Location, Titles)
+6. **Promote metadata dates (see the reading and game lists)**
+7. **Check that the JSON feed works**
+8. Pass-through site metadata so that things like tags can be rendered correctly
+9. Check that gifs are transformed correctly
+10. Migrate EXIF sidecars
+11. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
+12. Markdown issues (Footnotes, Strikethrough, mdash)
+13. Scale videos
+14. Preserve image and video alt-text when transforming markdown media
+15. Timezone handling is currently inconsistent and unclear
+16. Render caching currently means that it's not possible to use incremental builds for deployments
+17. 360 degree mini worlds aren't generated
+18. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
+19. Comments aren't correctly parsed as Markdown
 
 ### Background
 
+- Inner template evaluation identifiers aren't set (update Tilt)
 - Don't pass the site into the Importer `process` function
 - Support loading the existing site configuration
 - Track resources and clean them up when files are deleted or importers change
