@@ -75,6 +75,8 @@ class Store {
     let documentsCache = Cache<QueryDescription, [Document]>()
     let contentModificationDatesCache = Cache<QueryDescription, [Date]>()
 
+    var writeable: Bool = false  // Synchronized on workQueue (with barrier)
+
     static var migrations: [Int32: (Connection) throws -> Void] = [
         1: { connection in
             print("create the documents table...")
@@ -132,6 +134,14 @@ class Store {
         }
         return try await withCheckedThrowingContinuation { continuation in
             workQueue.async(flags: flags) {
+                if operation == .write {
+                    self.writeable = true
+                }
+                defer {
+                    if operation == .write {
+                        self.writeable = false
+                    }
+                }
                 let result = Swift.Result<T, Error> {
                     try Task.checkCancellation()
                     return try perform()
@@ -306,6 +316,28 @@ class Store {
         }
     }
 
+    private func syncQueue_documentRelativeSourcePaths() throws -> [String] {
+        dispatchPrecondition(condition: .onQueue(workQueue))
+        let select = Schema
+            .documents
+            .select(Schema.relativeSourcePath)
+        let rowIterator = try connection.prepareRowIterator(select)
+
+        return try rowIterator.map { $0[Schema.relativeSourcePath] }
+    }
+
+    private func syncQueue_deleteDocuments(relativeSourcePaths: [String]) throws {
+        dispatchPrecondition(condition: .onQueue(workQueue))
+        precondition(writeable)
+        try connection.transaction {
+            for relativeSourcePath in relativeSourcePaths {
+                try connection.run(Schema.documents
+                    .filter(Schema.relativeSourcePath == relativeSourcePath)
+                    .delete())
+            }
+        }
+    }
+
     func save(documents: [Document], assets: [Asset], status: Status) async throws {
         try await run(.write) {
             try self.syncQueue_save(documents: documents, assets: assets, status: status)
@@ -353,6 +385,18 @@ class Store {
     func renderStatuses() async throws -> [(String, RenderStatus)] {
         return try await run {
             return try self.syncQueue_renderStatuses()
+        }
+    }
+
+    func documentRelativeSourcePaths() async throws -> [String] {
+        return try await run {
+            return try self.syncQueue_documentRelativeSourcePaths()
+        }
+    }
+
+    func deleteDocuments(relativeSourcePaths: [String]) async throws {
+        return try await run(.write) {
+            try self.syncQueue_deleteDocuments(relativeSourcePaths: relativeSourcePaths)
         }
     }
 

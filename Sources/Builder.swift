@@ -207,7 +207,7 @@ class Builder {
                                                          includingPropertiesForKeys: Array(resourceKeys),
                                                          options: [.skipsHiddenFiles, .producesRelativePathURLs])!
 
-        _ = try await withTaskRunner(of: [Document].self, concurrent: !serializeImport) { tasks in
+        let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
             for case let fileURL as URL in directoryEnumerator {
 
                 // Get the file metadata.
@@ -250,11 +250,7 @@ class Builder {
                         let differentImporterVersion = status.fingerprint != handlerFingerprint
 
                         if !fileModified && !differentImporterVersion {
-                            return nil
-
-                            // TODO: Consider whether this would actually be a good time to read the cached documents.
-                            //       Importing the documents at this point might be a little memory intensive.
-
+                            return fileURL
                         }
 
                         // Clean up the existing assets.
@@ -287,14 +283,22 @@ class Builder {
                                             importer: handler.identifier,
                                             fingerprint: handlerFingerprint)
                         try await self.store.save(documents: result.documents, assets: result.assets, status: status)
-                        return result.documents
+                        return fileURL
                     } catch {
                         throw InContextError.importError(fileURL, error)
                     }
                 }
             }
         }
-        // TODO: Work out how to remove entries for deleted files.
+
+        // Remove the documents associated with the files that don't exist any more.
+        let documentSourcePaths = Set(try await store.documentRelativeSourcePaths())
+        let sourcePaths = Set(fileURLs.map { $0.relativePath })
+        let deletedSourcePaths = documentSourcePaths.subtracting(sourcePaths)
+        try await store.deleteDocuments(relativeSourcePaths: Array(deletedSourcePaths))
+
+        // TODO: Remove the assets associated with the files that don't exist anymore.
+        // TODO: Remove the render output for documents that no longer exist.
     }
 
     func renderContent(concurrent: Bool) async throws {
