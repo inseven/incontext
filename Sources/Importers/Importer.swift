@@ -22,6 +22,7 @@
 
 import Foundation
 
+// TODO: Importers currently only generate one document.
 struct ImporterResult {
 
     let documents: [Document]
