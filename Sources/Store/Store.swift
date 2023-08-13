@@ -62,20 +62,11 @@ class Store {
 
     }
 
-    enum Operation {
-        case read
-        case write
-    }
-
-    static let isMultiThreaded = false
-
     let databaseURL: URL
-    let workQueue = DispatchQueue(label: "Store.workQueue", attributes: isMultiThreaded ? .concurrent : [])
+    let syncQueue = DispatchQueue(label: "Store.syncQueue")
     let connection: Connection
     let documentsCache = Cache<QueryDescription, [Document]>()
     let fingerprintsCache = Cache<QueryDescription, [String]>()
-
-    var writeable: Bool = false  // Synchronized on workQueue (with barrier)
 
     static var migrations: [Int32: (Connection) throws -> Void] = [
         1: { connection in
@@ -120,29 +111,14 @@ class Store {
     init(databaseURL: URL) throws {
         self.databaseURL = databaseURL
         self.connection = try Connection(databaseURL.path)
-        try workQueue.sync(flags: .barrier) {
+        try syncQueue.sync(flags: .barrier) {
             try self.syncQueue_migrate()
         }
     }
 
-    private func run<T>(_ operation: Operation = .read, perform: @escaping () throws -> T) async throws -> T {
-        let flags: DispatchWorkItemFlags
-        switch operation {
-        case .read:
-            flags = .barrier
-        case .write:
-            flags = .barrier
-        }
+    private func run<T>(perform: @escaping () throws -> T) async throws -> T {
         return try await withCheckedThrowingContinuation { continuation in
-            workQueue.async(flags: flags) {
-                if operation == .write {
-                    self.writeable = true
-                }
-                defer {
-                    if operation == .write {
-                        self.writeable = false
-                    }
-                }
+            syncQueue.async {
                 let result = Swift.Result<T, Error> {
                     try Task.checkCancellation()
                     return try perform()
@@ -153,7 +129,7 @@ class Store {
     }
 
     private func syncQueue_migrate() throws {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.transaction {
             let currentVersion = connection.userVersion ?? 0
             print("version \(currentVersion)")
@@ -173,7 +149,7 @@ class Store {
     }
 
     private func syncQueue_save(document: Document?, assets: [Asset], status: Status) throws {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.transaction {
 
             // Invalidate the caches.
@@ -218,7 +194,7 @@ class Store {
     }
 
     private func syncQueue_status(for relativePath: String, contentURL: URL) throws -> Status? {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         precondition(contentURL.hasDirectoryPath)
         guard let status = try connection.pluck(Schema.status.filter(Schema.relativePath == relativePath)) else {
             return nil
@@ -230,7 +206,7 @@ class Store {
     }
 
     private func syncQueue_assets(for relativePath: String, filesURL: URL) throws -> [Asset] {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         precondition(filesURL.hasDirectoryPath)
         let rowIterator = try connection.prepareRowIterator(Schema.assets.filter(Schema.relativeSourcePath == relativePath))
         return try rowIterator.map { row in
@@ -239,14 +215,14 @@ class Store {
     }
 
     private func syncQueue_forgetAssets(for relativePath: String) throws {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.run(Schema.assets
             .filter(Schema.relativeSourcePath == relativePath)
             .delete())
     }
 
     private func syncQueue_renderStatus(for url: String) throws -> RenderStatus? {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         guard let renderStatus = try connection.pluck(Schema.renderStatus.filter(Schema.url == url)) else {
             return nil
         }
@@ -256,7 +232,7 @@ class Store {
     }
 
     private func syncQueue_renderStatuses() throws -> [(String, RenderStatus)] {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         let rowIterator = try connection.prepareRowIterator(Schema.renderStatus)
         return try rowIterator.map { row in
             let decoder = JSONDecoder()
@@ -265,7 +241,7 @@ class Store {
     }
 
     private func syncQueue_save(renderStatus: RenderStatus, for url: String) throws {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.transaction {
             let encoder = JSONEncoder()
             let renderStatus = try encoder.encode(renderStatus)
@@ -276,7 +252,7 @@ class Store {
     }
 
     private func syncQueue_documents(query: QueryDescription) throws -> [Document] {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
 
         let rowIterator = try connection.prepareRowIterator(query.query())
 
@@ -307,7 +283,7 @@ class Store {
     }
 
     private func syncQueue_fingerprints(query: QueryDescription) throws -> [String] {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
 
         let select = query
             .query()
@@ -320,7 +296,7 @@ class Store {
     }
 
     private func syncQueue_documentRelativeSourcePaths() throws -> [String] {
-        dispatchPrecondition(condition: .onQueue(workQueue))
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         let select = Schema
             .documents
             .select(Schema.relativeSourcePath)
@@ -330,8 +306,7 @@ class Store {
     }
 
     private func syncQueue_deleteDocuments(relativeSourcePaths: [String]) throws {
-        dispatchPrecondition(condition: .onQueue(workQueue))
-        precondition(writeable)
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.transaction {
             for relativeSourcePath in relativeSourcePaths {
                 try connection.run(Schema.documents
@@ -342,7 +317,7 @@ class Store {
     }
 
     func save(document: Document?, assets: [Asset], status: Status) async throws {
-        try await run(.write) {
+        try await run {
             try self.syncQueue_save(document: document, assets: assets, status: status)
         }
     }
@@ -362,7 +337,7 @@ class Store {
     }
 
     func forgetAssets(for relativePath: String) async throws {
-        try await run(.write) {
+        try await run {
             return try self.syncQueue_forgetAssets(for: relativePath)
         }
     }
@@ -374,7 +349,7 @@ class Store {
     }
 
     func save(renderStatus: RenderStatus, for url: String) async throws {
-        try await run(.write) {
+        try await run {
             try self.syncQueue_save(renderStatus: renderStatus, for: url)
         }
     }
@@ -398,14 +373,14 @@ class Store {
     }
 
     func deleteDocuments(relativeSourcePaths: [String]) async throws {
-        return try await run(.write) {
+        return try await run {
             try self.syncQueue_deleteDocuments(relativeSourcePaths: relativeSourcePaths)
         }
     }
 
     func documents(query: QueryDescription) throws -> [Document] {
-        dispatchPrecondition(condition: .notOnQueue(workQueue))
-        return try workQueue.sync {
+        dispatchPrecondition(condition: .notOnQueue(syncQueue))
+        return try syncQueue.sync {
             if let documents = documentsCache[query] {
                 return documents
             }
@@ -417,8 +392,8 @@ class Store {
 
     // TODO: This can actually be async.
     func fingerprints(query: QueryDescription) throws -> [String] {
-        dispatchPrecondition(condition: .notOnQueue(workQueue))
-        return try workQueue.sync {
+        dispatchPrecondition(condition: .notOnQueue(syncQueue))
+        return try syncQueue.sync {
             if let fingerprints = fingerprintsCache[query] {
                 return fingerprints
             }
