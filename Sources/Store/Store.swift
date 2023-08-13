@@ -67,6 +67,7 @@ class Store {
     let connection: Connection
     let documentsCache = Cache<QueryDescription, [Document]>()
     let fingerprintsCache = Cache<QueryDescription, [String]>()
+    let renderStatusCache = Cache<String, RenderStatus>()
 
     static var migrations: [Int32: (Connection) throws -> Void] = [
         1: { connection in
@@ -233,11 +234,18 @@ class Store {
 
     private func syncQueue_renderStatuses() throws -> [(String, RenderStatus)] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
+        if !renderStatusCache.isEmpty {
+            return renderStatusCache.items
+        }
         let rowIterator = try connection.prepareRowIterator(Schema.renderStatus)
-        return try rowIterator.map { row in
+        let renderStatuses = try rowIterator.map { row in
             let decoder = JSONDecoder()
             return (row[Schema.url], try decoder.decode(RenderStatus.self, from: row[Schema.details]))
         }
+        for item in renderStatuses {
+            renderStatusCache[item.0] = item.1
+        }
+        return renderStatuses
     }
 
     private func syncQueue_save(renderStatus: RenderStatus, for url: String) throws {
@@ -249,6 +257,7 @@ class Store {
                                                           Schema.url <- url,
                                                           Schema.details <- renderStatus))
         }
+        renderStatusCache[url] = renderStatus
     }
 
     private func syncQueue_documents(query: QueryDescription) throws -> [Document] {
@@ -354,11 +363,11 @@ class Store {
         }
     }
 
-    func renderStatus(for url: String) async throws -> RenderStatus? {
-        return try await run {
-            return try self.syncQueue_renderStatus(for: url)
-        }
-    }
+//    func renderStatus(for url: String) async throws -> RenderStatus? {
+//        return try await run {
+//            return try self.syncQueue_renderStatus(for: url)
+//        }
+//    }
 
     func renderStatuses() async throws -> [(String, RenderStatus)] {
         return try await run {

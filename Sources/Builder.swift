@@ -357,7 +357,7 @@ class Builder {
             try await importContent()
             try await renderContent(concurrent: !serializeRender)
         }
-        print("Import took \(duration).")
+        print("Build took \(duration.formatted()).")
 
         // Check to see if we should watch for changes.
         guard watch else {
@@ -367,10 +367,13 @@ class Builder {
         // Watch for changes and rebuild.
         while true {
             try changeObserver.wait()
-            renderManager.clearCache()
-            try await importContent()
-            try await renderContent(concurrent: !serializeRender)
-            print("Done")
+            let clock = ContinuousClock()
+            let duration = try await clock.measure {
+                renderManager.clearTemplateCache()
+                try await importContent()
+                try await renderContent(concurrent: !serializeRender)
+            }
+            print("Update took \(duration.formatted()).")
         }
 
     }

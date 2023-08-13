@@ -25,7 +25,25 @@ import Foundation
 class Cache<Key, Value> where Key: Hashable {
 
     let workQueue = DispatchQueue(label: "Cache.workQueue", attributes: .concurrent)
-    var cache: [Key: Value] = [:]
+    private var cache: [Key: Value] = [:]
+
+    var isEmpty: Bool {
+        return workQueue.sync {
+            return cache.isEmpty
+        }
+    }
+
+    var values: [Value] {
+        return workQueue.sync {
+            return Array(cache.values)
+        }
+    }
+
+    var items: [(Key, Value)] {
+        return workQueue.sync {
+            return cache.map { ($0, $1) }
+        }
+    }
 
     subscript(key: Key) -> Value? {
         get {
