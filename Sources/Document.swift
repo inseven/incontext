@@ -43,4 +43,78 @@ struct Document {
     let relativeSourcePath: String
     let format: Format
 
+    let fingerprint: String
+
+    init(url: String,
+         parent: String,
+         category: String,
+         date: Date?,
+         title: String?,
+         metadata: [AnyHashable: Any],
+         contents: String,
+         contentModificationDate: Date,
+         template: TemplateIdentifier,
+         inlineTemplate: TemplateIdentifier?,
+         relativeSourcePath: String,
+         format: Format,
+         fingerprint: String) {
+        self.url = url
+        self.parent = parent
+        self.category = category
+        self.date = date
+        self.title = title
+        self.metadata = metadata
+        self.contents = contents
+        self.contentModificationDate = contentModificationDate
+        self.template = template
+        self.inlineTemplate = inlineTemplate
+        self.relativeSourcePath = relativeSourcePath
+        self.format = format
+        self.fingerprint = fingerprint
+    }
+
+    init(url: String,
+         parent: String,
+         category: String,
+         date: Date?,
+         title: String?,
+         metadata: [AnyHashable: Any],
+         contents: String,
+         contentModificationDate: Date,
+         template: TemplateIdentifier,
+         inlineTemplate: TemplateIdentifier?,
+         relativeSourcePath: String,
+         format: Format) throws {
+        self.url = url
+        self.parent = parent
+        self.category = category
+        self.date = date
+        self.title = title
+        self.metadata = metadata
+        self.contents = contents
+        self.contentModificationDate = contentModificationDate
+        self.template = template
+        self.inlineTemplate = inlineTemplate
+        self.relativeSourcePath = relativeSourcePath
+        self.format = format
+
+        var fingerprint = Fingerprint()
+        try fingerprint.update(url)
+        try fingerprint.update(category)
+        if let date {
+            try fingerprint.update(date)
+        }
+        if let title {
+            try fingerprint.update(title)
+        }
+        try fingerprint.update(metadata)
+        try fingerprint.update(contents)
+        try fingerprint.update(contentModificationDate)
+        try fingerprint.update(template)
+        if let inlineTemplate {
+            try fingerprint.update(inlineTemplate)
+        }
+        self.fingerprint = fingerprint.finalize()
+    }
+
 }

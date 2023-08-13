@@ -37,6 +37,7 @@ class Store {
         static let url = Expression<String>("url")
         static let contentModificationDate = Expression<Date>("content_modification_date")
         static let relativeSourcePath = Expression<String>("relative_source_path")
+        static let fingerprint = Expression<String>("fingerprint")
 
         // documents
         static let parent = Expression<String>("parent")
@@ -52,7 +53,6 @@ class Store {
         // status
         static let relativePath = Expression<String>("relative_path")  // TODO: This should be relative source path
         static let importer = Expression<String>("importer")
-        static let fingerprint = Expression<String>("fingerprint")
 
         // assets
         static let relativeAssetPath = Expression<String>("relative_asset_path")
@@ -73,7 +73,7 @@ class Store {
     let workQueue = DispatchQueue(label: "Store.workQueue", attributes: isMultiThreaded ? .concurrent : [])
     let connection: Connection
     let documentsCache = Cache<QueryDescription, [Document]>()
-    let contentModificationDatesCache = Cache<QueryDescription, [Date]>()
+    let fingerprintsCache = Cache<QueryDescription, [String]>()
 
     var writeable: Bool = false  // Synchronized on workQueue (with barrier)
 
@@ -93,6 +93,7 @@ class Store {
                 t.column(Schema.inlineTemplate)
                 t.column(Schema.relativeSourcePath)
                 t.column(Schema.format)
+                t.column(Schema.fingerprint)
             })
             print("create the status table...")
             try connection.run(Schema.status.create(ifNotExists: true) { t in
@@ -171,16 +172,16 @@ class Store {
         }
     }
 
-    private func syncQueue_save(documents: [Document], assets: [Asset], status: Status) throws {
+    private func syncQueue_save(document: Document?, assets: [Asset], status: Status) throws {
         dispatchPrecondition(condition: .onQueue(workQueue))
         try connection.transaction {
 
             // Invalidate the caches.
             documentsCache.removeAll()
-            contentModificationDatesCache.removeAll()
+            fingerprintsCache.removeAll()
 
-            // Write the documents.
-            for document in documents {
+            // Write the document.
+            if let document {
 
                 // Serialise the metadata.
                 let data = try JSONSerialization.data(withJSONObject: document.metadata)
@@ -200,7 +201,8 @@ class Store {
                                                            Schema.template <- document.template,
                                                            Schema.inlineTemplate <- document.inlineTemplate,
                                                            Schema.relativeSourcePath <- document.relativeSourcePath,
-                                                           Schema.format <- document.format))
+                                                           Schema.format <- document.format,
+                                                           Schema.fingerprint <- document.fingerprint))
             }
             for asset in assets {
                 try connection.run(Schema.assets.insert(or: .replace,
@@ -299,20 +301,21 @@ class Store {
                             template: row[Schema.template],
                             inlineTemplate: row[Schema.inlineTemplate],
                             relativeSourcePath: row[Schema.relativeSourcePath],
-                            format: row[Schema.format])
+                            format: row[Schema.format],
+                            fingerprint: row[Schema.fingerprint])
         }
     }
 
-    private func syncQueue_contentModificationDates(query: QueryDescription) throws -> [Date] {
+    private func syncQueue_fingerprints(query: QueryDescription) throws -> [String] {
         dispatchPrecondition(condition: .onQueue(workQueue))
 
         let select = query
             .query()
-            .select(Schema.contentModificationDate)
+            .select(Schema.fingerprint)
         let rowIterator = try connection.prepareRowIterator(select)
 
         return try rowIterator.map { row in
-            return row[Schema.contentModificationDate]
+            return row[Schema.fingerprint]
         }
     }
 
@@ -338,9 +341,9 @@ class Store {
         }
     }
 
-    func save(documents: [Document], assets: [Asset], status: Status) async throws {
+    func save(document: Document?, assets: [Asset], status: Status) async throws {
         try await run(.write) {
-            try self.syncQueue_save(documents: documents, assets: assets, status: status)
+            try self.syncQueue_save(document: document, assets: assets, status: status)
         }
     }
 
@@ -413,15 +416,15 @@ class Store {
     }
 
     // TODO: This can actually be async.
-    func contentModificationDates(query: QueryDescription) throws -> [Date] {
+    func fingerprints(query: QueryDescription) throws -> [String] {
         dispatchPrecondition(condition: .notOnQueue(workQueue))
         return try workQueue.sync {
-            if let contentModificationDates = contentModificationDatesCache[query] {
-                return contentModificationDates
+            if let fingerprints = fingerprintsCache[query] {
+                return fingerprints
             }
-            let contentModificationDates = try syncQueue_contentModificationDates(query: query)
-            contentModificationDatesCache[query] = contentModificationDates
-            return contentModificationDates
+            let fingerprints = try syncQueue_fingerprints(query: query)
+            fingerprintsCache[query] = fingerprints
+            return fingerprints
         }
     }
 

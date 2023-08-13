@@ -72,3 +72,14 @@ extension Array {
     }
 
 }
+
+extension Array: Fingerprintable {
+
+    func combine(into fingerprint: inout Fingerprint) throws {
+        let items: [any Fingerprintable] = try cast(self)
+        for item in items {
+            try fingerprint.update(item)
+        }
+    }
+
+}

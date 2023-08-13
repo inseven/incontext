@@ -60,3 +60,11 @@ extension String {
     }
 
 }
+
+extension String: Fingerprintable {
+
+    func combine(into fingerprint: inout Fingerprint) throws {
+        try fingerprint.update(self)
+    }
+
+}

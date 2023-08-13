@@ -122,22 +122,13 @@ class Builder {
     // TODO: Perhaps this can get pushed into the RenderManager?
     func needsRender(document: Document, renderStatus: RenderStatus?) async throws -> Bool {
 
-        // TODO: Will the render change actually cascade correctly if the document was regenerated due to an injected
-        //       settings change, but the mtime didn't change? Do we actually need to bake the fingerprint into the
-        //       document and the render tracker?
-        //       This will _only_ happen if we correctly delete the render cache at injest time. I'm not actually sure
-        //       if that is the right choice though; perhaps it is better to treat them as fairly independent stages?
-        //       Deleting the render cache feels like it's an optimisation which should improve performance.
-        //       It would be good to be able to run the import and render phases separately for integration testing
-        //       purposes to check that the correct side effects have happened.
-
         guard let renderStatus = renderStatus else {
             // Since there's no render status we assume the document has never been rendered.
             return true
         }
 
         // Check the document modification date.
-        if renderStatus.contentModificationDate != document.contentModificationDate {
+        if renderStatus.documentFingerprint != document.fingerprint {
             // The document itself has changed.
             return true
         }
@@ -161,9 +152,8 @@ class Builder {
 
         // Check the query result modification dates.
         for queryStatus in renderStatus.queries {
-            // TODO: Content modification dates query _could_ be async.
-            let contentModificationDates = try self.store.contentModificationDates(query: queryStatus.query)
-            if queryStatus.contentModificationDates != contentModificationDates {
+            let fingerprints = try self.store.fingerprints(query: queryStatus.query)
+            if queryStatus.fingerprints != fingerprints {
                 return true
             }
         }
@@ -282,7 +272,7 @@ class Builder {
                                             contentModificationDate: file.contentModificationDate,
                                             importer: handler.identifier,
                                             fingerprint: handlerFingerprint)
-                        try await self.store.save(documents: result.documents, assets: result.assets, status: status)
+                        try await self.store.save(document: result.document, assets: result.assets, status: status)
                         return fileURL
                     } catch {
                         throw InContextError.importError(fileURL, error)

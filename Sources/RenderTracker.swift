@@ -46,7 +46,7 @@ class RenderTracker {
     func documents(query: QueryDescription) throws -> [Document] {
         let documents = try store.documents(query: query)
         queries.insert(QueryStatus(query: query,
-                                   contentModificationDates: documents.map({ $0.contentModificationDate })))
+                                   fingerprints: documents.map({ $0.fingerprint })))
         return documents
     }
 
@@ -56,7 +56,7 @@ class RenderTracker {
     }
 
     func renderStatus(for document: Document) -> RenderStatus {
-        return RenderStatus(contentModificationDate: document.contentModificationDate,
+        return RenderStatus(documentFingerprint: document.fingerprint,
                             queries: Array(queries),
                             renderers: Array(renderers),
                             templates: Array(statuses))

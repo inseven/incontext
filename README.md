@@ -94,7 +94,6 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 These changes impact the rendering of jbmorley.co.uk and block switching to InContext 3.
 
 1. **Deleted documents aren't removed from the store**
-2. **Incremental builds don't notice settings changes**
 3. **Check adaptive images work**
 4. **Don't automatically replace non-Markdown image tags**
 5. **Videos** (Location, Titles)
