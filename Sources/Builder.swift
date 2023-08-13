@@ -116,7 +116,7 @@ class Builder {
         self.serializeRender = serializeRender
         self.store = try Store(databaseURL: site.storeURL)
         self.templateCache = try await TemplateCache(rootURL: site.templatesURL)  // TODO: Does this need to exist here?
-        self.renderManager = RenderManager(templateCache: templateCache, concurrent: !serializeRender)
+        self.renderManager = RenderManager(templateCache: templateCache)
     }
 
     // TODO: Perhaps this can get pushed into the RenderManager?
@@ -135,8 +135,7 @@ class Builder {
 
         // Check to see if any of the renderers have changed.
         for renderer in renderStatus.renderers {
-            let currentRenderer = renderManager.staticRenderer
-            if renderer.version != currentRenderer.version {
+            if renderer.version != renderManager.rendererVersion {
                 // One of the renderers used has been updated.
                 return true
             }

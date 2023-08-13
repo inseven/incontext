@@ -27,27 +27,29 @@ import SwiftSoup
 class RenderManager {
 
     private let templateCache: TemplateCache
-    private let concurrent: Bool
-    let staticRenderer: Renderer
 
-    init(templateCache: TemplateCache, concurrent: Bool) {
+    private let syncQueue = DispatchQueue(label: "RenderManager.syncQueue")
+    private var renderers: [TiltRenderer] = []
+
+    init(templateCache: TemplateCache) {
         self.templateCache = templateCache
-        self.concurrent = concurrent
-        self.staticRenderer = TiltRenderer(templateCache: templateCache)
     }
 
-    func renderer() -> Renderer {
-        if concurrent {
-            // TODO: This should do renderer pooling to minimise Lua environment creation
-            return TiltRenderer(templateCache: templateCache)
-        }
-        return staticRenderer
+    var rendererVersion: Int {
+        return TiltRenderer.version
     }
 
     func render(renderTracker: RenderTracker,
                 template: TemplateIdentifier,
                 context: [String: Any]) throws -> String {
-        let renderer = renderer()
+
+        let renderer = TiltRenderer(templateCache: templateCache)
+//        let renderer = syncQueue.sync { renderers.popLast() } ?? TiltRenderer(templateCache: templateCache)
+//        defer {
+//            syncQueue.async {
+//                self.renderers.append(renderer)
+//            }
+//        }
 
         // Perform the render.
         let renderResult = try renderer.render(name: template.name, context: context)
@@ -55,7 +57,7 @@ class RenderManager {
         // Record the renderer instance used.
         // It is sufficient to record this once for the whole render operation even though multiple templates might be
         // used, as we do not allow mixing of template languages within a single top-level render.
-        renderTracker.add(RendererInstance(version: renderer.version))
+        renderTracker.add(RendererInstance(version: type(of: renderer).self.version))
 
         // Generate language-scoped identifiers for the templates reported as used by the renderer.
         let templatesUsed: [TemplateIdentifier] = renderResult.templatesUsed.map { name in

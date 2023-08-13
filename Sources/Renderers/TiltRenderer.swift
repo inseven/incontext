@@ -106,9 +106,9 @@ fileprivate func warning(_ L: LuaState!) -> CInt {
     return 0
 }
 
-class TiltRenderer: Renderer {
+class TiltRenderer {
 
-    let version = 1
+    static let version = 1
 
     let templateCache: TemplateCache
 
