@@ -53,8 +53,8 @@ These are the contents of the file.
                                                 file: file,
                                                 settings: .init(defaultCategory: "general",
                                                                 defaultTemplate: TemplateIdentifier("posts.html")))
-        XCTAssertEqual(result.documents.count, 1)
-        XCTAssertEqual(result.documents.first!.metadata["title"] as? String, "Fromage")
+        XCTAssertNotNil(result.document)
+        XCTAssertEqual(result.document!.metadata["title"] as? String, "Fromage")
     }
 
     func testMarkdownTitleFromFile() async throws {
@@ -77,8 +77,8 @@ build_steps:
                                                 file: file,
                                                 settings: .init(defaultCategory: "general",
                                                                 defaultTemplate: TemplateIdentifier("posts.html")))
-        XCTAssertEqual(result.documents.count, 1)
-        XCTAssertEqual(result.documents.first!.metadata["title"] as? String, "Cheese")
+        XCTAssertNotNil(result.document)
+        XCTAssertEqual(result.document!.metadata["title"] as? String, "Cheese")
     }
 
 }

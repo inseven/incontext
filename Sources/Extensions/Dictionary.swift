@@ -115,3 +115,20 @@ extension Dictionary: EvaluationContext where Key == AnyHashable, Value == Any {
     }
 
 }
+
+extension Dictionary: Fingerprintable {
+
+    func combine(into fingerprint: inout Fingerprint) throws {
+        // In order to come up with a stable fingerprint, we need to guarantee that we combine our keys-value pairs in
+        // a predictable order. We therefore limit this to a dictionary with string keys.
+        let contents: [String: Any] = try cast(self)
+        let keys = contents.keys.sorted()
+        for key in keys {
+            let value: any Fingerprintable = try cast(contents[key]!)
+            try fingerprint.update(key)
+            try fingerprint.update(value)
+        }
+
+    }
+
+}

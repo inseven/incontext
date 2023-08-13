@@ -22,8 +22,6 @@
 
 import Foundation
 
-import Crypto
-
 protocol Fingerprintable {
 
     func combine(into fingerprint: inout Fingerprint) throws
@@ -36,62 +34,6 @@ extension Fingerprintable {
         var fingerprint = Fingerprint()
         try combine(into: &fingerprint)
         return fingerprint.finalize()
-    }
-
-}
-
-struct Fingerprint {
-
-    public enum CryptoError: Error {
-        case encodingError
-    }
-
-    var md5: Insecure.MD5
-
-    init() {
-        md5 = Insecure.MD5()
-    }
-
-    mutating func update(bufferPointer: UnsafeRawBufferPointer) {
-        md5.update(bufferPointer: bufferPointer)
-    }
-
-    mutating func update(_ fingerprintable: Fingerprintable) throws {
-        try fingerprintable.combine(into: &self)
-    }
-
-    mutating func update(_ int: Int) throws {
-        var int = int
-        withUnsafeBytes(of: &int) { data in
-            self.update(bufferPointer: data)
-        }
-    }
-
-    mutating func update(_ bool: Bool) throws {
-        var bool = bool
-        withUnsafeBytes(of: &bool) { data in
-            self.update(bufferPointer: data)
-        }
-    }
-
-    mutating func update(_ string: String) throws {
-        guard let data = string.data(using: .utf8) else {
-            throw CryptoError.encodingError
-        }
-        md5.update(data: data)
-    }
-
-    mutating func update(_ date: Date) throws {
-        var date = date.timeIntervalSinceReferenceDate
-        withUnsafeBytes(of: &date) { data in
-            self.update(bufferPointer: data)
-        }
-    }
-
-    fileprivate func finalize() -> String {
-        let digest = md5.finalize()
-        let data = Data(digest)
-        return data.base64EncodedString()
     }
 
 }

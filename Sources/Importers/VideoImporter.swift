@@ -139,20 +139,20 @@ class VideoImporter: Importer {
             "video": videoDetails,
         ]
 
-        let document = Document(url: fileURL.siteURL,
-                                parent: fileURL.parentURL,
-                                category: settings.defaultCategory,
-                                date: content?.structuredMetadata.date ?? date,
-                                title: content?.structuredMetadata.title,  // TODO: Title
-                                metadata: metadata,
-                                contents: content?.content ?? "",
-                                contentModificationDate: file.contentModificationDate,
-                                template: settings.defaultTemplate,
-                                inlineTemplate: settings.inlineTemplate,
-                                relativeSourcePath: file.relativePath,
-                                format: .video)
+        let document = try Document(url: fileURL.siteURL,
+                                    parent: fileURL.parentURL,
+                                    category: settings.defaultCategory,
+                                    date: content?.structuredMetadata.date ?? date,
+                                    title: content?.structuredMetadata.title,  // TODO: Title
+                                    metadata: metadata,
+                                    contents: content?.content ?? "",
+                                    contentModificationDate: file.contentModificationDate,
+                                    template: settings.defaultTemplate,
+                                    inlineTemplate: settings.inlineTemplate,
+                                    relativeSourcePath: file.relativePath,
+                                    format: .video)
 
-        return ImporterResult(documents: [document], assets: [Asset(fileURL: videoURL), Asset(fileURL: thumbnailURL)])
+        return ImporterResult(document: document, assets: [Asset(fileURL: videoURL), Asset(fileURL: thumbnailURL)])
     }
 
     func thumbnail(asset: AVAsset, destinationURL: URL) async throws {

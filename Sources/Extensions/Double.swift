@@ -22,9 +22,10 @@
 
 import Foundation
 
-struct QueryStatus: Codable, Hashable {
+extension Double: Fingerprintable {
 
-    let query: QueryDescription
-    let fingerprints: [String]
+    func combine(into fingerprint: inout Fingerprint) throws {
+        try fingerprint.update(self)
+    }
 
 }

@@ -22,14 +22,13 @@
 
 import Foundation
 
-// TODO: Importers currently only generate one document.
 struct ImporterResult {
 
-    let documents: [Document]
+    let document: Document?
     let assets: [Asset]
 
-    init(documents: [Document] = [], assets: [Asset] = []) {
-        self.documents = documents
+    init(document: Document? = nil, assets: [Asset] = []) {
+        self.document = document
         self.assets = assets
     }
 

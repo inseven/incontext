@@ -58,19 +58,19 @@ class MarkdownImporter: Importer {
 
         let category: String = try metadata.value(for: "category", default: settings.defaultCategory)
 
-        let document = Document(url: fileURL.siteURL,
-                                parent: fileURL.parentURL,
-                                category: category,
-                                date: frontmatter.structuredMetadata.date ?? details.date,
-                                title: frontmatter.structuredMetadata.title ?? details.title,
-                                metadata: metadata,
-                                contents: frontmatter.content,
-                                contentModificationDate: file.contentModificationDate,
-                                template: frontmatter.structuredMetadata.template ?? settings.defaultTemplate,
-                                inlineTemplate: nil,
-                                relativeSourcePath: file.relativePath,
-                                format: .text)
-        return ImporterResult(documents: [document])
+        let document = try Document(url: fileURL.siteURL,
+                                    parent: fileURL.parentURL,
+                                    category: category,
+                                    date: frontmatter.structuredMetadata.date ?? details.date,
+                                    title: frontmatter.structuredMetadata.title ?? details.title,
+                                    metadata: metadata,
+                                    contents: frontmatter.content,
+                                    contentModificationDate: file.contentModificationDate,
+                                    template: frontmatter.structuredMetadata.template ?? settings.defaultTemplate,
+                                    inlineTemplate: nil,
+                                    relativeSourcePath: file.relativePath,
+                                    format: .text)
+        return ImporterResult(document: document)
     }
 
 }

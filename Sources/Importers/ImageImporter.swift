@@ -381,19 +381,23 @@ class ImageImporter: Importer {
         let filenameTitle = settings.titleFromFilename ? details.title : nil
 
         // N.B. The EXIF 'DateTimeOriginal' field sometimes appears to be invalid so we fall back on DateTimeDigitized.
-        let document = Document(url: fileURL.siteURL,
-                                parent: fileURL.parentURL,
-                                category: settings.defaultCategory,
-                                date: try (try? exif.dateTimeOriginal) ?? (try exif.dateTimeDigitized) ?? details.date,
-                                title: try exif.firstTitle ?? content?.structuredMetadata.title ?? filenameTitle,
-                                metadata: context.metadata,
-                                contents: content?.content ?? "",
-                                contentModificationDate: file.contentModificationDate,
-                                template: settings.defaultTemplate,
-                                inlineTemplate: settings.inlineTemplate,
-                                relativeSourcePath: file.relativePath,
-                                format: .image)
-        return ImporterResult(documents: [document], assets: context.assets)
+
+        let date = try (try? exif.dateTimeOriginal) ?? (try exif.dateTimeDigitized) ?? details.date
+        let title = try exif.firstTitle ?? content?.structuredMetadata.title ?? filenameTitle
+
+        let document = try Document(url: fileURL.siteURL,
+                                    parent: fileURL.parentURL,
+                                    category: settings.defaultCategory,
+                                    date: date,
+                                    title: title,
+                                    metadata: context.metadata,
+                                    contents: content?.content ?? "",
+                                    contentModificationDate: file.contentModificationDate,
+                                    template: settings.defaultTemplate,
+                                    inlineTemplate: settings.inlineTemplate,
+                                    relativeSourcePath: file.relativePath,
+                                    format: .image)
+        return ImporterResult(document: document, assets: context.assets)
     }
 
 }

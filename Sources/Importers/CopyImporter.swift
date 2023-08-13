@@ -26,7 +26,7 @@ class CopyImporter: Importer {
 
     typealias Settings = EmptySettings
 
-    let identifier = "copy_file"
+    let identifier = "copy"
     let version = 1
 
     func settings(for configuration: [String : Any]) throws -> EmptySettings {
