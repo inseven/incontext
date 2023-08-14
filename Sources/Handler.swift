@@ -62,8 +62,8 @@ extension Handler: Fingerprintable {
         return try when.wholeMatch(in: relativePath) != nil
     }
 
-    func process(site: Site, file: File) async throws -> ImporterResult {
-        return try await importer.process(site: site, file: file, settings: settings)
+    func process(file: File, outputURL: URL) async throws -> ImporterResult {
+        return try await importer.process(file: file, settings: settings, outputURL: outputURL)
     }
 
 }

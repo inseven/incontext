@@ -46,7 +46,9 @@ protocol Importer {
     var version: Int { get }
 
     func settings(for configuration: [String: Any]) throws -> Settings
-    func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult
+    func process(file: File,
+                 settings: Settings,
+                 outputURL: URL) async throws -> ImporterResult
 
 }
 

@@ -266,7 +266,7 @@ class Builder {
                     // Import the file.
                     let file = File(url: fileURL, contentModificationDate: contentModificationDate)
                     do {
-                        let result = try await handler.process(site: self.site, file: file)
+                        let result = try await handler.process(file: file, outputURL: self.site.filesURL)
                         let status = Status(fileURL: file.url,
                                             contentModificationDate: file.contentModificationDate,
                                             importer: handler.identifier,
