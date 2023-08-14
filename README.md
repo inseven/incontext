@@ -109,7 +109,6 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 16. Render caching currently means that it's not possible to use incremental builds for deployments
 17. 360 degree mini worlds aren't generated
 18. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
-19. Comments aren't correctly parsed as Markdown
 
 ### Background
 
