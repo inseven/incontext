@@ -155,6 +155,8 @@ struct DocumentContext: EvaluationContext {
             return date
         case "contentModificationDate", "last_modified":
             return contentModificationDate
+        case "sourcePath":
+            return document.relativeSourcePath
         case "query": return Function { (name: String) -> [DocumentContext] in
             guard let queries = document.metadata["queries"] as? [String: Any],
                   let query = queries[name] else {
@@ -213,6 +215,7 @@ struct DocumentContext: EvaluationContext {
             return try renderTracker.documentContexts(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first
         }
         case "relative_source_path": return Function { (relativePath: String) -> String in
+            // TODO: This is misleading naming as it matches an existing property on the document.
             return relativeSourcePath(for: relativePath)
         }
         case "abspath": return Function { (relativePath: String) -> String in
