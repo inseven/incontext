@@ -98,7 +98,6 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 4. **Don't automatically replace non-Markdown image tags**
 5. **Videos** (Location, Titles)
 6. **Promote metadata dates (see the reading and game lists)**
-7. **Check that the JSON feed works**
 8. Pass-through site metadata so that things like tags can be rendered correctly
 9. Check that gifs are transformed correctly
 11. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
