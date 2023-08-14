@@ -60,8 +60,7 @@ class Builder {
                 return Date.distantPast
             },
             "markdown": Function { (string: String) -> String in
-                // TODO: Actually process the markdown
-                return string
+                return string.html()
             },
             "iso_8601_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
             "rfc_3339_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
