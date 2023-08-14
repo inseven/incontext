@@ -50,12 +50,14 @@ class VideoImporter: Importer {
                         inlineTemplate: try args.requiredRawRepresentable(for: "inline_template"))
     }
 
-    func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
+    func process(file: File,
+                 settings: Settings,
+                 outputURL: URL) async throws -> ImporterResult {
 
         let fileURL = file.url
 
         // Create the assets directory.
-        let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: site.filesURL)
+        let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: outputURL)
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
         let asset = AVAsset(url: file.url)

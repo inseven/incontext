@@ -22,7 +22,7 @@
 
 import Foundation
 
-func withTemporaryDirectory(perform: @escaping (URL) async throws -> Void) async throws {
+func withTemporaryDirectory(perform: /* @escaping */ (URL) async throws -> Void) async throws {
     let fileManager = FileManager.default
     let url = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
     try fileManager.createDirectory(at: url, withIntermediateDirectories: true)

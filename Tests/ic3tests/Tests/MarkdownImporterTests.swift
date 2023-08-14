@@ -49,10 +49,10 @@ title: Fromage
 These are the contents of the file.
 """)
         let importer = MarkdownImporter()
-        let result = try await importer.process(site: defaultSourceDirectory.site,
-                                                file: file,
+        let result = try await importer.process(file: file,
                                                 settings: .init(defaultCategory: "general",
-                                                                defaultTemplate: TemplateIdentifier("posts.html")))
+                                                                defaultTemplate: TemplateIdentifier("posts.html")),
+                                                outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
         XCTAssertEqual(result.document!.metadata["title"] as? String, "Fromage")
     }
@@ -73,10 +73,10 @@ build_steps:
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
         let importer = MarkdownImporter()
-        let result = try await importer.process(site: defaultSourceDirectory.site,
-                                                file: file,
+        let result = try await importer.process(file: file,
                                                 settings: .init(defaultCategory: "general",
-                                                                defaultTemplate: TemplateIdentifier("posts.html")))
+                                                                defaultTemplate: TemplateIdentifier("posts.html")),
+                                                outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
         XCTAssertEqual(result.document!.metadata["title"] as? String, "Cheese")
     }

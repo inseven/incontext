@@ -26,7 +26,7 @@ struct AnyHandler {
 
     let _fingerprint: () throws -> String
     let _identifier: () -> String
-    let _process: (Site, File) async throws -> ImporterResult
+    let _process: (File, URL) async throws -> ImporterResult
     let _matches: (String) throws -> Bool
 
     func fingerprint() throws -> String {
@@ -44,8 +44,8 @@ struct AnyHandler {
         _identifier = {
             return handler.identifier
         }
-        _process = { site, file in
-            return try await handler.process(site: site, file: file)
+        _process = { file, outputURL in
+            return try await handler.process(file: file, outputURL: outputURL)
         }
         _matches = { path in
             return try handler.matches(relativePath: path)
@@ -56,8 +56,8 @@ struct AnyHandler {
         return try _matches(relativePath)
     }
 
-    func process(site: Site, file: File) async throws -> ImporterResult {
-        return try await _process(site, file)
+    func process(file: File, outputURL: URL) async throws -> ImporterResult {
+        return try await _process(file, outputURL)
     }
 
 }

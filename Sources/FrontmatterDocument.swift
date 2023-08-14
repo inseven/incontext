@@ -35,6 +35,11 @@ struct FrontmatterDocument {
     let content: String
 
     init(contents: String, generateHTML: Bool = false) throws {
+
+        // Sometimes we see 'line separator' characters (Unicode 2028) in image and video descriptions (thanks Photos),
+        // so we blanket replace these with new lines to be more forgiving.
+        let contents = contents.replacingOccurrences(of: "\u{2028}", with: "\n")
+
         guard let match = contents.wholeMatch(of: Self.frontmatterRegEx) else {
             rawMetadata = ""
             structuredMetadata = Metadata()

@@ -310,12 +310,14 @@ class ImageImporter: Importer {
                         inlineTemplate: try args.requiredRawRepresentable(for: "inline_template"))
     }
 
-    func process(site: Site, file: File, settings: Settings) async throws -> ImporterResult {
+    func process(file: File,
+                 settings: Settings,
+                 outputURL: URL) async throws -> ImporterResult {
 
         let fileURL = file.url
 
         // Create the assets directory.
-        let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: site.filesURL)  // TODO: Make this a utiltiy and test it
+        let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: outputURL)  // TODO: Make this a utiltiy and test it
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
         // Load the original image.
