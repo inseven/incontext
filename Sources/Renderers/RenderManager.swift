@@ -81,7 +81,7 @@ class RenderManager {
         return try dom.html()
     }
 
-    func clearCache() {
+    func clearTemplateCache() {
         templateCache.clear()
     }
 
