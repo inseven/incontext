@@ -24,6 +24,4 @@ jobs:
         lfs: true
 
     - name: Build and test
-      run: |
-        swift build
-        swift test
+      run: Scripts/build.sh
