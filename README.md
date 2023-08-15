@@ -98,10 +98,8 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 4. **Don't automatically replace non-Markdown image tags**
 5. **Videos** (Location, Titles)
 6. **Promote metadata dates (see the reading and game lists)**
-7. **Check that the JSON feed works**
 8. Pass-through site metadata so that things like tags can be rendered correctly
 9. Check that gifs are transformed correctly
-10. Migrate EXIF sidecars
 11. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
 12. Markdown issues (Footnotes, Strikethrough, mdash)
 13. Scale videos
@@ -110,7 +108,6 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 16. Render caching currently means that it's not possible to use incremental builds for deployments
 17. 360 degree mini worlds aren't generated
 18. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
-19. Comments aren't correctly parsed as Markdown
 
 ### Background
 
