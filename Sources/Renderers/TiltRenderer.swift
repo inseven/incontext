@@ -21,7 +21,8 @@
 // SOFTWARE.
 
 import Tilt
-import TiltC
+import Lua
+import CLua
 import Foundation
 
 fileprivate struct LuaStateArgumentProvider: ArgumentProvider {
@@ -38,37 +39,13 @@ fileprivate struct LuaStateArgumentProvider: ArgumentProvider {
     }
 }
 
-extension LuaStringRef: Convertible {
-    func convertToType(_ t: Any.Type) -> Any? {
-        if t == String.self {
-            return toString(encoding: .stringEncoding(.utf8))
-        } else if t == Data.self {
-            return toData()
-        } else {
-            return nil
-        }
-    }
-}
-
-extension LuaTableRef: Convertible {
-    func convertToType(_ t: Any.Type) -> Any? {
-        if t == Dictionary<AnyHashable, Any>.self {
-            return toDict()
-        } else if t == Array<Any>.self {
-            return toArray()
-        } else {
-            return nil
-        }
-    }
-}
-
 fileprivate func callFunctionBlock(_ L: LuaState!) -> CInt {
     return L.convertThrowToError {
         guard let function: Callable = L.touserdata(1) else {
             throw LuaCallError("Object does not support Callable")
         }
         let result = try function.call(with: LuaStateArgumentProvider(L: L))
-        L.pushany(result)
+        L.push(any: result)
         return 1
     }
 }
@@ -83,7 +60,7 @@ fileprivate func lookupViaEvaluationContext(_ L: LuaState!) -> CInt {
             return 0
         }
         let result = try obj.lookup(memberName)
-        L.pushany(result)
+        L.push(any: result)
         return 1
     }
 }
@@ -127,7 +104,7 @@ class TiltRenderer {
 
         L.pushGlobals()
 
-        L.pushuserdata(templateCache)
+        L.push(userdata: templateCache)
         lua_pushcclosure(L, readFile, 1)
         lua_setfield(L, -2, "readFile")
 
@@ -139,7 +116,7 @@ class TiltRenderer {
 
     func setContext(_ context: [String: Any]) throws {
         env.L.getglobal("setContext")
-        try env.L.pcall(arguments: context)
+        try env.L.pcall(context)
     }
 
     func render(name: String, context: [String : Any]) throws -> RenderResult {
