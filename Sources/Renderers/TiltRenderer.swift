@@ -42,7 +42,7 @@ fileprivate struct LuaStateArgumentProvider: ArgumentProvider {
 fileprivate func callFunctionBlock(_ L: LuaState!) -> CInt {
     return L.convertThrowToError {
         guard let function: Callable = L.touserdata(1) else {
-            throw LuaCallError("Object does not support Callable")
+            throw InContextError.internalInconsistency("Object does not support Callable")
         }
         let result = try function.call(with: LuaStateArgumentProvider(L: L))
         L.push(any: result)
@@ -53,7 +53,7 @@ fileprivate func callFunctionBlock(_ L: LuaState!) -> CInt {
 fileprivate func lookupViaEvaluationContext(_ L: LuaState!) -> CInt {
     return L.convertThrowToError {
         guard let obj: EvaluationContext = L.touserdata(1) else {
-            throw LuaCallError("Object does not support EvaluationContext")
+            throw InContextError.internalInconsistency("Object does not support EvaluationContext")
         }
         guard let memberName = L.tostring(2) else {
             // Trying to lookup a non-string member, not happening
