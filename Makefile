@@ -1,4 +1,4 @@
-export PYTHONUSERBASE := $(realpath .local/bin)
+export PYTHONUSERBASE := .local/bin
 export PATH := $(PYTHONUSERBASE):$(PATH)
 
 all:
@@ -30,6 +30,7 @@ release: all
 		.build/x86_64-apple-macosx/release/incontext
 
 clean:
+	rm -rf .local
 	rm -rf .build
 	rm -f incontext
 
