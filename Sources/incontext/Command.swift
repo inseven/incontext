@@ -27,7 +27,7 @@ import Hummingbird
 import HummingbirdFoundation
 
 import InContextCore
-import InContextCoreDetails
+import InContextMetadata
 
 @main
 struct Command: AsyncParsableCommand {
