@@ -4,3 +4,6 @@
 [submodule "Scripts/changes"]
 	path = Scripts/changes
 	url = git@github.com:jbmorley/changes.git
+[submodule "Scripts/build-tools"]
+	path = Scripts/build-tools
+	url = git@github.com:jbmorley/build-tools.git
