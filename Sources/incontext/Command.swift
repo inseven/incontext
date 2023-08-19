@@ -143,9 +143,9 @@ extension Command {
             let version = String(cString: InContextVersion)
             let buildNumber = String(cString: InContextBuildNumber)
             #if DEBUG
-            let variant = "Release"
-            #else
             let variant = "Debug"
+            #else
+            let variant = "Release"
             #endif
             print("\(version) \(buildNumber) \(variant)")
         }
