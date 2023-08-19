@@ -24,13 +24,15 @@ import Foundation
 
 class RenderTracker {
 
+    private let site: Site
     private let store: Store
     private let renderManager: RenderManager
     private var queries = Set<QueryStatus>()
     private var renderers = Set<RendererInstance>()
     private var statuses = Set<TemplateRenderStatus>()
 
-    init(store: Store, renderManager: RenderManager) {
+    init(site: Site, store: Store, renderManager: RenderManager) {
+        self.site = site
         self.store = store
         self.renderManager = renderManager
     }
@@ -64,7 +66,7 @@ class RenderTracker {
 
     func render(_ document: Document, template: TemplateIdentifier? = nil) throws -> String {
         let template = template ?? document.template
-        let context = Builder.context(for: document, renderTracker: self)
+        let context = Builder.context(for: site, document: document, renderTracker: self)
         return try renderManager.render(renderTracker: self, template: template, context: context)
     }
 

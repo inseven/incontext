@@ -26,7 +26,7 @@ import SwiftSoup
 
 public class Builder {
 
-    static func context(for document: Document, renderTracker: RenderTracker) -> [String: Any] {
+    static func context(for site: Site, document: Document, renderTracker: RenderTracker) -> [String: Any] {
 
         // TODO: Inline the config loaded from the settings file
         // TODO: Consider separating the store and the site metadata.
@@ -34,10 +34,10 @@ public class Builder {
         return [
             "site": [
                 // TODO: Pull this out of the site configuration (and make required configuration type-safe)
-                "title": "Jason Morley",
+                "title": site.title,
+                "url": site.url.absoluteString,
                 "date_format": "MMMM d, yyyy",
                 "date_format_short": "MMMM d",
-                "url": "https://jbmorley.co.uk",
                 "posts": Function { () throws -> [DocumentContext] in
                     return try renderTracker.documentContexts(query: QueryDescription())
                 },
@@ -173,7 +173,7 @@ public class Builder {
         // Render the document using its top-level template.
         // This is tracked using our document-specific `RenderTracker` instance to allow us to track dependencies
         // (queries and templates) and see if they've changed on future incremental builds.
-        let renderTracker = RenderTracker(store: store, renderManager: renderManager)
+        let renderTracker = RenderTracker(site: site, store: store, renderManager: renderManager)
         let content = try renderTracker.render(document)
         let renderStatus = renderTracker.renderStatus(for: document)
         try await store.save(renderStatus: renderStatus, for: document.url)

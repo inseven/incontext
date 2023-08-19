@@ -30,8 +30,8 @@ class ImageImporterTests: ContentTestCase {
     func testExtractTitle() async throws {
 
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
-config:
-    title: Example
+title: Example
+url: http://example.com
 build_steps:
   - task: process_files
     args:

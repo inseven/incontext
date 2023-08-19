@@ -24,6 +24,7 @@ import Foundation
 import UniformTypeIdentifiers
 
 import Yaml
+import Yams
 
 public struct Site {
 
@@ -34,9 +35,18 @@ public struct Site {
     public let storeURL: URL
     public let filesURL: URL
 
+    let structuredSettings: Settings
     let settings: [AnyHashable: Any]
 
     let handlers: [AnyHandler]
+
+    public var title: String {
+        return structuredSettings.title
+    }
+
+    public var url: URL {
+        return structuredSettings.url
+    }
 
     public init(rootURL: URL) throws {
         self.rootURL = rootURL
@@ -51,6 +61,7 @@ public struct Site {
         guard let settingsString = String(data: settingsData, encoding: .utf8) else {
             throw InContextError.encodingError
         }
+        self.structuredSettings = try YAMLDecoder().decode(Settings.self, from: settingsData)
         self.settings = try (try Yaml.load(settingsString)).dictionary()
 
         guard let buildSteps = settings["build_steps"] as? [[String: Any]],
