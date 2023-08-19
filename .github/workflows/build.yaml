@@ -24,4 +24,7 @@ jobs:
         lfs: true
 
     - name: Build and test
-      run: Scripts/build.sh
+      run: |
+        make clean
+        make test
+        make release
