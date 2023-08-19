@@ -26,6 +26,8 @@ import ArgumentParser
 import Hummingbird
 import HummingbirdFoundation
 
+import InContextCore
+
 @main
 struct Command: AsyncParsableCommand {
 

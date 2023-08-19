@@ -24,7 +24,7 @@ import Foundation
 
 import SwiftSoup
 
-class Builder {
+public class Builder {
 
     static func context(for document: Document, renderTracker: RenderTracker) -> [String: Any] {
 
@@ -108,7 +108,7 @@ class Builder {
     let templateCache: TemplateCache
     let renderManager: RenderManager
 
-    init(site: Site, serializeImport: Bool, serializeRender: Bool) async throws {
+    public init(site: Site, serializeImport: Bool, serializeRender: Bool) async throws {
         try FileManager.default.createDirectory(at: site.buildURL, withIntermediateDirectories: true)
         self.site = site
         self.serializeImport = serializeImport
@@ -340,7 +340,7 @@ class Builder {
         try FileManager.default.createDirectory(at: site.filesURL, withIntermediateDirectories: true)
     }
 
-    func build(watch: Bool = false) async throws {
+    public func build(watch: Bool = false) async throws {
         try prepare()
 
         // Prepare to watch for changes in case we've been asked to watch.

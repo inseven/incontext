@@ -22,7 +22,7 @@
 
 import Foundation
 
-@testable import incontext
+@testable import InContextCore
 
 class SourceDirectory {
 

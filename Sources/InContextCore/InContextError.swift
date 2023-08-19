@@ -22,7 +22,7 @@
 
 import Foundation
 
-enum InContextError: Error {
+public enum InContextError: Error {
     
     case encodingError
     case internalInconsistency(String)
@@ -51,7 +51,7 @@ enum InContextError: Error {
 
 extension InContextError: LocalizedError {
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .unknownTemplate(let name):
             return "Unknown template '\(name)'."
