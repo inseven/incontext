@@ -145,7 +145,6 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 
 ### Improvements
 
-- Try using a multi-reader / single-writer model for the database to improve template render performance
 - Use Swift DSL to unify file and image handlers (this would allow easy checking of glob, regex, extension, and mime type)
 - Typesafe configuration
   - Explicit user-defined metadata section in the site and frontmatter
