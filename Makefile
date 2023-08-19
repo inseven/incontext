@@ -1,5 +1,5 @@
-export PYTHONUSERBASE := .local/bin
-export PATH := $(PYTHONUSERBASE):$(PATH)
+export PYTHONUSERBASE := .local/python
+export PATH := $(PYTHONUSERBASE)/bin:$(PATH)
 
 all:
 	mkdir -p $(PYTHONUSERBASE)
