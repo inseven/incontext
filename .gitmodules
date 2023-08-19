@@ -1,3 +1,6 @@
 [submodule "Dependencies/Tilt"]
 	path = Dependencies/Tilt
 	url = git@github.com:tomsci/tomscis-lua-templater.git
+[submodule "Scripts/changes"]
+	path = Scripts/changes
+	url = git@github.com:jbmorley/changes.git
