@@ -29,8 +29,8 @@ class MarkdownImporterTests: ContentTestCase {
 
     func testMarkdownTitleOverride() async throws {
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
-config:
-    title: Example
+title: Example
+url: http://example.com
 build_steps:
   - task: process_files
     args:
@@ -59,8 +59,8 @@ These are the contents of the file.
 
     func testMarkdownTitleFromFile() async throws {
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
-config:
-    title: Example
+title: Example
+url: http://example.com
 build_steps:
   - task: process_files
     args:
