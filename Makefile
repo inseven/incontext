@@ -1,4 +1,5 @@
-export PYTHONUSERBASE := .local/python
+export MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+export PYTHONUSERBASE := $(MAKEFILE_DIR).local/python
 export PATH := $(PYTHONUSERBASE)/bin:$(PATH)
 
 all:
