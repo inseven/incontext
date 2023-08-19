@@ -23,15 +23,15 @@
 import Foundation
 
 // Walk up through a directory structure yielding the directory URL at each level; terminates at the root (/).
-struct ParentIterator: Sequence, IteratorProtocol {
+public struct ParentIterator: Sequence, IteratorProtocol {
 
     var currentURL: URL?
 
-    init(_ url: URL) {
+    public init(_ url: URL) {
         self.currentURL = url
     }
 
-    mutating func next() -> URL? {
+    public mutating func next() -> URL? {
         defer {
             if currentURL?.path == "/" {
                 currentURL = nil

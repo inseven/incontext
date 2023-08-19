@@ -25,20 +25,20 @@ import UniformTypeIdentifiers
 
 import Yaml
 
-struct Site {
+public struct Site {
 
-    let rootURL: URL
-    let contentURL: URL
-    let templatesURL: URL
-    let buildURL: URL
-    let storeURL: URL
-    let filesURL: URL
+    public let rootURL: URL
+    public let contentURL: URL
+    public let templatesURL: URL
+    public let buildURL: URL
+    public let storeURL: URL
+    public let filesURL: URL
 
     let settings: [AnyHashable: Any]
 
     let handlers: [AnyHandler]
 
-    init(rootURL: URL) throws {
+    public init(rootURL: URL) throws {
         self.rootURL = rootURL
         self.contentURL = rootURL.appendingPathComponent("content", isDirectory: true)
         self.templatesURL = rootURL.appendingPathComponent("templates", isDirectory: true)

@@ -23,7 +23,7 @@
 import Foundation
 
 import XCTest
-@testable import incontext
+@testable import InContextCore
 
 class MarkdownImporterTests: ContentTestCase {
 

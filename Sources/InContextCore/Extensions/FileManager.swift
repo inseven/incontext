@@ -22,7 +22,7 @@
 
 import Foundation
 
-extension FileManager {
+public extension FileManager {
 
     var currentDirectoryURL: URL {
         return URL(filePath: currentDirectoryPath, directoryHint: .isDirectory)
