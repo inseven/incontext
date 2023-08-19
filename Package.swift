@@ -30,6 +30,7 @@ let package = Package(
             name: "incontext",
             dependencies: [
                 "InContextCore",
+                "InContextMetadata",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "HummingbirdFoundation", package: "hummingbird"),
@@ -50,6 +51,9 @@ let package = Package(
                 .product(name: "Yaml", package: "YamlSwift"),
                 .product(name: "Yams", package: "Yams"),
             ]),
+        .target(
+            name: "InContextMetadata",
+            publicHeadersPath: "include"),
         .testTarget(
             name: "InContextTests",
             dependencies: ["incontext", "InContextCore"],

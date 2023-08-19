@@ -27,6 +27,7 @@ import Hummingbird
 import HummingbirdFoundation
 
 import InContextCore
+import InContextMetadata
 
 @main
 struct Command: AsyncParsableCommand {
@@ -36,6 +37,7 @@ struct Command: AsyncParsableCommand {
                                                         Build.self,
                                                         Clean.self,
                                                         Serve.self,
+                                                        Version.self,
                                                     ])
 
 }
@@ -131,6 +133,21 @@ extension Command {
         mutating func run() async throws {
             let site = try options.resolveSite()
             try FileManager.default.removeItem(at: site.buildURL)
+        }
+
+    }
+
+    struct Version: AsyncParsableCommand {
+
+        mutating func run() async throws {
+            let version = String(cString: InContextVersion)
+            let buildNumber = String(cString: InContextBuildNumber)
+            #if DEBUG
+            let variant = "Debug"
+            #else
+            let variant = "Release"
+            #endif
+            print("\(version) \(buildNumber) \(variant)")
         }
 
     }
