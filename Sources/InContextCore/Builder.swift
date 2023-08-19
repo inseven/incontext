@@ -55,7 +55,7 @@ public class Builder {
             "titlecase": Function { (string: String) -> String in
                 return string.toTitleCase()
             },
-            "page": DocumentContext(renderTracker: renderTracker, document: document),
+            "document": DocumentContext(renderTracker: renderTracker, document: document),
             "distant_past": Function { (timezoneAware: Bool) in
                 return Date.distantPast
             },

@@ -15,13 +15,23 @@ git submodule update --init --recursive
 swift build
 ```
 
+# Frontmatter
+
+Frontmatter is supported in Markdown files and image and video descriptions. InContext will pass through all unknown markdown fields, but puts type constraints on fields that have specific meaning:
+
+- `title` String?
+- `subtitle` String?
+- `date` Date?
+- `queries` [[String: Any]]?
+- `tags` [String]?
+
 # Templates
 
 Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater). Tilt is, itself, written in Lua and the templating language and leans heavily on Lua and Lua syntax. Within reason, if you can do it in Lua, you can do it in Tilt. This makes the templates incredibly powerful and helps avoid the bloat that comes from trying to do more programmatic things with templating languages like [Jinja](https://jinja.palletsprojects.com/en/3.1.x/), while also keeping things pretty simple and readable.
 
 ## Global Variables
 
-- `page`
+- `document`
 
   **Description**
 
@@ -30,8 +40,8 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
   **Example**
 
   ```lua
-  {% if page.title then %}
-      <h1>{{ page.title }}</h1>
+  {% if document.title then %}
+      <h1>{{ document.title }}</h1>
   {% end %}
   ```
 
@@ -54,8 +64,8 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
   Titles detected from the filename are automatically transformed using titlecase (we might rethink this in the future), but custom document metadata is not automatically processed in this way and it may be desirable to do something like this in your template:
 
   ```lua
-  {% if page.subtitle then %}
-      <h2>{{ titlecase(page.subtitle) }}</h2>
+  {% if document.subtitle then %}
+      <h2>{{ titlecase(document.subtitle) }}</h2>
   {% end %}
   ```
 
@@ -111,14 +121,12 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 
 ### Background
 
-- Inner template evaluation identifiers aren't set (update Tilt)
 - Support loading the existing site configuration
 - Track resources and clean them up when files are deleted or importers change
 - Test that the relative paths are correct for the destination directory; this likely needs to be per-importer, but it would be much easier if we had a way to generate these as part of the site so importers don't have to think too hard
 - SQLite is mangling mtimes meaning that some files always get regenerated
 - Store the origin mime type in the database and expose through `DocumentContext`
 - Log at at different levels, error, warning, etc
-- Rename page to document in the render context
 - Intoduce a render-time `resolve` method that can figure out what happened to a document and include it
 - Update jbmorley.co.uk to include working examples of the common.lua conveniences
   - Adaptive image
@@ -137,7 +145,6 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 
 ### Improvements
 
-- Try using a multi-reader / single-writer model for the database to improve template render performance
 - Use Swift DSL to unify file and image handlers (this would allow easy checking of glob, regex, extension, and mime type)
 - Typesafe configuration
   - Explicit user-defined metadata section in the site and frontmatter
