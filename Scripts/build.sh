@@ -32,7 +32,6 @@ BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
 TEMPORARY_DIRECTORY="${ROOT_DIRECTORY}/temp"
 
 KEYCHAIN_PATH="${TEMPORARY_DIRECTORY}/temporary.keychain"
-IOS_ARCHIVE_PATH="${BUILD_DIRECTORY}/Bookmarks-iOS.xcarchive"
 MACOS_ARCHIVE_PATH="${BUILD_DIRECTORY}/Bookmarks-macOS.xcarchive"
 FASTLANE_ENV_PATH="${ROOT_DIRECTORY}/fastlane/.env"
 
@@ -125,72 +124,36 @@ echo "$APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD" | build-tools import-base64-cert
 echo "$MACOS_DEVELOPER_INSTALLER_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$MACOS_DEVELOPER_INSTALLER_CERTIFICATE_BASE64"
 
 # Install the provisioning profiles.
-build-tools install-provisioning-profile "profiles/Bookmarks_App_Store_Profile.mobileprovision"
-build-tools install-provisioning-profile "profiles/Bookmarks_Share_Extension_App_Store_Profile.mobileprovision"
-build-tools install-provisioning-profile "profiles/Bookmarks_Mac_App_Store_Profile.provisionprofile"
-build-tools install-provisioning-profile "profiles/Bookmarks_for_Safari_Mac_App_Store_Profile.provisionprofile"
+# build-tools install-provisioning-profile "profiles/Bookmarks_App_Store_Profile.mobileprovision"
+# build-tools install-provisioning-profile "profiles/Bookmarks_Share_Extension_App_Store_Profile.mobileprovision"
+# build-tools install-provisioning-profile "profiles/Bookmarks_Mac_App_Store_Profile.provisionprofile"
+# build-tools install-provisioning-profile "profiles/Bookmarks_for_Safari_Mac_App_Store_Profile.provisionprofile"
 
-# Build and archive the iOS project.
-sudo xcode-select --switch "$IOS_XCODE_PATH"
-xcode_project \
-    -scheme "Bookmarks iOS" \
-    -config Release \
-    -archivePath "$IOS_ARCHIVE_PATH" \
-    OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
-    BUILD_NUMBER=$BUILD_NUMBER \
-    MARKETING_VERSION=$VERSION_NUMBER \
-    clean archive
-xcodebuild \
-    -archivePath "$IOS_ARCHIVE_PATH" \
-    -exportArchive \
-    -exportPath "$BUILD_DIRECTORY" \
-    -exportOptionsPlist "ios/ExportOptions.plist"
-
-IPA_BASENAME="Bookmarks.ipa"
-IPA_PATH="$BUILD_DIRECTORY/$IPA_BASENAME"
-
-# Build and archive the macOS project.
-sudo xcode-select --switch "$MACOS_XCODE_PATH"
-xcode_project \
-    -scheme "Bookmarks macOS" \
-    -config Release \
-    -archivePath "$MACOS_ARCHIVE_PATH" \
-    OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
-    BUILD_NUMBER=$BUILD_NUMBER \
-    MARKETING_VERSION=$VERSION_NUMBER \
-    clean archive
-xcodebuild \
-    -archivePath "$MACOS_ARCHIVE_PATH" \
-    -exportArchive \
-    -exportPath "$BUILD_DIRECTORY" \
-    -exportOptionsPlist "macos/ExportOptions.plist"
-
-APP_BASENAME="Bookmarks.app"
-APP_PATH="$BUILD_DIRECTORY/$APP_BASENAME"
+# TODO: Sign the binary?
 
 # Archive the build directory.
-ZIP_BASENAME="build-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
-ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
-pushd "${BUILD_DIRECTORY}"
-zip -r "${ZIP_BASENAME}" .
-popd
-
-if $RELEASE ; then
-
-    IPA_PATH="${BUILD_DIRECTORY}/Bookmarks.ipa"
-    PKG_PATH="${BUILD_DIRECTORY}/Bookmarks.pkg"
-
-    # Install the private key.
-    mkdir -p ~/.appstoreconnect/private_keys/
-    echo -n "$APPLE_API_KEY" | base64 --decode -o ~/".appstoreconnect/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8"
-
-    changes \
-        release \
-        --skip-if-empty \
-        --pre-release \
-        --push \
-        --exec "${RELEASE_SCRIPT_PATH}" \
-        "${IPA_PATH}" "${PKG_PATH}" "${ZIP_PATH}"
-    unlink "$API_KEY_PATH"
-
-fi
+# ZIP_BASENAME="build-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
+# ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
+# pushd "${BUILD_DIRECTORY}"
+# zip -r "${ZIP_BASENAME}" .
+# popd
+#
+# if $RELEASE ; then
+#
+#     IPA_PATH="${BUILD_DIRECTORY}/Bookmarks.ipa"
+#     PKG_PATH="${BUILD_DIRECTORY}/Bookmarks.pkg"
+#
+#     # Install the private key.
+#     mkdir -p ~/.appstoreconnect/private_keys/
+#     echo -n "$APPLE_API_KEY" | base64 --decode -o ~/".appstoreconnect/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8"
+#
+#     changes \
+#         release \
+#         --skip-if-empty \
+#         --pre-release \
+#         --push \
+#         --exec "${RELEASE_SCRIPT_PATH}" \
+#         "${IPA_PATH}" "${PKG_PATH}" "${ZIP_PATH}"
+#     unlink "$API_KEY_PATH"
+#
+# fi

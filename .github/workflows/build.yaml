@@ -23,6 +23,9 @@ jobs:
         submodules: recursive
         lfs: true
 
-    - name: Build and test
+    - name: Build, test, and release
+      env:
+        DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64 }}
+        DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD }}
       run: |
         Scripts/build.sh
