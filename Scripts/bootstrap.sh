@@ -79,6 +79,9 @@ fi
 
 cd "$ROOT_DIRECTORY"
 
+# Install our dependencies.
+"${SCRIPTS_DIRECTORY}/install-dependencies.sh"
+
 # Build and test.
 # sudo xcode-select --switch "$MACOS_XCODE_PATH"
 # make clean
