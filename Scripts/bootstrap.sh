@@ -20,6 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# This script serves as a runner for iOS and macOS project build jobs that ensures the 'changes' and 'build-tools'
+# commands are available on the path, and that a temporary keychain has been set up for development (and will be cleaned
+# up automatically on success or failure of the child script.
+#
+# It exports the following environment variables to the child script:
+#
+# - KEYCHAIN_PATH - the path of the temporary keychain
+# - IOS_XCODE_PATH - the path of Xcode to use for iOS builds
+# - MACOS_XCODE_PATH - the path of Xcode to use for macOS builds
+
 set -e
 set -o pipefail
 set -x
@@ -41,7 +51,8 @@ BUILD_TOOLS_DIRECTORY="${SCRIPTS_DIRECTORY}/build-tools"
 PATH=$PATH:$CHANGES_DIRECTORY
 PATH=$PATH:$BUILD_TOOLS_DIRECTORY
 
-MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
+export MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
+export IOS_XCODE_PATH=${IOS_XCODE_PATH:-/Applications/Xcode.app}
 
 source "${SCRIPTS_DIRECTORY}/environment.sh"
 
