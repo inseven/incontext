@@ -90,6 +90,6 @@ function cleanup {
 trap cleanup EXIT
 
 # Run our child command.
-COMMAND=$0; shift
+COMMAND=$1; shift
 echo "Running command '$COMMAND' with arguments '$@'..."
 "$COMMAND" "$@"

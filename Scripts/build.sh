@@ -68,13 +68,10 @@ VERSION_NUMBER=`changes version`
 BUILD_NUMBER=`build-tools generate-build-number`
 
 # Import the certificates into our dedicated keychain.
-echo "DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
-
-# Install the provisioning profiles.
-# build-tools install-provisioning-profile "profiles/Bookmarks_App_Store_Profile.mobileprovision"
-# build-tools install-provisioning-profile "profiles/Bookmarks_Share_Extension_App_Store_Profile.mobileprovision"
-# build-tools install-provisioning-profile "profiles/Bookmarks_Mac_App_Store_Profile.provisionprofile"
-# build-tools install-provisioning-profile "profiles/Bookmarks_for_Safari_Mac_App_Store_Profile.provisionprofile"
+echo "DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \
+    --password \
+    "$KEYCHAIN_PATH" \
+    "DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
 # TODO: Sign the binary?
 
