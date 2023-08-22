@@ -25,6 +25,4 @@ jobs:
 
     - name: Build and test
       run: |
-        make clean
-        make test
-        make release
+        Scripts/build.sh

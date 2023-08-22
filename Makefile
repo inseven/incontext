@@ -1,20 +1,43 @@
-export MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-export PYTHONUSERBASE := $(MAKEFILE_DIR).local/python
+export SHELL:=/bin/bash
+export SHELLOPTS:=$(if $(SHELLOPTS),$(SHELLOPTS):)pipefail:errexit
+
+export ROOT_DIRECTORY := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+export PYTHONUSERBASE := $(ROOT_DIRECTORY).local/python
+
 export PATH := $(PYTHONUSERBASE)/bin:$(PATH)
+export PATH "= $(ROOT_DIRECTORY)scripts/build-tools:$(ROOT_DIRECTORY)scripts/changes:$(PATH)
 
 all:
 	mkdir -p $(PYTHONUSERBASE)
-	pip3 install --user pipenv
+	pip3 install --user pipenv --upgrade
 	PIPENV_PIPFILE="Scripts/changes/Pipfile" pipenv install
 	PIPENV_PIPFILE="Scripts/build-tools/Pipfile" pipenv install
-	$(eval INCONTEXT_VERSION=$(shell Scripts/changes/changes version))
-	$(eval INCONTEXT_BUILD_NUMBER=$(shell Scripts/build-tools/build-tools generate-build-number))
+	$(eval INCONTEXT_VERSION=$(shell changes version))
+	$(eval INCONTEXT_BUILD_NUMBER=$(shell build-tools generate-build-number))
 	echo Building $(INCONTEXT_VERSION) $(INCONTEXT_BUILD_NUMBER)...
 
 build: all
 	swift build \
 		-Xcc -DINCONTEXT_VERSION=\"$(INCONTEXT_VERSION)\" \
 		-Xcc -DINCONTEXT_BUILD_NUMBER=\"$(INCONTEXT_BUILD_NUMBER)\"
+
+codesign: release
+	ifndef DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64
+		$(error DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64 has not been set)
+	endif
+	ifndef DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD
+		$(error DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD has not been set)
+	endif
+	codesign \
+		--keychain login \
+		-s "Developer ID Application: InSeven Limited (S4WXAUZQEV)" \
+		--timestamp \
+		incontext
+	codesign \
+		-vvv \
+		--deep \
+		--strict \
+		incontext
 
 release: all
 	swift build \
