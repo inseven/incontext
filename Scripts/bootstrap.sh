@@ -100,6 +100,12 @@ function cleanup {
 
 trap cleanup EXIT
 
+# Try importing here!
+echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \
+    --password \
+    "$KEYCHAIN_PATH" \
+    "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
+
 # Run our child command.
 COMMAND=$1; shift
 echo "Running command '$COMMAND' with arguments '$@'..."
