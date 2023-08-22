@@ -104,11 +104,6 @@ function cleanup {
     cd "$ROOT_DIRECTORY"
     build-tools delete-keychain "$KEYCHAIN_PATH"
     rm -rf "$TEMPORARY_DIRECTORY"
-
-    # Clean up any private keys.
-    if [ -f ~/.appstoreconnect/private_keys ]; then
-        rm -r ~/.appstoreconnect/private_keys
-    fi
 }
 
 trap cleanup EXIT
@@ -120,7 +115,7 @@ BUILD_NUMBER=`build-tools generate-build-number`
 # Import the certificates into our dedicated keychain.
 echo "DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
-exit 1
+exit 0
 
 # Install the provisioning profiles.
 # build-tools install-provisioning-profile "profiles/Bookmarks_App_Store_Profile.mobileprovision"
@@ -141,10 +136,6 @@ exit 1
 #
 #     IPA_PATH="${BUILD_DIRECTORY}/Bookmarks.ipa"
 #     PKG_PATH="${BUILD_DIRECTORY}/Bookmarks.pkg"
-#
-#     # Install the private key.
-#     mkdir -p ~/.appstoreconnect/private_keys/
-#     echo -n "$APPLE_API_KEY" | base64 --decode -o ~/".appstoreconnect/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8"
 #
 #     changes \
 #         release \
