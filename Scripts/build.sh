@@ -26,29 +26,10 @@ set -x
 set -u
 
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
-TEMPORARY_DIRECTORY="${ROOT_DIRECTORY}/temp"
-
-KEYCHAIN_PATH="${TEMPORARY_DIRECTORY}/temporary.keychain"
-MACOS_ARCHIVE_PATH="${BUILD_DIRECTORY}/Bookmarks-macOS.xcarchive"
-FASTLANE_ENV_PATH="${ROOT_DIRECTORY}/fastlane/.env"
-
-CHANGES_DIRECTORY="${SCRIPTS_DIRECTORY}/changes"
-BUILD_TOOLS_DIRECTORY="${SCRIPTS_DIRECTORY}/build-tools"
-
-RELEASE_SCRIPT_PATH="${SCRIPTS_DIRECTORY}/release.sh"
-
-PATH=$PATH:$CHANGES_DIRECTORY
-PATH=$PATH:$BUILD_TOOLS_DIRECTORY
 
 MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
-
-source "${SCRIPTS_DIRECTORY}/environment.sh"
-
-# Check that the GitHub command is available on the path.
-which gh || (echo "GitHub cli (gh) not available on the path." && exit 1)
 
 # Process the command line arguments.
 POSITIONAL=()
@@ -68,15 +49,6 @@ do
     esac
 done
 
-# Generate a random string to secure the local keychain.
-export TEMPORARY_KEYCHAIN_PASSWORD=`openssl rand -base64 14`
-
-# Source the Fastlane .env file if it exists to make local development easier.
-if [ -f "$FASTLANE_ENV_PATH" ] ; then
-    echo "Sourcing .env..."
-    source "$FASTLANE_ENV_PATH"
-fi
-
 cd "$ROOT_DIRECTORY"
 
 # Build and test.
@@ -91,31 +63,12 @@ if [ -d "$BUILD_DIRECTORY" ] ; then
 fi
 mkdir -p "$BUILD_DIRECTORY"
 
-# Create the a new keychain.
-if [ -d "$TEMPORARY_DIRECTORY" ] ; then
-    rm -rf "$TEMPORARY_DIRECTORY"
-fi
-mkdir -p "$TEMPORARY_DIRECTORY"
-echo "$TEMPORARY_KEYCHAIN_PASSWORD" | build-tools create-keychain "$KEYCHAIN_PATH" --password
-
-function cleanup {
-
-    # Cleanup the temporary files and keychain.
-    cd "$ROOT_DIRECTORY"
-    build-tools delete-keychain "$KEYCHAIN_PATH"
-    rm -rf "$TEMPORARY_DIRECTORY"
-}
-
-trap cleanup EXIT
-
 # Determine the version and build number.
 VERSION_NUMBER=`changes version`
 BUILD_NUMBER=`build-tools generate-build-number`
 
 # Import the certificates into our dedicated keychain.
 echo "DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
-
-exit 0
 
 # Install the provisioning profiles.
 # build-tools install-provisioning-profile "profiles/Bookmarks_App_Store_Profile.mobileprovision"

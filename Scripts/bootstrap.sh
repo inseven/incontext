@@ -31,14 +31,12 @@ ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
 TEMPORARY_DIRECTORY="${ROOT_DIRECTORY}/temp"
 
-KEYCHAIN_PATH="${TEMPORARY_DIRECTORY}/temporary.keychain"
+export KEYCHAIN_PATH="${TEMPORARY_DIRECTORY}/temporary.keychain"
 MACOS_ARCHIVE_PATH="${BUILD_DIRECTORY}/Bookmarks-macOS.xcarchive"
-FASTLANE_ENV_PATH="${ROOT_DIRECTORY}/fastlane/.env"
+ENV_PATH="${ROOT_DIRECTORY}/fastlane/.env"
 
 CHANGES_DIRECTORY="${SCRIPTS_DIRECTORY}/changes"
 BUILD_TOOLS_DIRECTORY="${SCRIPTS_DIRECTORY}/build-tools"
-
-RELEASE_SCRIPT_PATH="${SCRIPTS_DIRECTORY}/release.sh"
 
 PATH=$PATH:$CHANGES_DIRECTORY
 PATH=$PATH:$BUILD_TOOLS_DIRECTORY
@@ -50,31 +48,13 @@ source "${SCRIPTS_DIRECTORY}/environment.sh"
 # Check that the GitHub command is available on the path.
 which gh || (echo "GitHub cli (gh) not available on the path." && exit 1)
 
-# Process the command line arguments.
-# POSITIONAL=()
-# RELEASE=${RELEASE:-false}
-# while [[ $# -gt 0 ]]
-# do
-#     key="$1"
-#     case $key in
-#         -r|--release)
-#         RELEASE=true
-#         shift
-#         ;;
-#         *)
-#         POSITIONAL+=("$1")
-#         shift
-#         ;;
-#     esac
-# done
-
 # Generate a random string to secure the local keychain.
 export TEMPORARY_KEYCHAIN_PASSWORD=`openssl rand -base64 14`
 
-# Source the Fastlane .env file if it exists to make local development easier.
-if [ -f "$FASTLANE_ENV_PATH" ] ; then
+# Source .env file if it exists to make local development easier.
+if [ -f "$ENV_PATH" ] ; then
     echo "Sourcing .env..."
-    source "$FASTLANE_ENV_PATH"
+    source "$ENV_PATH"
 fi
 
 cd "$ROOT_DIRECTORY"
@@ -111,46 +91,6 @@ function cleanup {
 
 trap cleanup EXIT
 
+# Run our child command.
 COMMAND=$0; shift
-
-echo "Running \'$COMMAND\' with arguments '$@'..."
-
-# Determine the version and build number.
-# VERSION_NUMBER=`changes version`
-# BUILD_NUMBER=`build-tools generate-build-number`
-
-# Import the certificates into our dedicated keychain.
-# echo "DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
-#
-# exit 0
-
-# Install the provisioning profiles.
-# build-tools install-provisioning-profile "profiles/Bookmarks_App_Store_Profile.mobileprovision"
-# build-tools install-provisioning-profile "profiles/Bookmarks_Share_Extension_App_Store_Profile.mobileprovision"
-# build-tools install-provisioning-profile "profiles/Bookmarks_Mac_App_Store_Profile.provisionprofile"
-# build-tools install-provisioning-profile "profiles/Bookmarks_for_Safari_Mac_App_Store_Profile.provisionprofile"
-
-# TODO: Sign the binary?
-
-# Archive the build directory.
-# ZIP_BASENAME="build-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
-# ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
-# pushd "${BUILD_DIRECTORY}"
-# zip -r "${ZIP_BASENAME}" .
-# popd
-#
-# if $RELEASE ; then
-#
-#     IPA_PATH="${BUILD_DIRECTORY}/Bookmarks.ipa"
-#     PKG_PATH="${BUILD_DIRECTORY}/Bookmarks.pkg"
-#
-#     changes \
-#         release \
-#         --skip-if-empty \
-#         --pre-release \
-#         --push \
-#         --exec "${RELEASE_SCRIPT_PATH}" \
-#         "${IPA_PATH}" "${PKG_PATH}" "${ZIP_PATH}"
-#     unlink "$API_KEY_PATH"
-#
-# fi
+"$COMMAND" "$@"
