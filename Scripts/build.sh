@@ -113,15 +113,14 @@ function cleanup {
 
 trap cleanup EXIT
 
-exit 1
-
 # Determine the version and build number.
 VERSION_NUMBER=`changes version`
 BUILD_NUMBER=`build-tools generate-build-number`
 
 # Import the certificates into our dedicated keychain.
-echo "$APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$APPLE_DISTRIBUTION_CERTIFICATE_BASE64"
-echo "$MACOS_DEVELOPER_INSTALLER_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$MACOS_DEVELOPER_INSTALLER_CERTIFICATE_BASE64"
+echo "DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
+
+exit 1
 
 # Install the provisioning profiles.
 # build-tools install-provisioning-profile "profiles/Bookmarks_App_Store_Profile.mobileprovision"
