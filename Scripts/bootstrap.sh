@@ -111,7 +111,9 @@ function cleanup {
 
 trap cleanup EXIT
 
-echo "Running \'$1\'..."
+COMMAND=$0; shift
+
+echo "Running \'$COMMAND\' with arguments '$@'..."
 
 # Determine the version and build number.
 # VERSION_NUMBER=`changes version`
