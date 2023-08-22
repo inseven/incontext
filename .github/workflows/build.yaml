@@ -28,5 +28,5 @@ jobs:
         DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64 }}
         DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD }}
       run: |
-        Scripts/boostrap.sh hello
+        Scripts/bootstrap.sh hello
         # Scripts/build.sh
