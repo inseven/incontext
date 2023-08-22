@@ -57,8 +57,6 @@ if [ -f "$ENV_PATH" ] ; then
     source "$ENV_PATH"
 fi
 
-cd "$ROOT_DIRECTORY"
-
 # Install our dependencies.
 "${SCRIPTS_DIRECTORY}/install-dependencies.sh"
 
