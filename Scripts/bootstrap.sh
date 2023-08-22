@@ -93,4 +93,5 @@ trap cleanup EXIT
 
 # Run our child command.
 COMMAND=$0; shift
+echo "Running command '$COMMAND' with arguments '$@'..."
 "$COMMAND" "$@"

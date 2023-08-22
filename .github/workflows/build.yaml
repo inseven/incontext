@@ -29,4 +29,3 @@ jobs:
         DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD }}
       run: |
         Scripts/bootstrap.sh Scripts/build.sh
-        # Scripts/build.sh
