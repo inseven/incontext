@@ -10,9 +10,10 @@ InContext 3 (Waialua) is a Swift rewrite that follows the design principals of I
 
 ## Build
 
-```
+```bash
 git submodule update --init --recursive
-swift build
+make
+make install
 ```
 
 # Frontmatter
