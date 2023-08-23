@@ -57,6 +57,13 @@ echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base6
     "$KEYCHAIN_PATH" \
     "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
+# Determine the version and build number.
+VERSION_NUMBER=`changes version`
+BUILD_NUMBER=`build-tools generate-build-number`
+
+echo $VERSION_NUMBER
+echo $BUILD_NUMBER
+
 make clean
 make test
 make archive KEYCHAIN="$KEYCHAIN_PATH"
