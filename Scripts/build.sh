@@ -52,22 +52,23 @@ cd "$ROOT_DIRECTORY"
 # Build and test.
 sudo xcode-select --switch "$MACOS_XCODE_PATH"
 
+# Determine the version and build number.
+VERSION_NUMBER=`changes version`
+BUILD_NUMBER=`build-tools generate-build-number`
+
 # Import the certificates into our dedicated keychain.
 echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \
     --password \
     "$KEYCHAIN_PATH" \
     "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
-# Determine the version and build number.
-VERSION_NUMBER=`changes version`
-BUILD_NUMBER=`build-tools generate-build-number`
-
-echo $VERSION_NUMBER
-echo $BUILD_NUMBER
-
+# Build and archive the macOS command-line application.
 make clean
 make test
-make archive KEYCHAIN="$KEYCHAIN_PATH"
+make archive \
+    KEYCHAIN="$KEYCHAIN_PATH" \
+    INCONTEXT_VERSION="$VERSION_NUMBER" \
+    INCONTEXT_BUILD_NUMBER="$BUILD_NUMBER"
 
 if $RELEASE ; then
 
