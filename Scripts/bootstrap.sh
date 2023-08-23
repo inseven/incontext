@@ -77,9 +77,6 @@ if [ -f "$ENV_PATH" ] ; then
     source "$ENV_PATH"
 fi
 
-# Install our dependencies.
-"${SCRIPTS_DIRECTORY}/install-dependencies.sh"
-
 # Create the a new keychain.
 if [ -d "$TEMPORARY_DIRECTORY" ] ; then
     rm -rf "$TEMPORARY_DIRECTORY"
