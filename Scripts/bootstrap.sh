@@ -38,7 +38,6 @@ set -u
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
-BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
 TEMPORARY_DIRECTORY="${ROOT_DIRECTORY}/temp"
 
 export KEYCHAIN_PATH="${TEMPORARY_DIRECTORY}/temporary.keychain"
@@ -71,18 +70,6 @@ fi
 # Install our dependencies.
 "${SCRIPTS_DIRECTORY}/install-dependencies.sh"
 
-# Build and test.
-# sudo xcode-select --switch "$MACOS_XCODE_PATH"
-# make clean
-# make test
-# make release
-
-# Clean up the build directory.
-if [ -d "$BUILD_DIRECTORY" ] ; then
-    rm -r "$BUILD_DIRECTORY"
-fi
-mkdir -p "$BUILD_DIRECTORY"
-
 # Create the a new keychain.
 if [ -d "$TEMPORARY_DIRECTORY" ] ; then
     rm -rf "$TEMPORARY_DIRECTORY"
@@ -99,12 +86,6 @@ function cleanup {
 }
 
 trap cleanup EXIT
-
-# Try importing here!
-echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \
-    --password \
-    "$KEYCHAIN_PATH" \
-    "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
 # Run our child command.
 COMMAND=$1; shift
