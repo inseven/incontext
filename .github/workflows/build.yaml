@@ -21,10 +21,18 @@ jobs:
       with:
         token: ${{ secrets.ACCESS_TOKEN }}
         submodules: recursive
+        fetch-depth: 0
         lfs: true
 
-    - name: Build and test
+    - name: Build, test, and release
+      env:
+        DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64 }}
+        DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD }}
       run: |
-        make clean
-        make test
-        make release
+        Scripts/bootstrap.sh Scripts/build.sh
+
+    - name: Archive the binary
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/incontext-*.zip
+        if-no-files-found: error
