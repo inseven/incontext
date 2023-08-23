@@ -58,8 +58,8 @@ PIPENV_PIPFILE="$CHANGES_DIRECTORY/Pipfile" pipenv install
 PIPENV_PIPFILE="$BUILD_TOOLS_DIRECTORY/Pipfile" pipenv install
 
 # Ensure the tools are on the path.
-PATH=$PATH:$CHANGES_DIRECTORY
-PATH=$PATH:$BUILD_TOOLS_DIRECTORY
+export PATH=$PATH:$CHANGES_DIRECTORY
+export PATH=$PATH:$BUILD_TOOLS_DIRECTORY
 
 # Expose the iOS and macOS Xcode paths to the command.
 export MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}

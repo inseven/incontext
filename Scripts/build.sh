@@ -26,6 +26,7 @@ set -x
 set -u
 
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 
 # Process the command line arguments.
@@ -51,28 +52,33 @@ cd "$ROOT_DIRECTORY"
 # Build and test.
 sudo xcode-select --switch "$MACOS_XCODE_PATH"
 
+# Determine the version and build number.
+VERSION_NUMBER=`changes version`
+BUILD_NUMBER=`build-tools generate-build-number`
+
 # Import the certificates into our dedicated keychain.
 echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \
     --password \
     "$KEYCHAIN_PATH" \
     "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
+# Build and archive the macOS command-line application.
 make clean
 make test
-make archive KEYCHAIN="$KEYCHAIN_PATH"
+make archive \
+    KEYCHAIN="$KEYCHAIN_PATH" \
+    INCONTEXT_VERSION="$VERSION_NUMBER" \
+    INCONTEXT_BUILD_NUMBER="$BUILD_NUMBER"
 
-# if $RELEASE ; then
-#
-#     IPA_PATH="${BUILD_DIRECTORY}/Bookmarks.ipa"
-#     PKG_PATH="${BUILD_DIRECTORY}/Bookmarks.pkg"
-#
-#     changes \
-#         release \
-#         --skip-if-empty \
-#         --pre-release \
-#         --push \
-#         --exec "${RELEASE_SCRIPT_PATH}" \
-#         "${IPA_PATH}" "${PKG_PATH}" "${ZIP_PATH}"
-#     unlink "$API_KEY_PATH"
-#
-# fi
+if $RELEASE ; then
+
+    ARCHIVE_PATH=`ls build/incontext-*.zip`
+
+    changes \
+        release \
+        --skip-if-empty \
+        --push \
+        --exec "Scripts/gh-release.sh" \
+        "${ARCHIVE_PATH}"
+
+fi
