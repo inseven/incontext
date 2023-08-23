@@ -62,7 +62,6 @@ archive: sign
 		build/incontext
 
 clean:
-	rm -rf .local
 	rm -rf .build
 	rm -rf build
 
