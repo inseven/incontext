@@ -30,3 +30,9 @@ jobs:
         DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD }}
       run: |
         Scripts/bootstrap.sh Scripts/build.sh
+
+    - name: Archive the binary
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/incontext-*.zip
+        if-no-files-found: error
