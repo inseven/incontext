@@ -73,7 +73,10 @@ echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base6
     "$KEYCHAIN_PATH" \
     "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
-# TODO: Sign the binary?
+make clean
+make test
+make release
+make sign KEYCHAIN="$KEYCHAIN_PATH"
 
 # Archive the build directory.
 # ZIP_BASENAME="build-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"

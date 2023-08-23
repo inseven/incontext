@@ -21,15 +21,12 @@ build: all
 		-Xcc -DINCONTEXT_VERSION=\"$(INCONTEXT_VERSION)\" \
 		-Xcc -DINCONTEXT_BUILD_NUMBER=\"$(INCONTEXT_BUILD_NUMBER)\"
 
-codesign: release
-	ifndef DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64
-		$(error DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64 has not been set)
-	endif
-	ifndef DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD
-		$(error DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD has not been set)
-	endif
+sign: release
+ifndef KEYCHAIN
+	$(error KEYCHAIN has not been set)
+endif
 	codesign \
-		--keychain login \
+		--keychain "$(KEYCHAIN)" \
 		-s "Developer ID Application: InSeven Limited (S4WXAUZQEV)" \
 		--timestamp \
 		incontext

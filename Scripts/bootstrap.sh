@@ -40,6 +40,7 @@ SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 TEMPORARY_DIRECTORY="${ROOT_DIRECTORY}/temp"
 
+# TODO: Use mktemp -d
 export KEYCHAIN_PATH="${TEMPORARY_DIRECTORY}/temporary.keychain"
 ENV_PATH="${ROOT_DIRECTORY}/fastlane/.env"
 
