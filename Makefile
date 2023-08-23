@@ -18,32 +18,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-export SHELL:=/bin/bash
-export SHELLOPTS:=$(if $(SHELLOPTS),$(SHELLOPTS):)pipefail:errexit
-
 export ROOT_DIRECTORY := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-export PYTHONUSERBASE := $(ROOT_DIRECTORY).local/python
-
-export PATH := $(PYTHONUSERBASE)/bin:$(PATH)
-export PATH "= $(ROOT_DIRECTORY)scripts/build-tools:$(ROOT_DIRECTORY)scripts/changes:$(PATH)
 
 KEYCHAIN ?= login
+INCONTEXT_VERSION ?= Unknown
+INCONTEXT_BUILD_NUMBER ?= Unknown
 
-all:
-	mkdir -p $(PYTHONUSERBASE)
-	pip3 install --user pipenv --upgrade
-	PIPENV_PIPFILE="Scripts/changes/Pipfile" pipenv install
-	PIPENV_PIPFILE="Scripts/build-tools/Pipfile" pipenv install
-	$(eval INCONTEXT_VERSION=$(shell changes version))
-	$(eval INCONTEXT_BUILD_NUMBER=$(shell build-tools generate-build-number))
-	echo Building $(INCONTEXT_VERSION) $(INCONTEXT_BUILD_NUMBER)...
-
-build: all
+build:
 	swift build \
 		-Xcc -DINCONTEXT_VERSION=\"$(INCONTEXT_VERSION)\" \
 		-Xcc -DINCONTEXT_BUILD_NUMBER=\"$(INCONTEXT_BUILD_NUMBER)\"
 
-release: all
+release:
 	mkdir -p build
 	swift build \
 		--configuration release --triple arm64-apple-macosx \
