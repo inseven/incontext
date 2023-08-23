@@ -7,6 +7,8 @@ export PYTHONUSERBASE := $(ROOT_DIRECTORY).local/python
 export PATH := $(PYTHONUSERBASE)/bin:$(PATH)
 export PATH "= $(ROOT_DIRECTORY)scripts/build-tools:$(ROOT_DIRECTORY)scripts/changes:$(PATH)
 
+KEYCHAIN ?= login
+
 all:
 	mkdir -p $(PYTHONUSERBASE)
 	pip3 install --user pipenv --upgrade
@@ -21,22 +23,8 @@ build: all
 		-Xcc -DINCONTEXT_VERSION=\"$(INCONTEXT_VERSION)\" \
 		-Xcc -DINCONTEXT_BUILD_NUMBER=\"$(INCONTEXT_BUILD_NUMBER)\"
 
-sign: release
-ifndef KEYCHAIN
-	$(error KEYCHAIN has not been set)
-endif
-	codesign \
-		--keychain "$(KEYCHAIN)" \
-		-s "Developer ID Application: InSeven Limited (S4WXAUZQEV)" \
-		--timestamp \
-		incontext
-	codesign \
-		-vvv \
-		--deep \
-		--strict \
-		incontext
-
 release: all
+	mkdir -p build
 	swift build \
 		--configuration release --triple arm64-apple-macosx \
 		-Xcc -DINCONTEXT_VERSION=\"$(INCONTEXT_VERSION)\" \
@@ -46,14 +34,31 @@ release: all
 		-Xcc -DINCONTEXT_VERSION=\"$(INCONTEXT_VERSION)\" \
 		-Xcc -DINCONTEXT_BUILD_NUMBER=\"$(INCONTEXT_BUILD_NUMBER)\"
 	lipo -create \
-		-output incontext \
+		-output build/incontext \
 		.build/arm64-apple-macosx/release/incontext \
 		.build/x86_64-apple-macosx/release/incontext
+
+sign: release
+	codesign \
+		--keychain "$(KEYCHAIN)" \
+		-s "Developer ID Application: InSeven Limited (S4WXAUZQEV)" \
+		--timestamp \
+		build/incontext
+	codesign \
+		-vvv \
+		--deep \
+		--strict \
+		build/incontext
+
+archive: sign
+	zip -r \
+		"build/incontext-$(INCONTEXT_VERSION)-$(INCONTEXT_BUILD_NUMBER).zip" \
+		build/incontext
 
 clean:
 	rm -rf .local
 	rm -rf .build
-	rm -f incontext
+	rm -rf build
 
 test:
 	swift test

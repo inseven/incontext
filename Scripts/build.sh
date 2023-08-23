@@ -27,7 +27,6 @@ set -u
 
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
-BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
 
 MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
 
@@ -53,15 +52,6 @@ cd "$ROOT_DIRECTORY"
 
 # Build and test.
 sudo xcode-select --switch "$MACOS_XCODE_PATH"
-# make clean
-# make test
-# make release
-
-# Clean up the build directory.
-if [ -d "$BUILD_DIRECTORY" ] ; then
-    rm -r "$BUILD_DIRECTORY"
-fi
-mkdir -p "$BUILD_DIRECTORY"
 
 # Determine the version and build number.
 VERSION_NUMBER=`changes version`
@@ -75,16 +65,8 @@ echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base6
 
 make clean
 make test
-make release
-make sign KEYCHAIN="$KEYCHAIN_PATH"
+make archive KEYCHAIN="$KEYCHAIN_PATH"
 
-# Archive the build directory.
-# ZIP_BASENAME="build-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
-# ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
-# pushd "${BUILD_DIRECTORY}"
-# zip -r "${ZIP_BASENAME}" .
-# popd
-#
 # if $RELEASE ; then
 #
 #     IPA_PATH="${BUILD_DIRECTORY}/Bookmarks.ipa"
