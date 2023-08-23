@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2023 Jason Barrie Morley
+# Copyright (c) 2021 InSeven Limited
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,53 +23,16 @@
 set -e
 set -o pipefail
 set -x
-set -u
 
-SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
-
-# Process the command line arguments.
-POSITIONAL=()
-RELEASE=${RELEASE:-false}
-while [[ $# -gt 0 ]]
-do
-    key="$1"
-    case $key in
-        -r|--release)
-        RELEASE=true
-        shift
-        ;;
-        *)
-        POSITIONAL+=("$1")
-        shift
-        ;;
-    esac
-done
-
-cd "$ROOT_DIRECTORY"
-
-# Build and test.
-sudo xcode-select --switch "$MACOS_XCODE_PATH"
-
-# Import the certificates into our dedicated keychain.
-echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \
-    --password \
-    "$KEYCHAIN_PATH" \
-    "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
-
-make clean
-make test
-make archive KEYCHAIN="$KEYCHAIN_PATH"
-
-if $RELEASE ; then
-
-    ARCHIVE_PATH=`ls build/incontext-*.zip`
-
-    changes \
-        release \
-        --skip-if-empty \
-        --push \
-        --exec "Scripts/gh-release.sh" \
-        "${ARCHIVE_PATH}"
-
+# Actually make the release.
+FLAGS=()
+if $CHANGES_INITIAL_DEVELOPMENT ; then
+    FLAGS+=("--prerelease")
 fi
+gh release create "$CHANGES_TAG" --title "$CHANGES_TITLE" --notes-file "$CHANGES_NOTES_FILE" "${FLAGS[@]}"
+
+# Upload the attachments.
+for attachment in "$@"
+do
+    gh release upload "$CHANGES_TAG" "$attachment"
+done
