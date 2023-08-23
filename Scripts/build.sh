@@ -28,8 +28,6 @@ set -u
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 
-MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
-
 # Process the command line arguments.
 POSITIONAL=()
 RELEASE=${RELEASE:-false}
@@ -52,10 +50,6 @@ cd "$ROOT_DIRECTORY"
 
 # Build and test.
 sudo xcode-select --switch "$MACOS_XCODE_PATH"
-
-# Determine the version and build number.
-VERSION_NUMBER=`changes version`
-BUILD_NUMBER=`build-tools generate-build-number`
 
 # Import the certificates into our dedicated keychain.
 echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \

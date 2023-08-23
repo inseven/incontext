@@ -40,20 +40,30 @@ SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 TEMPORARY_DIRECTORY="${ROOT_DIRECTORY}/temp"
 
+export PYTHONUSERBASE="${ROOT_DIRECTORY}/.local/python"
+mkdir -p "$PYTHONUSERBASE"
+export PATH="${PYTHONUSERBASE}/bin":$PATH
+
 # TODO: Use mktemp -d
 export KEYCHAIN_PATH="${TEMPORARY_DIRECTORY}/temporary.keychain"
 ENV_PATH="${ROOT_DIRECTORY}/fastlane/.env"
 
+# Tools paths.
 CHANGES_DIRECTORY="${SCRIPTS_DIRECTORY}/changes"
 BUILD_TOOLS_DIRECTORY="${SCRIPTS_DIRECTORY}/build-tools"
 
+# Install the Python dependencies
+pip3 install --user pipenv
+PIPENV_PIPFILE="$CHANGES_DIRECTORY/Pipfile" pipenv install
+PIPENV_PIPFILE="$BUILD_TOOLS_DIRECTORY/Pipfile" pipenv install
+
+# Ensure the tools are on the path.
 PATH=$PATH:$CHANGES_DIRECTORY
 PATH=$PATH:$BUILD_TOOLS_DIRECTORY
 
+# Expose the iOS and macOS Xcode paths to the command.
 export MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
 export IOS_XCODE_PATH=${IOS_XCODE_PATH:-/Applications/Xcode.app}
-
-source "${SCRIPTS_DIRECTORY}/environment.sh"
 
 # Check that the GitHub command is available on the path.
 which gh || (echo "GitHub cli (gh) not available on the path." && exit 1)
