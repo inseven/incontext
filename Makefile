@@ -47,7 +47,8 @@ release:
 sign: release
 	codesign \
 		--keychain "$(KEYCHAIN)" \
-		-s "Developer ID Application: InSeven Limited (S4WXAUZQEV)" \
+		--options runtime \
+		--sign "Developer ID Application: InSeven Limited (S4WXAUZQEV)" \
 		--timestamp \
 		build/incontext
 	codesign \
@@ -69,7 +70,7 @@ test:
 	swift test
 
 install: release
-	install incontext /usr/local/bin/incontext
+	install build/incontext /usr/local/bin/incontext
 
 uninstall:
 	rm /usr/local/bin/incontext
