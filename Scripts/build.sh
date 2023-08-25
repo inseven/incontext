@@ -104,7 +104,9 @@ cp "${ARCHIVE_PATH}/Products/usr/local/bin/ic" "${BUILD_DIRECTORY}/incontext"
 # Archive the command line tool.
 ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
 ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
-zip -r "$ZIP_PATH" "${BUILD_DIRECTORY}/incontext"
+pushd "$BUILD_DIRECTORY"
+zip -r "$ZIP_BASENAME" incontext
+popd
 
 # TODO: Consider an install flag.
 
