@@ -120,8 +120,8 @@ trap cleanup EXIT
 echo "$APPLE_API_KEY" > "$API_KEY_PATH"
 xcrun notarytool submit "$ZIP_PATH" \
     --key "$API_KEY_PATH" \
-    --key-id "$API_KEY_ID" \
-    --issuer "$API_KEY_ISSUER_ID" \
+    --key-id "$APPLE_API_KEY_ID" \
+    --issuer "$APPLE_API_KEY_ISSUER_ID" \
     --output-format json \
     --wait
 
