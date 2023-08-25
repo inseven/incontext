@@ -111,11 +111,10 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 6. **Promote metadata dates (see the reading and game lists)**
 8. Pass-through site metadata so that things like tags can be rendered correctly
 9. Check that gifs are transformed correctly
-11. The vertical spacing seems off on jbmorley.co.uk (this is probably a legacy stylesheet issue)
 12. Markdown issues (Footnotes, Strikethrough, mdash)
 13. Scale videos
 14. Preserve image and video alt-text when transforming markdown media
-15. Timezone handling is currently inconsistent and unclear
+15. Timezone handling is currently inconsistent and unclear (this could be improved by using the time and date HTML tags)
 16. Render caching currently means that it's not possible to use incremental builds for deployments
 17. 360 degree mini worlds aren't generated
 18. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
@@ -143,6 +142,10 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 - Show progress when rendering by default instead of logging for every file
 - Address TODOs in code
 - Test resolving relative paths '.'
+- Write up Info.plist experiments
+- Ensure the build fails even if the build script fails silently (perhaps I could use the presence of a file to indicate success and check this in GitHub?)
+- Check the notarization response and fetch the error in the case of a failure
+- Support building to a custom build destination; this will make it much easier to use for GitHub Pages based deployments
 
 ### Improvements
 
