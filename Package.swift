@@ -45,9 +45,6 @@ let package = Package(
                 .product(name: "Yaml", package: "YamlSwift"),
                 .product(name: "Yams", package: "Yams"),
             ]),
-        .target(
-            name: "InContextMetadata",
-            publicHeadersPath: "include"),
         .testTarget(
             name: "InContextTests",
             dependencies: [
