@@ -117,7 +117,7 @@ function cleanup {
 trap cleanup EXIT
 
 # Notarize the build
-echo "$APPLE_API_KEY" > "$API_KEY_PATH"
+echo "$APPLE_API_KEY" | base64 -d > "$API_KEY_PATH"
 xcrun notarytool submit "$ZIP_PATH" \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
