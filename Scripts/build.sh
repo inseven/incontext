@@ -86,7 +86,7 @@ swift build
 swift test
 
 # Build and archive the project.
-cd InContext
+pushd InContext
 xcodebuild \
     -project InContext.xcodeproj \
     -scheme "InContext" \
@@ -95,6 +95,7 @@ xcodebuild \
     MARKETING_VERSION=$VERSION_NUMBER \
     CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
     clean archive
+popd
 
 # N.B. We do not currently attempt to export this archive as it's apparently a 'generic' archive that xcodebuild doesn't
 # know what to do with. Instead, we pluck our binary directly out of the archive as we know where it is and we're going
