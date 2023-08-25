@@ -65,10 +65,22 @@ echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base6
 # Build and archive the macOS command-line application.
 make clean
 make test
-make archive \
-    KEYCHAIN="$KEYCHAIN_PATH" \
-    INCONTEXT_VERSION="$VERSION_NUMBER" \
-    INCONTEXT_BUILD_NUMBER="$BUILD_NUMBER"
+# make archive \
+#     KEYCHAIN="$KEYCHAIN_PATH" \
+#     INCONTEXT_VERSION="$VERSION_NUMBER" \
+#     INCONTEXT_BUILD_NUMBER="$BUILD_NUMBER"
+
+# Build the project.
+cd InContext
+xcodebuild \
+    -project InContext.xcodeproj \
+    -scheme "InContext" \
+    -archivePath "Cheese.xcarchive" \
+    OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
+    MARKETING_VERSION=$VERSION_NUMBER \
+    CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+    clean archive
+
 
 if $RELEASE ; then
 

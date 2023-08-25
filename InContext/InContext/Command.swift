@@ -27,7 +27,7 @@ import Hummingbird
 import HummingbirdFoundation
 
 import InContextCore
-import InContextMetadata
+//import InContextMetadata
 
 @main
 struct Command: AsyncParsableCommand {
@@ -140,13 +140,20 @@ extension Command {
     struct Version: AsyncParsableCommand {
 
         mutating func run() async throws {
-            let version = String(cString: InContextVersion)
-            let buildNumber = String(cString: InContextBuildNumber)
+
+            guard let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else {
+                throw InContextError.internalInconsistency("Unable to deternine version number")
+            }
+            guard let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String else {
+                throw InContextError.internalInconsistency("Unable to deternine build number")
+            }
+
             #if DEBUG
             let variant = "Debug"
             #else
             let variant = "Release"
             #endif
+
             print("\(version) \(buildNumber) \(variant)")
         }
 
