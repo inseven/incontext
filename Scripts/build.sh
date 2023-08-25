@@ -108,6 +108,23 @@ zip -r "$ZIP_PATH" "${BUILD_DIRECTORY}/incontext"
 
 # TODO: Consider an install flag.
 
+API_KEY_PATH="${ROOT_DIRECTORY}/api.key"
+
+function cleanup {
+    echo "Cleaning up API key..."
+    rm -f "${API_KEY_PATH}"
+}
+trap cleanup EXIT
+
+# Notarize the build
+echo "$APPLE_API_KEY" > "$API_KEY_PATH"
+xcrun notarytool submit "$ZIP_PATH" \
+    --key "$API_KEY_PATH" \
+    --key-id "$API_KEY_ID" \
+    --issuer "$API_KEY_ISSUER_ID" \
+    --output-format json \
+    --wait
+
 if $RELEASE ; then
 
     changes \
