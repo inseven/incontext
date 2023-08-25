@@ -28,6 +28,11 @@ set -u
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
+BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
+
+ARCHIVE_PATH="${BUILD_DIRECTORY}/InContext.xcarchive"
+
+KEYCHAIN_PATH=${KEYCHAIN_PATH:-login}
 
 # Process the command line arguments.
 POSITIONAL=()
@@ -49,36 +54,86 @@ done
 
 cd "$ROOT_DIRECTORY"
 
-# Build and test.
-sudo xcode-select --switch "$MACOS_XCODE_PATH"
+# Clean up the build directory.
+if [ -d "$BUILD_DIRECTORY" ] ; then
+    rm -r "$BUILD_DIRECTORY"
+fi
+mkdir -p "$BUILD_DIRECTORY"
+
+# Configure Xcode version
+if [ -z ${MACOS_XCODE_PATH+x} ] ; then
+    echo "Skipping Xcode selection..."
+else
+    sudo xcode-select --switch "$MACOS_XCODE_PATH"
+fi
 
 # Determine the version and build number.
 VERSION_NUMBER=`changes version`
 BUILD_NUMBER=`build-tools generate-build-number`
 
 # Import the certificates into our dedicated keychain.
-echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \
-    --password \
-    "$KEYCHAIN_PATH" \
-    "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
+if [ -z ${DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD+x} ] ; then
+    echo "Skipping certificate import..."
+else
+    echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \
+        --password \
+        "$KEYCHAIN_PATH" \
+        "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
+fi
 
-# Build and archive the macOS command-line application.
-make clean
-make test
-make archive \
-    KEYCHAIN="$KEYCHAIN_PATH" \
-    INCONTEXT_VERSION="$VERSION_NUMBER" \
-    INCONTEXT_BUILD_NUMBER="$BUILD_NUMBER"
+# Build and test the package.
+swift build
+swift test
+
+# Build and archive the project.
+cd InContext
+xcodebuild \
+    -project InContext.xcodeproj \
+    -scheme "InContext" \
+    -archivePath "$ARCHIVE_PATH" \
+    OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
+    MARKETING_VERSION=$VERSION_NUMBER \
+    CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+    clean archive
+
+# N.B. We do not currently attempt to export this archive as it's apparently a 'generic' archive that xcodebuild doesn't
+# know what to do with. Instead, we pluck our binary directly out of the archive as we know where it is and we're going
+# to package it and notarize it ourselves.
+cp "${ARCHIVE_PATH}/Products/usr/local/bin/ic" "${BUILD_DIRECTORY}/incontext"
+
+# Archive the command line tool.
+ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
+ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
+pushd "$BUILD_DIRECTORY"
+zip -r "$ZIP_BASENAME" incontext
+popd
+
+# TODO: Consider an install flag.
+
+API_KEY_PATH="${ROOT_DIRECTORY}/api.key"
+
+function cleanup {
+    echo "Cleaning up API key..."
+    rm -f "${API_KEY_PATH}"
+}
+trap cleanup EXIT
+
+# Notarize the build
+echo "$APPLE_API_KEY" | base64 -d > "$API_KEY_PATH"
+xcrun notarytool submit "$ZIP_PATH" \
+    --key "$API_KEY_PATH" \
+    --key-id "$APPLE_API_KEY_ID" \
+    --issuer "$APPLE_API_KEY_ISSUER_ID" \
+    --output-format json \
+    --wait
 
 if $RELEASE ; then
-
-    ARCHIVE_PATH=`ls build/incontext-*.zip`
 
     changes \
         release \
         --skip-if-empty \
         --push \
         --exec "Scripts/gh-release.sh" \
-        "${ARCHIVE_PATH}"
+        "${ZIP_PATH}"
 
 fi

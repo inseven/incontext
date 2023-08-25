@@ -8,10 +8,16 @@ let package = Package(
     platforms: [
         .macOS(.v13),
     ],
+    products: [
+        .library(
+            name: "InContextCore",
+            targets: [
+                "InContextCore"
+            ]),
+    ],
     dependencies: [
         .package(path: "Dependencies/Tilt"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.1.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-markdown.git", from: "0.2.0"),
@@ -24,18 +30,6 @@ let package = Package(
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.14.1"),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-        .executableTarget(
-            name: "incontext",
-            dependencies: [
-                "InContextCore",
-                "InContextMetadata",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "Hummingbird", package: "hummingbird"),
-                .product(name: "HummingbirdFoundation", package: "hummingbird"),
-                .product(name: "Logging", package: "swift-log"),
-            ]),
         .target(
             name: "InContextCore",
             dependencies: [
@@ -51,12 +45,11 @@ let package = Package(
                 .product(name: "Yaml", package: "YamlSwift"),
                 .product(name: "Yams", package: "Yams"),
             ]),
-        .target(
-            name: "InContextMetadata",
-            publicHeadersPath: "include"),
         .testTarget(
             name: "InContextTests",
-            dependencies: ["incontext", "InContextCore"],
+            dependencies: [
+                "InContextCore"
+            ],
             resources: [
                 .process("Resources")
             ]),
