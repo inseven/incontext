@@ -105,19 +105,23 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 These changes impact the rendering of jbmorley.co.uk and block switching to InContext 3.
 
 1. **Deleted documents aren't removed from the store**
-3. **Check adaptive images work**
-4. **Don't automatically replace non-Markdown image tags**
-5. **Videos** (Location, Titles)
-6. **Promote metadata dates (see the reading and game lists)**
-8. Pass-through site metadata so that things like tags can be rendered correctly
-9. Check that gifs are transformed correctly
-12. Markdown issues (Footnotes, Strikethrough, mdash)
-13. Scale videos
-14. Preserve image and video alt-text when transforming markdown media
-15. Timezone handling is currently inconsistent and unclear (this could be improved by using the time and date HTML tags)
-16. Render caching currently means that it's not possible to use incremental builds for deployments
-17. 360 degree mini worlds aren't generated
-18. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
+2. **Check adaptive images work**
+3. **Don't automatically replace non-Markdown image tags**
+4. **Videos** (Location, Titles)
+5. **Promote metadata dates (see the reading and game lists)**
+6. Pass-through site metadata so that things like tags can be rendered correctly
+7. Check that gifs are transformed correctly
+8. Markdown issues (Footnotes, Strikethrough, mdash)
+9. Scale videos
+10. Preserve image and video alt-text when transforming markdown media
+11. Timezone handling is currently inconsistent and unclear (this could be improved by using the time and date HTML tags)
+    1. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time
+    2. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
+    3. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local
+
+12. Render caching currently means that it's not possible to use incremental builds for deployments
+13. 360 degree mini worlds aren't generated
+14. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
 
 ### Background
 
