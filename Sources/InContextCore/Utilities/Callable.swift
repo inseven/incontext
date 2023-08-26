@@ -31,18 +31,16 @@ protocol Callable {
 extension Array: Callable where Element == Callable {
 
     func call(with provider: ArgumentProvider) throws -> Any? {
-        return try provider.withArguments { arguments in
-            for callable in self {
-                do {
-                    return try callable.call(with: arguments)
-                } catch InContextError.incorrectArguments,
-                        InContextError.noMatchingFunction,
-                        InContextError.incorrectType {
-                    continue
-                }
+        for callable in self {
+            do {
+                return try callable.call(with: provider)
+            } catch InContextError.incorrectArguments,
+                    InContextError.noMatchingFunction,
+                    InContextError.incorrectType {
+                continue
             }
-            throw InContextError.noMatchingFunction
         }
+        throw InContextError.noMatchingFunction
     }
 
 }

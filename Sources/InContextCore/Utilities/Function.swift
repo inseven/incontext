@@ -22,31 +22,17 @@
 
 import Foundation
 
-protocol Convertible {
-
-    func convertToType(_ t: Any.Type) -> Any?
-
-}
-
 struct Function: EvaluationContext, Callable {
 
-    static func checkLength<T>(_ array: [T], length: Int) throws {
-        guard array.count == length else {
+    static func checkLength(_ provider: ArgumentProvider, length: Int) throws {
+        guard provider.countArguments() == length else {
             throw InContextError.incorrectArguments
         }
     }
 
-    /// Helper function to cast `value` to `T` which checks if `value` supports
-    /// that via `Convertible` as well as via a direct `as?` type cast.
-    static func cast<T>(_ value: Any?) throws -> T {
-        if let directCast = value as? T {
-            return directCast
-        } else if let convertible = value as? Convertible,
-                  let converted = convertible.convertToType(T.self) {
-            // This last conversion must always succeed if convertToType
-            // returned non-nil - it's just too hard to make that function
-            // return a typed result.
-            return converted as! T
+    static func checkArgument<T>(_ value: T?) throws -> T {
+        if let value {
+            return value
         } else {
             throw InContextError.incorrectType(expected: T.Type.self, received: value)
         }
@@ -80,31 +66,25 @@ extension Function {
 
     init<Result>(perform: @escaping () throws -> Result?) {
         self._call = { provider in
-            try provider.withArguments { arguments in
-                try Self.checkLength(arguments, length: 0)
-                return try perform()
-            }
+            try Self.checkLength(provider, length: 0)
+            return try perform()
         }
     }
 
     init<Arg1, Result>(perform: @escaping (Arg1) throws -> Result?) {
         self._call = { provider in
-            return try provider.withArguments { arguments in
-                try Self.checkLength(arguments, length: 1)
-                let arg1: Arg1 = try Self.cast(arguments[0])
-                return try perform(arg1)
-            }
+            try Self.checkLength(provider, length: 1)
+            let arg1: Arg1 = try Self.checkArgument(provider.getArgument(0))
+            return try perform(arg1)
         }
     }
 
     init<Arg1, Arg2, Result>(perform: @escaping (Arg1, Arg2) throws -> Result?) {
         self._call = { provider in
-            return try provider.withArguments { arguments in
-                try Self.checkLength(arguments, length: 2)
-                let arg1: Arg1 = try Self.cast(arguments[0])
-                let arg2: Arg2 = try Self.cast(arguments[1])
-                return try perform(arg1, arg2)
-            }
+            try Self.checkLength(provider, length: 2)
+            let arg1: Arg1 = try Self.checkArgument(provider.getArgument(0))
+            let arg2: Arg2 = try Self.checkArgument(provider.getArgument(1))
+            return try perform(arg1, arg2)
         }
     }
 

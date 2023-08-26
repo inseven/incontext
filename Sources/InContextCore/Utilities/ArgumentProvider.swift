@@ -24,14 +24,20 @@ import Foundation
 
 protocol ArgumentProvider {
 
-    func withArguments<Result>(perform: ([Any?]) throws -> Result) throws -> Result
+    func countArguments() -> Int
+
+    func getArgument<T>(_ index: Int) -> T?
 
 }
 
 extension Array: ArgumentProvider {
 
-    func withArguments<Result>(perform: ([Any?]) throws -> Result) throws -> Result {
-        return try perform(self)
+    func countArguments() -> Int {
+        return self.count
+    }
+
+    func getArgument<T>(_ index: Int) -> T? {
+        return self[index] as? T
     }
 
 }

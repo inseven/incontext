@@ -26,17 +26,17 @@ import CLua
 import Foundation
 
 fileprivate struct LuaStateArgumentProvider: ArgumentProvider {
-    let L: LuaState!
-    func withArguments<Result>(perform: ([Any?]) throws -> Result) throws -> Result {
-        var arguments: [Any?] = []
-        for i in 1 ... L.gettop() {
-            // First arg is the Function userdata itself
-            if i > 1 {
-                arguments.append(L.toany(i))
-            }
-        }
-        return try perform(arguments)
+    let L: LuaState
+
+    func getArgument<T>(_ index: Int) -> T? {
+        // Index is zero based (so + 1) and the first Lua stack index is the Function userdata, so add another +1
+        return L.tovalue(CInt(index + 2))
     }
+
+    func countArguments() -> Int {
+        return Int(L.gettop() - 1)
+    }
+
 }
 
 fileprivate func callFunctionBlock(_ L: LuaState!) -> CInt {
