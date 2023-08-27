@@ -52,7 +52,7 @@ public struct Site {
         self.rootURL = rootURL
         self.contentURL = rootURL.appendingPathComponent("content", isDirectory: true)
         self.templatesURL = rootURL.appendingPathComponent("templates", isDirectory: true)
-        self.buildURL = rootURL.appendingPathComponent("build-swift", isDirectory: true)
+        self.buildURL = rootURL.appendingPathComponent("build", isDirectory: true)
         self.storeURL = buildURL.appendingPathComponent("store.sqlite")
         self.filesURL = buildURL.appendingPathComponent("files", isDirectory: true)
 

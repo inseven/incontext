@@ -53,15 +53,15 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "build"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "version"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--site /Users/jbmorley/Projects/jbmorley.co.uk"
+            argument = "version"
             isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--site /Users/jbmorley/Projects/jbmorley.co.uk"
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
