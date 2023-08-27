@@ -30,7 +30,7 @@
 /* Begin PBXFileReference section */
 		D849DDF82A982C8D00C5041E /* Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
 		D849DDFA2A982E7900C5041E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D890630A2A98293A0001A8E2 /* ic */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ic; sourceTree = BUILT_PRODUCTS_DIR; };
+		D890630A2A98293A0001A8E2 /* incontext */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = incontext; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89063152A9829500001A8E2 /* incontext-waialua */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "incontext-waialua"; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -70,7 +70,7 @@
 		D890630B2A98293A0001A8E2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D890630A2A98293A0001A8E2 /* ic */,
+				D890630A2A98293A0001A8E2 /* incontext */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D89063092A98293A0001A8E2 /* ic */ = {
+		D89063092A98293A0001A8E2 /* incontext */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D89063112A98293A0001A8E2 /* Build configuration list for PBXNativeTarget "ic" */;
+			buildConfigurationList = D89063112A98293A0001A8E2 /* Build configuration list for PBXNativeTarget "incontext" */;
 			buildPhases = (
 				D89063062A98293A0001A8E2 /* Sources */,
 				D89063072A98293A0001A8E2 /* Frameworks */,
@@ -107,7 +107,7 @@
 			);
 			dependencies = (
 			);
-			name = ic;
+			name = incontext;
 			packageProductDependencies = (
 				D849DDEB2A982B0F00C5041E /* InContextCore */,
 				D849DDEE2A982B7800C5041E /* Hummingbird */,
@@ -116,7 +116,7 @@
 				D849DDF62A982BA000C5041E /* Logging */,
 			);
 			productName = InContext;
-			productReference = D890630A2A98293A0001A8E2 /* ic */;
+			productReference = D890630A2A98293A0001A8E2 /* incontext */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -152,7 +152,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D89063092A98293A0001A8E2 /* ic */,
+				D89063092A98293A0001A8E2 /* incontext */,
 			);
 		};
 /* End PBXProject section */
@@ -329,7 +329,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D89063112A98293A0001A8E2 /* Build configuration list for PBXNativeTarget "ic" */ = {
+		D89063112A98293A0001A8E2 /* Build configuration list for PBXNativeTarget "incontext" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D89063122A98293A0001A8E2 /* Debug */,
