@@ -13,7 +13,33 @@
 		D849DDF42A982B9200C5041E /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF32A982B9200C5041E /* ArgumentParser */; };
 		D849DDF72A982BA000C5041E /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF62A982BA000C5041E /* Logging */; };
 		D849DDF92A982C8D00C5041E /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = D849DDF82A982C8D00C5041E /* Command.swift */; };
+		D86BCDD12A9B016A00C81BA5 /* HelperApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDD02A9B016A00C81BA5 /* HelperApp.swift */; };
+		D86BCDD32A9B016A00C81BA5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDD22A9B016A00C81BA5 /* ContentView.swift */; };
+		D86BCDD52A9B016D00C81BA5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D86BCDD42A9B016D00C81BA5 /* Assets.xcassets */; };
+		D86BCDD82A9B016D00C81BA5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D86BCDD72A9B016D00C81BA5 /* Preview Assets.xcassets */; };
+		D86BCDE32A9B016E00C81BA5 /* HelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDE22A9B016E00C81BA5 /* HelperTests.swift */; };
+		D86BCDED2A9B016E00C81BA5 /* HelperUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDEC2A9B016E00C81BA5 /* HelperUITests.swift */; };
+		D86BCDEF2A9B016E00C81BA5 /* HelperUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDEE2A9B016E00C81BA5 /* HelperUITestsLaunchTests.swift */; };
+		D86BCDFA2A9B030400C81BA5 /* Geocoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDF92A9B030400C81BA5 /* Geocoder.swift */; };
+		D86BCDFC2A9B032200C81BA5 /* HelperError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDFB2A9B032200C81BA5 /* HelperError.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D86BCDDF2A9B016D00C81BA5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D89063022A9829390001A8E2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D86BCDCD2A9B016A00C81BA5;
+			remoteInfo = "InContext Helper";
+		};
+		D86BCDE92A9B016E00C81BA5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D89063022A9829390001A8E2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D86BCDCD2A9B016A00C81BA5;
+			remoteInfo = "InContext Helper";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		D89063082A98293A0001A8E2 /* CopyFiles */ = {
@@ -30,11 +56,45 @@
 /* Begin PBXFileReference section */
 		D849DDF82A982C8D00C5041E /* Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
 		D849DDFA2A982E7900C5041E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D86BCDCE2A9B016A00C81BA5 /* InContext Helper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "InContext Helper.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D86BCDD02A9B016A00C81BA5 /* HelperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperApp.swift; sourceTree = "<group>"; };
+		D86BCDD22A9B016A00C81BA5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D86BCDD42A9B016D00C81BA5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D86BCDD72A9B016D00C81BA5 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		D86BCDD92A9B016D00C81BA5 /* Helper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Helper.entitlements; sourceTree = "<group>"; };
+		D86BCDDE2A9B016D00C81BA5 /* InContext HelperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "InContext HelperTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D86BCDE22A9B016E00C81BA5 /* HelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperTests.swift; sourceTree = "<group>"; };
+		D86BCDE82A9B016E00C81BA5 /* InContext HelperUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "InContext HelperUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D86BCDEC2A9B016E00C81BA5 /* HelperUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperUITests.swift; sourceTree = "<group>"; };
+		D86BCDEE2A9B016E00C81BA5 /* HelperUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		D86BCDF92A9B030400C81BA5 /* Geocoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Geocoder.swift; sourceTree = "<group>"; };
+		D86BCDFB2A9B032200C81BA5 /* HelperError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperError.swift; sourceTree = "<group>"; };
 		D890630A2A98293A0001A8E2 /* incontext */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = incontext; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89063152A9829500001A8E2 /* incontext-waialua */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "incontext-waialua"; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		D86BCDCB2A9B016A00C81BA5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D86BCDDB2A9B016D00C81BA5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D86BCDE52A9B016E00C81BA5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D89063072A98293A0001A8E2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -57,11 +117,53 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		D86BCDCF2A9B016A00C81BA5 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				D86BCDD92A9B016D00C81BA5 /* Helper.entitlements */,
+				D86BCDD22A9B016A00C81BA5 /* ContentView.swift */,
+				D86BCDF92A9B030400C81BA5 /* Geocoder.swift */,
+				D86BCDD02A9B016A00C81BA5 /* HelperApp.swift */,
+				D86BCDFB2A9B032200C81BA5 /* HelperError.swift */,
+				D86BCDD42A9B016D00C81BA5 /* Assets.xcassets */,
+				D86BCDD62A9B016D00C81BA5 /* Preview Content */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		D86BCDD62A9B016D00C81BA5 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				D86BCDD72A9B016D00C81BA5 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		D86BCDE12A9B016E00C81BA5 /* HelperTests */ = {
+			isa = PBXGroup;
+			children = (
+				D86BCDE22A9B016E00C81BA5 /* HelperTests.swift */,
+			);
+			path = HelperTests;
+			sourceTree = "<group>";
+		};
+		D86BCDEB2A9B016E00C81BA5 /* HelperUITests */ = {
+			isa = PBXGroup;
+			children = (
+				D86BCDEC2A9B016E00C81BA5 /* HelperUITests.swift */,
+				D86BCDEE2A9B016E00C81BA5 /* HelperUITestsLaunchTests.swift */,
+			);
+			path = HelperUITests;
+			sourceTree = "<group>";
+		};
 		D89063012A9829390001A8E2 = {
 			isa = PBXGroup;
 			children = (
 				D89063142A9829500001A8E2 /* Packages */,
 				D890630C2A98293A0001A8E2 /* InContext */,
+				D86BCDCF2A9B016A00C81BA5 /* Helper */,
+				D86BCDE12A9B016E00C81BA5 /* HelperTests */,
+				D86BCDEB2A9B016E00C81BA5 /* HelperUITests */,
 				D890630B2A98293A0001A8E2 /* Products */,
 				D849DDEA2A982B0F00C5041E /* Frameworks */,
 			);
@@ -71,6 +173,9 @@
 			isa = PBXGroup;
 			children = (
 				D890630A2A98293A0001A8E2 /* incontext */,
+				D86BCDCE2A9B016A00C81BA5 /* InContext Helper.app */,
+				D86BCDDE2A9B016D00C81BA5 /* InContext HelperTests.xctest */,
+				D86BCDE82A9B016E00C81BA5 /* InContext HelperUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,6 +200,59 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		D86BCDCD2A9B016A00C81BA5 /* InContext Helper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D86BCDF62A9B016E00C81BA5 /* Build configuration list for PBXNativeTarget "InContext Helper" */;
+			buildPhases = (
+				D86BCDCA2A9B016A00C81BA5 /* Sources */,
+				D86BCDCB2A9B016A00C81BA5 /* Frameworks */,
+				D86BCDCC2A9B016A00C81BA5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "InContext Helper";
+			productName = "InContext Helper";
+			productReference = D86BCDCE2A9B016A00C81BA5 /* InContext Helper.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D86BCDDD2A9B016D00C81BA5 /* InContext HelperTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D86BCDF72A9B016E00C81BA5 /* Build configuration list for PBXNativeTarget "InContext HelperTests" */;
+			buildPhases = (
+				D86BCDDA2A9B016D00C81BA5 /* Sources */,
+				D86BCDDB2A9B016D00C81BA5 /* Frameworks */,
+				D86BCDDC2A9B016D00C81BA5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D86BCDE02A9B016D00C81BA5 /* PBXTargetDependency */,
+			);
+			name = "InContext HelperTests";
+			productName = "InContext HelperTests";
+			productReference = D86BCDDE2A9B016D00C81BA5 /* InContext HelperTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		D86BCDE72A9B016E00C81BA5 /* InContext HelperUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D86BCDF82A9B016E00C81BA5 /* Build configuration list for PBXNativeTarget "InContext HelperUITests" */;
+			buildPhases = (
+				D86BCDE42A9B016E00C81BA5 /* Sources */,
+				D86BCDE52A9B016E00C81BA5 /* Frameworks */,
+				D86BCDE62A9B016E00C81BA5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D86BCDEA2A9B016E00C81BA5 /* PBXTargetDependency */,
+			);
+			name = "InContext HelperUITests";
+			productName = "InContext HelperUITests";
+			productReference = D86BCDE82A9B016E00C81BA5 /* InContext HelperUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		D89063092A98293A0001A8E2 /* incontext */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D89063112A98293A0001A8E2 /* Build configuration list for PBXNativeTarget "incontext" */;
@@ -129,6 +287,17 @@
 				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					D86BCDCD2A9B016A00C81BA5 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+					D86BCDDD2A9B016D00C81BA5 = {
+						CreatedOnToolsVersion = 14.3.1;
+						TestTargetID = D86BCDCD2A9B016A00C81BA5;
+					};
+					D86BCDE72A9B016E00C81BA5 = {
+						CreatedOnToolsVersion = 14.3.1;
+						TestTargetID = D86BCDCD2A9B016A00C81BA5;
+					};
 					D89063092A98293A0001A8E2 = {
 						CreatedOnToolsVersion = 14.3.1;
 					};
@@ -153,11 +322,68 @@
 			projectRoot = "";
 			targets = (
 				D89063092A98293A0001A8E2 /* incontext */,
+				D86BCDCD2A9B016A00C81BA5 /* InContext Helper */,
+				D86BCDDD2A9B016D00C81BA5 /* InContext HelperTests */,
+				D86BCDE72A9B016E00C81BA5 /* InContext HelperUITests */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		D86BCDCC2A9B016A00C81BA5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D86BCDD82A9B016D00C81BA5 /* Preview Assets.xcassets in Resources */,
+				D86BCDD52A9B016D00C81BA5 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D86BCDDC2A9B016D00C81BA5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D86BCDE62A9B016E00C81BA5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		D86BCDCA2A9B016A00C81BA5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D86BCDD32A9B016A00C81BA5 /* ContentView.swift in Sources */,
+				D86BCDFA2A9B030400C81BA5 /* Geocoder.swift in Sources */,
+				D86BCDFC2A9B032200C81BA5 /* HelperError.swift in Sources */,
+				D86BCDD12A9B016A00C81BA5 /* HelperApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D86BCDDA2A9B016D00C81BA5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D86BCDE32A9B016E00C81BA5 /* HelperTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D86BCDE42A9B016E00C81BA5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D86BCDED2A9B016E00C81BA5 /* HelperUITests.swift in Sources */,
+				D86BCDEF2A9B016E00C81BA5 /* HelperUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D89063062A98293A0001A8E2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -168,7 +394,146 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		D86BCDE02A9B016D00C81BA5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D86BCDCD2A9B016A00C81BA5 /* InContext Helper */;
+			targetProxy = D86BCDDF2A9B016D00C81BA5 /* PBXContainerItemProxy */;
+		};
+		D86BCDEA2A9B016E00C81BA5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D86BCDCD2A9B016A00C81BA5 /* InContext Helper */;
+			targetProxy = D86BCDE92A9B016E00C81BA5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		D86BCDF02A9B016E00C81BA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Helper/Helper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Helper/Preview Content\"";
+				DEVELOPMENT_TEAM = S4WXAUZQEV;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.incontext.helper;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D86BCDF12A9B016E00C81BA5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Helper/Helper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Helper/Preview Content\"";
+				DEVELOPMENT_TEAM = S4WXAUZQEV;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.incontext.helper;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		D86BCDF22A9B016E00C81BA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S4WXAUZQEV;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.incontext.InContext-HelperTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/InContext Helper.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/InContext Helper";
+			};
+			name = Debug;
+		};
+		D86BCDF32A9B016E00C81BA5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S4WXAUZQEV;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.incontext.InContext-HelperTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/InContext Helper.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/InContext Helper";
+			};
+			name = Release;
+		};
+		D86BCDF42A9B016E00C81BA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S4WXAUZQEV;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.incontext.InContext-HelperUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "InContext Helper";
+			};
+			name = Debug;
+		};
+		D86BCDF52A9B016E00C81BA5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S4WXAUZQEV;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.incontext.InContext-HelperUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "InContext Helper";
+			};
+			name = Release;
+		};
 		D890630F2A98293A0001A8E2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -320,6 +685,33 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		D86BCDF62A9B016E00C81BA5 /* Build configuration list for PBXNativeTarget "InContext Helper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D86BCDF02A9B016E00C81BA5 /* Debug */,
+				D86BCDF12A9B016E00C81BA5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D86BCDF72A9B016E00C81BA5 /* Build configuration list for PBXNativeTarget "InContext HelperTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D86BCDF22A9B016E00C81BA5 /* Debug */,
+				D86BCDF32A9B016E00C81BA5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D86BCDF82A9B016E00C81BA5 /* Build configuration list for PBXNativeTarget "InContext HelperUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D86BCDF42A9B016E00C81BA5 /* Debug */,
+				D86BCDF52A9B016E00C81BA5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		D89063052A9829390001A8E2 /* Build configuration list for PBXProject "InContext" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
