@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D89063092A98293A0001A8E2"
-               BuildableName = "ic"
-               BlueprintName = "ic"
+               BuildableName = "incontext"
+               BlueprintName = "incontext"
                ReferencedContainer = "container:InContext.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D89063092A98293A0001A8E2"
-            BuildableName = "ic"
-            BlueprintName = "ic"
+            BuildableName = "incontext"
+            BlueprintName = "incontext"
             ReferencedContainer = "container:InContext.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -76,8 +76,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D89063092A98293A0001A8E2"
-            BuildableName = "ic"
-            BlueprintName = "ic"
+            BuildableName = "incontext"
+            BlueprintName = "incontext"
             ReferencedContainer = "container:InContext.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

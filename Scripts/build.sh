@@ -100,7 +100,7 @@ popd
 # N.B. We do not currently attempt to export this archive as it's apparently a 'generic' archive that xcodebuild doesn't
 # know what to do with. Instead, we pluck our binary directly out of the archive as we know where it is and we're going
 # to package it and notarize it ourselves.
-cp "${ARCHIVE_PATH}/Products/usr/local/bin/ic" "${BUILD_DIRECTORY}/incontext"
+cp "${ARCHIVE_PATH}/Products/usr/local/bin/incontext" "${BUILD_DIRECTORY}/incontext"
 
 # Archive the command line tool.
 ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
