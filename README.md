@@ -8,6 +8,14 @@ Swift implementation of the InContext static site builder
 
 InContext 3 (Waialua) is a Swift rewrite that follows the design principals of InContext but tries to address the performance issues with some more modern language choices.
 
+## Installation
+
+InContext can be installed using [Homebrew](https://brew.sh):
+
+```bash
+brew install inseven/incontext/incontext
+```
+
 ## Build
 
 ```bash
@@ -16,7 +24,7 @@ make
 make install
 ```
 
-# Frontmatter
+## Frontmatter
 
 Frontmatter is supported in Markdown files and image and video descriptions. InContext will pass through all unknown markdown fields, but puts type constraints on fields that have specific meaning:
 
@@ -26,11 +34,11 @@ Frontmatter is supported in Markdown files and image and video descriptions. InC
 - `queries` [[String: Any]]?
 - `tags` [String]?
 
-# Templates
+## Templates
 
 Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater). Tilt is, itself, written in Lua and the templating language and leans heavily on Lua and Lua syntax. Within reason, if you can do it in Lua, you can do it in Tilt. This makes the templates incredibly powerful and helps avoid the bloat that comes from trying to do more programmatic things with templating languages like [Jinja](https://jinja.palletsprojects.com/en/3.1.x/), while also keeping things pretty simple and readable.
 
-## Global Variables
+### Global Variables
 
 - `document`
 
@@ -52,7 +60,7 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 
   Top-level site object containing site-wide properties and store accessors.
 
-## Global Functions
+### Global Functions
 
 - `titlecase(String) -> string`
 
@@ -70,11 +78,11 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
   {% end %}
   ```
 
-## Site
+### Site
 
 
 
-## Document
+### Document
 
 - `nearestAnscestor() -> Document?`
 
