@@ -41,3 +41,9 @@ jobs:
       with:
         path: build/incontext-*.zip
         if-no-files-found: error
+
+    - name: Update Homebrew formula
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        repository: inseven/homebrew-incontext
+        event-type: update
