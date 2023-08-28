@@ -45,5 +45,6 @@ jobs:
     - name: Update Homebrew formula
       uses: peter-evans/repository-dispatch@v2
       with:
+        token: ${{ secrets._GITHUB_ACCESS_TOKEN }}
         repository: inseven/homebrew-incontext
         event-type: update
