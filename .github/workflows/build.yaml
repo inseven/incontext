@@ -9,7 +9,7 @@ on:
     - cron:  '0 1 * * *'
 
 jobs:
-  test:
+  build:
 
     name: build
     runs-on: macos-ventura
@@ -41,6 +41,13 @@ jobs:
       with:
         path: build/incontext-*.zip
         if-no-files-found: error
+
+  update-homebrew:
+    needs: build
+    # if: ${{ github.ref == 'refs/heads/main' }}
+
+    runs-on: ubuntu-latest
+    steps:
 
     - name: Update Homebrew formula
       uses: peter-evans/repository-dispatch@v2
