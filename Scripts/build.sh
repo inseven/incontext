@@ -138,7 +138,7 @@ xcrun notarytool log \
     "$NOTARIZATION_ID" | tee notarization-log.json
 
 # Check that the notarization response was a success.
-if [ "$NOTARIZATION_RESPONSE" != "Cheese" ] ; then
+if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
     echo "Failed to notarize binary."
     exit 1
 fi
