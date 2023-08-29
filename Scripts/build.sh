@@ -129,8 +129,8 @@ xcrun notarytool submit "$ZIP_PATH" \
     --wait | tee notarization-response.json
 
 # Get the notarization log.
-NOTARIZATION_ID=`cat notarization-response.json | jq ".id"`
-NOTARIZATION_RESPONSE=`cat notarization-response.json | jq ".status"`
+NOTARIZATION_ID=`cat notarization-response.json | jq -r ".id"`
+NOTARIZATION_RESPONSE=`cat notarization-response.json | jq -r ".status"`
 xcrun notarytool log \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
