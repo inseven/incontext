@@ -126,7 +126,22 @@ xcrun notarytool submit "$ZIP_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
     --output-format json \
-    --wait
+    --wait | tee notarization-response.json
+
+# Get the notarization log.
+NOTARIZATION_ID=`cat notarization-response.json | jq -r ".id"`
+NOTARIZATION_RESPONSE=`cat notarization-response.json | jq -r ".status"`
+xcrun notarytool log \
+    --key "$API_KEY_PATH" \
+    --key-id "$APPLE_API_KEY_ID" \
+    --issuer "$APPLE_API_KEY_ISSUER_ID" \
+    "$NOTARIZATION_ID" | tee notarization-log.json
+
+# Check that the notarization response was a success.
+if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
+    echo "Failed to notarize binary."
+    exit 1
+fi
 
 if $RELEASE ; then
 
