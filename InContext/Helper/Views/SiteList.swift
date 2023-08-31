@@ -29,7 +29,7 @@ struct SiteList: View {
     var body: some View {
         ForEach(Array(applicationModel.sites.values)) { siteModel in
             Menu {
-                SiteSettings(siteModel: siteModel)
+                SiteSettings(applicationModel: applicationModel, siteModel: siteModel)
             } label: {
                 Text(siteModel.rootURL.lastPathComponent)
             }

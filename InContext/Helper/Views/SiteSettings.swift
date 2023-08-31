@@ -24,6 +24,7 @@ import SwiftUI
 
 struct SiteSettings: View {
 
+    @ObservedObject var applicationModel: ApplicationModel
     @ObservedObject var siteModel: SiteModel
 
     var body: some View {
@@ -34,7 +35,7 @@ struct SiteSettings: View {
         }
         Divider()
         Button {
-
+            applicationModel.remove(siteModel: siteModel)
         } label: {
             Text("Remove")
         }

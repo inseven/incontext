@@ -35,7 +35,7 @@ class ApplicationModel: ObservableObject {
     func start() {
         dispatchPrecondition(condition: .onQueue(.main))
         settings
-            .$rootURLs  // TODO: Rename
+            .$rootURLs
             .receive(on: DispatchQueue.main)
             .sink { [weak self] rootURLs in
                 guard let self else {
@@ -49,6 +49,8 @@ class ApplicationModel: ObservableObject {
                     for (rootURL, site) in sites {
                         if !rootURLs.contains(rootURL) {
                             site.stop()
+                            sites.removeValue(forKey: rootURL)
+                        } else {
                             rootURLs.remove(rootURL)
                         }
                     }
@@ -59,8 +61,6 @@ class ApplicationModel: ObservableObject {
                         site.start()
                         sites[rootURL] = site
                     }
-
-                    print(sites)
 
                     await MainActor.run { [sites] in
                         self.sites = sites
@@ -73,6 +73,11 @@ class ApplicationModel: ObservableObject {
     func stop() {
         dispatchPrecondition(condition: .onQueue(.main))
         cancellables.removeAll()
+    }
+
+    func remove(siteModel: SiteModel) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        settings.rootURLs.removeAll { $0 == siteModel.rootURL }
     }
 
 }
