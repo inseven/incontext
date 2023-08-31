@@ -53,14 +53,22 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "build"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "version"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "serve"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--site /Users/jbmorley/Projects/jbmorley.co.uk"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--watch"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -21,8 +21,6 @@
 		D8121A8A2AA11BAE00EEDF5B /* Build.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8121A892AA11BAE00EEDF5B /* Build.swift */; };
 		D8121A8C2AA11BF200EEDF5B /* Clean.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8121A8B2AA11BF200EEDF5B /* Clean.swift */; };
 		D849DDEC2A982B0F00C5041E /* InContextCore in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDEB2A982B0F00C5041E /* InContextCore */; };
-		D849DDEF2A982B7800C5041E /* Hummingbird in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDEE2A982B7800C5041E /* Hummingbird */; };
-		D849DDF12A982B7800C5041E /* HummingbirdFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF02A982B7800C5041E /* HummingbirdFoundation */; };
 		D849DDF42A982B9200C5041E /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF32A982B9200C5041E /* ArgumentParser */; };
 		D849DDF72A982BA000C5041E /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF62A982BA000C5041E /* Logging */; };
 		D849DDF92A982C8D00C5041E /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = D849DDF82A982C8D00C5041E /* Command.swift */; };
@@ -123,10 +121,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D849DDF12A982B7800C5041E /* HummingbirdFoundation in Frameworks */,
 				D849DDEC2A982B0F00C5041E /* InContextCore in Frameworks */,
 				D849DDF42A982B9200C5041E /* ArgumentParser in Frameworks */,
-				D849DDEF2A982B7800C5041E /* Hummingbird in Frameworks */,
 				D849DDF72A982BA000C5041E /* Logging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -330,8 +326,6 @@
 			name = incontext;
 			packageProductDependencies = (
 				D849DDEB2A982B0F00C5041E /* InContextCore */,
-				D849DDEE2A982B7800C5041E /* Hummingbird */,
-				D849DDF02A982B7800C5041E /* HummingbirdFoundation */,
 				D849DDF32A982B9200C5041E /* ArgumentParser */,
 				D849DDF62A982BA000C5041E /* Logging */,
 			);
@@ -840,16 +834,6 @@
 		D849DDEB2A982B0F00C5041E /* InContextCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = InContextCore;
-		};
-		D849DDEE2A982B7800C5041E /* Hummingbird */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D849DDED2A982B7800C5041E /* XCRemoteSwiftPackageReference "hummingbird" */;
-			productName = Hummingbird;
-		};
-		D849DDF02A982B7800C5041E /* HummingbirdFoundation */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D849DDED2A982B7800C5041E /* XCRemoteSwiftPackageReference "hummingbird" */;
-			productName = HummingbirdFoundation;
 		};
 		D849DDF32A982B9200C5041E /* ArgumentParser */ = {
 			isa = XCSwiftPackageProductDependency;
