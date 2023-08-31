@@ -22,20 +22,22 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
+struct SiteSettings: View {
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+    @ObservedObject var siteModel: SiteModel
+
+    var body: some View {
+        Button {
+            NSWorkspace.shared.open(siteModel.rootURL)
+        } label: {
+            Text("Show in Finder")
+        }
+        Divider()
+        Button {
+
+        } label: {
+            Text("Remove")
+        }
     }
+
 }

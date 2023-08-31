@@ -35,6 +35,8 @@ let package = Package(
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "FSEventsWrapper", package: "FSEventsWrapper"),
+                .product(name: "Hummingbird", package: "hummingbird"),
+                .product(name: "HummingbirdFoundation", package: "hummingbird"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Markdown", package: "swift-markdown"),
                 .product(name: "MarkdownKit", package: "swift-markdownkit"),
