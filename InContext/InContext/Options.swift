@@ -23,16 +23,36 @@
 import Foundation
 
 import ArgumentParser
+import InContextCore
 
-@main
-struct Command: AsyncParsableCommand {
+struct Options: ParsableArguments {
 
-    static var configuration = CommandConfiguration(commandName: "incontext",
-                                                    subcommands: [
-                                                        Build.self,
-                                                        Clean.self,
-                                                        Serve.self,
-                                                        Version.self,
-                                                    ])
+    @Option(help: "path to the root of the site",
+            completion: .file(),
+            transform: URL.init(fileURLWithPath:))
+    var site: URL?
+
+    @Flag(help: "serialize import")
+    var serializeImport = false
+
+    @Flag(help: "serialize template render")
+    var serializeRender = false
+
+    @Flag(help: "watch for changes to the content directory")
+    var watch = false
+
+    func resolveSite() throws -> Site {
+        if let site {
+            return try Site(rootURL: site)
+        }
+        let fileManager = FileManager.default
+        for directoryURL in ParentIterator(fileManager.currentDirectoryURL) {
+            let settingsURL = directoryURL.appendingPathComponent("site.yaml")
+            if fileManager.fileExists(at: settingsURL) {
+                return try Site(rootURL: directoryURL)
+            }
+        }
+        throw InContextError.internalInconsistency("Unable to detect site in current directory tree.")
+    }
 
 }

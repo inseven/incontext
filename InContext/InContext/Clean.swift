@@ -23,16 +23,18 @@
 import Foundation
 
 import ArgumentParser
+import InContextCore
 
-@main
-struct Command: AsyncParsableCommand {
+struct Clean: AsyncParsableCommand {
 
-    static var configuration = CommandConfiguration(commandName: "incontext",
-                                                    subcommands: [
-                                                        Build.self,
-                                                        Clean.self,
-                                                        Serve.self,
-                                                        Version.self,
-                                                    ])
+    @OptionGroup var options: Options
+
+    static var configuration = CommandConfiguration(commandName: "clean",
+                                                    abstract: "remove the build directory")
+
+    mutating func run() async throws {
+        let site = try options.resolveSite()
+        try FileManager.default.removeItem(at: site.buildURL)
+    }
 
 }
