@@ -87,10 +87,17 @@ swift test
 
 pushd InContext
 
+    # Install the provisioning profiles.
+    build-tools install-provisioning-profile "Helper/InContext_Helper_Developer_ID_Profile.provisionprofile"
+    build-tools install-provisioning-profile "Helper/InContext_Helper_Mac_App_Store_Profile.provisionprofile"
+
     # Smoke-test build the helper application.
     xcodebuild \
         -project InContext.xcodeproj \
         -scheme "InContext Helper" \
+        -configuration Release \
+        MARKETING_VERSION=$VERSION_NUMBER \
+        CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
         build
 
     # Build and archive the project.
