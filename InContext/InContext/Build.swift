@@ -23,16 +23,21 @@
 import Foundation
 
 import ArgumentParser
+import InContextCore
 
-@main
-struct Command: AsyncParsableCommand {
+struct Build: AsyncParsableCommand {
 
-    static var configuration = CommandConfiguration(commandName: "incontext",
-                                                    subcommands: [
-                                                        Build.self,
-                                                        Clean.self,
-                                                        Serve.self,
-                                                        Version.self,
-                                                    ])
+    static var configuration = CommandConfiguration(commandName: "build",
+                                                    abstract: "build the website")
+
+    @OptionGroup var options: Options
+
+    mutating func run() async throws {
+        let site = try options.resolveSite()
+        let ic = try await Builder(site: site,
+                                   serializeImport: options.serializeImport,
+                                   serializeRender: options.serializeRender)
+        try await ic.build(watch: options.watch)
+    }
 
 }

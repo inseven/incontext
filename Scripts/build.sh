@@ -85,16 +85,31 @@ fi
 swift build
 swift test
 
-# Build and archive the project.
 pushd InContext
-xcodebuild \
-    -project InContext.xcodeproj \
-    -scheme "InContext" \
-    -archivePath "$ARCHIVE_PATH" \
-    OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
-    MARKETING_VERSION=$VERSION_NUMBER \
-    CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
-    clean archive
+
+    # Install the provisioning profiles.
+    build-tools install-provisioning-profile "Helper/InContext_Helper_Developer_ID_Profile.provisionprofile"
+    build-tools install-provisioning-profile "Helper/InContext_Helper_Mac_App_Store_Profile.provisionprofile"
+
+    # Smoke-test build the helper application.
+    xcodebuild \
+        -project InContext.xcodeproj \
+        -scheme "InContext Helper" \
+        -configuration Release \
+        MARKETING_VERSION=$VERSION_NUMBER \
+        CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+        build
+
+    # Build and archive the project.
+    xcodebuild \
+        -project InContext.xcodeproj \
+        -scheme "InContext" \
+        -archivePath "$ARCHIVE_PATH" \
+        OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
+        MARKETING_VERSION=$VERSION_NUMBER \
+        CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+        clean archive
+
 popd
 
 # N.B. We do not currently attempt to export this archive as it's apparently a 'generic' archive that xcodebuild doesn't

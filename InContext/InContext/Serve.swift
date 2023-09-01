@@ -23,16 +23,20 @@
 import Foundation
 
 import ArgumentParser
+import InContextCore
 
-@main
-struct Command: AsyncParsableCommand {
+struct Serve: AsyncParsableCommand {
 
-    static var configuration = CommandConfiguration(commandName: "incontext",
-                                                    subcommands: [
-                                                        Build.self,
-                                                        Clean.self,
-                                                        Serve.self,
-                                                        Version.self,
-                                                    ])
+    static var configuration = CommandConfiguration(commandName: "serve",
+                                                    abstract: "run a local web server for development")
+
+    @OptionGroup var options: Options
+
+    mutating func run() async throws {
+        let server = Server(site: try options.resolveSite(),
+                            serializeImport: options.serializeImport,
+                            serializeRender: options.serializeRender)
+        try await server.start(watch: options.watch)
+    }
 
 }

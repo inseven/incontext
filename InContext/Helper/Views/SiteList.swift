@@ -20,19 +20,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import SwiftUI
 
-import ArgumentParser
+struct SiteList: View {
 
-@main
-struct Command: AsyncParsableCommand {
+    @ObservedObject var applicationModel: ApplicationModel
 
-    static var configuration = CommandConfiguration(commandName: "incontext",
-                                                    subcommands: [
-                                                        Build.self,
-                                                        Clean.self,
-                                                        Serve.self,
-                                                        Version.self,
-                                                    ])
+    var body: some View {
+        ForEach(Array(applicationModel.sites.values)) { siteModel in
+            Menu {
+                SiteSettings(applicationModel: applicationModel, siteModel: siteModel)
+            } label: {
+                Text(siteModel.rootURL.lastPathComponent)
+            }
+        }
+    }
 
 }

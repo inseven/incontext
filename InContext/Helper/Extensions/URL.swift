@@ -20,19 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import SwiftUI
 
-import ArgumentParser
+extension URL: Identifiable {
 
-@main
-struct Command: AsyncParsableCommand {
-
-    static var configuration = CommandConfiguration(commandName: "incontext",
-                                                    subcommands: [
-                                                        Build.self,
-                                                        Clean.self,
-                                                        Serve.self,
-                                                        Version.self,
-                                                    ])
+    public var id: Self { return self }
 
 }

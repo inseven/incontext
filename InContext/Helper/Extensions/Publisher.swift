@@ -20,19 +20,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import Combine
 
-import ArgumentParser
+extension Publisher {
 
-@main
-struct Command: AsyncParsableCommand {
+    public func asyncMap<T>(_ transform: @escaping (Output) async -> T) -> Publishers.FlatMap<Future<T, Never>, Self> {
+        flatMap { value in
+            Future { promise in
+                Task {
+                    let output = await transform(value)
+                    promise(.success(output))
+                }
+            }
+        }
+    }
 
-    static var configuration = CommandConfiguration(commandName: "incontext",
-                                                    subcommands: [
-                                                        Build.self,
-                                                        Clean.self,
-                                                        Serve.self,
-                                                        Version.self,
-                                                    ])
+    public func asyncMap<T>(_ transform: @escaping (Output) async throws -> T) -> Publishers.FlatMap<Future<T, Error>, Self> {
+        flatMap { value in
+            Future { promise in
+                Task {
+                    do {
+                        let output = try await transform(value)
+                        promise(.success(output))
+                    } catch {
+                        promise(.failure(error))
+                    }
+                }
+            }
+        }
+    }
 
 }

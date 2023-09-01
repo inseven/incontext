@@ -22,17 +22,28 @@
 
 import Foundation
 
-import ArgumentParser
+import InContextCore
 
-@main
-struct Command: AsyncParsableCommand {
+class SiteModel: ObservableObject, Identifiable {
 
-    static var configuration = CommandConfiguration(commandName: "incontext",
-                                                    subcommands: [
-                                                        Build.self,
-                                                        Clean.self,
-                                                        Serve.self,
-                                                        Version.self,
-                                                    ])
+    var id: URL { return rootURL }
+
+    let rootURL: URL
+    let site: Site
+    let builder: Builder
+
+    init(rootURL: URL) async throws {
+        self.rootURL = rootURL
+        self.site = try Site(rootURL: rootURL)
+        self.builder = try await Builder(site: site, serializeImport: false, serializeRender: false)
+    }
+
+    func start() {
+
+    }
+
+    func stop() {
+
+    }
 
 }

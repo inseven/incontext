@@ -22,17 +22,39 @@
 
 import Foundation
 
-import ArgumentParser
+import Hummingbird
+import HummingbirdFoundation
 
-@main
-struct Command: AsyncParsableCommand {
+public class Server {
 
-    static var configuration = CommandConfiguration(commandName: "incontext",
-                                                    subcommands: [
-                                                        Build.self,
-                                                        Clean.self,
-                                                        Serve.self,
-                                                        Version.self,
-                                                    ])
+    let site: Site
+    let port: Int
+    let serializeImport: Bool
+    let serializeRender: Bool
+
+    public init(site: Site, port: Int = 8000, serializeImport: Bool, serializeRender: Bool) {
+        self.site = site
+        self.port = port
+        self.serializeImport = serializeImport
+        self.serializeRender = serializeRender
+    }
+
+    public func start(watch: Bool) async throws {
+
+        // Start the server.
+        let app = HBApplication(configuration: .init(address: .hostname("127.0.0.1", port: port)))
+        let middleware = HBFileMiddleware(site.filesURL.path, searchForIndexHtml: true, application: app)
+        app.middleware.add(middleware)
+        try app.start()
+
+        guard watch else {
+            // If we're not watching for builds, we need to wait on the web server.
+            app.wait()
+            return
+        }
+
+        let ic = try await Builder(site: site, serializeImport: serializeImport, serializeRender: serializeRender)
+        try await ic.build(watch: watch)
+    }
 
 }

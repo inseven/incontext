@@ -25,32 +25,66 @@ import SwiftUI
 @main
 struct HelperApp: App {
 
+    let applicationModel: ApplicationModel
+
+    init() {
+        self.applicationModel = ApplicationModel()
+        self.applicationModel.start()
+    }
+
     var body: some Scene {
 
         MenuBarExtra {
+            SiteList(applicationModel: applicationModel)
+            Divider()
+            Button("Add Site...") {
+                print("Add Site")
+                let openPanel = NSOpenPanel()
+                openPanel.canChooseFiles = false
+                openPanel.canChooseDirectories = true
+                openPanel.canCreateDirectories = true
+                guard openPanel.runModal() ==  NSApplication.ModalResponse.OK,
+                      let url = openPanel.url else {
+                    return
+                }
+                applicationModel.settings.rootURLs.append(url)
+            }
+            Divider()
             Menu {
-                Button("Copy x-location") {
-                    Task {
-                        do {
-                            let pasteboard = NSPasteboard.general
-                            guard let address = pasteboard.string(forType: .string) else {
-                                return
+                Menu {
+                    Button("Copy x-location") {
+                        Task {
+                            do {
+                                let pasteboard = NSPasteboard.general
+                                guard let address = pasteboard.string(forType: .string) else {
+                                    return
+                                }
+                                let location = try await Geocoder.xLocation(for: address)
+                                pasteboard.clearContents()
+                                pasteboard.setString(location, forType: .string)
+                            } catch {
+                                print("Failed to geocode address with error \(error).")
                             }
-                            let location = try await Geocoder.xLocation(for: address)
-                            pasteboard.clearContents()
-                            pasteboard.setString(location, forType: .string)
-                        } catch {
-                            print("Failed to geocode address with error \(error).")
                         }
                     }
+                } label: {
+                    Text("Location")
                 }
             } label: {
-                Text("Location")
+                Text("Utilities")
             }
+
+            Divider()
+
+            Button {
+
+            } label: {
+                Text("Quit")
+            }
+
         } label: {
             Text("🦫")
         }
-
     }
     
 }
