@@ -20,31 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// Original code 'free to use' by JP Wright.
+// See https://gist.github.com/loudmouth/332e8d89d8de2c1eaf81875cfcd22e24.
+
 import Foundation
 
-// Structured site settings.
-// This is currently only used to parse a known-structured part of the site settings, but it should ultimately handle
-// all configuration.
-struct Settings: Decodable {
+struct UnknownCodingKeys: CodingKey {
 
-    private enum CodingKeys: String, CodingKey {
-        case title
-        case author
-        case url
-        case metadata
+    var stringValue: String
+
+    init?(stringValue: String) {
+        self.stringValue = stringValue
     }
 
-    let title: String
-    let author: String?
-    let url: URL
-    let metadata: [String: Any]
+    var intValue: Int?
 
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.title = try container.decode(String.self, forKey: .title)
-        self.author = try container.decodeIfPresent(String.self, forKey: .author)
-        self.url = try container.decode(URL.self, forKey: .url)
-        self.metadata = try container.decode(Dictionary<String, Any>.self, forKey: .metadata)
+    init?(intValue: Int) {
+        self.init(stringValue: "\(intValue)")
+        self.intValue = intValue
     }
-
 }

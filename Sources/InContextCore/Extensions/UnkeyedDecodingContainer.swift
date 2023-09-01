@@ -20,31 +20,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// Original code 'free to use' by JP Wright.
+// See https://gist.github.com/loudmouth/332e8d89d8de2c1eaf81875cfcd22e24.
+
 import Foundation
 
-// Structured site settings.
-// This is currently only used to parse a known-structured part of the site settings, but it should ultimately handle
-// all configuration.
-struct Settings: Decodable {
+extension UnkeyedDecodingContainer {
 
-    private enum CodingKeys: String, CodingKey {
-        case title
-        case author
-        case url
-        case metadata
+    mutating func decode(_ type: Array<Any>.Type) throws -> Array<Any> {
+        var array: [Any] = []
+        while isAtEnd == false {
+            if let value = try? decode(Bool.self) {
+                array.append(value)
+            } else if let value = try? decode(Double.self) {
+                array.append(value)
+            } else if let value = try? decode(String.self) {
+                array.append(value)
+            } else if let nestedDictionary = try? decode(Dictionary<String, Any>.self) {
+                array.append(nestedDictionary)
+            } else if let nestedArray = try? decode(Array<Any>.self) {
+                array.append(nestedArray)
+            }
+        }
+        return array
     }
 
-    let title: String
-    let author: String?
-    let url: URL
-    let metadata: [String: Any]
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.title = try container.decode(String.self, forKey: .title)
-        self.author = try container.decodeIfPresent(String.self, forKey: .author)
-        self.url = try container.decode(URL.self, forKey: .url)
-        self.metadata = try container.decode(Dictionary<String, Any>.self, forKey: .metadata)
+    mutating func decode(_ type: Dictionary<String, Any>.Type) throws -> Dictionary<String, Any> {
+        let nestedContainer = try self.nestedContainer(keyedBy: UnknownCodingKeys.self)
+        return try nestedContainer.decode(type)
     }
 
 }
