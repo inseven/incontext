@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 import Combine
+import ServiceManagement
 import SwiftUI
 
 class ApplicationModel: ObservableObject {
@@ -28,6 +29,27 @@ class ApplicationModel: ObservableObject {
     let settings = Settings()
     var cancellables: [AnyCancellable] = []
     @MainActor @Published var sites: [URL: SiteModel] = [:]
+
+    @MainActor var openAtLogin: Bool {
+        get {
+            return SMAppService.mainApp.status == .enabled
+        }
+        set {
+            objectWillChange.send()
+            do {
+                if newValue {
+                    if SMAppService.mainApp.status == .enabled {
+                        try? SMAppService.mainApp.unregister()
+                    }
+                    try SMAppService.mainApp.register()
+                } else {
+                    try SMAppService.mainApp.unregister()
+                }
+            } catch {
+                print("Failed to update service with error \(error).")
+            }
+        }
+    }
 
     init() {
     }
@@ -75,9 +97,13 @@ class ApplicationModel: ObservableObject {
         cancellables.removeAll()
     }
 
-    func remove(siteModel: SiteModel) {
+    @MainActor func remove(siteModel: SiteModel) {
         dispatchPrecondition(condition: .onQueue(.main))
         settings.rootURLs.removeAll { $0 == siteModel.rootURL }
+    }
+
+    @MainActor func quit() {
+        NSApplication.shared.terminate(nil)
     }
 
 }
