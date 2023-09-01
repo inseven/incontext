@@ -33,9 +33,9 @@ public class Builder {
         // TODO: These top-level methods should probably be namespaced.
         return [
             "site": [
-                // TODO: Pull this out of the site configuration (and make required configuration type-safe)
                 "title": site.title,
                 "url": site.url.absoluteString,
+                "metadata": site.structuredSettings.metadata,
                 "date_format": "MMMM d, yyyy",
                 "date_format_short": "MMMM d",
                 "posts": Function { () throws -> [DocumentContext] in
@@ -48,7 +48,7 @@ public class Builder {
                     let query = try QueryDescription(definition: definition)
                     return try renderTracker.documentContexts(query: query)
                 }
-            ] as Dictionary<String, Any>,  // TODO: as [String: Any] is different?
+            ] as [String: Any],
             "generate_uuid": Function {
                 return UUID().uuidString
             },
