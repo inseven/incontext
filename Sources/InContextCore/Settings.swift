@@ -44,7 +44,7 @@ struct Settings: Decodable {
         self.title = try container.decode(String.self, forKey: .title)
         self.author = try container.decodeIfPresent(String.self, forKey: .author)
         self.url = try container.decode(URL.self, forKey: .url)
-        self.metadata = try container.decode(Dictionary<String, Any>.self, forKey: .metadata)
+        self.metadata = try container.decodeIfPresent(Dictionary<String, Any>.self, forKey: .metadata) ?? [:]
     }
 
 }
