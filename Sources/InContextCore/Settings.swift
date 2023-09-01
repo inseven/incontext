@@ -28,12 +28,14 @@ import Foundation
 struct Settings: Decodable {
 
     private enum CodingKeys: String, CodingKey {
+        case version
         case title
         case author
         case url
         case metadata
     }
 
+    let version: Int
     let title: String
     let author: String?
     let url: URL
@@ -41,6 +43,10 @@ struct Settings: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.version = try container.decode(Int.self, forKey: .version)
+        guard version == 1 else {
+            throw InContextError.internalInconsistency("Unsupported settings version (\(version)).")
+        }
         self.title = try container.decode(String.self, forKey: .title)
         self.author = try container.decodeIfPresent(String.self, forKey: .author)
         self.url = try container.decode(URL.self, forKey: .url)
