@@ -32,9 +32,13 @@ public class Server {
     let serializeImport: Bool
     let serializeRender: Bool
 
-    public init(site: Site, port: Int = 8000, serializeImport: Bool, serializeRender: Bool) {
+    public var url: URL {
+        return URL(string: "http://localhost:\(port)")!
+    }
+
+    public init(site: Site, serializeImport: Bool = false, serializeRender: Bool = false) {
         self.site = site
-        self.port = port
+        self.port = site.structuredSettings.port
         self.serializeImport = serializeImport
         self.serializeRender = serializeRender
     }

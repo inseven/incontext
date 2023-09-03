@@ -48,6 +48,12 @@ public struct Site {
         return structuredSettings.url
     }
 
+    public var favorites: [URL] {
+        return structuredSettings.favorites.map { path, location in
+            return URL(fileURLWithPath: path, relativeTo: contentURL)
+        }
+    }
+
     public init(rootURL: URL) throws {
         self.rootURL = rootURL
         self.contentURL = rootURL.appendingPathComponent("content", isDirectory: true)

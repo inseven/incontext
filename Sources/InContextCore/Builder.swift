@@ -108,6 +108,7 @@ public class Builder {
     let templateCache: TemplateCache
     let renderManager: RenderManager
 
+    // TODO: Probably shouldn't await the template cache
     public init(site: Site, serializeImport: Bool, serializeRender: Bool) async throws {
         try FileManager.default.createDirectory(at: site.buildURL, withIntermediateDirectories: true)
         self.site = site

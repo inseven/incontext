@@ -29,6 +29,18 @@ struct SiteSettings: View {
 
     var body: some View {
         Button {
+            NSWorkspace.shared.open(siteModel.url)
+        } label: {
+            Text("Preview")
+        }
+        Divider()
+        ForEach(siteModel.favorites) { favorite in
+            Button(favorite.lastPathComponent) {
+                NSWorkspace.shared.open(favorite)
+            }
+        }
+        Divider()
+        Button {
             NSWorkspace.shared.open(siteModel.rootURL)
         } label: {
             Text("Show in Finder")

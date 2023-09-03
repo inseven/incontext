@@ -92,6 +92,7 @@
 		D86BCDFB2A9B032200C81BA5 /* HelperError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperError.swift; sourceTree = "<group>"; };
 		D890630A2A98293A0001A8E2 /* incontext */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = incontext; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89063152A9829500001A8E2 /* incontext-waialua */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "incontext-waialua"; path = ..; sourceTree = "<group>"; };
+		D8F75F462AA34811000DEDB7 /* InContext HelperRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "InContext HelperRelease.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,6 +210,7 @@
 		D89063012A9829390001A8E2 = {
 			isa = PBXGroup;
 			children = (
+				D8F75F462AA34811000DEDB7 /* InContext HelperRelease.entitlements */,
 				D89063142A9829500001A8E2 /* Packages */,
 				D890630C2A98293A0001A8E2 /* InContext */,
 				D86BCDCF2A9B016A00C81BA5 /* Helper */,
@@ -508,7 +510,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Helper/Helper.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "InContext HelperRelease.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
