@@ -20,20 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-struct SiteList: View {
+// TODO: Consider calling this SessionManager?
+public protocol Tracker {
 
-    @ObservedObject var applicationModel: ApplicationModel
+    func new() -> Session
 
-    var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
-            }
-        }
-    }
+}
+
+public protocol Session {
+
+    func debug(_ string: String)
+    func info(_ string: String)
+    func warning(_ string: String)
+    func error(_ string: String)
+
+//    func success()
+//    func failure(_ error: Error)
 
 }

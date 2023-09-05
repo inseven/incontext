@@ -20,37 +20,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-struct SiteSettings: View {
+import InContextCore
 
-    @ObservedObject var applicationModel: ApplicationModel
-    @ObservedObject var siteModel: SiteModel
+class HelperSession: ObservableObject, Session, Identifiable {
 
-    var body: some View {
-        Button {
-            NSWorkspace.shared.open(siteModel.url)
-        } label: {
-            Text("Preview")
+    let id = UUID()
+
+    @MainActor @Published var events: [Event] = []
+
+    func log(level: Event.Level, _ message: String) {
+        print("-> \(level) \(message)")
+        let event = Event(date: Date(), level: level, message: message)
+        DispatchQueue.main.async {
+            self.events.append(event)
         }
-        Divider()
-        ForEach(siteModel.favorites) { favorite in
-            Button(favorite.lastPathComponent) {
-                NSWorkspace.shared.open(favorite)
-            }
-        }
-        Divider()
-        Button {
-            NSWorkspace.shared.open(siteModel.rootURL)
-        } label: {
-            Text("Show in Finder")
-        }
-        Divider()
-        Button {
-            applicationModel.remove(siteModel: siteModel)
-        } label: {
-            Text("Remove")
-        }
+    }
+
+    func debug(_ string: String) {
+        log(level: .debug, string)
+    }
+
+    func info(_ string: String) {
+        log(level: .info, string)
+    }
+
+    func warning(_ string: String) {
+        log(level: .warning, string)
+    }
+
+    func error(_ string: String) {
+        log(level: .error, string)
     }
 
 }

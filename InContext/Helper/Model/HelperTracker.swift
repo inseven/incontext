@@ -20,20 +20,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-struct SiteList: View {
+import InContextCore
 
-    @ObservedObject var applicationModel: ApplicationModel
+class HelperTracker: ObservableObject, Tracker {
 
-    var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
-            }
+    @Published var sessions: [HelperSession] = []
+
+    func new() -> Session {
+        let session = HelperSession()
+        DispatchQueue.main.async {
+            self.sessions.append(session)
         }
+        return session
     }
 
 }

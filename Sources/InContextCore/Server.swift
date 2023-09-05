@@ -28,6 +28,7 @@ import HummingbirdFoundation
 public class Server {
 
     let site: Site
+    let tracker: Tracker
     let port: Int
     let serializeImport: Bool
     let serializeRender: Bool
@@ -36,8 +37,12 @@ public class Server {
         return URL(string: "http://localhost:\(port)")!
     }
 
-    public init(site: Site, serializeImport: Bool = false, serializeRender: Bool = false) {
+    public init(site: Site,
+                tracker: Tracker,
+                serializeImport: Bool = false,
+                serializeRender: Bool = false) {
         self.site = site
+        self.tracker = tracker
         self.port = site.structuredSettings.port
         self.serializeImport = serializeImport
         self.serializeRender = serializeRender
@@ -57,7 +62,10 @@ public class Server {
             return
         }
 
-        let ic = try await Builder(site: site, serializeImport: serializeImport, serializeRender: serializeRender)
+        let ic = try await Builder(site: site,
+                                   tracker: tracker,
+                                   serializeImport: serializeImport,
+                                   serializeRender: serializeRender)
         try await ic.build(watch: watch)
     }
 

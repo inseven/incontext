@@ -102,6 +102,7 @@ public class Builder {
     }
 
     let site: Site
+    let tracker: Tracker
     let serializeImport: Bool
     let serializeRender: Bool
     let store: Store
@@ -109,9 +110,13 @@ public class Builder {
     let renderManager: RenderManager
 
     // TODO: Probably shouldn't await the template cache
-    public init(site: Site, serializeImport: Bool, serializeRender: Bool) async throws {
+    public init(site: Site,
+                tracker: Tracker,
+                serializeImport: Bool,
+                serializeRender: Bool) async throws {
         try FileManager.default.createDirectory(at: site.buildURL, withIntermediateDirectories: true)
         self.site = site
+        self.tracker = tracker
         self.serializeImport = serializeImport
         self.serializeRender = serializeRender
         self.store = try Store(databaseURL: site.storeURL)
@@ -161,7 +166,8 @@ public class Builder {
         return false
     }
 
-    func render(document: Document,
+    func render(session: Session,
+                document: Document,
                 documents: [Document],
                 renderStatus: RenderStatus?) async throws {
 
@@ -169,7 +175,7 @@ public class Builder {
         let destinationFileURL = destinationDirectoryURL
             .appendingPathComponent("index")
             .appendingPathExtension(document.template.pathExtension)
-        print("Rendering '\(document.url)' with template '\(document.template)'...")
+        session.info("Rendering '\(document.url)' with template '\(document.template)'...")
 
         // Render the document using its top-level template.
         // This is tracked using our document-specific `RenderTracker` instance to allow us to track dependencies
@@ -187,7 +193,7 @@ public class Builder {
         try data.write(to: destinationFileURL)
     }
 
-    func importContent() async throws {
+    func importContent(session: Session) async throws {
 
         let fileManager = FileManager.default
 
@@ -214,7 +220,7 @@ public class Builder {
 
                 // Get the handler for the file.
                 guard let handler = try self.site.handler(for: fileURL) else {
-                    print("Ignoring unsupported file '\(fileURL.relativePath)'.")
+                    session.warning("Ignoring unsupported file '\(fileURL.relativePath)'.")
                     continue
                 }
 
@@ -248,9 +254,9 @@ public class Builder {
                         let fileManager = FileManager.default
                         for asset in try await self.store.assets(for: fileURL.relativePath,
                                                                  filesURL: self.site.filesURL) {
-                            print("Removing intermediate '\(asset.fileURL.relativePath)'...")
+                            session.info("Removing intermediate '\(asset.fileURL.relativePath)'...")
                             guard fileManager.fileExists(atPath: asset.fileURL.path) else {
-                                print("Skipping missing file...")
+                                session.warning("Skipping missing file...")
                                 continue
                             }
                             try FileManager.default.removeItem(at: asset.fileURL)
@@ -261,7 +267,7 @@ public class Builder {
                         // TODO: Clean up the existing intermediates if we know that the contents have changed.
                     }
 
-                    print("[\(handler.identifier)] Importing '\(fileURL.relativePath)'...")
+                    session.info("[\(handler.identifier)] Importing '\(fileURL.relativePath)'...")
 
                     // Import the file.
                     let file = File(url: fileURL, contentModificationDate: contentModificationDate)
@@ -290,19 +296,19 @@ public class Builder {
         // TODO: Remove the render output for documents that no longer exist.
     }
 
-    func renderContent(concurrent: Bool) async throws {
+    func renderContent(session: Session, concurrent: Bool) async throws {
 
         // Preload the existing render statuses in one batch in the hope that it's faster.
-        print("Loading render cache...")
+        session.debug("Loading render cache...")
         let renderStatuses = try await store.renderStatuses()
             .reduce(into: [String: RenderStatus](), { partialResult, renderStatus in
                 partialResult[renderStatus.0] = renderStatus.1
             })
 
-        print("Getting documents...")
+        session.debug("Getting documents...")
         let documents = try await store.documents()
 
-        print("Checking for changes...")
+        session.debug("Checking for changes...")
         let updates = try await withThrowingTaskGroup(of: (Document?).self) { group in
             for document in documents {
                 group.addTask {
@@ -324,11 +330,12 @@ public class Builder {
         }
 
         // Render the documents that need updates.
-        print("Rendering \(updates.count) documents...")
+        session.info("Rendering \(updates.count) documents...")
         _ = try await withTaskRunner(of: Void.self, concurrent: concurrent) { tasks in
             for document in updates {
                 tasks.add {
-                    try await self.render(document: document,
+                    try await self.render(session: session,
+                                          document: document,
                                           documents: documents,
                                           renderStatus: renderStatuses[document.url])
                 }
@@ -341,6 +348,22 @@ public class Builder {
         try FileManager.default.createDirectory(at: site.filesURL, withIntermediateDirectories: true)
     }
 
+    func doBuild() async {
+        let session = tracker.new()
+        do {
+            let clock = ContinuousClock()
+            let duration = try await clock.measure {
+                renderManager.clearTemplateCache()
+                try await importContent(session: session)
+                try await renderContent(session: session, concurrent: !serializeRender)
+            }
+            session.info("Build took \(duration.formatted()).")
+        } catch {
+            session.error(error.localizedDescription)
+        }
+    }
+
+    // TODO: Not sure if this needs to return? It could actually not inject a logger but have a block.
     public func build(watch: Bool = false) async throws {
         try prepare()
 
@@ -352,12 +375,9 @@ public class Builder {
             site.templatesURL
         ])
 
-        let clock = ContinuousClock()
-        let duration = try await clock.measure {
-            try await importContent()
-            try await renderContent(concurrent: !serializeRender)
-        }
-        print("Build took \(duration.formatted()).")
+        // TODO: Unify this and the other blocks.
+        // TODO: Start a new build session.
+        await doBuild()
 
         // Check to see if we should watch for changes.
         guard watch else {
@@ -367,13 +387,7 @@ public class Builder {
         // Watch for changes and rebuild.
         while true {
             try changeObserver.wait()
-            let clock = ContinuousClock()
-            let duration = try await clock.measure {
-                renderManager.clearTemplateCache()
-                try await importContent()
-                try await renderContent(concurrent: !serializeRender)
-            }
-            print("Update took \(duration.formatted()).")
+            await doBuild()
         }
 
     }

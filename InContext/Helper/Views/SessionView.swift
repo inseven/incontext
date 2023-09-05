@@ -22,17 +22,19 @@
 
 import SwiftUI
 
-struct SiteList: View {
+struct SessionView: View {
 
-    @ObservedObject var applicationModel: ApplicationModel
+    @ObservedObject var session: HelperSession
 
     var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
+        ForEach(session.events) { event in
+            HStack {
+                Text(event.date, style: .time)
+                    .foregroundColor(.secondary)
+                Text(event.message)
             }
+            .textSelection(.enabled)
+            .foregroundColor(event.level.color)
         }
     }
 

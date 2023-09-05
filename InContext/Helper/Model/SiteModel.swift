@@ -34,11 +34,17 @@ class SiteModel: ObservableObject, Identifiable {
     private let server: Server
     private var task: Task<(), Never>? = nil
 
+    let tracker = HelperTracker()
+
     var url: URL {
         return server.url
     }
 
-    var favorites: [URL] {
+    var title: String {
+        return site.title
+    }
+
+    var favorites: [Site.Favorite] {
         return site.favorites
     }
 
@@ -47,7 +53,7 @@ class SiteModel: ObservableObject, Identifiable {
         // TODO: Guard the configuration loading.
         // TODO: The configuration should likely be pushed into the server as we need to watch for changes
         self.site = try! Site(rootURL: rootURL)
-        self.server = Server(site: site)
+        self.server = Server(site: site, tracker: tracker)
     }
 
     func start() {
@@ -64,7 +70,6 @@ class SiteModel: ObservableObject, Identifiable {
 
     func stop() {
         dispatchPrecondition(condition: .onQueue(.main))
-        // TODO: Ensure these stop on shutdown.
         self.task?.cancel()
         self.task = nil
     }

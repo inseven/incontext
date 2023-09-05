@@ -20,20 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-struct SiteList: View {
+import InContextCore
 
-    @ObservedObject var applicationModel: ApplicationModel
+struct Event: Identifiable {
 
-    var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
-            }
-        }
+    // TODO: Push this into the session.
+    enum Level {
+        case debug
+        case info
+        case notice
+        case warning
+        case error
     }
+
+    let id = UUID()
+
+    let date: Date
+    let level: Level
+    let message: String
 
 }

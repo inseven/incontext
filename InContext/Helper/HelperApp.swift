@@ -22,25 +22,21 @@
 
 import SwiftUI
 
-struct SettingsMenu: View {
+extension Event.Level {
 
-    @ObservedObject var applicationModel: ApplicationModel
-
-    var body: some View {
-        Button("Add Site...") {
-            print("Add Site")
-            let openPanel = NSOpenPanel()
-            openPanel.canChooseFiles = false
-            openPanel.canChooseDirectories = true
-            openPanel.canCreateDirectories = true
-            guard openPanel.runModal() ==  NSApplication.ModalResponse.OK,
-                  let url = openPanel.url else {
-                return
-            }
-            applicationModel.settings.rootURLs.append(url)
+    var color: Color {
+        switch self {
+        case .debug:
+            return .primary
+        case .info:
+            return .primary
+        case .notice:
+            return .primary
+        case .warning:
+            return .orange
+        case .error:
+            return .red
         }
-        Divider()
-        Toggle("Open at Login", isOn: $applicationModel.openAtLogin)
     }
 
 }
@@ -101,6 +97,10 @@ struct HelperApp: App {
         } label: {
             Text("🦫")
         }
+
+        LogWindow(applicationModel: applicationModel)
+
     }
+
     
 }

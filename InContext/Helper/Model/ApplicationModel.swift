@@ -99,6 +99,8 @@ class ApplicationModel: ObservableObject {
     }
 
     @MainActor func quit() {
+        dispatchPrecondition(condition: .onQueue(.main))
+        stop()
         NSApplication.shared.terminate(nil)
     }
 
