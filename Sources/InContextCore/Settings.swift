@@ -27,12 +27,18 @@ import Foundation
 // all configuration.
 struct Settings: Decodable {
 
+    struct Location: Codable {
+        let title: String
+    }
+
     private enum CodingKeys: String, CodingKey {
         case version
         case title
         case author
         case url
         case metadata
+        case port
+        case favorites
     }
 
     let version: Int
@@ -40,6 +46,8 @@ struct Settings: Decodable {
     let author: String?
     let url: URL
     let metadata: [String: Any]
+    let port: Int
+    let favorites: [String: Location]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -51,6 +59,8 @@ struct Settings: Decodable {
         self.author = try container.decodeIfPresent(String.self, forKey: .author)
         self.url = try container.decode(URL.self, forKey: .url)
         self.metadata = try container.decodeIfPresent(Dictionary<String, Any>.self, forKey: .metadata) ?? [:]
+        self.port = try container.decodeIfPresent(Int.self, forKey: .port) ?? 8000
+        self.favorites = try container.decodeIfPresent([String: Location].self, forKey: .favorites) ?? [:]
     }
 
 }

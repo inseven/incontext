@@ -30,7 +30,8 @@ SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
 
-ARCHIVE_PATH="${BUILD_DIRECTORY}/InContext.xcarchive"
+CLI_ARCHIVE_PATH="${BUILD_DIRECTORY}/InContext.xcarchive"
+HELPER_ARCHIVE_PATH="${BUILD_DIRECTORY}/Helper.xcarchive"
 
 KEYCHAIN_PATH=${KEYCHAIN_PATH:-login}
 
@@ -91,21 +92,21 @@ pushd InContext
     build-tools install-provisioning-profile "Helper/InContext_Helper_Developer_ID_Profile.provisionprofile"
     build-tools install-provisioning-profile "Helper/InContext_Helper_Mac_App_Store_Profile.provisionprofile"
 
-    # Smoke-test build the helper application.
-    xcodebuild \
-        -project InContext.xcodeproj \
-        -scheme "InContext Helper" \
-        -configuration Release \
-        MARKETING_VERSION=$VERSION_NUMBER \
-        CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
-        build
-
-    # Build and archive the project.
+    # Build and archive the command.
     xcodebuild \
         -project InContext.xcodeproj \
         -scheme "InContext" \
-        -archivePath "$ARCHIVE_PATH" \
+        -archivePath "$CLI_ARCHIVE_PATH" \
         OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
+        MARKETING_VERSION=$VERSION_NUMBER \
+        CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+        clean archive
+
+    # Build and archive the helper.
+    xcodebuild \
+        -project InContext.xcodeproj \
+        -scheme "InContext Helper" \
+        -archivePath "$HELPER_ARCHIVE_PATH" \
         MARKETING_VERSION=$VERSION_NUMBER \
         CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
         clean archive
@@ -115,7 +116,7 @@ popd
 # N.B. We do not currently attempt to export this archive as it's apparently a 'generic' archive that xcodebuild doesn't
 # know what to do with. Instead, we pluck our binary directly out of the archive as we know where it is and we're going
 # to package it and notarize it ourselves.
-cp "${ARCHIVE_PATH}/Products/usr/local/bin/incontext" "${BUILD_DIRECTORY}/incontext"
+cp "${CLI_ARCHIVE_PATH}/Products/usr/local/bin/incontext" "${BUILD_DIRECTORY}/incontext"
 
 # Archive the command line tool.
 ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"

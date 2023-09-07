@@ -20,20 +20,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-struct SiteList: View {
+public protocol Tracker {
 
-    @ObservedObject var applicationModel: ApplicationModel
+    func new() -> Session
 
-    var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
-            }
-        }
+}
+
+public enum LogLevel {
+    case debug
+    case info
+    case notice
+    case warning
+    case error
+}
+
+public protocol Session {
+
+    func log(level: LogLevel, _ message: String)
+
+}
+
+extension Session {
+
+    func debug(_ message: String) {
+        log(level: .debug, message)
+    }
+
+    func info(_ message: String) {
+        log(level: .info, message)
+    }
+
+    func warning(_ message: String) {
+        log(level: .warning, message)
+    }
+
+    func error(_ message: String) {
+        log(level: .error, message)
     }
 
 }

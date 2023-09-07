@@ -35,6 +35,7 @@ struct Build: AsyncParsableCommand {
     mutating func run() async throws {
         let site = try options.resolveSite()
         let ic = try await Builder(site: site,
+                                   tracker: LoggingTracker(),
                                    serializeImport: options.serializeImport,
                                    serializeRender: options.serializeRender)
         try await ic.build(watch: options.watch)

@@ -20,20 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-struct SiteList: View {
+import InContextCore
 
-    @ObservedObject var applicationModel: ApplicationModel
+struct LoggingSession: Session {
 
-    var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
-            }
-        }
+    func log(level: LogLevel, _ message: String) {
+        print(message)
     }
 
 }

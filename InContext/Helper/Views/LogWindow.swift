@@ -22,16 +22,18 @@
 
 import SwiftUI
 
-struct SiteList: View {
+struct LogWindow: Scene {
 
-    @ObservedObject var applicationModel: ApplicationModel
+    static let windowID = "log-window"
 
-    var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
+    let applicationModel: ApplicationModel
+
+    var body: some Scene {
+        WindowGroup(id: Self.windowID, for: URL.self) { $url in
+            let sites = applicationModel.sites.values
+            let siteModel = sites.first { $0.rootURL == url }
+            if let siteModel {
+                LogView(siteModel: siteModel)
             }
         }
     }

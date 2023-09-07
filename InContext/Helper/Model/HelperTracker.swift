@@ -20,25 +20,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-struct SiteSettings: View {
+import InContextCore
 
-    @ObservedObject var applicationModel: ApplicationModel
-    @ObservedObject var siteModel: SiteModel
+class HelperTracker: ObservableObject, Tracker {
 
-    var body: some View {
-        Button {
-            NSWorkspace.shared.open(siteModel.rootURL)
-        } label: {
-            Text("Show in Finder")
+    @Published var sessions: [HelperSession] = []
+
+    func new() -> Session {
+        let session = HelperSession()
+        DispatchQueue.main.async {
+            self.sessions.append(session)
         }
-        Divider()
-        Button {
-            applicationModel.remove(siteModel: siteModel)
-        } label: {
-            Text("Remove")
-        }
+        return session
     }
 
 }

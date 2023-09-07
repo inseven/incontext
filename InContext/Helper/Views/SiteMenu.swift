@@ -22,17 +22,41 @@
 
 import SwiftUI
 
-struct SiteList: View {
+struct SiteMenu: View {
 
     @ObservedObject var applicationModel: ApplicationModel
+    @ObservedObject var siteModel: SiteModel
+
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
+        Button {
+            NSWorkspace.shared.open(siteModel.url)
+        } label: {
+            Text("Preview")
+        }
+        Button {
+            openWindow(id: LogWindow.windowID, value: siteModel.rootURL)
+        } label: {
+            Text("Logs...")
+        }
+        Divider()
+        ForEach(siteModel.favorites) { favorite in
+            Button(favorite.title) {
+                NSWorkspace.shared.open(favorite.rootURL)
             }
+        }
+        Divider()
+        Button {
+            NSWorkspace.shared.open(siteModel.rootURL)
+        } label: {
+            Text("Show in Finder")
+        }
+        Divider()
+        Button {
+            applicationModel.remove(siteModel: siteModel)
+        } label: {
+            Text("Remove")
         }
     }
 

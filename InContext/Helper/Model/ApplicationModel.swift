@@ -28,7 +28,7 @@ class ApplicationModel: ObservableObject {
 
     let settings = Settings()
     var cancellables: [AnyCancellable] = []
-    @MainActor @Published var sites: [URL: SiteModel] = [:]
+    @Published var sites: [URL: SiteModel] = [:]
 
     @MainActor var openAtLogin: Bool {
         get {
@@ -63,31 +63,27 @@ class ApplicationModel: ObservableObject {
                 guard let self else {
                     return
                 }
-                Task {
-                    var sites = await self.sites
-                    var rootURLs = Set(rootURLs)
+                var sites = self.sites
+                var rootURLs = Set(rootURLs)
 
-                    // Stop and remove existing sites.
-                    for (rootURL, site) in sites {
-                        if !rootURLs.contains(rootURL) {
-                            site.stop()
-                            sites.removeValue(forKey: rootURL)
-                        } else {
-                            rootURLs.remove(rootURL)
-                        }
-                    }
-
-                    // Create and start new sites.
-                    for rootURL in rootURLs {
-                        let site = try await SiteModel(rootURL: rootURL)
-                        site.start()
-                        sites[rootURL] = site
-                    }
-
-                    await MainActor.run { [sites] in
-                        self.sites = sites
+                // Stop and remove existing sites.
+                for (rootURL, site) in sites {
+                    if !rootURLs.contains(rootURL) {
+                        site.stop()
+                        sites.removeValue(forKey: rootURL)
+                    } else {
+                        rootURLs.remove(rootURL)
                     }
                 }
+
+                // Create and start new sites.
+                for rootURL in rootURLs {
+                    let site = SiteModel(rootURL: rootURL)
+                    site.start()
+                    sites[rootURL] = site
+                }
+
+                self.sites = sites
             }
             .store(in: &cancellables)
     }
@@ -103,6 +99,8 @@ class ApplicationModel: ObservableObject {
     }
 
     @MainActor func quit() {
+        dispatchPrecondition(condition: .onQueue(.main))
+        stop()
         NSApplication.shared.terminate(nil)
     }
 

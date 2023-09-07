@@ -20,19 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-struct SiteList: View {
+import InContextCore
 
-    @ObservedObject var applicationModel: ApplicationModel
+class HelperSession: ObservableObject, Session, Identifiable {
 
-    var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
-            }
+    let id = UUID()
+
+    @MainActor @Published var events: [Event] = []
+
+    func log(level: LogLevel, _ message: String) {
+        print("-> \(level) \(message)")
+        let event = Event(date: Date(), level: level, message: message)
+        DispatchQueue.main.async {
+            self.events.append(event)
         }
     }
 

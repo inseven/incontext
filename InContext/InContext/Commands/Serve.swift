@@ -20,20 +20,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
 
-struct SiteList: View {
+import ArgumentParser
+import InContextCore
 
-    @ObservedObject var applicationModel: ApplicationModel
+struct Serve: AsyncParsableCommand {
 
-    var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
-            }
-        }
+    static var configuration = CommandConfiguration(commandName: "serve",
+                                                    abstract: "run a local web server for development")
+
+    @OptionGroup var options: Options
+
+    mutating func run() async throws {
+        let server = Server(site: try options.resolveSite(),
+                            tracker: LoggingTracker(),
+                            serializeImport: options.serializeImport,
+                            serializeRender: options.serializeRender)
+        try await server.start(watch: options.watch)
     }
 
 }

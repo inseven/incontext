@@ -29,21 +29,49 @@ class SiteModel: ObservableObject, Identifiable {
     var id: URL { return rootURL }
 
     let rootURL: URL
-    let site: Site
-    let builder: Builder
+    
+    private let site: Site
+    private let server: Server
+    private var task: Task<(), Never>? = nil
 
-    init(rootURL: URL) async throws {
+    let tracker = HelperTracker()
+
+    var url: URL {
+        return server.url
+    }
+
+    var title: String {
+        return site.title
+    }
+
+    var favorites: [Site.Favorite] {
+        return site.favorites
+    }
+
+    init(rootURL: URL) {
         self.rootURL = rootURL
-        self.site = try Site(rootURL: rootURL)
-        self.builder = try await Builder(site: site, serializeImport: false, serializeRender: false)
+        // TODO: Guard the configuration loading.
+        // TODO: The configuration should likely be pushed into the server as we need to watch for changes
+        self.site = try! Site(rootURL: rootURL)
+        self.server = Server(site: site, tracker: tracker)
     }
 
     func start() {
-
+        dispatchPrecondition(condition: .onQueue(.main))
+        self.task = Task {
+            do {
+                try await server.start(watch: true)
+            } catch {
+                // TODO: This shouldn't happen.
+                print("FAILED WITH ERROR!! \(error)")
+            }
+        }
     }
 
     func stop() {
-
+        dispatchPrecondition(condition: .onQueue(.main))
+        self.task?.cancel()
+        self.task = nil
     }
 
 }

@@ -22,18 +22,25 @@
 
 import SwiftUI
 
-struct SiteList: View {
+struct LogView: View {
 
-    @ObservedObject var applicationModel: ApplicationModel
+    @ObservedObject var siteModel: SiteModel
+    @ObservedObject var helperTracker: HelperTracker
+
+    init(siteModel: SiteModel) {
+        self.siteModel = siteModel
+        self.helperTracker = siteModel.tracker
+    }
 
     var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
-            Menu {
-                SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
-            } label: {
-                Text(siteModel.title)
+        List {
+            ForEach(helperTracker.sessions) { session in
+                Text("Build")
+                    .font(.headline)
+                SessionView(session: session)
             }
         }
+        .navigationTitle(siteModel.rootURL.lastPathComponent)
     }
 
 }

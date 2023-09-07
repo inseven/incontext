@@ -28,6 +28,18 @@ import Yams
 
 public struct Site {
 
+    // TODO: This potentially needs to change dynamically? Or we create a new builder each time?
+    //       Potentially it's OK to create a new builder each time.
+    public struct Favorite: Identifiable {
+
+        public var id: URL {
+            return rootURL
+        }
+
+        public let rootURL: URL
+        public let title: String
+    }
+
     public let rootURL: URL
     public let contentURL: URL
     public let templatesURL: URL
@@ -46,6 +58,13 @@ public struct Site {
 
     public var url: URL {
         return structuredSettings.url
+    }
+
+    public var favorites: [Favorite] {
+        return structuredSettings.favorites.map { path, location in
+            Favorite(rootURL: URL(fileURLWithPath: path, relativeTo: contentURL),
+                     title: location.title)
+        }
     }
 
     public init(rootURL: URL) throws {

@@ -20,23 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import SwiftUI
 
-import ArgumentParser
-import InContextCore
+struct SettingsMenu: View {
 
-struct Serve: AsyncParsableCommand {
+    @ObservedObject var applicationModel: ApplicationModel
 
-    static var configuration = CommandConfiguration(commandName: "serve",
-                                                    abstract: "run a local web server for development")
-
-    @OptionGroup var options: Options
-
-    mutating func run() async throws {
-        let server = Server(site: try options.resolveSite(),
-                            serializeImport: options.serializeImport,
-                            serializeRender: options.serializeRender)
-        try await server.start(watch: options.watch)
+    var body: some View {
+        Button("Add Site...") {
+            print("Add Site")
+            let openPanel = NSOpenPanel()
+            openPanel.canChooseFiles = false
+            openPanel.canChooseDirectories = true
+            openPanel.canCreateDirectories = true
+            guard openPanel.runModal() ==  NSApplication.ModalResponse.OK,
+                  let url = openPanel.url else {
+                return
+            }
+            applicationModel.settings.rootURLs.append(url)
+        }
+        Divider()
+        Toggle("Open at Login", isOn: $applicationModel.openAtLogin)
     }
 
 }
