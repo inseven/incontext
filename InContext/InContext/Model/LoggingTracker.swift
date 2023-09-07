@@ -22,22 +22,12 @@
 
 import Foundation
 
-import ArgumentParser
 import InContextCore
 
-struct Build: AsyncParsableCommand {
+struct LoggingTracker: Tracker {
 
-    static var configuration = CommandConfiguration(commandName: "build",
-                                                    abstract: "build the website")
-
-    @OptionGroup var options: Options
-
-    mutating func run() async throws {
-        let site = try options.resolveSite()
-        let ic = try await Builder(site: site,
-                                   serializeImport: options.serializeImport,
-                                   serializeRender: options.serializeRender)
-        try await ic.build(watch: options.watch)
+    func new() -> Session {
+        return LoggingSession()
     }
 
 }

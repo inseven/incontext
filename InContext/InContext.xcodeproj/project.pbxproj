@@ -26,6 +26,9 @@
 		D849DDF42A982B9200C5041E /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF32A982B9200C5041E /* ArgumentParser */; };
 		D849DDF72A982BA000C5041E /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF62A982BA000C5041E /* Logging */; };
 		D849DDF92A982C8D00C5041E /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = D849DDF82A982C8D00C5041E /* Command.swift */; };
+		D84E77F82AA954F800ED193A /* LoggingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84E77F72AA954F800ED193A /* LoggingSession.swift */; };
+		D84E77FA2AA9555000ED193A /* LoggingTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84E77F92AA9555000ED193A /* LoggingTracker.swift */; };
+		D84E77FD2AA95CA500ED193A /* LogLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84E77FB2AA95C3700ED193A /* LogLevel.swift */; };
 		D86BCDD12A9B016A00C81BA5 /* HelperApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDD02A9B016A00C81BA5 /* HelperApp.swift */; };
 		D86BCDD52A9B016D00C81BA5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D86BCDD42A9B016D00C81BA5 /* Assets.xcassets */; };
 		D86BCDD82A9B016D00C81BA5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D86BCDD72A9B016D00C81BA5 /* Preview Assets.xcassets */; };
@@ -87,6 +90,9 @@
 		D8121A8B2AA11BF200EEDF5B /* Clean.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clean.swift; sourceTree = "<group>"; };
 		D849DDF82A982C8D00C5041E /* Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
 		D849DDFA2A982E7900C5041E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D84E77F72AA954F800ED193A /* LoggingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingSession.swift; sourceTree = "<group>"; };
+		D84E77F92AA9555000ED193A /* LoggingTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingTracker.swift; sourceTree = "<group>"; };
+		D84E77FB2AA95C3700ED193A /* LogLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogLevel.swift; sourceTree = "<group>"; };
 		D86BCDCE2A9B016A00C81BA5 /* InContext Helper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "InContext Helper.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D86BCDD02A9B016A00C81BA5 /* HelperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperApp.swift; sourceTree = "<group>"; };
 		D86BCDD42A9B016D00C81BA5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -148,6 +154,7 @@
 		D8121A6F2AA04BC900EEDF5B /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				D84E77FB2AA95C3700ED193A /* LogLevel.swift */,
 				D8121A7C2AA0747000EEDF5B /* Publisher.swift */,
 				D8121A702AA04BDA00EEDF5B /* URL.swift */,
 			);
@@ -185,6 +192,28 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D84E77F52AA952CE00ED193A /* Commands */ = {
+			isa = PBXGroup;
+			children = (
+				D8121A892AA11BAE00EEDF5B /* Build.swift */,
+				D8121A8B2AA11BF200EEDF5B /* Clean.swift */,
+				D849DDF82A982C8D00C5041E /* Command.swift */,
+				D8121A852AA11B2400EEDF5B /* Options.swift */,
+				D8121A832AA11AF400EEDF5B /* Serve.swift */,
+				D8121A802AA1164E00EEDF5B /* Version.swift */,
+			);
+			path = Commands;
+			sourceTree = "<group>";
+		};
+		D84E77F62AA952E100ED193A /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				D84E77F72AA954F800ED193A /* LoggingSession.swift */,
+				D84E77F92AA9555000ED193A /* LoggingTracker.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		D86BCDCF2A9B016A00C81BA5 /* Helper */ = {
@@ -256,13 +285,9 @@
 		D890630C2A98293A0001A8E2 /* InContext */ = {
 			isa = PBXGroup;
 			children = (
+				D84E77F62AA952E100ED193A /* Model */,
+				D84E77F52AA952CE00ED193A /* Commands */,
 				D849DDFA2A982E7900C5041E /* Info.plist */,
-				D8121A892AA11BAE00EEDF5B /* Build.swift */,
-				D8121A8B2AA11BF200EEDF5B /* Clean.swift */,
-				D849DDF82A982C8D00C5041E /* Command.swift */,
-				D8121A852AA11B2400EEDF5B /* Options.swift */,
-				D8121A832AA11AF400EEDF5B /* Serve.swift */,
-				D8121A802AA1164E00EEDF5B /* Version.swift */,
 			);
 			path = InContext;
 			sourceTree = "<group>";
@@ -446,6 +471,7 @@
 				D8121A7D2AA0747000EEDF5B /* Publisher.swift in Sources */,
 				D8121A792AA05F9A00EEDF5B /* SiteModel.swift in Sources */,
 				D8AD37AF2AA69FDF0006555F /* Event.swift in Sources */,
+				D84E77FD2AA95CA500ED193A /* LogLevel.swift in Sources */,
 				D8121A732AA05C3D00EEDF5B /* ApplicationModel.swift in Sources */,
 				D8121A752AA05D7F00EEDF5B /* SiteList.swift in Sources */,
 				D8121A712AA04BDA00EEDF5B /* URL.swift in Sources */,
@@ -481,6 +507,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8121A882AA11B6300EEDF5B /* Options.swift in Sources */,
+				D84E77F82AA954F800ED193A /* LoggingSession.swift in Sources */,
+				D84E77FA2AA9555000ED193A /* LoggingTracker.swift in Sources */,
 				D8121A8C2AA11BF200EEDF5B /* Clean.swift in Sources */,
 				D8121A822AA116EB00EEDF5B /* Version.swift in Sources */,
 				D8121A8A2AA11BAE00EEDF5B /* Build.swift in Sources */,

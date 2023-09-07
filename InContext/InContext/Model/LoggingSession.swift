@@ -24,18 +24,10 @@ import Foundation
 
 import InContextCore
 
-class HelperSession: ObservableObject, Session, Identifiable {
-
-    let id = UUID()
-
-    @MainActor @Published var events: [Event] = []
+struct LoggingSession: Session {
 
     func log(level: LogLevel, _ message: String) {
-        print("-> \(level) \(message)")
-        let event = Event(date: Date(), level: level, message: message)
-        DispatchQueue.main.async {
-            self.events.append(event)
-        }
+        print(message)
     }
 
 }

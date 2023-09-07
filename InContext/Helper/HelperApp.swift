@@ -22,25 +22,6 @@
 
 import SwiftUI
 
-extension Event.Level {
-
-    var color: Color {
-        switch self {
-        case .debug:
-            return .primary
-        case .info:
-            return .primary
-        case .notice:
-            return .primary
-        case .warning:
-            return .orange
-        case .error:
-            return .red
-        }
-    }
-
-}
-
 @main
 struct HelperApp: App {
 

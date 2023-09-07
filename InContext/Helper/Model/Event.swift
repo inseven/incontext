@@ -26,19 +26,10 @@ import InContextCore
 
 struct Event: Identifiable {
 
-    // TODO: Push this into the session.
-    enum Level {
-        case debug
-        case info
-        case notice
-        case warning
-        case error
-    }
-
     let id = UUID()
 
     let date: Date
-    let level: Level
+    let level: LogLevel
     let message: String
 
 }

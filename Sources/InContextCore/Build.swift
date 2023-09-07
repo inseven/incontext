@@ -22,21 +22,42 @@
 
 import Foundation
 
-// TODO: Consider calling this SessionManager?
 public protocol Tracker {
 
     func new() -> Session
 
 }
 
+public enum LogLevel {
+    case debug
+    case info
+    case notice
+    case warning
+    case error
+}
+
 public protocol Session {
 
-    func debug(_ string: String)
-    func info(_ string: String)
-    func warning(_ string: String)
-    func error(_ string: String)
+    func log(level: LogLevel, _ message: String)
 
-//    func success()
-//    func failure(_ error: Error)
+}
+
+extension Session {
+
+    func debug(_ message: String) {
+        log(level: .debug, message)
+    }
+
+    func info(_ message: String) {
+        log(level: .info, message)
+    }
+
+    func warning(_ message: String) {
+        log(level: .warning, message)
+    }
+
+    func error(_ message: String) {
+        log(level: .error, message)
+    }
 
 }

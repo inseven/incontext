@@ -20,21 +20,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import SwiftUI
 
 import InContextCore
 
-class HelperSession: ObservableObject, Session, Identifiable {
+extension LogLevel {
 
-    let id = UUID()
-
-    @MainActor @Published var events: [Event] = []
-
-    func log(level: LogLevel, _ message: String) {
-        print("-> \(level) \(message)")
-        let event = Event(date: Date(), level: level, message: message)
-        DispatchQueue.main.async {
-            self.events.append(event)
+    var color: Color {
+        switch self {
+        case .debug:
+            return .primary
+        case .info:
+            return .primary
+        case .notice:
+            return .primary
+        case .warning:
+            return .orange
+        case .error:
+            return .red
         }
     }
 

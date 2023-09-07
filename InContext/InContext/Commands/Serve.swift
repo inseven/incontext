@@ -22,20 +22,22 @@
 
 import Foundation
 
+import ArgumentParser
 import InContextCore
 
-class HelperSession: ObservableObject, Session, Identifiable {
+struct Serve: AsyncParsableCommand {
 
-    let id = UUID()
+    static var configuration = CommandConfiguration(commandName: "serve",
+                                                    abstract: "run a local web server for development")
 
-    @MainActor @Published var events: [Event] = []
+    @OptionGroup var options: Options
 
-    func log(level: LogLevel, _ message: String) {
-        print("-> \(level) \(message)")
-        let event = Event(date: Date(), level: level, message: message)
-        DispatchQueue.main.async {
-            self.events.append(event)
-        }
+    mutating func run() async throws {
+        let server = Server(site: try options.resolveSite(),
+                            tracker: LoggingTracker(),
+                            serializeImport: options.serializeImport,
+                            serializeRender: options.serializeRender)
+        try await server.start(watch: options.watch)
     }
 
 }

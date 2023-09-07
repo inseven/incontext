@@ -25,18 +25,20 @@ import Foundation
 import ArgumentParser
 import InContextCore
 
-struct Serve: AsyncParsableCommand {
+struct Build: AsyncParsableCommand {
 
-    static var configuration = CommandConfiguration(commandName: "serve",
-                                                    abstract: "run a local web server for development")
+    static var configuration = CommandConfiguration(commandName: "build",
+                                                    abstract: "build the website")
 
     @OptionGroup var options: Options
 
     mutating func run() async throws {
-        let server = Server(site: try options.resolveSite(),
-                            serializeImport: options.serializeImport,
-                            serializeRender: options.serializeRender)
-        try await server.start(watch: options.watch)
+        let site = try options.resolveSite()
+        let ic = try await Builder(site: site,
+                                   tracker: LoggingTracker(),
+                                   serializeImport: options.serializeImport,
+                                   serializeRender: options.serializeRender)
+        try await ic.build(watch: options.watch)
     }
 
 }

@@ -38,6 +38,9 @@ public class Builder {
                 "metadata": site.structuredSettings.metadata,
                 "date_format": "MMMM d, yyyy",
                 "date_format_short": "MMMM d",
+                "documents": Function { () throws -> [DocumentContext] in
+                    return try renderTracker.documentContexts(query: QueryDescription())
+                },
                 "posts": Function { () throws -> [DocumentContext] in
                     return try renderTracker.documentContexts(query: QueryDescription())
                 },
