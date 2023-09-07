@@ -103,3 +103,4 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 - Consider special files in directories for nested behaviours
 - Support querying for posts without or with dates
 - Clean up and document the context variables and functions
+- Don't automatically titlecase document titles
