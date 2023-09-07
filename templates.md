@@ -20,13 +20,11 @@ Document being rendered.
 
 Top-level site object containing site-wide properties and store accessors.
 
-## Global Functions
+## Utilities
 
 #### `incontext.titlecase(string)`
 
 Returns a titlecased version of the input string
-
-**Example**
 
 Titles detected from the filename are automatically transformed using titlecase (we might rethink this in the future), but custom document metadata is not automatically processed in this way and it may be desirable to do something like this in your template:
 
@@ -56,15 +54,13 @@ Returns all the documents in the site.
 
 ## Document
 
-### `nearestAnscestor() -> Document?`
+### `document.nearestAnscestor()`
 
 Returns the first document found by walking up the document path; nil if no ancestor can be found.
 
-### `children(sort: String = "ascending") -> [Document]`
+### `document.children(sort: String = "ascending")`
 
 Return all immediate children, sorted by date, "ascending" or "descending".
-
-**Example**
 
 ```lua
 <ul>
