@@ -28,6 +28,29 @@ public class Builder {
 
     static func context(for site: Site, document: Document, renderTracker: RenderTracker) -> [String: Any] {
 
+        let titlecase = Function { (string: String) -> String in
+            return string.toTitleCase()
+        }
+
+        // TODO: Can I do this without performing yet another query? Can I pass the DocumentContext back?
+        // TODO: As long as we also cache the render status with this query, we can cache the render output per URL.
+        // TODO: Maybe this should just take a string and let the template to do the lookup and render.
+        let thumbnail = Function { (url: String) -> String? in
+            guard let document = try renderTracker.documentContexts(query: QueryDescription(url: url)).first else {
+                return nil
+            }
+            let html = try document.render()
+            let dom = try SwiftSoup.parse(html)
+            if let openGraphImage = try dom.select("meta[property=og:image]").first() {
+                // Use the Open Graph image tag if it exists.
+                return try openGraphImage.attr("content")
+            } else if let img = try dom.select("img[src]").first() {
+                // Select the first image tag with source.
+                return try img.attr("src")
+            }
+            return nil
+        }
+
         // TODO: Inline the config loaded from the settings file
         // TODO: Consider separating the store and the site metadata.
         // TODO: These top-level methods should probably be namespaced.
@@ -55,9 +78,7 @@ public class Builder {
             "generate_uuid": Function {
                 return UUID().uuidString
             },
-            "titlecase": Function { (string: String) -> String in
-                return string.toTitleCase()
-            },
+            "titlecase": titlecase,
             "document": DocumentContext(renderTracker: renderTracker, document: document),
             "distant_past": Function { (timezoneAware: Bool) in
                 return Date.distantPast
@@ -81,25 +102,9 @@ public class Builder {
                 }
                 return data.base64EncodedString()
             },
-            "ic": [
-                // TODO: Can I do this without performing yet another query? Can I pass the DocumentContext back?
-                // TODO: As long as we also cache the render status with this query, we can cache the render output per URL
-                // TODO: This should indeed probably just take a string and we should leave it up to the template to do the lookup and render.
-                "thumbnail": Function { (url: String) -> String? in
-                    guard let document = try renderTracker.documentContexts(query: QueryDescription(url: url)).first else {
-                        return nil
-                    }
-                    let html = try document.render()
-                    let dom = try SwiftSoup.parse(html)
-                    if let openGraphImage = try dom.select("meta[property=og:image]").first() {
-                        // Use the Open Graph image tag if it exists.
-                        return try openGraphImage.attr("content")
-                    } else if let img = try dom.select("img[src]").first() {
-                        // Select the first image tag with source.
-                        return try img.attr("src")
-                    }
-                    return nil
-                },
+            "incontext": [
+                "titlecase": titlecase,
+                "thumbnail": thumbnail,
             ] as [String: Any]
         ]
     }
