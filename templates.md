@@ -10,8 +10,8 @@ The simplest template renders the HTML contents of a single document, processing
 
 ``` html
 <html>
-	<head>
-		<title>{{ site.title }}</title>
+  <head>
+    <title>{{ site.title }}</title>
   </head>
   <body>
     <h1>{{ incontext.titlecase(document.title) }}</h1>
@@ -35,7 +35,7 @@ It's very common to want to list all documents within a specific category, with 
     {{ incontext.renderDocumentHTML(document) }}
     <ul>
       {% for _, child in ipairs(document.children) do %}
-				<li><a href="{{ document.url }}">{{ incontext.titlecase(child.title) }}</a></li>
+        <li><a href="{{ document.url }}">{{ incontext.titlecase(child.title) }}</a></li>
       {% end %}
     </ul>
   </body>
