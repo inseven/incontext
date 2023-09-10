@@ -44,6 +44,7 @@ class Store {
         static let category = Expression<String>("category")
         static let date = Expression<Date?>("date")
         static let title = Expression<String?>("title")
+        static let subtitle = Expression<String?>("subtitle")
         static let thumbnail = Expression<String?>("thumbnail")
         static let queries = Expression<String>("queries")
         static let metadata = Expression<String>("metadata")
@@ -80,6 +81,7 @@ class Store {
                 t.column(Schema.category)
                 t.column(Schema.date)
                 t.column(Schema.title)
+                t.column(Schema.subtitle)
                 t.column(Schema.thumbnail)
                 t.column(Schema.queries)
                 t.column(Schema.metadata)
@@ -184,6 +186,7 @@ class Store {
                                                            Schema.category <- document.category,
                                                            Schema.date <- document.date,
                                                            Schema.title <- document.title,
+                                                           Schema.subtitle <- document.subtitle,
                                                            Schema.thumbnail <- document.thumbnail,
                                                            Schema.queries <- queries,
                                                            Schema.metadata <- metadata,
@@ -301,6 +304,7 @@ class Store {
                             category: row[Schema.category],
                             date: row[Schema.date],
                             title: row[Schema.title],
+                            subtitle: row[Schema.subtitle],
                             thumbnail: row[Schema.thumbnail],
                             queries: queries,
                             metadata: metadata,

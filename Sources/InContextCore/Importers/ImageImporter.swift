@@ -389,6 +389,7 @@ class ImageImporter: Importer {
                                     category: settings.defaultCategory,
                                     date: date,
                                     title: title,
+                                    subtitle: content?.frontmatter.subtitle,
                                     thumbnail: nil,  // TODO: Feels like images should have a thumbnail? Are they their own thumbnail?
                                     queries: [:],
                                     metadata: context.metadata,

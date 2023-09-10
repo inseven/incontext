@@ -35,6 +35,7 @@ struct Document {
     let category: String
     let date: Date?
     let title: String?
+    let subtitle: String?
     let thumbnail: String?
     let queries: [String: QueryDescription]
     let metadata: [String: Any]
@@ -52,6 +53,7 @@ struct Document {
          category: String,
          date: Date?,
          title: String?,
+         subtitle: String?,
          thumbnail: String?,
          queries: [String: QueryDescription] = [:],
          metadata: [String: Any],
@@ -67,6 +69,7 @@ struct Document {
         self.category = category
         self.date = date
         self.title = title
+        self.subtitle = subtitle
         self.thumbnail = thumbnail
         self.queries = queries
         self.metadata = metadata
@@ -84,6 +87,7 @@ struct Document {
          category: String,
          date: Date?,
          title: String?,
+         subtitle: String?,
          thumbnail: String?,
          queries: [String: QueryDescription],
          metadata: [String: Any],
@@ -98,6 +102,7 @@ struct Document {
         self.category = category
         self.date = date
         self.title = title
+        self.subtitle = subtitle
         self.thumbnail = thumbnail
         self.queries = queries
         self.metadata = metadata
@@ -110,21 +115,19 @@ struct Document {
 
         var fingerprint = Fingerprint()
         try fingerprint.update(url)
+        try fingerprint.update(parent)
         try fingerprint.update(category)
-        if let date {
-            try fingerprint.update(date)
-        }
-        if let title {
-            try fingerprint.update(title)
-        }
+        try fingerprint.update(date ?? Date.distantPast)
+        try fingerprint.update(title ?? "")
+        try fingerprint.update(subtitle ?? "")
+        try fingerprint.update(thumbnail ?? "")
         try fingerprint.update(queries)
         try fingerprint.update(metadata)
         try fingerprint.update(contents)
         try fingerprint.update(contentModificationDate)
         try fingerprint.update(template)
-        if let inlineTemplate {
-            try fingerprint.update(inlineTemplate)
-        }
+        try fingerprint.update(inlineTemplate ?? "")
+        try fingerprint.update(relativeSourcePath)
         self.fingerprint = fingerprint.finalize()
     }
 

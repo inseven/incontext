@@ -65,6 +65,7 @@ class MarkdownImporter: Importer {
                                     category: category,
                                     date: frontmatter.frontmatter.date ?? details.date,
                                     title: frontmatter.frontmatter.title ?? details.title,
+                                    subtitle: frontmatter.frontmatter.subtitle,
                                     thumbnail: frontmatter.frontmatter.thumbnail,
                                     queries: frontmatter.frontmatter.queries,
                                     metadata: metadata,

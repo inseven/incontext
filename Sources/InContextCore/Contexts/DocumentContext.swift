@@ -44,6 +44,10 @@ struct DocumentContext: EvaluationContext {
         return document.title
     }
 
+    var subtitle: String? {
+        return document.subtitle
+    }
+
     var format: Document.Format {
         return document.format
     }
@@ -152,6 +156,8 @@ struct DocumentContext: EvaluationContext {
             return url
         case "title":
             return title
+        case "subtitle":
+            return subtitle
         case "thumbnail":
             return thumbnail
         case "metadata":

@@ -145,7 +145,8 @@ class VideoImporter: Importer {
                                     parent: fileURL.parentURL,
                                     category: settings.defaultCategory,
                                     date: content?.frontmatter.date ?? date,
-                                    title: content?.frontmatter.title,  // TODO: Title
+                                    title: content?.frontmatter.title,
+                                    subtitle: content?.frontmatter.subtitle,
                                     thumbnail: nil, // TODO: Select a sensible thumbnail
                                     queries: [:],
                                     metadata: metadata,
