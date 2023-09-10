@@ -346,10 +346,7 @@ class ImageImporter: Importer {
         var content: FrontmatterDocument? = nil
         if let imageDescription = try exif.imageDescription {
             let frontmatter = try FrontmatterDocument(contents: imageDescription, generateHTML: true)
-            guard let contentMetadata = frontmatter.metadata as? [String: Any] else {
-                throw InContextError.internalInconsistency("Unexpected key type for metadata")
-            }
-            metadata.merge(contentMetadata) { $1 }
+            metadata.merge(frontmatter.frontmatter.metadata) { $1 }
             content = frontmatter
         }
 
@@ -385,13 +382,15 @@ class ImageImporter: Importer {
         // N.B. The EXIF 'DateTimeOriginal' field sometimes appears to be invalid so we fall back on DateTimeDigitized.
 
         let date = try (try? exif.dateTimeOriginal) ?? (try exif.dateTimeDigitized) ?? details.date
-        let title = try exif.firstTitle ?? content?.structuredMetadata.title ?? filenameTitle
+        let title = try exif.firstTitle ?? content?.frontmatter.title ?? filenameTitle
 
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,
                                     category: settings.defaultCategory,
                                     date: date,
                                     title: title,
+                                    thumbnail: nil,  // TODO: Feels like images should have a thumbnail? Are they their own thumbnail?
+                                    queries: [:],
                                     metadata: context.metadata,
                                     contents: content?.content ?? "",
                                     contentModificationDate: file.contentModificationDate,

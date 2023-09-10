@@ -62,6 +62,14 @@ struct DocumentContext: EvaluationContext {
         return document.date
     }
 
+    var thumbnail: String? {
+        return document.thumbnail
+    }
+
+    var metadata: [String: Any] {
+        return document.metadata
+    }
+
     init(renderTracker: RenderTracker, document: Document) {
         self.renderTracker = renderTracker
         self.document = document
@@ -144,6 +152,10 @@ struct DocumentContext: EvaluationContext {
             return url
         case "title":
             return title
+        case "thumbnail":
+            return thumbnail
+        case "metadata":
+            return metadata
         case "format":
             return format.rawValue
         case "content":
@@ -158,11 +170,10 @@ struct DocumentContext: EvaluationContext {
         case "sourcePath":
             return document.relativeSourcePath
         case "query": return Function { (name: String) -> [DocumentContext] in
-            guard let queries = document.metadata["queries"] as? [String: Any],
-                  let query = queries[name] else {
+            guard let query = document.queries[name] else {
                 throw InContextError.unknownQuery(name)
             }
-            return try renderTracker.documentContexts(query: try QueryDescription(definition: query))
+            return try renderTracker.documentContexts(query: query)
         }
         case "children": return Candidates {
             Function { () throws -> [DocumentContext] in
@@ -249,7 +260,7 @@ struct DocumentContext: EvaluationContext {
             return relativeSourcePath.ensuringLeadingSlash().ensuringTrailingSlash()
         }
         default:
-            return document.metadata[name]
+            throw InContextError.unknownSymbol(name)
         }
     }
 

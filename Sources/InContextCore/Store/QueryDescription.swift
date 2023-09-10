@@ -24,7 +24,42 @@ import Foundation
 
 import SQLite
 
-struct QueryDescription: Codable, Hashable {
+struct QueryDescription: Codable, Hashable, Fingerprintable {
+
+    private enum CodingKeys: String, CodingKey, CaseIterable {
+        case includeCategories = "include"
+        case url = "url"
+        case parent = "parent"
+        case relativeSourcePath = "relative_source_path"
+        case tag = "tag"
+        case sort = "sort"
+        case limit = "limit"
+    }
+
+    // TODO: Move this out?
+    func combine(into fingerprint: inout Fingerprint) throws {
+        if let includeCategories {
+            try fingerprint.update(includeCategories)
+        }
+        if let url {
+            try fingerprint.update(url)
+        }
+        if let parent {
+            try fingerprint.update(parent)
+        }
+        if let relativeSourcePath {
+            try fingerprint.update(relativeSourcePath)
+        }
+        if let tag {
+            try fingerprint.update(tag)
+        }
+        if let sort {
+            try fingerprint.update(sort.rawValue)
+        }
+        if let limit {
+            try fingerprint.update(limit)
+        }
+    }
 
     enum Sort: String, Codable {
         case ascending
@@ -65,6 +100,41 @@ struct QueryDescription: Codable, Hashable {
         self.sort = sort
         self.limit = limit
     }
+
+    // TODO: Maybe this isn't necessary anymore?
+    init(definition query: Any) throws {
+        guard let structuredQuery = query as? [String: Any] else {
+            throw InContextError.invalidQueryDefinition
+        }
+        if let include = structuredQuery["include"] {
+            guard let include = include as? [String] else {
+                throw InContextError.invalidQueryDefinition
+            }
+            includeCategories = include
+        } else {
+            includeCategories = nil
+        }
+        self.parent = try structuredQuery.optionalValue(for: "parent")
+        self.url = try structuredQuery.optionalValue(for: "url")
+        self.relativeSourcePath = try structuredQuery.optionalValue(for: "relative_source_path")
+        self.tag = try structuredQuery.optionalValue(for: "tag")
+        self.sort = try structuredQuery.optionalRawRepresentable(for: "sort")
+        self.limit = try structuredQuery.optionalValue(for: "limit")
+    }
+
+    func encode(to encoder: Encoder) throws {
+        // TODO: Update the coding key values.
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(self.includeCategories, forKey: .includeCategories)
+        try container.encodeIfPresent(self.url, forKey: .url)
+        try container.encodeIfPresent(self.parent, forKey: .parent)
+        try container.encodeIfPresent(self.relativeSourcePath, forKey: .relativeSourcePath)
+        try container.encodeIfPresent(self.tag, forKey: .tag)
+        try container.encodeIfPresent(self.sort, forKey: .sort)
+        try container.encodeIfPresent(self.limit, forKey: .limit)
+    }
+
+    // TODO: Decode?
 
     private func expression() -> Expression<Bool> {
 
@@ -113,26 +183,6 @@ struct QueryDescription: Codable, Hashable {
             .filter(expression())
             .order(order())
             .limit(limit)
-    }
-
-    init(definition query: Any) throws {
-        guard let structuredQuery = query as? [String: Any] else {
-            throw InContextError.invalidQueryDefinition
-        }
-        if let include = structuredQuery["include"] {
-            guard let include = include as? [String] else {
-                throw InContextError.invalidQueryDefinition
-            }
-            includeCategories = include
-        } else {
-            includeCategories = nil
-        }
-        self.parent = try structuredQuery.optionalValue(for: "parent")
-        self.url = try structuredQuery.optionalValue(for: "url")
-        self.relativeSourcePath = try structuredQuery.optionalValue(for: "relative_source_path")
-        self.tag = try structuredQuery.optionalValue(for: "tag")
-        self.sort = try structuredQuery.optionalRawRepresentable(for: "sort")
-        self.limit = try structuredQuery.optionalValue(for: "limit")
     }
 
 }

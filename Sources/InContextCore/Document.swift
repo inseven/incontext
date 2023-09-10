@@ -35,7 +35,9 @@ struct Document {
     let category: String
     let date: Date?
     let title: String?
-    let metadata: [AnyHashable: Any]
+    let thumbnail: String?
+    let queries: [String: QueryDescription]
+    let metadata: [String: Any]
     let contents: String
     let contentModificationDate: Date
     let template: TemplateIdentifier
@@ -50,7 +52,9 @@ struct Document {
          category: String,
          date: Date?,
          title: String?,
-         metadata: [AnyHashable: Any],
+         thumbnail: String?,
+         queries: [String: QueryDescription] = [:],
+         metadata: [String: Any],
          contents: String,
          contentModificationDate: Date,
          template: TemplateIdentifier,
@@ -63,6 +67,8 @@ struct Document {
         self.category = category
         self.date = date
         self.title = title
+        self.thumbnail = thumbnail
+        self.queries = queries
         self.metadata = metadata
         self.contents = contents
         self.contentModificationDate = contentModificationDate
@@ -78,7 +84,9 @@ struct Document {
          category: String,
          date: Date?,
          title: String?,
-         metadata: [AnyHashable: Any],
+         thumbnail: String?,
+         queries: [String: QueryDescription],
+         metadata: [String: Any],
          contents: String,
          contentModificationDate: Date,
          template: TemplateIdentifier,
@@ -90,6 +98,8 @@ struct Document {
         self.category = category
         self.date = date
         self.title = title
+        self.thumbnail = thumbnail
+        self.queries = queries
         self.metadata = metadata
         self.contents = contents
         self.contentModificationDate = contentModificationDate
@@ -107,6 +117,7 @@ struct Document {
         if let title {
             try fingerprint.update(title)
         }
+        try fingerprint.update(queries)
         try fingerprint.update(metadata)
         try fingerprint.update(contents)
         try fingerprint.update(contentModificationDate)

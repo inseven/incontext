@@ -22,7 +22,7 @@
 
 import Foundation
 
-import Yaml
+// TODO: Remove Yaml
 import Yams
 
 struct FrontmatterDocument {
@@ -30,8 +30,7 @@ struct FrontmatterDocument {
     private static let frontmatterRegEx = /(?s)^(---\n)(?<metadata>.*?)(---)(\n(?<content>.*))?$/
 
     let rawMetadata: String
-    let structuredMetadata: Metadata
-    let metadata: Dictionary<AnyHashable, Any>
+    let frontmatter: Frontmatter
     let content: String
 
     init(contents: String, generateHTML: Bool = false) throws {
@@ -42,15 +41,13 @@ struct FrontmatterDocument {
 
         guard let match = contents.wholeMatch(of: Self.frontmatterRegEx) else {
             rawMetadata = ""
-            structuredMetadata = Metadata()
-            metadata = [:]
+            frontmatter = Frontmatter()
             content = generateHTML ? contents.html() : contents
             return
         }
         rawMetadata = String(match.metadata)
-        structuredMetadata = (!rawMetadata.isEmpty ?
-                              try YAMLDecoder().decode(Metadata.self, from: rawMetadata) : Metadata())
-        metadata = try rawMetadata.parseYAML()
+        frontmatter = (!rawMetadata.isEmpty ?
+                       try YAMLDecoder().decode(Frontmatter.self, from: rawMetadata) : Frontmatter())
         let content = String(match.content ?? "")
         self.content = generateHTML ? content.html() : content
     }

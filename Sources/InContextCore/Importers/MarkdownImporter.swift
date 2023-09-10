@@ -54,21 +54,23 @@ class MarkdownImporter: Importer {
         let frontmatter = try FrontmatterDocument(contentsOf: fileURL, generateHTML: true)
 
         // Merge the details and metadata.
-        var metadata = [AnyHashable: Any]()
+        var metadata = [String: Any]()
         metadata["title"] = details.title
-        metadata.merge(frontmatter.metadata) { $1 }
+        metadata.merge(frontmatter.frontmatter.metadata) { $1 }
 
         let category: String = try metadata.value(for: "category", default: settings.defaultCategory)
 
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,
                                     category: category,
-                                    date: frontmatter.structuredMetadata.date ?? details.date,
-                                    title: frontmatter.structuredMetadata.title ?? details.title,
+                                    date: frontmatter.frontmatter.date ?? details.date,
+                                    title: frontmatter.frontmatter.title ?? details.title,
+                                    thumbnail: frontmatter.frontmatter.thumbnail,
+                                    queries: frontmatter.frontmatter.queries,
                                     metadata: metadata,
                                     contents: frontmatter.content,
                                     contentModificationDate: file.contentModificationDate,
-                                    template: frontmatter.structuredMetadata.template ?? settings.defaultTemplate,
+                                    template: frontmatter.frontmatter.template ?? settings.defaultTemplate,
                                     inlineTemplate: nil,
                                     relativeSourcePath: file.relativePath,
                                     format: .text)
