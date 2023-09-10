@@ -28,7 +28,7 @@ import InContextCore
 struct Serve: AsyncParsableCommand {
 
     static var configuration = CommandConfiguration(commandName: "serve",
-                                                    abstract: "run a local web server for development")
+                                                    abstract: "Run a local web server for development.")
 
     @OptionGroup var options: Options
 

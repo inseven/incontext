@@ -28,7 +28,7 @@ import InContextCore
 struct Build: AsyncParsableCommand {
 
     static var configuration = CommandConfiguration(commandName: "build",
-                                                    abstract: "build the website")
+                                                    abstract: "Build the website.")
 
     @OptionGroup var options: Options
 

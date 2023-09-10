@@ -27,12 +27,29 @@ import ArgumentParser
 @main
 struct Command: AsyncParsableCommand {
 
-    static var configuration = CommandConfiguration(commandName: "incontext",
-                                                    subcommands: [
-                                                        Build.self,
-                                                        Clean.self,
-                                                        Serve.self,
-                                                        Version.self,
-                                                    ])
+    static func version() -> String {
+        guard let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+              let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+        else {
+            return "unknown"
+        }
+
+        var components: [String] = [version, buildNumber]
+
+#if DEBUG
+        components.append("debug")
+#endif
+
+        return components.joined(separator: " ")
+    }
+
+    static var configuration = CommandConfiguration(
+        commandName: "incontext",
+        version: version(),
+        subcommands: [
+            Build.self,
+            Clean.self,
+            Serve.self,
+        ])
 
 }
