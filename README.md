@@ -26,6 +26,7 @@ make install
 
 ## Documentation
 
+- [Frontmatter](frontmatter.md)
 - [Templates](templates.md)
 
 ## Frontmatter
