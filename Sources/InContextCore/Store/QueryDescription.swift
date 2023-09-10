@@ -24,7 +24,7 @@ import Foundation
 
 import SQLite
 
-struct QueryDescription: Codable, Hashable, Fingerprintable {
+struct QueryDescription: Codable, Hashable, Equatable, Fingerprintable {
 
     private enum CodingKeys: String, CodingKey, CaseIterable {
         case includeCategories = "include"

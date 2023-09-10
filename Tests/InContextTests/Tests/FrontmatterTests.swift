@@ -42,26 +42,24 @@ Here's some **Markdown** content
 """, generateHTML: true)
 
         XCTAssertEqual(document.content, "<p>Here's some <strong>Markdown</strong> content</p>\n")
-        let metadata: [AnyHashable: Any] = ["template": "tags.html",
-                                            "title": "Tags",
-                                            "category": "pages",
-                                            "queries":
-                                                ["posts":
-                                                    ["include":
-                                                        ["general"]]]]
-        XCTAssertEqual(document.metadata as NSObject, metadata as NSObject)
+        XCTAssertEqual(document.frontmatter,
+                       Frontmatter(category: "pages",
+                                   template: TemplateIdentifier("tags.html"),
+                                   title: "Tags",
+                                   queries: ["posts": QueryDescription(includeCategories: ["general"])],
+                                   metadata: [:]))
     }
 
     func testEmptyFrontmatter() throws {
         let document = try FrontmatterDocument(contents: "**strong**")
         XCTAssertEqual(document.content, "**strong**")
-        XCTAssertEqual(document.metadata as NSObject, [AnyHashable: Any]() as NSObject)
+        XCTAssertEqual(document.frontmatter, Frontmatter())
     }
 
     func testEmptyFrontmatterParseHTML() throws {
         let document = try FrontmatterDocument(contents: "**strong**", generateHTML: true)
         XCTAssertEqual(document.content, "<p><strong>strong</strong></p>\n")
-        XCTAssertEqual(document.metadata as NSObject, [AnyHashable: Any]() as NSObject)
+        XCTAssertEqual(document.frontmatter, Frontmatter())
     }
 
 }

@@ -25,7 +25,36 @@
 
 import Foundation
 
-struct Frontmatter: Decodable {
+struct Frontmatter: Decodable, Equatable {
+
+    static func == (lhs: Frontmatter, rhs: Frontmatter) -> Bool {
+        if lhs.category != rhs.category {
+            return false
+        }
+        if lhs.template != rhs.template {
+            return false
+        }
+        if lhs.title != rhs.title {
+            return false
+        }
+        if lhs.subtitle != rhs.subtitle {
+            return false
+        }
+        if lhs.date != rhs.date {
+            return false
+        }
+        if lhs.thumbnail != rhs.thumbnail {
+            return false
+        }
+        if lhs.tags != rhs.tags {
+            return false
+        }
+        if lhs.queries != rhs.queries {
+            return false
+        }
+        // TODO: Test the metadata
+        return true
+    }
 
     // TODO: Consider not using this?
     private enum CodingKeys: String, CodingKey, CaseIterable {

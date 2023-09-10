@@ -55,7 +55,7 @@ These are the contents of the file.
                                                                 defaultTemplate: TemplateIdentifier("posts.html")),
                                                 outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
-        XCTAssertEqual(result.document!.metadata["title"] as? String, "Fromage")
+        XCTAssertEqual(result.document!.title, "Fromage")
     }
 
     func testMarkdownTitleFromFile() async throws {
