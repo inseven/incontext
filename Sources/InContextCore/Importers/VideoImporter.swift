@@ -148,6 +148,7 @@ class VideoImporter: Importer {
                                     title: content?.frontmatter.title,
                                     subtitle: content?.frontmatter.subtitle,
                                     thumbnail: nil, // TODO: Select a sensible thumbnail
+                                    tags: [],
                                     queries: [:],
                                     metadata: metadata,
                                     contents: content?.content ?? "",

@@ -70,6 +70,10 @@ struct DocumentContext: EvaluationContext {
         return document.thumbnail
     }
 
+    var tags: [String] {
+        return document.tags
+    }
+
     var metadata: [String: Any] {
         return document.metadata
     }
@@ -160,6 +164,8 @@ struct DocumentContext: EvaluationContext {
             return subtitle
         case "thumbnail":
             return thumbnail
+        case "tags":
+            return tags
         case "metadata":
             return metadata
         case "format":

@@ -391,6 +391,7 @@ class ImageImporter: Importer {
                                     title: title,
                                     subtitle: content?.frontmatter.subtitle,
                                     thumbnail: nil,  // TODO: Feels like images should have a thumbnail? Are they their own thumbnail?
+                                    tags: [],
                                     queries: [:],
                                     metadata: context.metadata,
                                     contents: content?.content ?? "",

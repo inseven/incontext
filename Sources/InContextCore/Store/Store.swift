@@ -46,6 +46,7 @@ class Store {
         static let title = Expression<String?>("title")
         static let subtitle = Expression<String?>("subtitle")
         static let thumbnail = Expression<String?>("thumbnail")
+        static let tags = Expression<String>("tags")
         static let queries = Expression<String>("queries")
         static let metadata = Expression<String>("metadata")
         static let contents = Expression<String>("contents")
@@ -83,6 +84,7 @@ class Store {
                 t.column(Schema.title)
                 t.column(Schema.subtitle)
                 t.column(Schema.thumbnail)
+                t.column(Schema.tags)
                 t.column(Schema.queries)
                 t.column(Schema.metadata)
                 t.column(Schema.contents)
@@ -168,15 +170,19 @@ class Store {
 
                 let encoder = JSONEncoder()
 
+                // Serialize the tags.
+                guard let tags = String(data: try encoder.encode(document.tags), encoding: .utf8) else {
+                    throw InContextError.encodingError
+                }
+
                 // Serialize the queries.
-                let queriesData = try encoder.encode(document.queries)
-                guard let queries = String(data: queriesData, encoding: .utf8) else {
+                guard let queries = String(data: try encoder.encode(document.queries), encoding: .utf8) else {
                     throw InContextError.encodingError
                 }
 
                 // Serialise the metadata.
-                let data = try JSONSerialization.data(withJSONObject: document.metadata)
-                guard let metadata = String(data: data, encoding: .utf8) else {
+                guard let metadata = String(data: try JSONSerialization.data(withJSONObject: document.metadata),
+                                            encoding: .utf8) else {
                     throw InContextError.encodingError
                 }
 
@@ -188,6 +194,7 @@ class Store {
                                                            Schema.title <- document.title,
                                                            Schema.subtitle <- document.subtitle,
                                                            Schema.thumbnail <- document.thumbnail,
+                                                           Schema.tags <- tags,
                                                            Schema.queries <- queries,
                                                            Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
@@ -286,6 +293,12 @@ class Store {
 
         return try rowIterator.map { row in
 
+            // Deserialize the tags.
+            guard let tagsData = row[Schema.tags].data(using: .utf8) else {
+                throw InContextError.internalInconsistency("Failed to load document tags.")
+            }
+            let tags = try decoder.decode([String].self, from: tagsData)
+
             // Deserialize the queries.
             guard let queriesData = row[Schema.queries].data(using: .utf8) else {
                 throw InContextError.internalInconsistency("Failed to load document queries.")
@@ -306,6 +319,7 @@ class Store {
                             title: row[Schema.title],
                             subtitle: row[Schema.subtitle],
                             thumbnail: row[Schema.thumbnail],
+                            tags: tags,
                             queries: queries,
                             metadata: metadata,
                             contents: row[Schema.contents],

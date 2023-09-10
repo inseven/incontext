@@ -37,6 +37,7 @@ struct Document {
     let title: String?
     let subtitle: String?
     let thumbnail: String?
+    let tags: [String]
     let queries: [String: QueryDescription]
     let metadata: [String: Any]
     let contents: String
@@ -55,6 +56,7 @@ struct Document {
          title: String?,
          subtitle: String?,
          thumbnail: String?,
+         tags: [String],
          queries: [String: QueryDescription] = [:],
          metadata: [String: Any],
          contents: String,
@@ -71,6 +73,7 @@ struct Document {
         self.title = title
         self.subtitle = subtitle
         self.thumbnail = thumbnail
+        self.tags = tags
         self.queries = queries
         self.metadata = metadata
         self.contents = contents
@@ -89,6 +92,7 @@ struct Document {
          title: String?,
          subtitle: String?,
          thumbnail: String?,
+         tags: [String],
          queries: [String: QueryDescription],
          metadata: [String: Any],
          contents: String,
@@ -104,6 +108,7 @@ struct Document {
         self.title = title
         self.subtitle = subtitle
         self.thumbnail = thumbnail
+        self.tags = tags
         self.queries = queries
         self.metadata = metadata
         self.contents = contents
@@ -121,6 +126,7 @@ struct Document {
         try fingerprint.update(title ?? "")
         try fingerprint.update(subtitle ?? "")
         try fingerprint.update(thumbnail ?? "")
+        try fingerprint.update(tags)
         try fingerprint.update(queries)
         try fingerprint.update(metadata)
         try fingerprint.update(contents)

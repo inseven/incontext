@@ -75,7 +75,7 @@ struct Frontmatter: Decodable, Equatable {
     let subtitle: String?
     let date: Date?
     let thumbnail: String?
-    let tags: [String]?
+    let tags: [String]
     let queries: [String: QueryDescription]
     let metadata: [String: Any]
 
@@ -85,7 +85,7 @@ struct Frontmatter: Decodable, Equatable {
          subtitle: String? = nil,
          date: Date? = nil,
          thumbnail: String? = nil,
-         tags: [String]? = nil,
+         tags: [String] = [],
          queries: [String: QueryDescription] = [:],
          metadata: [String: Any] = [:]) {
         self.category = category
@@ -120,7 +120,7 @@ struct Frontmatter: Decodable, Equatable {
         self.subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle)
         self.date = try container.decodeIfPresent(Date.self, forKey: .date)
         self.thumbnail = try container.decodeIfPresent(String.self, forKey: .thumbnail)
-        self.tags = try container.decodeIfPresent([String].self, forKey: .tags)
+        self.tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
         self.queries = try container.decodeIfPresent([String: QueryDescription].self, forKey: .queries) ?? [:]
         self.metadata = try container.decodeIfPresent(Dictionary<String, Any>.self, forKey: .metadata) ?? [:]
     }
