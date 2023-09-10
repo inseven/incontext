@@ -30,7 +30,7 @@ struct Clean: AsyncParsableCommand {
     @OptionGroup var options: Options
 
     static var configuration = CommandConfiguration(commandName: "clean",
-                                                    abstract: "remove the build directory")
+                                                    abstract: "Remove the build directory.")
 
     mutating func run() async throws {
         let site = try options.resolveSite()
