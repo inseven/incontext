@@ -124,6 +124,7 @@ ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
 pushd "$BUILD_DIRECTORY"
 zip -r "$ZIP_BASENAME" incontext
 popd
+rm incontext
 
 # Export the helper.
 xcodebuild \
@@ -136,6 +137,7 @@ xcodebuild \
 pushd "$BUILD_DIRECTORY"
 zip -r "InContext Helper.zip" "InContext Helper.app"
 popd
+rm -r "InContext Helper.app"
 
 API_KEY_PATH="${ROOT_DIRECTORY}/api.key"
 
