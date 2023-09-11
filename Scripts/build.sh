@@ -118,14 +118,24 @@ popd
 # to package it and notarize it ourselves.
 cp "${CLI_ARCHIVE_PATH}/Products/usr/local/bin/incontext" "${BUILD_DIRECTORY}/incontext"
 
-# Archive the command line tool.
+# Export the command.
 ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
 ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
 pushd "$BUILD_DIRECTORY"
 zip -r "$ZIP_BASENAME" incontext
 popd
 
-# TODO: Consider an install flag.
+# Export the helper.
+xcodebuild \
+    -archivePath "$HELPER_ARCHIVE_PATH" \
+    -exportArchive \
+    -exportPath "$BUILD_DIRECTORY" \
+    -exportOptionsPlist "InContext/ExportOptions.plist"
+
+# Compress the helper.
+pushd "$BUILD_DIRECTORY"
+zip -r "InContext Helper.zip" "InContext Helper.app"
+popd
 
 API_KEY_PATH="${ROOT_DIRECTORY}/api.key"
 
@@ -151,14 +161,7 @@ xcrun notarytool log \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
-    "$NOTARIZATION_ID" | tee notarization-log.json
-
-# Export the helper.
-xcodebuild \
-    -archivePath "$HELPER_ARCHIVE_PATH" \
-    -exportArchive \
-    -exportPath "$BUILD_DIRECTORY" \
-    -exportOptionsPlist "InContext/ExportOptions.plist"
+    "$NOTARIZATION_ID" | tee "$BUILD_DIRECTORY/notarization-log.json"
 
 # Check that the notarization response was a success.
 if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
