@@ -30,7 +30,7 @@ SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
 
-CLI_ARCHIVE_PATH="${BUILD_DIRECTORY}/InContext.xcarchive"
+CLI_ARCHIVE_PATH="${BUILD_DIRECTORY}/Command.xcarchive"
 HELPER_ARCHIVE_PATH="${BUILD_DIRECTORY}/Helper.xcarchive"
 
 KEYCHAIN_PATH=${KEYCHAIN_PATH:-login}
@@ -123,8 +123,8 @@ ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
 ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
 pushd "$BUILD_DIRECTORY"
 zip -r "$ZIP_BASENAME" incontext
-popd
 rm incontext
+popd
 
 # Export the helper.
 xcodebuild \
@@ -136,8 +136,8 @@ xcodebuild \
 # Compress the helper.
 pushd "$BUILD_DIRECTORY"
 zip -r "InContext Helper.zip" "InContext Helper.app"
-popd
 rm -r "InContext Helper.app"
+popd
 
 API_KEY_PATH="${ROOT_DIRECTORY}/api.key"
 
