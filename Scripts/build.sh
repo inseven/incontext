@@ -135,7 +135,7 @@ function cleanup {
 }
 trap cleanup EXIT
 
-# Notarize the build
+# Notarize the command.
 echo "$APPLE_API_KEY_BASE64" | base64 -d > "$API_KEY_PATH"
 xcrun notarytool submit "$ZIP_PATH" \
     --key "$API_KEY_PATH" \
@@ -144,7 +144,7 @@ xcrun notarytool submit "$ZIP_PATH" \
     --output-format json \
     --wait | tee notarization-response.json
 
-# Get the notarization log.
+# Get the command notarization log.
 NOTARIZATION_ID=`cat notarization-response.json | jq -r ".id"`
 NOTARIZATION_RESPONSE=`cat notarization-response.json | jq -r ".status"`
 xcrun notarytool log \
@@ -152,6 +152,13 @@ xcrun notarytool log \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
     "$NOTARIZATION_ID" | tee notarization-log.json
+
+# Export the helper.
+xcodebuild \
+    -archivePath "$HELPER_ARCHIVE_PATH" \
+    -exportArchive \
+    -exportPath "$BUILD_DIRECTORY" \
+    -exportOptionsPlist "InContext/ExportOptions.plist"
 
 # Check that the notarization response was a success.
 if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
