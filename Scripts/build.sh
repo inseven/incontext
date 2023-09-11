@@ -134,8 +134,10 @@ xcodebuild \
     -exportOptionsPlist "InContext/ExportOptions.plist"
 
 # Compress the helper.
+# Apple recommends we use ditto to prepare zips for notarization.
+# https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
 pushd "$BUILD_DIRECTORY"
-zip -r "InContext Helper.zip" "InContext Helper.app"
+/usr/bin/ditto -c -k --keepParent "InContext Helper.app" "InContext Helper.zip"
 rm -r "InContext Helper.app"
 popd
 
