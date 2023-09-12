@@ -56,6 +56,15 @@ jobs:
         fetch-depth: 0
         lfs: true
 
+    - name: Download the build artifacts
+      uses: actions/download-artifact@master
+      with:
+        path: build
+
+    - name: Build the site
+      run: |
+        ls build
+
   update-homebrew:
     needs: build
     if: ${{ github.ref == 'refs/heads/main' }}
