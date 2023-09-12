@@ -36,10 +36,10 @@ jobs:
       run: |
         Scripts/bootstrap.sh Scripts/build.sh
 
-    - name: Archive the binary
+    - name: Archive the build directory
       uses: actions/upload-artifact@v3
       with:
-        path: build/incontext-*.zip
+        path: build
         if-no-files-found: error
 
   update-homebrew:
