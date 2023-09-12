@@ -63,12 +63,10 @@ jobs:
 
     - name: Build the site
       run: |
-        ls -la build
-        ls -la build/artifact
         pushd build
         unzip artifact/incontext-*.zip
         popd
-        build/incontext
+        build/incontext build --site docs
 
   update-homebrew:
     needs: build

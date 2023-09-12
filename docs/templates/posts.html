@@ -1,0 +1,23 @@
+{% include "common.lua" %}
+{% function content() %}
+    <div class="home">
+
+        {% if document.title then %}
+            <header class="post-header">
+                <h1 class="post-title">{{ document.title }}</h1>
+            </header>
+        {% end %}
+
+        {% renderDocumentHTML(document) %}
+
+        {% uuid = generate_uuid() %}
+        <ul class="post-list" id="{{ uuid }}"></ul>
+        {%
+            local id = uuid
+            local item_template = document.item_template
+            local items = document.query("posts")
+            include("infinite_scroll.html")
+        %}
+    </div>
+{% end %}
+{% include "default.html" %}
