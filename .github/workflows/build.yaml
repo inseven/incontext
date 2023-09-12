@@ -42,6 +42,20 @@ jobs:
         path: build
         if-no-files-found: error
 
+  documentation:
+    needs: build
+
+    runs-on: macos-13
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.ACCESS_TOKEN }}
+        submodules: recursive
+        fetch-depth: 0
+        lfs: true
+
   update-homebrew:
     needs: build
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -55,3 +69,4 @@ jobs:
         token: ${{ secrets._GITHUB_ACCESS_TOKEN }}
         repository: inseven/homebrew-incontext
         event-type: update
+
