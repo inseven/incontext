@@ -1,4 +1,6 @@
 /.build
 /.local
 /.swiftpm
+/_site
 /build
+/docs/build

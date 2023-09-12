@@ -1,0 +1,3 @@
+---
+title: Coq au Vin
+---

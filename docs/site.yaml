@@ -3,7 +3,7 @@ version: 1
 title: Recipes
 url: "https://recipes.jbmorley.co.uk"
 
-port: 8001
+port: 8003
 
 build_steps:
 
