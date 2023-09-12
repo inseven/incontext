@@ -30,7 +30,7 @@ SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
 
-CLI_ARCHIVE_PATH="${BUILD_DIRECTORY}/InContext.xcarchive"
+CLI_ARCHIVE_PATH="${BUILD_DIRECTORY}/Command.xcarchive"
 HELPER_ARCHIVE_PATH="${BUILD_DIRECTORY}/Helper.xcarchive"
 
 KEYCHAIN_PATH=${KEYCHAIN_PATH:-login}
@@ -118,16 +118,34 @@ popd
 # to package it and notarize it ourselves.
 cp "${CLI_ARCHIVE_PATH}/Products/usr/local/bin/incontext" "${BUILD_DIRECTORY}/incontext"
 
-# Archive the command line tool.
+# Export the command.
 ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
 ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
 pushd "$BUILD_DIRECTORY"
 zip -r "$ZIP_BASENAME" incontext
+rm incontext
 popd
 
-# TODO: Consider an install flag.
+# Export the helper.
+xcodebuild \
+    -archivePath "$HELPER_ARCHIVE_PATH" \
+    -exportArchive \
+    -exportPath "$BUILD_DIRECTORY" \
+    -exportOptionsPlist "InContext/ExportOptions.plist"
+
+# Compress the helper.
+# Apple recommends we use ditto to prepare zips for notarization.
+# https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
+HELPER_ZIP_BASENAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER.zip"
+HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME"
+pushd "$BUILD_DIRECTORY"
+/usr/bin/ditto -c -k --keepParent "InContext Helper.app" "$HELPER_ZIP_BASENAME"
+rm -r "InContext Helper.app"
+popd
 
 API_KEY_PATH="${ROOT_DIRECTORY}/api.key"
+
+# Notarization.
 
 function cleanup {
     echo "Cleaning up API key..."
@@ -135,29 +153,53 @@ function cleanup {
 }
 trap cleanup EXIT
 
-# Notarize the build
 echo "$APPLE_API_KEY_BASE64" | base64 -d > "$API_KEY_PATH"
+
+# Notarize the command.
+
 xcrun notarytool submit "$ZIP_PATH" \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
     --output-format json \
-    --wait | tee notarization-response.json
+    --wait | tee command-notarization-response.json
+NOTARIZATION_ID=`cat command-notarization-response.json | jq -r ".id"`
+NOTARIZATION_RESPONSE=`cat command-notarization-response.json | jq -r ".status"`
 
-# Get the notarization log.
-NOTARIZATION_ID=`cat notarization-response.json | jq -r ".id"`
-NOTARIZATION_RESPONSE=`cat notarization-response.json | jq -r ".status"`
 xcrun notarytool log \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
-    "$NOTARIZATION_ID" | tee notarization-log.json
+    "$NOTARIZATION_ID" | tee "$BUILD_DIRECTORY/command-notarization-log.json"
 
-# Check that the notarization response was a success.
 if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
-    echo "Failed to notarize binary."
+    echo "Failed to notarize command."
     exit 1
 fi
+
+# Notarize the helper.
+
+xcrun notarytool submit "$HELPER_ZIP_PATH" \
+    --key "$API_KEY_PATH" \
+    --key-id "$APPLE_API_KEY_ID" \
+    --issuer "$APPLE_API_KEY_ISSUER_ID" \
+    --output-format json \
+    --wait | tee helper-notarization-response.json
+NOTARIZATION_ID=`cat helper-notarization-response.json | jq -r ".id"`
+NOTARIZATION_RESPONSE=`cat helper-notarization-response.json | jq -r ".status"`
+
+xcrun notarytool log \
+    --key "$API_KEY_PATH" \
+    --key-id "$APPLE_API_KEY_ID" \
+    --issuer "$APPLE_API_KEY_ISSUER_ID" \
+    "$NOTARIZATION_ID" | tee "$BUILD_DIRECTORY/helper-notarization-log.json"
+
+if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
+    echo "Failed to notarize helper."
+    exit 1
+fi
+
+# Create a GitHub release.
 
 if $RELEASE ; then
 
@@ -166,6 +208,7 @@ if $RELEASE ; then
         --skip-if-empty \
         --push \
         --exec "Scripts/gh-release.sh" \
-        "${ZIP_PATH}"
+        "$ZIP_PATH" \
+        "$HELPER_ZIP_PATH"
 
 fi
