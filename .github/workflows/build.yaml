@@ -42,12 +42,6 @@ jobs:
         path: build
         if-no-files-found: error
 
-    - name: Archive the command
-      uses: actions/upload-artifact@v3
-      with:
-        path: build/incontext-*.zip
-        if-no-files-found: error
-
   update-homebrew:
     needs: build
     if: ${{ github.ref == 'refs/heads/main' }}

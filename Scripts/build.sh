@@ -136,12 +136,16 @@ xcodebuild \
 # Compress the helper.
 # Apple recommends we use ditto to prepare zips for notarization.
 # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
+HELPER_ZIP_BASENAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER.zip"
+HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME"
 pushd "$BUILD_DIRECTORY"
-/usr/bin/ditto -c -k --keepParent "InContext Helper.app" "InContext Helper.zip"
+/usr/bin/ditto -c -k --keepParent "InContext Helper.app" "$HELPER_ZIP_BASENAME"
 rm -r "InContext Helper.app"
 popd
 
 API_KEY_PATH="${ROOT_DIRECTORY}/api.key"
+
+# Notarization.
 
 function cleanup {
     echo "Cleaning up API key..."
@@ -149,23 +153,37 @@ function cleanup {
 }
 trap cleanup EXIT
 
-# Notarize the command.
 echo "$APPLE_API_KEY_BASE64" | base64 -d > "$API_KEY_PATH"
+
+# Notarize the command.
 xcrun notarytool submit "$ZIP_PATH" \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
     --output-format json \
-    --wait | tee notarization-response.json
-
-# Get the command notarization log.
-NOTARIZATION_ID=`cat notarization-response.json | jq -r ".id"`
-NOTARIZATION_RESPONSE=`cat notarization-response.json | jq -r ".status"`
+    --wait | tee command-notarization-response.json
+NOTARIZATION_ID=`cat command-notarization-response.json | jq -r ".id"`
+NOTARIZATION_RESPONSE=`cat command-notarization-response.json | jq -r ".status"`
 xcrun notarytool log \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
-    "$NOTARIZATION_ID" | tee "$BUILD_DIRECTORY/notarization-log.json"
+    "$NOTARIZATION_ID" | tee "$BUILD_DIRECTORY/command-notarization-log.json"
+
+# Notarize the helper.
+xcrun notarytool submit "$HELPER_ZIP_PATH" \
+    --key "$API_KEY_PATH" \
+    --key-id "$APPLE_API_KEY_ID" \
+    --issuer "$APPLE_API_KEY_ISSUER_ID" \
+    --output-format json \
+    --wait | tee helper-notarization-response.json
+NOTARIZATION_ID=`cat helper-notarization-response.json | jq -r ".id"`
+NOTARIZATION_RESPONSE=`cat helper-notarization-response.json | jq -r ".status"`
+xcrun notarytool log \
+    --key "$API_KEY_PATH" \
+    --key-id "$APPLE_API_KEY_ID" \
+    --issuer "$APPLE_API_KEY_ISSUER_ID" \
+    "$NOTARIZATION_ID" | tee "$BUILD_DIRECTORY/helper-notarization-log.json"
 
 # Check that the notarization response was a success.
 if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
