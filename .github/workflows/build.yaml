@@ -67,6 +67,16 @@ jobs:
         unzip artifact/incontext-*.zip
         popd
         build/incontext build --site docs
+        mv docs/build/files _site
+
+    - name: Fix permissions
+      run: |
+        chmod -v -R +rX "_site/" | while read line; do
+          echo "::warning title=Invalid file permissions automatically fixed::$line"
+        done
+
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v2
 
   update-homebrew:
     needs: build
