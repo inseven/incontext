@@ -156,6 +156,7 @@ trap cleanup EXIT
 echo "$APPLE_API_KEY_BASE64" | base64 -d > "$API_KEY_PATH"
 
 # Notarize the command.
+
 xcrun notarytool submit "$ZIP_PATH" \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
@@ -164,13 +165,20 @@ xcrun notarytool submit "$ZIP_PATH" \
     --wait | tee command-notarization-response.json
 NOTARIZATION_ID=`cat command-notarization-response.json | jq -r ".id"`
 NOTARIZATION_RESPONSE=`cat command-notarization-response.json | jq -r ".status"`
+
 xcrun notarytool log \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
     "$NOTARIZATION_ID" | tee "$BUILD_DIRECTORY/command-notarization-log.json"
 
+if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
+    echo "Failed to notarize command."
+    exit 1
+fi
+
 # Notarize the helper.
+
 xcrun notarytool submit "$HELPER_ZIP_PATH" \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
@@ -179,17 +187,19 @@ xcrun notarytool submit "$HELPER_ZIP_PATH" \
     --wait | tee helper-notarization-response.json
 NOTARIZATION_ID=`cat helper-notarization-response.json | jq -r ".id"`
 NOTARIZATION_RESPONSE=`cat helper-notarization-response.json | jq -r ".status"`
+
 xcrun notarytool log \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
     "$NOTARIZATION_ID" | tee "$BUILD_DIRECTORY/helper-notarization-log.json"
 
-# Check that the notarization response was a success.
 if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
-    echo "Failed to notarize binary."
+    echo "Failed to notarize helper."
     exit 1
 fi
+
+# Create a GitHub release.
 
 if $RELEASE ; then
 
