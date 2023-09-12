@@ -198,6 +198,7 @@ if $RELEASE ; then
         --skip-if-empty \
         --push \
         --exec "Scripts/gh-release.sh" \
-        "${ZIP_PATH}"
+        "$ZIP_PATH" \
+        "$HELPER_ZIP_PATH"
 
 fi
