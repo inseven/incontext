@@ -63,7 +63,6 @@ Tilt doesn't explicitly support inheritance, but it's possible to achieve someth
            {% content() %}
        </div>
        {% include "footer.html" %}
-       {% include "scripts.html" %}
      </body>
    </html>]]
    ```
@@ -80,8 +79,7 @@ Tilt doesn't explicitly support inheritance, but it's possible to achieve someth
            </article>
        </div>
    {% end %}
-   {% include "default.html" %}
-   ]]
+   {% include "default.html" %}]]
    ```
 
 ## Global Variables
