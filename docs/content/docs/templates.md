@@ -44,6 +44,46 @@ It's very common to want to list all documents within a specific category, with 
 
 Note that this template still includes the document's HTML–this can be helpful in creating reusable listings pages which can be easily annotated in their source Markdown.
 
+---
+
+## Inheritance
+
+Tilt doesn't explicitly support inheritance, but it's possible to achieve something very similar using partial code blocks.
+
+1. The parent template calls a function--`content` in the example below--to render customizable elements:
+
+   ```html
+   [[
+   <!DOCTYPE html>
+   <html lang="en-US">
+     {% include "head.html"  %}
+     <body>
+       {% include "navigation.html" %}
+       <div class="content">
+           {% content() %}
+       </div>
+       {% include "footer.html" %}
+       {% include "scripts.html" %}
+     </body>
+   </html>]]
+   ```
+
+2. The inheriting template provides an implementation of the content functions using partial code blocks and, finally, includes the the parent template:
+
+   ```html
+   [[
+   {% function content() %}
+       <div class="post">
+           {% include "post_header.html" %}
+           <article class="post-content">
+               {% incontext.renderDocumentHTML(document) %}
+           </article>
+       </div>
+   {% end %}
+   {% include "default.html" %}
+   ]]
+   ```
+
 ## Global Variables
 
 ### `document`
