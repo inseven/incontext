@@ -46,10 +46,8 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 
 ### Background
 
-- Support loading the existing site configuration
 - Track resources and clean them up when files are deleted or importers change
 - Test that the relative paths are correct for the destination directory; this likely needs to be per-importer, but it would be much easier if we had a way to generate these as part of the site so importers don't have to think too hard
-- SQLite is mangling mtimes meaning that some files always get regenerated
 - Store the origin mime type in the database and expose through `DocumentContext`
 - Log at at different levels, error, warning, etc
 - Intoduce a render-time `resolve` method that can figure out what happened to a document and include it
@@ -58,17 +56,10 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
   - STL
 - Add a --Werror flag
 - Port legacy InContext 2 tests
-- Video playback doesn't work with the built-in web server
-- The `serve` command doesn't cancel cleanly with the `--watch` flag
 - Provide a simple, clean API to inline a relative document
 - The current `resolve` implementation is hand-tuned and isn't guaranteed to work with new document types
-- Detect circular rendering dependencies
-- Build failures with `--watch` cause the command to exit
-- Show progress when rendering by default instead of logging for every file
 - Test resolving relative paths '.'
 - Write up Info.plist experiments
-- Ensure the build fails even if the build script fails silently (perhaps I could use the presence of a file to indicate success and check this in GitHub?)
-- Check the notarization response and fetch the error in the case of a failure
 - Support building to a custom build destination; this will make it much easier to use for GitHub Pages based deployments
 
 ### Improvements
