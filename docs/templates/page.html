@@ -1,0 +1,10 @@
+{% include "common.lua" %}
+{% function content() %}
+    <div class="post">
+        {% include "post_header.html" %}
+        <article class="post-content">
+            {% renderDocumentHTML(document) %}
+        </article>
+    </div>
+{% end %}
+{% include "default.html" %}

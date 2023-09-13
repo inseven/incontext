@@ -1,0 +1,59 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Bitter', serif;
+}
+
+a {
+    color: black;
+}
+
+.content {
+    margin: 2em 4em;
+}
+
+.container {
+    position: relative;
+    height: 100vh;
+}
+
+.center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.suggestion {
+    font-size: 100px;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 1em;
+    text-align: center;
+}
+
+nav li {
+    display: inline;
+}
+
+nav li::after {
+    content: " / ";
+}
+
+nav li:last-child::after {
+    content: "";
+}
+
+.hljs {
+    padding: 2em;
+}
+
+footer {
+    text-align: center;
+}

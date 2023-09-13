@@ -1,14 +1,13 @@
-# Templates
-
 Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater). Tilt is, itself, written in Lua and the templating language and leans heavily on Lua and Lua syntax. Within reason, if you can do it in Lua, you can do it in Tilt. This makes the templates incredibly powerful and helps avoid the bloat that comes from trying to do more programmatic things with templating languages like [Jinja](https://jinja.palletsprojects.com/en/3.1.x/), while also keeping things pretty simple and readable.
 
-## Examples
+# Examples
 
 ### Single Page
 
 The simplest template renders the HTML contents of a single document, processing any inline Tilt in the document's contents.
 
 ``` html
+[[
 <html>
   <head>
     <title>{{ site.title }}</title>
@@ -18,7 +17,7 @@ The simplest template renders the HTML contents of a single document, processing
     {{ incontext.renderDocumentHTML(document) }}
     <p>Published {{ document.date.format("MMMM d, yyyy") }}</p>
   </body>
-</html>
+</html>]]
 ```
 
 ### Index Pages
@@ -26,6 +25,7 @@ The simplest template renders the HTML contents of a single document, processing
 It's very common to want to list all documents within a specific category, with a specific tag, or within a specific tree structure. For example, the following template uses Tilt's Lua code-blocks to iterate over the current document's immediate children and output an unordered list:
 
 ```html
+[[
 <html>
   <head>
     <title>{{ site.title }} &mdash; {{ incontext.titlecase(document.title) }}</title>
@@ -39,7 +39,7 @@ It's very common to want to list all documents within a specific category, with 
       {% end %}
     </ul>
   </body>
-</html>
+</html>]]
 ```
 
 Note that this template still includes the document's HTML–this can be helpful in creating reusable listings pages which can be easily annotated in their source Markdown.
@@ -52,10 +52,11 @@ Document being rendered.
 
 **Example**
 
-```lua
+```html
+[[
 {% if document.title then %}
   <h1>{{ document.title }}</h1>
-{% end %}
+{% end %}]]
 ```
 
 ### `site`
@@ -70,10 +71,11 @@ Returns a titlecased version of the input string
 
 Titles detected from the filename are automatically transformed using titlecase (we might rethink this in the future), but custom document metadata is not automatically processed in this way and it may be desirable to do something like this in your template:
 
-```lua
+```html
+[[
 {% if document.subtitle then %}
   <h2>{{ titlecase(document.subtitle) }}</h2>
-{% end %}
+{% end %}]]
 ```
 
 ## Site
@@ -104,11 +106,12 @@ Returns the first document found by walking up the document path; nil if no ance
 
 Return all immediate children, sorted by date, "ascending" or "descending".
 
-```lua
+```html
+[[
 <ul>
   {% for _, child in ipairs(document.children { sort = "descending" }) %}
     <li>{{ child.title }}</li>
   {% end %}
-</ul>
+</ul>]]
 ```
 

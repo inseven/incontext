@@ -1,0 +1,17 @@
+{% include "post_header.html" %}
+
+<article class="post-content">
+
+    {% if document.image then %}
+        <div class="photo-container">
+            <a href="{{ document.url }}"><img src="{{ document.image.url }}" width="{% if document.scale then %}{{ document.image.width / document.scale }}{% else %}{{ document.image.width }}{% end %}" /></a>
+        </div>
+    {% end %}
+
+    {% renderDocumentHTML(document) %}
+
+</article>
+
+<p class="post-meta">
+    {% if document.date then %}{{ document.date.format(site.date_format) }}{% end %}{% if document.meta then %} • {{ document.meta }}{% end %}
+</p>

@@ -1,0 +1,25 @@
+<script src="/js/jquery-1.11.3.min.js"></script>
+<script src="/js/jquery-migrate-1.2.1.min.js"></script>
+<script type="module" src="/js/rewrite-external-links.js"></script>
+<script type="module" src="/js/transition-images.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+<script src="/js/map.js"></script>
+<script src="/js/watch.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/x-chart/x-chart.js"></script>
+<script type="module" src="/js/model.js"></script>
+<script src="/highlight.js/highlight.pack.js"></script>
+<script type="module" src="/js/syntax-highlighting.js"></script>
+<script type="module" src="/js/cardboard/cardboard.js"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+<script>
+  $(document).ready(function() {
+
+    for (var i = 0; i < inlines.length; i++) {
+      inlines[i]();
+    }
+
+    feather.replace();
+
+  });
+</script>

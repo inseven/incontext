@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    {% include("head.html") %}
+    <body>
+        <div class="container">
+            <div id="suggestion" class="center suggestion"></div>
+        </div>
+    </body>
+
+    <script type="module">
+
+        /* Return a random integer up to, but not including, `max`. */
+        function randomInt(max) {
+          return Math.floor(Math.random() * max);
+        }
+
+        const response = await fetch("entries/index.json", {cache: "no-store"});
+        const recipes = await response.json();
+        const index = randomInt(recipes.length);
+        const selection = recipes[index];
+        var title = document.createTextNode(selection.title);
+        if (selection.hasContent || selection.link !== undefined) {
+            var a = document.createElement("a");
+            a.appendChild(title);
+            a.title = selection.title;
+            if (selection.link !== undefined) {
+                a.href = selection.link;
+            } else {
+                a.href = selection.url;
+            }
+            document.getElementById("suggestion").appendChild(a);
+        } else {
+            document.getElementById("suggestion").appendChild(title);
+        }
+
+    </script>
+</html>
