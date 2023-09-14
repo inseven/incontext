@@ -28,8 +28,8 @@ class HelperTracker: ObservableObject, Tracker {
 
     @Published var sessions: [HelperSession] = []
 
-    func new() -> Session {
-        let session = HelperSession()
+    func new(_ name: String) -> Session {
+        let session = HelperSession(name: name)
         DispatchQueue.main.async {
             self.sessions.append(session)
         }

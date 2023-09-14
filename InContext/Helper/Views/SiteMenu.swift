@@ -30,21 +30,20 @@ struct SiteMenu: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        Button {
-            NSWorkspace.shared.open(siteModel.url)
-        } label: {
-            Text("Preview")
-        }
-        Button {
-            openWindow(id: LogWindow.windowID, value: siteModel.rootURL)
-        } label: {
-            Text("Logs...")
+        Group {
+            Button("Open") {
+                siteModel.open()
+            }
+            Button("Preview") {
+                siteModel.preview()
+            }
         }
         Divider()
-        ForEach(siteModel.favorites) { favorite in
-            Button(favorite.title) {
-                NSWorkspace.shared.open(favorite.rootURL)
-            }
+        ActionsMenu(siteModel: siteModel)
+        FavoritesMenu(siteModel: siteModel)
+        Divider()
+        Button("Logs...") {
+            openWindow(id: LogWindow.windowID, value: siteModel.rootURL)
         }
         Divider()
         Button {
@@ -57,6 +56,45 @@ struct SiteMenu: View {
             applicationModel.remove(siteModel: siteModel)
         } label: {
             Text("Remove")
+        }
+    }
+
+}
+
+struct ActionsMenu: View {
+
+    @ObservedObject var siteModel: SiteModel
+
+    var body: some View {
+        Menu {
+            ForEach(siteModel.actions) { action in
+                Button {
+                    siteModel.run(action)
+                } label: {
+                    Text(action.name)
+                }
+            }
+        } label: {
+            Text("Actions")
+        }
+    }
+
+}
+
+
+struct FavoritesMenu: View {
+
+    @ObservedObject var siteModel: SiteModel
+
+    var body: some View {
+        Menu {
+            ForEach(siteModel.favorites) { favorite in
+                Button(favorite.title) {
+                    NSWorkspace.shared.open(favorite.rootURL)
+                }
+            }
+        } label: {
+            Text("Favorites")
         }
     }
 
