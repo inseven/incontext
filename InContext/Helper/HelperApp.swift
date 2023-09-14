@@ -76,7 +76,11 @@ struct HelperApp: App {
             }
 
         } label: {
+#if DEBUG
+            Text("🦫 Debug")
+#else
             Text("🦫")
+#endif
         }
 
         LogWindow(applicationModel: applicationModel)
