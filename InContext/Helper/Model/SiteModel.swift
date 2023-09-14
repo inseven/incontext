@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 import Foundation
+import SwiftUI
 
 import InContextCore
 
@@ -48,12 +49,23 @@ class SiteModel: ObservableObject, Identifiable {
         return site.favorites
     }
 
+    var actions: [Site.Action] {
+        return site.actions
+    }
+
     init(rootURL: URL) {
         self.rootURL = rootURL
         // TODO: Guard the configuration loading.
         // TODO: The configuration should likely be pushed into the server as we need to watch for changes
         self.site = try! Site(rootURL: rootURL)
         self.server = Server(site: site, tracker: tracker)
+    }
+
+    func run(_ action: Site.Action) {
+        Task {
+            let runner = ActionRunner(site: site, action: action, tracker: self.tracker)
+            runner.run()
+        }
     }
 
     func start() {
@@ -72,6 +84,16 @@ class SiteModel: ObservableObject, Identifiable {
         dispatchPrecondition(condition: .onQueue(.main))
         self.task?.cancel()
         self.task = nil
+    }
+
+    @MainActor func open() {
+        dispatchPrecondition(condition: .onQueue(.main))
+        NSWorkspace.shared.open(site.url)
+    }
+
+    @MainActor func preview() {
+        dispatchPrecondition(condition: .onQueue(.main))
+        NSWorkspace.shared.open(url)
     }
 
 }

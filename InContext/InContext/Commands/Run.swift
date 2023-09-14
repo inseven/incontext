@@ -22,25 +22,26 @@
 
 import Foundation
 
+import ArgumentParser
 import InContextCore
 
-class HelperSession: ObservableObject, Session, Identifiable {
+struct Run: AsyncParsableCommand {
 
-    let id = UUID()
-    let name: String
+    static var configuration = CommandConfiguration(commandName: "run",
+                                                    abstract: "Run a task.")
 
-    @MainActor @Published var events: [Event] = []
+    @OptionGroup var options: Options
 
-    init(name: String) {
-        self.name = name
-    }
+    @Argument(help: "Task to run.")
+    var task: String
 
-    func log(level: LogLevel, _ message: String) {
-        print("-> \(level) \(message)")
-        let event = Event(date: Date(), level: level, message: message)
-        DispatchQueue.main.async {
-            self.events.append(event)
+    mutating func run() async throws {
+        let site = try options.resolveSite()
+        guard let action = site.action(task) else {
+            throw InContextError.internalInconsistency("Unknown task '\(task)'.")
         }
+        let runner = ActionRunner(site: site, action: action, tracker: LoggingTracker())
+        runner.run()
     }
 
 }

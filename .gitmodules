@@ -7,3 +7,6 @@
 [submodule "Scripts/build-tools"]
 	path = Scripts/build-tools
 	url = git@github.com:jbmorley/build-tools.git
+[submodule "Dependencies/diligence"]
+	path = Dependencies/diligence
+	url = git@github.com:inseven/diligence.git

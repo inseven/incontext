@@ -1,0 +1,15 @@
+{% include "common.lua" %}
+{% function content() %}
+    <h1>{{ document.title }}</h1>
+    {% renderDocumentHTML(document) %}
+    <ul>
+    {% for _, document in ipairs(document.query("content")) do %}
+        {% if document.link then %}
+            <li><a href="{{ document.link }}">{{ document.title }}</a></li>
+        {% else %}
+            <li><a href="{{ document.url }}">{{ document.title }}</a></li>
+        {% end %}
+    {% end %}
+    <ul>
+{% end %}
+{% include "default.html" %}

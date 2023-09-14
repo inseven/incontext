@@ -1,0 +1,34 @@
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="last-modified" content="{{ document.last_modified.format(iso_8601_format) }}">
+
+    <title>{% if document.title and document.title ~= "" then %}{{ document.title }} &mdash; {% end %}{{ site.title }}</title>
+
+    {% if document.title then %}
+        <meta property="og:title" content="{{ document.title }}">
+    {% end %}
+    {% local thumbnailURL = thumbnail and thumbnail() %}
+    {% if thumbnailURL then %}
+        <meta property="og:image" content="{{ thumbnailURL }}">
+    {% elseif document.thumbnail and type(document.thumbnail) == "string" then %}
+        <meta property="og:image" content="{{ document.resolve(document.thumbnail) }}">
+    {% elseif document.thumbnail then %}
+        <meta property="og:image" content="{{ document.thumbnail.url }}">
+    {% end %}
+
+    <link rel="alternate" type="application/json" title="{{ site.title }}" href="/feed">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitter&family=PT+Serif:ital@1&family=Wix+Madefor+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <link rel="stylesheet" href="/css/main.css">
+
+</head>

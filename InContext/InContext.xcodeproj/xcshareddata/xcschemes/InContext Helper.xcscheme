@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D89063092A98293A0001A8E2"
-               BuildableName = "incontext"
-               BlueprintName = "incontext"
+               BlueprintIdentifier = "D86BCDCD2A9B016A00C81BA5"
+               BuildableName = "InContext Helper.app"
+               BlueprintName = "InContext Helper"
                ReferencedContainer = "container:InContext.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,6 +28,30 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D86BCDDD2A9B016D00C81BA5"
+               BuildableName = "InContext HelperTests.xctest"
+               BlueprintName = "InContext HelperTests"
+               ReferencedContainer = "container:InContext.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D86BCDE72A9B016E00C81BA5"
+               BuildableName = "InContext HelperUITests.xctest"
+               BlueprintName = "InContext HelperUITests"
+               ReferencedContainer = "container:InContext.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -38,68 +62,17 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
-      allowLocationSimulation = "YES"
-      viewDebuggingEnabled = "No">
+      allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D89063092A98293A0001A8E2"
-            BuildableName = "incontext"
-            BlueprintName = "incontext"
+            BlueprintIdentifier = "D86BCDCD2A9B016A00C81BA5"
+            BuildableName = "InContext Helper.app"
+            BlueprintName = "InContext Helper"
             ReferencedContainer = "container:InContext.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "build"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--serialize-import"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "version"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "serve"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "run"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "edit"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "commit"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "hello"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--site /Users/jbmorley/Projects/jbmorley.co.uk"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--version"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--help"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--watch"
-            isEnabled = "NO">
-         </CommandLineArgument>
-      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -111,9 +84,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D89063092A98293A0001A8E2"
-            BuildableName = "incontext"
-            BlueprintName = "incontext"
+            BlueprintIdentifier = "D86BCDCD2A9B016A00C81BA5"
+            BuildableName = "InContext Helper.app"
+            BlueprintName = "InContext Helper"
             ReferencedContainer = "container:InContext.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

@@ -35,12 +35,45 @@ struct LogView: View {
     var body: some View {
         List {
             ForEach(helperTracker.sessions) { session in
-                Text("Build")
-                    .font(.headline)
+                Text(session.name)
+                    .font(.title)
                 SessionView(session: session)
             }
         }
-        .navigationTitle(siteModel.rootURL.lastPathComponent)
+        .navigationTitle(siteModel.title)
+        .navigationSubtitle(siteModel.url.absoluteString)
+        .toolbar {
+
+            ToolbarItem {
+                Button {
+                    siteModel.open()
+                } label: {
+                    Label("Open", systemImage: "globe")
+                }
+            }
+
+            ToolbarItem {
+                Button {
+                    siteModel.preview()
+                } label: {
+                    Label("Preview", systemImage: "eye.circle")
+                }
+            }
+
+            ToolbarItem {
+                Menu {
+                    ForEach(siteModel.actions) { action in
+                        Button(action.name) {
+                            siteModel.run(action)
+                        }
+                    }
+                } label: {
+                    Label("Actions", systemImage: "play")
+                }
+                .disabled(siteModel.actions.isEmpty)
+            }
+
+        }
     }
 
 }

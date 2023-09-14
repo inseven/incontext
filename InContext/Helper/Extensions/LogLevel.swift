@@ -29,7 +29,7 @@ extension LogLevel {
     var color: Color {
         switch self {
         case .debug:
-            return .primary
+            return .secondary
         case .info:
             return .primary
         case .notice:

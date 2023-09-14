@@ -28,12 +28,13 @@ struct SessionView: View {
 
     var body: some View {
         ForEach(session.events) { event in
-            HStack {
-                Text(event.date, style: .time)
+            HStack(alignment: .top) {
+                Text(event.date.ISO8601Format())
                     .foregroundColor(.secondary)
                 Text(event.message)
             }
             .textSelection(.enabled)
+            .monospaced()
             .foregroundColor(event.level.color)
         }
     }

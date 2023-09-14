@@ -366,7 +366,7 @@ public class Builder {
     }
 
     func doBuild() async {
-        let session = tracker.new()
+        let session = tracker.new("Build")
         do {
             let clock = ContinuousClock()
             let duration = try await clock.measure {

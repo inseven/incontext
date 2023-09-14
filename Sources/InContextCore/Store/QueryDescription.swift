@@ -178,7 +178,6 @@ struct QueryDescription: Codable, Hashable, Equatable, Fingerprintable {
     }
 
     func query() -> Table {
-
         Store.Schema.documents
             .filter(expression())
             .order(order())

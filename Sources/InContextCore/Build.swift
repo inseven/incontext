@@ -24,7 +24,7 @@ import Foundation
 
 public protocol Tracker {
 
-    func new() -> Session
+    func new(_ name: String) -> Session
 
 }
 
@@ -42,6 +42,7 @@ public protocol Session {
 
 }
 
+// TODO: Sessions should have a completion state (success or failure).
 extension Session {
 
     func debug(_ message: String) {

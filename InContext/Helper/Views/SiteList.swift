@@ -26,8 +26,14 @@ struct SiteList: View {
 
     @ObservedObject var applicationModel: ApplicationModel
 
+    var sites: [SiteModel] {
+        return Array(applicationModel.sites.values.sorted {
+            $0.title.localizedStandardCompare($1.title) == .orderedAscending
+        })
+    }
+
     var body: some View {
-        ForEach(Array(applicationModel.sites.values)) { siteModel in
+        ForEach(sites) { siteModel in
             Menu {
                 SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
             } label: {
