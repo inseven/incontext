@@ -108,7 +108,6 @@ struct QueryDescription: Codable, Hashable {
     }
 
     func query() -> Table {
-
         Store.Schema.documents
             .filter(expression())
             .order(order())

@@ -31,6 +31,11 @@ struct Settings: Decodable {
         let title: String
     }
 
+    struct Action: Codable {
+        let name: String?
+        let run: String
+    }
+
     private enum CodingKeys: String, CodingKey {
         case version
         case title
@@ -39,6 +44,7 @@ struct Settings: Decodable {
         case metadata
         case port
         case favorites
+        case actions
     }
 
     let version: Int
@@ -48,6 +54,7 @@ struct Settings: Decodable {
     let metadata: [String: Any]
     let port: Int
     let favorites: [String: Location]
+    let actions: [String: Action]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -61,6 +68,7 @@ struct Settings: Decodable {
         self.metadata = try container.decodeIfPresent(Dictionary<String, Any>.self, forKey: .metadata) ?? [:]
         self.port = try container.decodeIfPresent(Int.self, forKey: .port) ?? 8000
         self.favorites = try container.decodeIfPresent([String: Location].self, forKey: .favorites) ?? [:]
+        self.actions = try container.decodeIfPresent([String: Action].self, forKey: .actions) ?? [:]
     }
 
 }

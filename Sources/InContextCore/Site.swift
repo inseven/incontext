@@ -40,6 +40,20 @@ public struct Site {
         public let title: String
     }
 
+    public struct Action: Identifiable {
+
+        public let id: String
+        public let name: String
+        public let run: String
+
+        init(id: String, name: String? = nil, run: String) {
+            self.id = id
+            self.name = name ?? id
+            self.run = run
+        }
+
+    }
+
     public let rootURL: URL
     public let contentURL: URL
     public let templatesURL: URL
@@ -62,8 +76,14 @@ public struct Site {
 
     public var favorites: [Favorite] {
         return structuredSettings.favorites.map { path, location in
-            Favorite(rootURL: URL(fileURLWithPath: path, relativeTo: contentURL),
-                     title: location.title)
+            return Favorite(rootURL: URL(fileURLWithPath: path, relativeTo: contentURL),
+                            title: location.title)
+        }
+    }
+
+    public var actions: [Action] {
+        return structuredSettings.actions.map { name, action in
+            return Action(id: name, name: action.name, run: action.run)
         }
     }
 
@@ -120,6 +140,14 @@ public struct Site {
             return handler
         }
         return nil
+    }
+
+    // TODO: Remove this.
+    public func action(_ name: String) -> Action? {
+        guard let task = structuredSettings.actions[name] else {
+            return nil
+        }
+        return Action(id: name, name: task.name, run: task.run)
     }
 
     func outputURL(relativePath: String) -> URL {
