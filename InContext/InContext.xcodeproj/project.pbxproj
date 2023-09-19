@@ -43,6 +43,8 @@
 		D8A739B82AA6621E00946EED /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A739B72AA6621E00946EED /* SessionView.swift */; };
 		D8A739BA2AA6627500946EED /* SettingsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A739B92AA6627500946EED /* SettingsMenu.swift */; };
 		D8AD37AF2AA69FDF0006555F /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AD37AE2AA69FDF0006555F /* Event.swift */; };
+		D8E592242AB3A840000EE676 /* ActionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E592232AB3A840000EE676 /* ActionsMenu.swift */; };
+		D8E592262AB3A8C3000EE676 /* FavoritesMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E592252AB3A8C3000EE676 /* FavoritesMenu.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -114,6 +116,8 @@
 		D8A739B72AA6621E00946EED /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 		D8A739B92AA6627500946EED /* SettingsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMenu.swift; sourceTree = "<group>"; };
 		D8AD37AE2AA69FDF0006555F /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
+		D8E592232AB3A840000EE676 /* ActionsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionsMenu.swift; sourceTree = "<group>"; };
+		D8E592252AB3A8C3000EE676 /* FavoritesMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesMenu.swift; sourceTree = "<group>"; };
 		D8F75F462AA34811000DEDB7 /* InContext HelperRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "InContext HelperRelease.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -167,6 +171,8 @@
 		D8121A762AA05DB300EEDF5B /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D8E592232AB3A840000EE676 /* ActionsMenu.swift */,
+				D8E592252AB3A8C3000EE676 /* FavoritesMenu.swift */,
 				D8A739B32AA660F400946EED /* LogView.swift */,
 				D8A739B52AA6611E00946EED /* LogWindow.swift */,
 				D8A739B72AA6621E00946EED /* SessionView.swift */,
@@ -470,6 +476,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8A739B62AA6611E00946EED /* LogWindow.swift in Sources */,
+				D8E592242AB3A840000EE676 /* ActionsMenu.swift in Sources */,
 				D80E4FD12AA7AD5300FD4BB5 /* HelperTracker.swift in Sources */,
 				D8A739BA2AA6627500946EED /* SettingsMenu.swift in Sources */,
 				D80E4FCF2AA7AD3300FD4BB5 /* HelperSession.swift in Sources */,
@@ -482,6 +489,7 @@
 				D8121A712AA04BDA00EEDF5B /* URL.swift in Sources */,
 				D8A739B82AA6621E00946EED /* SessionView.swift in Sources */,
 				D86BCDFA2A9B030400C81BA5 /* Geocoder.swift in Sources */,
+				D8E592262AB3A8C3000EE676 /* FavoritesMenu.swift in Sources */,
 				D86BCDFC2A9B032200C81BA5 /* HelperError.swift in Sources */,
 				D86BCDD12A9B016A00C81BA5 /* HelperApp.swift in Sources */,
 				D8121A6E2AA0465200EEDF5B /* Settings.swift in Sources */,

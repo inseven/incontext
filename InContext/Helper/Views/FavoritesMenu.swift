@@ -22,40 +22,23 @@
 
 import SwiftUI
 
-struct SiteMenu: View {
+struct FavoritesMenu: View {
 
-    @ObservedObject var applicationModel: ApplicationModel
     @ObservedObject var siteModel: SiteModel
 
-    @Environment(\.openWindow) private var openWindow
-
     var body: some View {
-        Group {
-            Button("Open") {
-                siteModel.open()
+        Menu {
+            if siteModel.favorites.isEmpty {
+                Text("None")
+            } else {
+                ForEach(siteModel.favorites) { favorite in
+                    Button(favorite.title) {
+                        NSWorkspace.shared.open(favorite.rootURL)
+                    }
+                }
             }
-            Button("Preview") {
-                siteModel.preview()
-            }
-        }
-        Divider()
-        ActionsMenu(siteModel: siteModel)
-        FavoritesMenu(siteModel: siteModel)
-        Divider()
-        Button("Logs...") {
-            openWindow(id: LogWindow.windowID, value: siteModel.rootURL)
-        }
-        Divider()
-        Button {
-            NSWorkspace.shared.open(siteModel.rootURL)
         } label: {
-            Text("Show in Finder")
-        }
-        Divider()
-        Button {
-            applicationModel.remove(siteModel: siteModel)
-        } label: {
-            Text("Remove")
+            Text("Favorites")
         }
     }
 
