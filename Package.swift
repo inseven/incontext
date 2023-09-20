@@ -16,13 +16,13 @@ let package = Package(
             ]),
     ],
     dependencies: [
+        .package(path: "Dependencies/hummingbird"),
         .package(path: "Dependencies/Tilt"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-markdown.git", from: "0.2.0"),
         .package(url: "https://github.com/behrang/YamlSwift.git", from: "3.4.4"),  // Good for unknown?
-        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "1.7.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),  // Good for known structures
         .package(url: "https://github.com/jwells89/Titlecaser.git", from: "1.0.0"),
         .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.7"),
