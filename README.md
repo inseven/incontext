@@ -33,7 +33,6 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 1. **Deleted documents aren't removed from the store**
 2. **Check adaptive images work**
 3. **Don't automatically replace non-Markdown image tags**
-6. Pass-through site metadata so that things like tags can be rendered correctly
 7. Check that gifs are transformed correctly
 8. Markdown issues (Footnotes, Strikethrough, mdash)
 9. Scale videos

@@ -41,9 +41,9 @@ build_steps:
           then: image
           args:
               category: general
-              default_template: photo.html
-              inline_template: image.html
-              title_from_filename: false
+              defaultTemplate: photo.html
+              inlineTemplate: image.html
+              titleFromFilename: false
 """)
 
 

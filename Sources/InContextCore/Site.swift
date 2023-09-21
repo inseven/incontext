@@ -23,7 +23,6 @@
 import Foundation
 import UniformTypeIdentifiers
 
-import Yaml
 import Yams
 
 public struct Site {
@@ -61,28 +60,35 @@ public struct Site {
     public let storeURL: URL
     public let filesURL: URL
 
-    let structuredSettings: Settings
-    let settings: [AnyHashable: Any]
+    private let settings: Settings
 
     let handlers: [AnyHandler]
 
     public var title: String {
-        return structuredSettings.title
+        return settings.title
     }
 
     public var url: URL {
-        return structuredSettings.url
+        return settings.url
+    }
+
+    public var port: Int {
+        return settings.port
+    }
+
+    public var metadata: [String: Any] {
+        return settings.metadata
     }
 
     public var favorites: [Favorite] {
-        return structuredSettings.favorites.map { path, location in
+        return settings.favorites.map { path, location in
             return Favorite(rootURL: URL(fileURLWithPath: path, relativeTo: contentURL),
                             title: location.title)
         }
     }
 
     public var actions: [Action] {
-        return structuredSettings.actions.map { name, action in
+        return settings.actions.map { name, action in
             return Action(id: name, name: action.name, run: action.run)
         }
     }
@@ -100,18 +106,10 @@ public struct Site {
         guard let settingsString = String(data: settingsData, encoding: .utf8) else {
             throw InContextError.encodingError
         }
-        self.structuredSettings = try YAMLDecoder().decode(Settings.self, from: settingsData)
-        self.settings = try (try Yaml.load(settingsString)).dictionary()
+        self.settings = try YAMLDecoder().decode(Settings.self, from: settingsData)
 
-        guard let buildSteps = settings["build_steps"] as? [[String: Any]],
-              let processFiles = buildSteps.first,
-              processFiles["task"] as? String == "process_files",
-              let args = processFiles["args"] as? [String: Any],
-              let handlers = args["handlers"] as? [[String: Any]]
-        else {
-            throw InContextError.corruptSettings
-        }
-
+        // Register the importers.
+        // TODO: This should probably be moved elsewhere.
         let importers = ([
             CopyImporter(),
             IgnoreImporter(),
@@ -120,16 +118,14 @@ public struct Site {
             VideoImporter(),
         ] as [any Importer]).reduce(into: [:]) { $0[$1.identifier] = $1 }
 
-        let actualHandlers = try handlers.map { handler in
-            guard let then = handler["then"] as? String else {
+        // Convert the structured settings import steps to handlers.
+        self.handlers = try self.settings.steps.map { step in
+            guard let importer = importers[step.then] else {
                 throw InContextError.corruptSettings
             }
-            guard let importer = importers[then] else {
-                throw InContextError.unknownImporter(then)
-            }
-            return try importer.handler(settings: handler)
+            return try importer.handler(when: step.when, then: step.then, args: step.args)
         }
-        self.handlers = actualHandlers
+
     }
 
     func handler(for url: URL) throws -> AnyHandler? {
@@ -144,7 +140,7 @@ public struct Site {
 
     // TODO: Remove this.
     public func action(_ name: String) -> Action? {
-        guard let task = structuredSettings.actions[name] else {
+        guard let task = settings.actions[name] else {
             return nil
         }
         return Action(id: name, name: task.name, run: task.run)

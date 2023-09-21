@@ -30,7 +30,7 @@ class CopyImporter: Importer {
     let version = 1
 
     func settings(for configuration: [String : Any]) throws -> EmptySettings {
-        guard configuration["args"] == nil else {
+        guard configuration.isEmpty else {
             throw InContextError.unexpecteArgs
         }
         return EmptySettings()

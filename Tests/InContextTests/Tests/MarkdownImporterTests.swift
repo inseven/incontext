@@ -39,8 +39,8 @@ build_steps:
         - when: '(.*/)?.*\\.markdown'
           then: markdown
           args:
-              default_category: general
-              default_template: posts.html
+              defaultCategory: general
+              defaultTemplate: posts.html
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: """
 ---
@@ -70,8 +70,8 @@ build_steps:
         - when: '(.*/)?.*\\.markdown'
           then: markdown
           args:
-              default_category: general
-              default_template: posts.html
+              defaultCategory: general
+              defaultTemplate: posts.html
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
         let importer = MarkdownImporter()
