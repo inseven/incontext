@@ -103,9 +103,13 @@ Top-level site object containing site-wide properties and store accessors.
 
 ## Utilities
 
+#### `incontext.generateUUID()`
+
+Returns a new [RFC 4122 version 4  UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random)) string.
+
 #### `incontext.titlecase(string)`
 
-Returns a titlecased version of the input string
+Returns a titlecased version of the input string.
 
 Titles detected from the filename are automatically transformed using titlecase (we might rethink this in the future), but custom document metadata is not automatically processed in this way and it may be desirable to do something like this in your template:
 
@@ -115,6 +119,8 @@ Titles detected from the filename are automatically transformed using titlecase 
   <h2>{{ titlecase(document.subtitle) }}</h2>
 {% end %}]]
 ```
+
+#### `incontext.thumbnail(url)`
 
 ## Site
 
@@ -142,7 +148,7 @@ Returns the first document found by walking up the document path; nil if no ance
 
 ### `document.children(sort: String = "ascending")`
 
-Return all immediate children, sorted by date, "ascending" or "descending".
+Returns all immediate children, sorted by date, "ascending" or "descending".
 
 ```html
 [[
