@@ -32,15 +32,12 @@ class MarkdownImporterTests: ContentTestCase {
 version: 2
 title: Example
 url: http://example.com
-build_steps:
-  - task: process_files
+steps:
+  - when: '(.*/)?.*\\.markdown'
+    then: markdown
     args:
-      handlers:
-        - when: '(.*/)?.*\\.markdown'
-          then: markdown
-          args:
-              defaultCategory: general
-              defaultTemplate: posts.html
+        defaultCategory: general
+        defaultTemplate: posts.html
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: """
 ---
@@ -63,15 +60,12 @@ These are the contents of the file.
 version: 2
 title: Example
 url: http://example.com
-build_steps:
-  - task: process_files
+steps:
+  - when: '(.*/)?.*\\.markdown'
+    then: markdown
     args:
-      handlers:
-        - when: '(.*/)?.*\\.markdown'
-          then: markdown
-          args:
-              defaultCategory: general
-              defaultTemplate: posts.html
+        defaultCategory: general
+        defaultTemplate: posts.html
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
         let importer = MarkdownImporter()

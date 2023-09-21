@@ -33,17 +33,14 @@ class ImageImporterTests: ContentTestCase {
 version: 2
 title: Example
 url: http://example.com
-build_steps:
-  - task: process_files
+steps:
+  - when: '(.*/)?.*\\.jpeg'
+    then: image
     args:
-      handlers:
-        - when: '(.*/)?.*\\.jpeg'
-          then: image
-          args:
-              category: general
-              defaultTemplate: photo.html
-              inlineTemplate: image.html
-              titleFromFilename: false
+        category: general
+        defaultTemplate: photo.html
+        inlineTemplate: image.html
+        titleFromFilename: false
 """)
 
 
