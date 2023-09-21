@@ -43,7 +43,7 @@ public class Server {
                 serializeRender: Bool = false) {
         self.site = site
         self.tracker = tracker
-        self.port = site.structuredSettings.port
+        self.port = site.port
         self.serializeImport = serializeImport
         self.serializeRender = serializeRender
     }

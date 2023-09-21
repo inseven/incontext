@@ -22,45 +22,10 @@
 
 import Foundation
 
-struct ImporterResult {
+// To be used when no settings are required; returns a struct even if not specified.
+struct EmptySettings: ImporterSettings {
 
-    let document: Document?
-    let assets: [Asset]
-
-    init(document: Document? = nil, assets: [Asset] = []) {
-        self.document = document
-        self.assets = assets
-    }
+    func combine(into fingerprint: inout Fingerprint) throws {}
 
 }
 
-protocol ImporterSettings: Hashable, Fingerprintable {
-
-}
-
-protocol Importer {
-
-    associatedtype Settings: ImporterSettings
-
-    var identifier: String { get }
-    var version: Int { get }
-
-    func settings(for configuration: [String: Any]) throws -> Settings
-    func process(file: File,
-                 settings: Settings,
-                 outputURL: URL) async throws -> ImporterResult
-
-}
-
-extension Importer {
-
-    func handler(when: String, then: String, args: [String: Any]) throws -> AnyHandler {
-        // Double-check that the type is correct.
-        guard then == self.identifier else {
-            throw InContextError.internalInconsistency("Unexpected type for handler settings.")
-        }
-        let handler = try Handler(when: when, importer: self, settings: try self.settings(for: args))
-        return AnyHandler(handler)
-    }
-
-}

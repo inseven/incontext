@@ -29,18 +29,15 @@ class MarkdownImporterTests: ContentTestCase {
 
     func testMarkdownTitleOverride() async throws {
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
-version: 1
+version: 2
 title: Example
 url: http://example.com
-build_steps:
-  - task: process_files
+steps:
+  - when: '(.*/)?.*\\.markdown'
+    then: markdown
     args:
-      handlers:
-        - when: '(.*/)?.*\\.markdown'
-          then: markdown
-          args:
-              default_category: general
-              default_template: posts.html
+        defaultCategory: general
+        defaultTemplate: posts.html
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: """
 ---
@@ -60,18 +57,15 @@ These are the contents of the file.
 
     func testMarkdownTitleFromFile() async throws {
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
-version: 1
+version: 2
 title: Example
 url: http://example.com
-build_steps:
-  - task: process_files
+steps:
+  - when: '(.*/)?.*\\.markdown'
+    then: markdown
     args:
-      handlers:
-        - when: '(.*/)?.*\\.markdown'
-          then: markdown
-          args:
-              default_category: general
-              default_template: posts.html
+        defaultCategory: general
+        defaultTemplate: posts.html
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
         let importer = MarkdownImporter()

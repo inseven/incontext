@@ -58,7 +58,7 @@ public class Builder {
             "site": [
                 "title": site.title,
                 "url": site.url.absoluteString,
-                "metadata": site.structuredSettings.metadata,
+                "metadata": site.metadata,
                 "date_format": "MMMM d, yyyy",
                 "date_format_short": "MMMM d",
                 "documents": Function { () throws -> [DocumentContext] in

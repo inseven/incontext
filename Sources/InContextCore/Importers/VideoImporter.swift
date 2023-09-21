@@ -43,11 +43,10 @@ class VideoImporter: Importer {
     let version = 8
 
     func settings(for configuration: [String : Any]) throws -> Settings {
-        let args: [String: Any] = try configuration.requiredValue(for: "args")
-        return Settings(defaultCategory: try args.requiredValue(for: "category"),
-                        titleFromFilename: try args.requiredValue(for: "title_from_filename"),
-                        defaultTemplate: try args.requiredRawRepresentable(for: "default_template"),
-                        inlineTemplate: try args.requiredRawRepresentable(for: "inline_template"))
+        return Settings(defaultCategory: try configuration.requiredValue(for: "category"),
+                        titleFromFilename: try configuration.requiredValue(for: "titleFromFilename"),
+                        defaultTemplate: try configuration.requiredRawRepresentable(for: "defaultTemplate"),
+                        inlineTemplate: try configuration.requiredRawRepresentable(for: "inlineTemplate"))
     }
 
     func process(file: File,

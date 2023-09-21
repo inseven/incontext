@@ -36,6 +36,26 @@ struct Settings: Decodable {
         let run: String
     }
 
+    struct ImportStep: Decodable {
+
+        private enum CodingKeys: String, CodingKey {
+            case when
+            case then
+            case args
+        }
+
+        let when: String
+        let then: String
+        let args: [String: Any]
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.when = try container.decode(String.self, forKey: .when)
+            self.then = try container.decode(String.self, forKey: .then)
+            self.args = try container.decodeIfPresent([String: Any].self, forKey: .args) ?? [:]
+        }
+    }
+
     private enum CodingKeys: String, CodingKey {
         case version
         case title
@@ -45,6 +65,7 @@ struct Settings: Decodable {
         case port
         case favorites
         case actions
+        case steps
     }
 
     let version: Int
@@ -55,20 +76,22 @@ struct Settings: Decodable {
     let port: Int
     let favorites: [String: Location]
     let actions: [String: Action]
+    let steps: [ImportStep]
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.version = try container.decode(Int.self, forKey: .version)
-        guard version == 1 else {
+        guard version == 2 else {
             throw InContextError.internalInconsistency("Unsupported settings version (\(version)).")
         }
         self.title = try container.decode(String.self, forKey: .title)
         self.author = try container.decodeIfPresent(String.self, forKey: .author)
         self.url = try container.decode(URL.self, forKey: .url)
-        self.metadata = try container.decodeIfPresent(Dictionary<String, Any>.self, forKey: .metadata) ?? [:]
+        self.metadata = try container.decodeIfPresent([String: Any].self, forKey: .metadata) ?? [:]
         self.port = try container.decodeIfPresent(Int.self, forKey: .port) ?? 8000
         self.favorites = try container.decodeIfPresent([String: Location].self, forKey: .favorites) ?? [:]
         self.actions = try container.decodeIfPresent([String: Action].self, forKey: .actions) ?? [:]
+        self.steps = try container.decode([ImportStep].self, forKey: .steps)
     }
 
 }

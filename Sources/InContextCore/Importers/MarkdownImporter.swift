@@ -40,9 +40,8 @@ class MarkdownImporter: Importer {
     let version = 11
 
     func settings(for configuration: [String : Any]) throws -> Settings {
-        let args: [String: Any] = try configuration.requiredValue(for: "args")
-        return Settings(defaultCategory: try args.requiredValue(for: "default_category"),
-                        defaultTemplate: try args.requiredRawRepresentable(for: "default_template"))
+        return Settings(defaultCategory: try configuration.requiredValue(for: "defaultCategory"),
+                        defaultTemplate: try configuration.requiredRawRepresentable(for: "defaultTemplate"))
     }
 
     func process(file: File,
