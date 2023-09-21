@@ -96,6 +96,12 @@ class TiltRenderer {
         env = TiltEnvironment()
         let L = env.L
 
+        // Load the built-in functions.
+        L.addModules(lua_sources)
+        L.setRequireRoot(nil)
+        L.getglobal("require")
+        try! L.pcall("incontext")
+
         L.registerMetatable(for: TemplateCache.self, functions: [:])
         L.registerDefaultMetatable(functions: [
             "__call": callFunctionBlock,

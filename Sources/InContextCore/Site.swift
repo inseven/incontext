@@ -53,7 +53,16 @@ public struct Site {
 
     }
 
+    private static let importers: [any Importer] = [
+        CopyImporter(),
+        IgnoreImporter(),
+        ImageImporter(),
+        MarkdownImporter(),
+        VideoImporter(),
+    ]
+
     public let rootURL: URL
+    public let settingsURL: URL
     public let contentURL: URL
     public let templatesURL: URL
     public let buildURL: URL
@@ -95,37 +104,25 @@ public struct Site {
 
     public init(rootURL: URL) throws {
         self.rootURL = rootURL
+        self.settingsURL = rootURL.appendingPathComponent("site.yaml")
         self.contentURL = rootURL.appendingPathComponent("content", isDirectory: true)
         self.templatesURL = rootURL.appendingPathComponent("templates", isDirectory: true)
         self.buildURL = rootURL.appendingPathComponent("build", isDirectory: true)
         self.storeURL = buildURL.appendingPathComponent("store.sqlite")
         self.filesURL = buildURL.appendingPathComponent("files", isDirectory: true)
 
-        let settingsURL = rootURL.appendingPathComponent("site.yaml")
-        let settingsData = try Data(contentsOf: settingsURL)
-        guard let settingsString = String(data: settingsData, encoding: .utf8) else {
-            throw InContextError.encodingError
-        }
-        self.settings = try YAMLDecoder().decode(Settings.self, from: settingsData)
-
-        // Register the importers.
-        // TODO: This should probably be moved elsewhere.
-        let importers = ([
-            CopyImporter(),
-            IgnoreImporter(),
-            ImageImporter(),
-            MarkdownImporter(),
-            VideoImporter(),
-        ] as [any Importer]).reduce(into: [:]) { $0[$1.identifier] = $1 }
+        // Load the settings.
+        self.settings = try YAMLDecoder().decode(Settings.self, from: try Data(contentsOf: settingsURL))
 
         // Convert the structured settings import steps to handlers.
+        let importers = Self.importers
+            .reduce(into: [:]) { $0[$1.identifier] = $1 }
         self.handlers = try self.settings.steps.map { step in
             guard let importer = importers[step.then] else {
                 throw InContextError.corruptSettings
             }
             return try importer.handler(when: step.when, then: step.then, args: step.args)
         }
-
     }
 
     func handler(for url: URL) throws -> AnyHandler? {

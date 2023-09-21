@@ -18,6 +18,7 @@ let package = Package(
     dependencies: [
         .package(path: "Dependencies/hummingbird"),
         .package(path: "Dependencies/Tilt"),
+        .package(path: "Dependencies/Tilt/LuaSwift"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
@@ -46,6 +47,9 @@ let package = Package(
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yaml", package: "YamlSwift"),
                 .product(name: "Yams", package: "Yams"),
+            ],
+            plugins: [
+                .plugin(name: "EmbedLuaPlugin", package: "LuaSwift")
             ]),
         .testTarget(
             name: "InContextTests",
