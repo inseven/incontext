@@ -28,8 +28,8 @@ public class Builder {
 
     static func context(for site: Site, document: Document, renderTracker: RenderTracker) -> [String: Any] {
 
-        let titlecase = Function { (string: String) -> String in
-            return string.toTitleCase()
+        let distantPast = Function { (timezoneAware: Bool) in
+            return Date.distantPast
         }
 
         // TODO: Can I do this without performing yet another query? Can I pass the DocumentContext back?
@@ -49,6 +49,14 @@ public class Builder {
                 return try img.attr("src")
             }
             return nil
+        }
+
+        let titlecase = Function { (string: String) -> String in
+            return string.toTitleCase()
+        }
+
+        let markdown = Function { (string: String) -> String in
+            return string.html()
         }
 
         // TODO: Inline the config loaded from the settings file
@@ -78,14 +86,13 @@ public class Builder {
             "generate_uuid": Function {
                 return UUID().uuidString
             },
+
+            // Legacy un-scoped functions.
+            "distant_past": distantPast,
             "titlecase": titlecase,
+            "markdown": markdown,
+
             "document": DocumentContext(renderTracker: renderTracker, document: document),
-            "distant_past": Function { (timezoneAware: Bool) in
-                return Date.distantPast
-            },
-            "markdown": Function { (string: String) -> String in
-                return string.html()
-            },
             "iso_8601_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
             "rfc_3339_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
             "date": Function { (string: String) -> Date in
@@ -103,8 +110,10 @@ public class Builder {
                 return data.base64EncodedString()
             },
             "incontext": [
-                "titlecase": titlecase,
+                "distantPast": distantPast,
                 "thumbnail": thumbnail,
+                "titlecase": titlecase,
+                "markdown": markdown,
             ] as [String: Any]
         ]
     }

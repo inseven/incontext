@@ -143,8 +143,12 @@ class VideoImporter: Importer {
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,
                                     category: settings.defaultCategory,
-                                    date: content?.structuredMetadata.date ?? date,
-                                    title: content?.structuredMetadata.title,  // TODO: Title
+                                    date: content?.frontmatter.date ?? date,
+                                    title: content?.frontmatter.title,
+                                    subtitle: content?.frontmatter.subtitle,
+                                    thumbnail: nil, // TODO: Select a sensible thumbnail
+                                    tags: [],
+                                    queries: [:],
                                     metadata: metadata,
                                     contents: content?.content ?? "",
                                     contentModificationDate: file.contentModificationDate,

@@ -22,28 +22,13 @@
 
 import Foundation
 
-// InContext permits additional metadata, but expects some structured keys to be of specific types.
-struct Metadata: Codable {
+extension Decoder {
 
-    let category: String?
-    let template: TemplateIdentifier?
-    let title: String?
-    let subtitle: String?
-    let date: Date?
-    let tags: [String]?
-
-    init(category: String? = nil,
-         template: TemplateIdentifier? = nil,
-         title: String? = nil,
-         subtitle: String? = nil,
-         date: Date? = nil,
-         tags: [String]? = nil) {
-        self.category = category
-        self.template = template
-        self.title = title
-        self.subtitle = subtitle
-        self.date = date
-        self.tags = tags
+    var allKeys: [String] {
+        get throws {
+            let container = try container(keyedBy: UnknownCodingKeys.self)
+            return container.allKeys.map { $0.stringValue }
+        }
     }
 
 }

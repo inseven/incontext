@@ -13,6 +13,7 @@ brew install inseven/incontext/incontext
 ## Documentation
 
 See [https://incontext.app/docs](https://incontext.app/docs).
+- [Frontmatter](frontmatter.md)
 
 ## Frontmatter
 

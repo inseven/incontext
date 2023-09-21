@@ -44,6 +44,10 @@ class Store {
         static let category = Expression<String>("category")
         static let date = Expression<Date?>("date")
         static let title = Expression<String?>("title")
+        static let subtitle = Expression<String?>("subtitle")
+        static let thumbnail = Expression<String?>("thumbnail")
+        static let tags = Expression<String>("tags")
+        static let queries = Expression<String>("queries")
         static let metadata = Expression<String>("metadata")
         static let contents = Expression<String>("contents")
         static let template = Expression<TemplateIdentifier>("template")
@@ -78,6 +82,10 @@ class Store {
                 t.column(Schema.category)
                 t.column(Schema.date)
                 t.column(Schema.title)
+                t.column(Schema.subtitle)
+                t.column(Schema.thumbnail)
+                t.column(Schema.tags)
+                t.column(Schema.queries)
                 t.column(Schema.metadata)
                 t.column(Schema.contents)
                 t.column(Schema.contentModificationDate)
@@ -160,9 +168,21 @@ class Store {
             // Write the document.
             if let document {
 
+                let encoder = JSONEncoder()
+
+                // Serialize the tags.
+                guard let tags = String(data: try encoder.encode(document.tags), encoding: .utf8) else {
+                    throw InContextError.encodingError
+                }
+
+                // Serialize the queries.
+                guard let queries = String(data: try encoder.encode(document.queries), encoding: .utf8) else {
+                    throw InContextError.encodingError
+                }
+
                 // Serialise the metadata.
-                let data = try JSONSerialization.data(withJSONObject: document.metadata)
-                guard let metadata = String(data: data, encoding: .utf8) else {
+                guard let metadata = String(data: try JSONSerialization.data(withJSONObject: document.metadata),
+                                            encoding: .utf8) else {
                     throw InContextError.encodingError
                 }
 
@@ -172,6 +192,10 @@ class Store {
                                                            Schema.category <- document.category,
                                                            Schema.date <- document.date,
                                                            Schema.title <- document.title,
+                                                           Schema.subtitle <- document.subtitle,
+                                                           Schema.thumbnail <- document.thumbnail,
+                                                           Schema.tags <- tags,
+                                                           Schema.queries <- queries,
                                                            Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
                                                            Schema.contentModificationDate <- document.contentModificationDate,
@@ -265,12 +289,25 @@ class Store {
 
         let rowIterator = try connection.prepareRowIterator(query.query())
 
+        let decoder = JSONDecoder()
+
         return try rowIterator.map { row in
 
+            // Deserialize the tags.
+            guard let tagsData = row[Schema.tags].data(using: .utf8) else {
+                throw InContextError.internalInconsistency("Failed to load document tags.")
+            }
+            let tags = try decoder.decode([String].self, from: tagsData)
+
+            // Deserialize the queries.
+            guard let queriesData = row[Schema.queries].data(using: .utf8) else {
+                throw InContextError.internalInconsistency("Failed to load document queries.")
+            }
+            let queries = try decoder.decode([String: QueryDescription].self, from: queriesData)
+
             // Deserialize the metadata.
-            let metadataString = row[Schema.metadata]
-            guard let data = metadataString.data(using: .utf8),
-                  let metadata = try JSONSerialization.jsonObject(with: data) as? [AnyHashable: Any]
+            guard let data = row[Schema.metadata].data(using: .utf8),
+                  let metadata = try JSONSerialization.jsonObject(with: data) as? [String: Any]
             else {
                 throw InContextError.internalInconsistency("Failed to load document metadata.")
             }
@@ -280,6 +317,10 @@ class Store {
                             category: row[Schema.category],
                             date: row[Schema.date],
                             title: row[Schema.title],
+                            subtitle: row[Schema.subtitle],
+                            thumbnail: row[Schema.thumbnail],
+                            tags: tags,
+                            queries: queries,
                             metadata: metadata,
                             contents: row[Schema.contents],
                             contentModificationDate: row[Schema.contentModificationDate],

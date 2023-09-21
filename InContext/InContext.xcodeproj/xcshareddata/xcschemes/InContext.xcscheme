@@ -56,6 +56,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--serialize-import"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "version"
             isEnabled = "NO">
          </CommandLineArgument>
