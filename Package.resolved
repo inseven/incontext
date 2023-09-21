@@ -10,15 +10,6 @@
       }
     },
     {
-      "identity" : "hummingbird",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/hummingbird-project/hummingbird.git",
-      "state" : {
-        "revision" : "6ba14fc15ab0da165049f0baceb8d47f3714eb41",
-        "version" : "1.7.0"
-      }
-    },
-    {
       "identity" : "hummingbird-core",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hummingbird-project/hummingbird-core.git",
