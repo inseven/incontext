@@ -28,6 +28,10 @@ public class Builder {
 
     static func context(for site: Site, document: Document, renderTracker: RenderTracker) -> [String: Any] {
 
+        let generateUUID = Function {
+            return UUID().uuidString
+        }
+
         let titlecase = Function { (string: String) -> String in
             return string.toTitleCase()
         }
@@ -51,9 +55,7 @@ public class Builder {
             return nil
         }
 
-        // TODO: Inline the config loaded from the settings file
         // TODO: Consider separating the store and the site metadata.
-        // TODO: These top-level methods should probably be namespaced.
         return [
             "site": [
                 "title": site.title,
@@ -64,9 +66,6 @@ public class Builder {
                 "documents": Function { () throws -> [DocumentContext] in
                     return try renderTracker.documentContexts(query: QueryDescription())
                 },
-                "posts": Function { () throws -> [DocumentContext] in
-                    return try renderTracker.documentContexts(query: QueryDescription())
-                },
                 "post": Function { (url: String) throws -> DocumentContext? in
                     return try renderTracker.documentContexts(query: QueryDescription(url: url)).first
                 },
@@ -75,14 +74,7 @@ public class Builder {
                     return try renderTracker.documentContexts(query: query)
                 }
             ] as [String: Any],
-            "generate_uuid": Function {
-                return UUID().uuidString
-            },
-            "titlecase": titlecase,
             "document": DocumentContext(renderTracker: renderTracker, document: document),
-            "distant_past": Function { (timezoneAware: Bool) in
-                return Date.distantPast
-            },
             "markdown": Function { (string: String) -> String in
                 return string.html()
             },
@@ -103,6 +95,7 @@ public class Builder {
                 return data.base64EncodedString()
             },
             "incontext": [
+                "generateUUID": generateUUID,
                 "titlecase": titlecase,
                 "thumbnail": thumbnail,
             ] as [String: Any]
