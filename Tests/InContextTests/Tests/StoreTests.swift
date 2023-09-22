@@ -56,4 +56,23 @@ class StoreTests: XCTestCase {
         XCTAssertEqual(documents.count, 1)
     }
 
+    func testDepth() async throws {
+        let store = try store()
+        try await store.save(Document(url: "/", parent: "/"))
+        try await store.save(Document(url: "/projects/", parent: "/"))
+        try await store.save(Document(url: "/software/", parent: "/"))
+        try await store.save(Document(url: "/projects/anytime-nixie", parent: "/projects/"))
+
+        XCTAssertEqual(try store.documents().count, 4)
+
+        XCTAssertEqual(try store.documents(query: QueryDescription(maximumDepth: 0)).count, 1)
+        XCTAssertEqual(try store.documents(query: QueryDescription(maximumDepth: 1)).count, 3)
+
+        XCTAssertEqual(try store.documents(query: QueryDescription(minimumDepth: 0)).count, 4)
+        XCTAssertEqual(try store.documents(query: QueryDescription(minimumDepth: 1)).count, 3)
+
+        XCTAssertEqual(try store.documents(query: QueryDescription(minimumDepth: 0, maximumDepth: 1)).count, 3)
+        XCTAssertEqual(try store.documents(query: QueryDescription(minimumDepth: 1, maximumDepth: 1)).count, 2)
+    }
+
 }

@@ -49,6 +49,8 @@ struct QueryDescription: Codable, Hashable {
     let tag: String?
     let sort: Sort?
     let limit: Int?
+    let minimumDepth: Int?
+    let maximumDepth: Int?
 
     init(includeCategories: [String]? = nil,
          url: String? = nil,
@@ -56,7 +58,9 @@ struct QueryDescription: Codable, Hashable {
          relativeSourcePath: String? = nil,
          tag: String? = nil,
          sort: Sort? = nil,
-         limit: Int? = nil) {
+         limit: Int? = nil,
+         minimumDepth: Int? = nil,
+         maximumDepth: Int? = nil) {
         self.includeCategories = includeCategories
         self.url = url
         self.parent = parent
@@ -64,6 +68,8 @@ struct QueryDescription: Codable, Hashable {
         self.tag = tag
         self.sort = sort
         self.limit = limit
+        self.minimumDepth = minimumDepth
+        self.maximumDepth = maximumDepth
     }
 
     private func expression() -> Expression<Bool> {
@@ -93,6 +99,14 @@ struct QueryDescription: Codable, Hashable {
         if let tag {
             let expression: Expression<Bool> = Expression("EXISTS (SELECT * FROM json_each(json_extract(metadata, '$.tags')) WHERE json_each.value = ?)", [tag])
             expressions.append(expression)
+        }
+
+        if let minimumDepth {
+            expressions.append(Store.Schema.depth >= minimumDepth)
+        }
+
+        if let maximumDepth {
+            expressions.append(Store.Schema.depth <= maximumDepth)
         }
 
         return expressions.reduce(Expression<Bool>(value: true)) { $0 && $1 }
@@ -132,6 +146,8 @@ struct QueryDescription: Codable, Hashable {
         self.tag = try structuredQuery.optionalValue(for: "tag")
         self.sort = try structuredQuery.optionalRawRepresentable(for: "sort")
         self.limit = try structuredQuery.optionalValue(for: "limit")
+        self.minimumDepth = try structuredQuery.optionalValue(for: "minimumDepth")
+        self.maximumDepth = try structuredQuery.optionalValue(for: "maximumDepth")
     }
 
 }
