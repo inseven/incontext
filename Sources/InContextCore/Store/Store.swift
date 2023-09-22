@@ -49,7 +49,7 @@ class Store {
         static let template = Expression<TemplateIdentifier>("template")
         static let inlineTemplate = Expression<TemplateIdentifier?>("inline_template")
         static let format = Expression<Document.Format>("format")
-        static let pathDepth = Expression<Int>("path_depth")
+        static let depth = Expression<Int>("depth")
 
         // status
         static let relativePath = Expression<String>("relative_path")  // TODO: This should be relative source path
@@ -86,7 +86,7 @@ class Store {
                 t.column(Schema.inlineTemplate)
                 t.column(Schema.relativeSourcePath)
                 t.column(Schema.format)
-                t.column(Schema.pathDepth)
+                t.column(Schema.depth)
                 t.column(Schema.fingerprint)
             })
             print("create the status table...")
@@ -181,7 +181,7 @@ class Store {
                                                            Schema.inlineTemplate <- document.inlineTemplate,
                                                            Schema.relativeSourcePath <- document.relativeSourcePath,
                                                            Schema.format <- document.format,
-                                                           Schema.pathDepth <- document.pathDepth,
+                                                           Schema.depth <- document.depth,
                                                            Schema.fingerprint <- document.fingerprint))
             }
             for asset in assets {
@@ -290,7 +290,7 @@ class Store {
                             inlineTemplate: row[Schema.inlineTemplate],
                             relativeSourcePath: row[Schema.relativeSourcePath],
                             format: row[Schema.format],
-                            pathDepth: row[Schema.pathDepth],
+                            depth: row[Schema.depth],
                             fingerprint: row[Schema.fingerprint])
         }
     }
