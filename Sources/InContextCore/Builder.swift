@@ -307,7 +307,7 @@ public class Builder {
             })
 
         session.debug("Getting documents...")
-        let documents = try await store.documents()
+        let documents = try store.documents()
 
         session.debug("Checking for changes...")
         let updates = try await withThrowingTaskGroup(of: (Document?).self) { group in
