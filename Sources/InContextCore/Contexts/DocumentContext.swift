@@ -44,6 +44,10 @@ struct DocumentContext: EvaluationContext {
         return document.title
     }
 
+    var depth: Int {
+        return document.depth
+    }
+
     var format: Document.Format {
         return document.format
     }
@@ -144,6 +148,8 @@ struct DocumentContext: EvaluationContext {
             return url
         case "title":
             return title
+        case "depth":
+            return depth
         case "format":
             return format.rawValue
         case "content":
