@@ -10,6 +10,11 @@ category: page
 
 Most existing static site generators do a great job with text content, but treat media as an afterthought. InContext handles Markdown just as well as generators like Jekyll, and adds native support for photos and video.
 
+# Features
+
+- Lua-based templates
+- Native multimedia support
+
 # Installation
 
 ```bash

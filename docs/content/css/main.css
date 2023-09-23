@@ -1,3 +1,11 @@
+:root {
+    --box-border-radius: 0.4em;
+    --text-border-radius: 0.2em;
+    --box-padding: 1em;
+    --light-background: #fcfcfc;
+    --dark-background: #f0f0f0;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -6,12 +14,12 @@ body {
     margin: auto;
 }
 
-p {
-    line-height: 1.5em;
-}
-
 a {
     color: black;
+}
+
+p, pre, ul, aside {
+    line-height: 1.5em;
 }
 
 .content {
@@ -57,8 +65,22 @@ nav li:last-child::after {
 }
 
 .hljs {
-    padding: 2em;
-    border-radius: 0.4em;
+    padding: var(--box-padding);
+    border-radius: var(--box-border-radius);
+}
+
+aside {
+    background-color: lightyellow;
+    padding: var(--box-padding);
+    border-radius: var(--box-border-radius);
+}
+
+aside:before {
+    content: "💡"
+}
+
+aside code {
+    background-color: palegoldenrod;
 }
 
 footer {
@@ -66,6 +88,62 @@ footer {
 }
 
 code {
-    background-color: #f0f0f0;
-    padding: 0.2em;
+    background-color: var(--dark-background);
+    padding: 0.4em;
+    border-radius: var(--text-border-radius);
+}
+
+table {
+    background-color: var(--light-background);
+    border-spacing: 0;
+    width: 100%;
+    border-radius: var(--box-border-radius);
+}
+
+tr:nth-child(odd) td code {
+    background-color: var(--light-background);
+}
+
+tr:nth-child(even) td {
+    background-color: var(--dark-background);
+}
+
+tr:first-child td:first-child {
+    border-top-left-radius: var(--box-border-radius);
+}
+
+tr:first-child td:last-child {
+    border-top-right-radius: var(--box-border-radius);
+}
+
+tr:last-child td:last-child {
+    border-bottom-right-radius: var(--box-border-radius);
+}
+
+tr:last-child td:first-child {
+    border-bottom-left-radius: var(--box-border-radius);
+}
+
+td {
+    padding: 0.4em;
+}
+
+h1 {
+
+}
+
+h2 {
+    position: relative;
+}
+
+h2::before {
+    position: absolute;
+    left: -1em;
+    content: ">";
+    text-align: right;
+}
+
+h3 {
+    border-bottom: 1px solid pink;
+    padding-bottom: 0.4em;
 }
