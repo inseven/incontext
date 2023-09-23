@@ -39,32 +39,6 @@ fileprivate struct LuaStateArgumentProvider: ArgumentProvider {
 
 }
 
-fileprivate func callFunctionBlock(_ L: LuaState!) -> CInt {
-    return L.convertThrowToError {
-        guard let function: Callable = L.touserdata(1) else {
-            throw InContextError.internalInconsistency("Object does not support Callable")
-        }
-        let result = try function.call(with: LuaStateArgumentProvider(L: L))
-        L.push(any: result)
-        return 1
-    }
-}
-
-fileprivate func lookupViaEvaluationContext(_ L: LuaState!) -> CInt {
-    return L.convertThrowToError {
-        guard let obj: EvaluationContext = L.touserdata(1) else {
-            throw InContextError.internalInconsistency("Object does not support EvaluationContext")
-        }
-        guard let memberName = L.tostring(2) else {
-            // Trying to lookup a non-string member, not happening
-            return 0
-        }
-        let result = try obj.lookup(memberName)
-        L.push(any: result)
-        return 1
-    }
-}
-
 fileprivate func readFile(_ L: LuaState!) -> CInt {
     guard let templateCache: TemplateCache = L.tovalue(lua_upvalueindex(1)),
           let name = L.tostring(1),
@@ -90,16 +64,45 @@ class TiltRenderer {
     let templateCache: TemplateCache
 
     let env: TiltEnvironment
+    let incontextModuleEnv: LuaValue
+    let incontextModuleMt: LuaValue
 
     init(templateCache: TemplateCache) {
         self.templateCache = templateCache
         env = TiltEnvironment()
         let L = env.L
 
+        incontextModuleEnv = .newtable(L)
+        incontextModuleMt = .newtable(L)
+        incontextModuleMt["__index"] = L.globals // for now
+        incontextModuleEnv.metatable = incontextModuleMt
+        try! L.load(data: lua_sources["incontext"]!, name: "@incontext.lua", mode: .binary) // 1: moduleFn
+        L.push(incontextModuleEnv)
+        lua_setupvalue(L, 1, 1) // moduleFn->_ENV = incontextModuleEnv
+        try! L.pcall(nargs: 0, nret: 0) // moduleFn()
+        
         L.registerMetatable(for: TemplateCache.self, functions: [:])
         L.registerDefaultMetatable(functions: [
-            "__call": callFunctionBlock,
-            "__index": lookupViaEvaluationContext
+            "__call": .closure { L in
+                guard let function: Callable = L.touserdata(1) else {
+                    throw InContextError.internalInconsistency("Object does not support Callable")
+                }
+                let result = try function.call(with: LuaStateArgumentProvider(L: L))
+                L.push(any: result)
+                return 1
+            },
+            "__index": .closure { L in
+                guard let obj: EvaluationContext = L.touserdata(1) else {
+                    throw InContextError.internalInconsistency("Object does not support EvaluationContext")
+                }
+                guard let memberName = L.tostring(2) else {
+                    // Trying to lookup a non-string member, not happening
+                    return 0
+                }
+                let result = try obj.lookup(memberName)
+                L.push(any: result)
+                return 1
+            },
         ])
 
         L.pushGlobals()
@@ -114,17 +117,26 @@ class TiltRenderer {
         L.pop() // globals
     }
 
-    func setContext(_ context: [String: Any]) throws {
-        env.L.getglobal("setContext")
-        try env.L.pcall(context)
-    }
-
     func render(name: String, context: [String : Any]) throws -> RenderResult {
-        try setContext(context)
+        let renderEnv = env.makeSandbox()
+        // Add everything in context to renderEnv
+        for (k, v) in context {
+            try! renderEnv.set(k, v)
+        }
+
+        // Add everything from incontext.lua to renderEnv["incontext"]
+        let incontextTable = renderEnv["incontext"]
+        for (k, v) in try! incontextModuleEnv.pairs() {
+            incontextTable[k] = v
+        }
+
+        // Finally, give all the functions from incontext.lua access to the current sandbox env
+        incontextModuleMt["__index"] = renderEnv
+        
         guard let template = try templateCache.details(for: TemplateIdentifier(name)) else {
             throw InContextError.unknownTemplate(name)
         }
-        let result = try env.render(filename: name, contents: template.contents)
+        let result = try env.render(filename: name, contents: template.contents, env: renderEnv)
         return RenderResult(content: result.text, templatesUsed: result.includes)
     }
 
