@@ -39,32 +39,6 @@ fileprivate struct LuaStateArgumentProvider: ArgumentProvider {
 
 }
 
-fileprivate func callFunctionBlock(_ L: LuaState!) -> CInt {
-    return L.convertThrowToError {
-        guard let function: Callable = L.touserdata(1) else {
-            throw InContextError.internalInconsistency("Object does not support Callable")
-        }
-        let result = try function.call(with: LuaStateArgumentProvider(L: L))
-        L.push(any: result)
-        return 1
-    }
-}
-
-fileprivate func lookupViaEvaluationContext(_ L: LuaState!) -> CInt {
-    return L.convertThrowToError {
-        guard let obj: EvaluationContext = L.touserdata(1) else {
-            throw InContextError.internalInconsistency("Object does not support EvaluationContext")
-        }
-        guard let memberName = L.tostring(2) else {
-            // Trying to lookup a non-string member, not happening
-            return 0
-        }
-        let result = try obj.lookup(memberName)
-        L.push(any: result)
-        return 1
-    }
-}
-
 fileprivate func readFile(_ L: LuaState!) -> CInt {
     guard let templateCache: TemplateCache = L.tovalue(lua_upvalueindex(1)),
           let name = L.tostring(1),
@@ -98,8 +72,26 @@ class TiltRenderer {
 
         L.registerMetatable(for: TemplateCache.self, functions: [:])
         L.registerDefaultMetatable(functions: [
-            "__call": callFunctionBlock,
-            "__index": lookupViaEvaluationContext
+            "__call": .closure { L in
+                guard let function: Callable = L.touserdata(1) else {
+                    throw InContextError.internalInconsistency("Object does not support Callable")
+                }
+                let result = try function.call(with: LuaStateArgumentProvider(L: L))
+                L.push(any: result)
+                return 1
+            },
+            "__index": .closure { L in
+                guard let obj: EvaluationContext = L.touserdata(1) else {
+                    throw InContextError.internalInconsistency("Object does not support EvaluationContext")
+                }
+                guard let memberName = L.tostring(2) else {
+                    // Trying to lookup a non-string member, not happening
+                    return 0
+                }
+                let result = try obj.lookup(memberName)
+                L.push(any: result)
+                return 1
+            },
         ])
 
         L.pushGlobals()
