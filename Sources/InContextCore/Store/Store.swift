@@ -356,12 +356,6 @@ class Store {
         }
     }
 
-//    func documents() async throws -> [Document] {
-//        return try await run {
-//            return try self.syncQueue_documents(query: QueryDescription())
-//        }
-//    }
-
     func save(renderStatus: RenderStatus, for url: String) async throws {
         try await run {
             try self.syncQueue_save(renderStatus: renderStatus, for: url)
