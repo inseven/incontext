@@ -8,6 +8,30 @@
 
 {%
 
+    function ancestors(document)
+        local ancestor = document
+        local ancestors = {}
+        while true do
+            ancestor = ancestor.closestAncestor()
+            if ancestor then
+                table.insert(ancestors, ancestor)
+            else
+                return ancestors
+            end
+        end
+    end
+
+    local function reversedipairsiter(t, i)
+        i = i - 1
+        if i ~= 0 then
+            return i, t[i]
+        end
+    end
+
+    function reversedipairs(t)
+        return reversedipairsiter, t, #t + 1
+    end
+
     function concat(values, separator)
         write(table.concat(values, separator))
     end

@@ -96,9 +96,66 @@ Returns all the documents in the site.
 
 # Document
 
-## `document.nearestAnscestor()`
+## `document.closestAncestor()`
+
+### Details
 
 Returns the first document found by walking up the document path; nil if no ancestor can be found.
+
+### Examples
+
+#### Link to Parent
+
+Generate a convenience link for returning to a document's parent:
+
+```html
+[[
+{% local ancestor = document.closestAncestor() %}
+{% if ancestor then %}
+  <a href="{{ ancestor.url }}">Return to {{ ancestor.title }}</a>
+{% end %}]]
+```
+
+Renders:
+
+{% local ancestor = document.closestAncestor() %}
+{% if ancestor then %}
+  <a href="{{ ancestor.url }}">Return to {{ ancestor.title }}</a>
+{% end %}
+
+#### Breadcrumbs
+
+Generate full breadcrumbs for the current document by adding a pure-Lua convenience function:
+
+```lua
+function ancestors(document)
+  local ancestor = document
+  local ancestors = {}
+  while true do
+    ancestor = ancestor.closestAncestor()
+    if ancestor then
+      table.insert(ancestors, ancestor)
+    else
+      return ancestors
+    end
+  end
+end
+```
+
+Calling it as follows:
+
+```html
+{% for _, ancestor in reversedipairs(ancestors(document)) do %}
+  &gt; <a href="{{ ancestor.url }}">{{ ancestor.title }}</a>
+{% end %}]]
+```
+
+Renders:
+
+{% for _, ancestor in reversedipairs(ancestors(document)) do %}
+  &gt; <a href="{{ ancestor.url }}">{{ ancestor.title }}</a>
+{% end %}
+
 
 ## `document.children(options)`
 
@@ -118,7 +175,9 @@ Returns the first document found by walking up the document path; nil if no ance
 
 Returns all children, sorted by date, "ascending" or "descending".
 
-### Example
+### Examples
+
+List a documents immediate children:
 
 ```html
 [[
@@ -158,10 +217,11 @@ Specifying a maximum depth of 1 will return the document's immediate children. O
   Note <code>document.children(options)</code> exists as a convenience for listing the documents immediate children and may be cleaner to use in templates if that's all you require.
 </aside>
 
-### Example
+### Examples
+
+#### Table of Contents
 
 Generate a table of contents including all the document's descendants:
-
 
 ```html
 [[
@@ -171,6 +231,8 @@ Generate a table of contents including all the document's descendants:
   {% end %}
 </ul>]]
 ```
+
+#### Children
 
 Generate a list of the document's immediate children:
 
