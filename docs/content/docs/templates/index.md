@@ -4,7 +4,7 @@ Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater)
 
 Tilt doesn't explicitly support inheritance, but it's possible to achieve something very similar using partial code blocks.
 
-1. The parent template calls a function--`content` in the example below--to render customizable elements:
+1. The parent template calls a function–`content` in the example below–to render customizable elements:
 
    ```html
    [[
@@ -150,15 +150,15 @@ Returns all children, sorted by date, "ascending" or "descending".
   </tr>
 </table>
 
-#### Details
+### Details
 
 Returns all descendants of a document, with a primary sort on the `date` property, and secondary sort the `title` property of the returned documents.
 
 Specifying a maximum depth of 1 will return the document's immediate children. Omitting the maximum depth will return all descendants.
 
-💡 Note: `document.children(options)` exists as a convenience for listing the documents immediate children and may be cleaner to use in templates if that's all you require.
+💡 Note `document.children(options)` exists as a convenience for listing the documents immediate children and may be cleaner to use in templates if that's all you require.
 
-#### Example
+### Example
 
 Generate a table of contents including all the document's descendants:
 

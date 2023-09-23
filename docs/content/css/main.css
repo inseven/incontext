@@ -2,6 +2,12 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Bitter', serif;
+    max-width: 1000px;
+    margin: auto;
+}
+
+p {
+    line-height: 1.5em;
 }
 
 a {
@@ -52,6 +58,7 @@ nav li:last-child::after {
 
 .hljs {
     padding: 2em;
+    border-radius: 0.4em;
 }
 
 footer {
