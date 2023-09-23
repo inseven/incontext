@@ -187,7 +187,7 @@ struct DocumentContext: EvaluationContext {
         }
         case "descendants": return Candidates {
             Function { () throws -> [DocumentContext] in
-                return try children()
+                return try descendants()
             }
             Function { (definition: [AnyHashable: Any]) throws -> [DocumentContext] in
                 let definition: [String: Any] = try cast(definition)
