@@ -109,8 +109,7 @@ Returns the first document found by walking up the document path; nil if no ance
     <td><code>sort</code></td>
     <td>"ascending" or "descending"</td>
     <td>
-      Document sort order.<br />
-      Defaults to "ascending".
+      Document sort order. Defaults to "ascending".
     </td>
   </tr>
 </table>
@@ -144,8 +143,7 @@ Returns all children, sorted by date, "ascending" or "descending".
 		<td><code>sort</code></td>
     <td>"ascending" or "descending"</td>
     <td>
-      Document sort order.<br />
-      Defaults to "ascending".
+      Document sort order. Defaults to "ascending".
     </td>
   </tr>
 </table>
@@ -156,7 +154,9 @@ Returns all descendants of a document, with a primary sort on the `date` propert
 
 Specifying a maximum depth of 1 will return the document's immediate children. Omitting the maximum depth will return all descendants.
 
-💡 Note `document.children(options)` exists as a convenience for listing the documents immediate children and may be cleaner to use in templates if that's all you require.
+<aside>
+  Note <code>document.children(options)</code> exists as a convenience for listing the documents immediate children and may be cleaner to use in templates if that's all you require.
+</aside>
 
 ### Example
 
