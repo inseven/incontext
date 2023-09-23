@@ -40,6 +40,7 @@ class Store {
         static let fingerprint = Expression<String>("fingerprint")
 
         // documents
+        // TODO: Parent should be nullable.
         static let parent = Expression<String>("parent")
         static let category = Expression<String>("category")
         static let date = Expression<Date?>("date")
@@ -49,6 +50,7 @@ class Store {
         static let template = Expression<TemplateIdentifier>("template")
         static let inlineTemplate = Expression<TemplateIdentifier?>("inline_template")
         static let format = Expression<Document.Format>("format")
+        static let depth = Expression<Int>("depth")
 
         // status
         static let relativePath = Expression<String>("relative_path")  // TODO: This should be relative source path
@@ -85,6 +87,7 @@ class Store {
                 t.column(Schema.inlineTemplate)
                 t.column(Schema.relativeSourcePath)
                 t.column(Schema.format)
+                t.column(Schema.depth)
                 t.column(Schema.fingerprint)
             })
             print("create the status table...")
@@ -179,6 +182,7 @@ class Store {
                                                            Schema.inlineTemplate <- document.inlineTemplate,
                                                            Schema.relativeSourcePath <- document.relativeSourcePath,
                                                            Schema.format <- document.format,
+                                                           Schema.depth <- document.depth,
                                                            Schema.fingerprint <- document.fingerprint))
             }
             for asset in assets {
@@ -287,6 +291,7 @@ class Store {
                             inlineTemplate: row[Schema.inlineTemplate],
                             relativeSourcePath: row[Schema.relativeSourcePath],
                             format: row[Schema.format],
+                            depth: row[Schema.depth],
                             fingerprint: row[Schema.fingerprint])
         }
     }
@@ -351,23 +356,11 @@ class Store {
         }
     }
 
-    func documents() async throws -> [Document] {
-        return try await run {
-            return try self.syncQueue_documents(query: QueryDescription())
-        }
-    }
-
     func save(renderStatus: RenderStatus, for url: String) async throws {
         try await run {
             try self.syncQueue_save(renderStatus: renderStatus, for: url)
         }
     }
-
-//    func renderStatus(for url: String) async throws -> RenderStatus? {
-//        return try await run {
-//            return try self.syncQueue_renderStatus(for: url)
-//        }
-//    }
 
     func renderStatuses() async throws -> [(String, RenderStatus)] {
         return try await run {
@@ -387,7 +380,7 @@ class Store {
         }
     }
 
-    func documents(query: QueryDescription) throws -> [Document] {
+    func documents(query: QueryDescription = QueryDescription()) throws -> [Document] {
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
         return try syncQueue.sync {
             if let documents = documentsCache[query] {

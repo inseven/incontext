@@ -44,6 +44,10 @@ struct DocumentContext: EvaluationContext {
         return document.title
     }
 
+    var depth: Int {
+        return document.depth
+    }
+
     var format: Document.Format {
         return document.format
     }
@@ -114,8 +118,13 @@ struct DocumentContext: EvaluationContext {
     }
 
     func children(sort: QueryDescription.Sort? = nil) throws -> [DocumentContext] {
-        let sort = sort ?? QueryDescription.defaultSort
-        return try renderTracker.documentContexts(query: QueryDescription(parent: document.url, sort: sort))
+        let query = QueryDescription(descendantsOf: document.url, maximumDepth: 1, sort: sort)
+        return try renderTracker.documentContexts(query: query)
+    }
+
+    func descendants(maximumDepth: Int? = nil, sort: QueryDescription.Sort? = nil) throws -> [DocumentContext] {
+        let query = QueryDescription(descendantsOf: document.url, maximumDepth: maximumDepth, sort: sort)
+        return try renderTracker.documentContexts(query: query)
     }
 
     func nextSibling(sort: QueryDescription.Sort) throws -> DocumentContext? {
@@ -144,6 +153,8 @@ struct DocumentContext: EvaluationContext {
             return url
         case "title":
             return title
+        case "depth":
+            return depth
         case "format":
             return format.rawValue
         case "content":
@@ -172,6 +183,17 @@ struct DocumentContext: EvaluationContext {
                 let definition: [String: Any] = try cast(definition)
                 let sort: QueryDescription.Sort? = try definition.optionalRawRepresentable(for: "sort")
                 return try children(sort: sort)
+            }
+        }
+        case "descendants": return Candidates {
+            Function { () throws -> [DocumentContext] in
+                return try descendants()
+            }
+            Function { (definition: [AnyHashable: Any]) throws -> [DocumentContext] in
+                let definition: [String: Any] = try cast(definition)
+                let sort: QueryDescription.Sort? = try definition.optionalRawRepresentable(for: "sort")
+                let maximumDepth: Int? = try definition.optionalValue(for: "maximumDepth")
+                return try descendants(maximumDepth: maximumDepth, sort: sort)
             }
         }
         case "parent": return Function { () -> DocumentContext? in

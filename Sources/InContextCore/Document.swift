@@ -42,6 +42,7 @@ struct Document {
     let inlineTemplate: TemplateIdentifier?
     let relativeSourcePath: String
     let format: Format
+    let depth: Int
 
     let fingerprint: String
 
@@ -57,6 +58,7 @@ struct Document {
          inlineTemplate: TemplateIdentifier?,
          relativeSourcePath: String,
          format: Format,
+         depth: Int,
          fingerprint: String) {
         self.url = url
         self.parent = parent
@@ -70,6 +72,7 @@ struct Document {
         self.inlineTemplate = inlineTemplate
         self.relativeSourcePath = relativeSourcePath
         self.format = format
+        self.depth = depth
         self.fingerprint = fingerprint
     }
 
@@ -97,23 +100,21 @@ struct Document {
         self.inlineTemplate = inlineTemplate
         self.relativeSourcePath = relativeSourcePath
         self.format = format
+        self.depth = url.pathDepth
 
         var fingerprint = Fingerprint()
         try fingerprint.update(url)
+        try fingerprint.update(parent)
         try fingerprint.update(category)
-        if let date {
-            try fingerprint.update(date)
-        }
-        if let title {
-            try fingerprint.update(title)
-        }
+        try fingerprint.update(date ?? Date.distantPast)
+        try fingerprint.update(title ?? "-")
         try fingerprint.update(metadata)
         try fingerprint.update(contents)
         try fingerprint.update(contentModificationDate)
         try fingerprint.update(template)
-        if let inlineTemplate {
-            try fingerprint.update(inlineTemplate)
-        }
+        try fingerprint.update(inlineTemplate ?? "-")
+        try fingerprint.update(relativeSourcePath)
+        try fingerprint.update(format.rawValue)
         self.fingerprint = fingerprint.finalize()
     }
 

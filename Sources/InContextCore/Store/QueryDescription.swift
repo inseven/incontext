@@ -49,12 +49,16 @@ struct QueryDescription: Codable, Hashable {
     let tag: String?
     let sort: Sort?
     let limit: Int?
+    let minimumDepth: Int?
+    let maximumDepth: Int?
 
     init(includeCategories: [String]? = nil,
          url: String? = nil,
          parent: String? = nil,
          relativeSourcePath: String? = nil,
          tag: String? = nil,
+         minimumDepth: Int? = nil,
+         maximumDepth: Int? = nil,
          sort: Sort? = nil,
          limit: Int? = nil) {
         self.includeCategories = includeCategories
@@ -62,8 +66,26 @@ struct QueryDescription: Codable, Hashable {
         self.parent = parent
         self.relativeSourcePath = relativeSourcePath
         self.tag = tag
+        self.minimumDepth = minimumDepth
+        self.maximumDepth = maximumDepth
         self.sort = sort
         self.limit = limit
+    }
+
+    init(descendantsOf parent: String,
+         maximumDepth: Int?,
+         sort: QueryDescription.Sort? = nil) {
+
+        let sort = sort ?? QueryDescription.defaultSort
+
+        let absoluteMaximumDepth: Int?
+        if let maximumDepth {
+            absoluteMaximumDepth = parent.pathDepth + maximumDepth
+        } else {
+            absoluteMaximumDepth = nil
+        }
+
+        self.init(parent: parent, maximumDepth: absoluteMaximumDepth, sort: sort)
     }
 
     private func expression() -> Expression<Bool> {
@@ -83,7 +105,14 @@ struct QueryDescription: Codable, Hashable {
         }
 
         if let parent {
-            expressions.append(Store.Schema.parent == parent)
+            // If a maximum depth has been defined that is exactly one greater than the parent depth, we can perform an
+            // optimised query which exactly matches the parent URL. In the future, we can build a lookup tree structure
+            // to improve performance in the generic case should it prove necessary.
+            if let maximumDepth, maximumDepth == parent.pathDepth + 1 {
+                expressions.append(Store.Schema.parent == parent)
+            } else {
+                expressions.append(Store.Schema.parent.like("\(parent)%"))
+            }
         }
 
         if let relativeSourcePath {
@@ -93,6 +122,14 @@ struct QueryDescription: Codable, Hashable {
         if let tag {
             let expression: Expression<Bool> = Expression("EXISTS (SELECT * FROM json_each(json_extract(metadata, '$.tags')) WHERE json_each.value = ?)", [tag])
             expressions.append(expression)
+        }
+
+        if let minimumDepth {
+            expressions.append(Store.Schema.depth >= minimumDepth)
+        }
+
+        if let maximumDepth {
+            expressions.append(Store.Schema.depth <= maximumDepth)
         }
 
         return expressions.reduce(Expression<Bool>(value: true)) { $0 && $1 }
@@ -132,6 +169,8 @@ struct QueryDescription: Codable, Hashable {
         self.tag = try structuredQuery.optionalValue(for: "tag")
         self.sort = try structuredQuery.optionalRawRepresentable(for: "sort")
         self.limit = try structuredQuery.optionalValue(for: "limit")
+        self.minimumDepth = try structuredQuery.optionalValue(for: "minimumDepth")
+        self.maximumDepth = try structuredQuery.optionalValue(for: "maximumDepth")
     }
 
 }

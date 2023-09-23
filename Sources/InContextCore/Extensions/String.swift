@@ -59,6 +59,14 @@ extension String {
         return (self as NSString).deletingLastPathComponent
     }
 
+    private static let rootURL = URL(filePath: "/")
+
+    /// The file-system path depth as given by the components in the path.
+    var pathDepth: Int {
+        let url = URL(filePath: self, relativeTo: Self.rootURL)
+        return url.pathComponents.count - 1
+    }
+
 }
 
 extension String: Fingerprintable {

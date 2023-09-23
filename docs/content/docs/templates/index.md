@@ -1,56 +1,10 @@
 Templates are written in [Tilt](https://github.com/tomsci/tomscis-lua-templater). Tilt is, itself, written in Lua and the templating language and leans heavily on Lua and Lua syntax. Within reason, if you can do it in Lua, you can do it in Tilt. This makes the templates incredibly powerful and helps avoid the bloat that comes from trying to do more programmatic things with templating languages like [Jinja](https://jinja.palletsprojects.com/en/3.1.x/), while also keeping things pretty simple and readable.
 
-# Examples
-
-### Single Page
-
-The simplest template renders the HTML contents of a single document, processing any inline Tilt in the document's contents.
-
-``` html
-[[
-<html>
-  <head>
-    <title>{{ site.title }}</title>
-  </head>
-  <body>
-    <h1>{{ incontext.titlecase(document.title) }}</h1>
-    {{ incontext.renderDocumentHTML(document) }}
-    <p>Published {{ document.date.format("MMMM d, yyyy") }}</p>
-  </body>
-</html>]]
-```
-
-### Index Pages
-
-It's very common to want to list all documents within a specific category, with a specific tag, or within a specific tree structure. For example, the following template uses Tilt's Lua code-blocks to iterate over the current document's immediate children and output an unordered list:
-
-```html
-[[
-<html>
-  <head>
-    <title>{{ site.title }} &mdash; {{ incontext.titlecase(document.title) }}</title>
-  </head>
-  <body>
-    <h1>{{ incontext.titlecase(document.title) }}</h1>
-    {{ incontext.renderDocumentHTML(document) }}
-    <ul>
-      {% for _, child in ipairs(document.children) do %}
-        <li><a href="{{ document.url }}">{{ incontext.titlecase(child.title) }}</a></li>
-      {% end %}
-    </ul>
-  </body>
-</html>]]
-```
-
-Note that this template still includes the document's HTML–this can be helpful in creating reusable listings pages which can be easily annotated in their source Markdown.
-
----
-
-## Inheritance
+# Inheritance
 
 Tilt doesn't explicitly support inheritance, but it's possible to achieve something very similar using partial code blocks.
 
-1. The parent template calls a function--`content` in the example below--to render customizable elements:
+1. The parent template calls a function–`content` in the example below–to render customizable elements:
 
    ```html
    [[
@@ -82,9 +36,9 @@ Tilt doesn't explicitly support inheritance, but it's possible to achieve someth
    {% include "default.html" %}]]
    ```
 
-## Global Variables
+# Global Variables
 
-### `document`
+## `document`
 
 Document being rendered.
 
@@ -97,17 +51,17 @@ Document being rendered.
 {% end %}]]
 ```
 
-### `site`
+## `site`
 
 Top-level site object containing site-wide properties and store accessors.
 
-## Utilities
+# Utilities
 
-#### `incontext.generateUUID()`
+## `incontext.generateUUID()`
 
 Returns a new [RFC 4122 version 4  UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random)) string.
 
-#### `incontext.titlecase(string)`
+## `incontext.titlecase(string)`
 
 Returns a titlecased version of the input string.
 
@@ -120,41 +74,111 @@ Titles detected from the filename are automatically transformed using titlecase 
 {% end %}]]
 ```
 
-#### `incontext.thumbnail(url)`
+## `incontext.thumbnail(url)`
 
-## Site
+# Site
 
-### `site.title`
+## `site.title`
 
 String containing the site title, as defined in 'site.yaml'.
 
-### `site.url`
+## `site.url`
 
 String containing the site URL, as defined in 'site.yaml'.
 
-### `site.metadata`
+## `site.metadata`
 
 Table containing the site metadata, as defined in 'site.yaml'.
 
-### `site.documents()`
+## `site.documents()`
 
 Returns all the documents in the site.
 
-## Document
+# Document
 
-### `document.nearestAnscestor()`
+## `document.nearestAnscestor()`
 
 Returns the first document found by walking up the document path; nil if no ancestor can be found.
 
-### `document.children(sort: String = "ascending")`
+## `document.children(options)`
 
-Returns all immediate children, sorted by date, "ascending" or "descending".
+### Options
+
+<table>
+  <tr>
+    <td><code>sort</code></td>
+    <td>"ascending" or "descending"</td>
+    <td>
+      Document sort order.<br />
+      Defaults to "ascending".
+    </td>
+  </tr>
+</table>
+
+### Details
+
+Returns all children, sorted by date, "ascending" or "descending".
+
+### Example
 
 ```html
 [[
 <ul>
-  {% for _, child in ipairs(document.children { sort = "descending" }) %}
+  {% for _, child in ipairs(document.children({ sort = "descending" })) do %}
     <li>{{ child.title }}</li>
+  {% end %}
+</ul>]]
+```
+
+## `document.descendants(options)`
+
+### Options
+
+<table>
+  <tr>
+    <td><code>maximumDepth</code></td>
+    <td>Integer</td>
+    <td>Maximum depth of children to return, relative to the parent.</td>
+  </tr>
+  <tr>
+		<td><code>sort</code></td>
+    <td>"ascending" or "descending"</td>
+    <td>
+      Document sort order.<br />
+      Defaults to "ascending".
+    </td>
+  </tr>
+</table>
+
+### Details
+
+Returns all descendants of a document, with a primary sort on the `date` property, and secondary sort the `title` property of the returned documents.
+
+Specifying a maximum depth of 1 will return the document's immediate children. Omitting the maximum depth will return all descendants.
+
+💡 Note `document.children(options)` exists as a convenience for listing the documents immediate children and may be cleaner to use in templates if that's all you require.
+
+### Example
+
+Generate a table of contents including all the document's descendants:
+
+
+```html
+[[
+<ul>
+  {% for _, descendant in ipairs(document.descendants()) do %}
+    <li><a href="{{ descendant.url }}">{{ descendant.title }}</a></li>
+  {% end %}
+</ul>]]
+```
+
+Generate a list of the document's immediate children:
+
+```html
+[[
+<ul>
+  {% for _, descendant in ipairs(document.descendants({ maximumDepth = 1 })) do %}
+    <li>{{ descendant.title }}</li>
   {% end %}
 </ul>]]
 ```

@@ -2,6 +2,8 @@
 title: Documentation
 ---
 
-- [Configuration](configuration/)
-- [Templates](templates/)
-- [Directory Structure](directory-structure/)
+<ul>
+  {% for _, descendant in ipairs(document.descendants()) do %}
+    <li><a href="{{ descendant.url }}">{{ descendant.title }}</a></li>
+  {% end %}
+</ul>
