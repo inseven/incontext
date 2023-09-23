@@ -1,6 +1,7 @@
 ---
-template: page.html
+template: home.html
 category: page
+title: Home
 ---
 
 <div style="margin-bottom: 2em;">
