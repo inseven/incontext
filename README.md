@@ -30,25 +30,19 @@ Frontmatter is supported in Markdown files and image and video descriptions. InC
 
 These changes impact the rendering of jbmorley.co.uk and block switching to InContext 3.
 
-1. **Deleted documents aren't removed from the store**
-2. **Check adaptive images work**
-3. **Don't automatically replace non-Markdown image tags**
-7. Check that gifs are transformed correctly
-8. Markdown issues (Footnotes, Strikethrough, mdash)
-9. Scale videos
-11. Timezone handling is currently inconsistent and unclear (this could be improved by using the time and date HTML tags)
-    1. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time
-    2. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
-    3. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local
-12. Render caching currently means that it's not possible to use incremental builds for deployments
-14. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
+1. **Check adaptive images work**
+2. Check that gifs are transformed correctly
+3. Markdown issues (Footnotes, Strikethrough, mdash)
+4. Timezone handling is currently inconsistent and unclear (this could be improved by using the time and date HTML tags)
+   1. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time
+   2. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
+   3. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local
+5. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
 
 ### Background
 
-- Track resources and clean them up when files are deleted or importers change
 - Test that the relative paths are correct for the destination directory; this likely needs to be per-importer, but it would be much easier if we had a way to generate these as part of the site so importers don't have to think too hard
 - Store the origin mime type in the database and expose through `DocumentContext`
-- Log at at different levels, error, warning, etc
 - Intoduce a render-time `resolve` method that can figure out what happened to a document and include it
 - Update jbmorley.co.uk to include working examples of the common.lua conveniences
   - Adaptive image
