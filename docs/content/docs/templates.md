@@ -146,15 +146,87 @@ Returns all the documents in the site.
 
 Returns the first document found by walking up the document path; nil if no ancestor can be found.
 
-### `document.children(sort: String = "ascending")`
+### `document.children(options)`
 
-Returns all immediate children, sorted by date, "ascending" or "descending".
+#### Options
+
+<table>
+  <tr>
+		<td><code>sort</code></td>
+    <td>"ascending" or "descending"</td>
+    <td>
+      Document sort order.<br />
+      Defaults to "ascending".
+    </td>
+  </tr>
+</table>
+
+
+#### Details
+
+Returns all children, sorted by date, "ascending" or "descending".
+
+#### Example
+
 
 ```html
 [[
 <ul>
-  {% for _, child in ipairs(document.children { sort = "descending" }) %}
+  {% for _, child in ipairs(document.children({ sort = "descending" })) %}
     <li>{{ child.title }}</li>
+  {% end %}
+</ul>]]
+```
+
+### `document.descendants(options)`
+
+#### Options
+
+<table>
+  <tr>
+    <td><code>maximumDepth</code></td>
+    <td>Integer</td>
+    <td>Maximum depth of children to return, relative to the parent.</td>
+  </tr>
+  <tr>
+		<td><code>sort</code></td>
+    <td>"ascending" or "descending"</td>
+    <td>
+      Document sort order.<br />
+      Defaults to "ascending".
+    </td>
+  </tr>
+</table>
+
+#### Details
+
+Returns all descendants of a document, with a primary sort on the `date` property, and secondary sort the `title` property of the returned documents.
+
+Specifying a maximum depth of 1 will return the document's immediate children. Omitting the maximum depth will return all descendants.
+
+💡 Note: `document.children(options)` exists as a convenience for listing the documents immediate children and may be cleaner to use in templates if that's all you require.
+
+#### Example
+
+Generate a table of contents including all the document's descendants:
+
+
+```html
+[[
+<ul>
+  {% for _, descendant in ipairs(document.descendents()) %}
+    <li><a href="{{ descendant.url }}">{{ descendant.title }}</a></li>
+  {% end %}
+</ul>]]
+```
+
+Generate a list of the document's immediate children:
+
+```html
+[[
+<ul>
+  {% for _, descendant in ipairs(document.descendents({ maximumDepth = 1 })) %}
+    <li>{{ descendant.title }}</li>
   {% end %}
 </ul>]]
 ```

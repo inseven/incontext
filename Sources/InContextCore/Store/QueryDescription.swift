@@ -57,19 +57,35 @@ struct QueryDescription: Codable, Hashable {
          parent: String? = nil,
          relativeSourcePath: String? = nil,
          tag: String? = nil,
-         sort: Sort? = nil,
-         limit: Int? = nil,
          minimumDepth: Int? = nil,
-         maximumDepth: Int? = nil) {
+         maximumDepth: Int? = nil,
+         sort: Sort? = nil,
+         limit: Int? = nil) {
         self.includeCategories = includeCategories
         self.url = url
         self.parent = parent
         self.relativeSourcePath = relativeSourcePath
         self.tag = tag
-        self.sort = sort
-        self.limit = limit
         self.minimumDepth = minimumDepth
         self.maximumDepth = maximumDepth
+        self.sort = sort
+        self.limit = limit
+    }
+
+    init(descendantsOf parent: String,
+         maximumDepth: Int?,
+         sort: QueryDescription.Sort? = nil) {
+
+        let sort = sort ?? QueryDescription.defaultSort
+
+        let absoluteMaximumDepth: Int?
+        if let maximumDepth {
+            absoluteMaximumDepth = parent.pathDepth + maximumDepth
+        } else {
+            absoluteMaximumDepth = nil
+        }
+
+        self.init(parent: parent, maximumDepth: absoluteMaximumDepth, sort: sort)
     }
 
     private func expression() -> Expression<Bool> {
@@ -89,7 +105,14 @@ struct QueryDescription: Codable, Hashable {
         }
 
         if let parent {
-            expressions.append(Store.Schema.parent == parent)
+            // If a maximum depth has been defined that is exactly one greater than the parent depth, we can perform an
+            // optimised query which exactly matches the parent URL. In the future, we can build a lookup tree structure
+            // to improve performance in the generic case should it prove necessary.
+            if let maximumDepth, maximumDepth == parent.pathDepth + 1 {
+                expressions.append(Store.Schema.parent == parent)
+            } else {
+                expressions.append(Store.Schema.parent.like("\(parent)%"))
+            }
         }
 
         if let relativeSourcePath {

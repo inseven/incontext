@@ -40,6 +40,7 @@ class Store {
         static let fingerprint = Expression<String>("fingerprint")
 
         // documents
+        // TODO: Parent should be nullable.
         static let parent = Expression<String>("parent")
         static let category = Expression<String>("category")
         static let date = Expression<Date?>("date")

@@ -75,4 +75,50 @@ class StoreTests: XCTestCase {
         XCTAssertEqual(try store.documents(query: QueryDescription(minimumDepth: 1, maximumDepth: 1)).count, 2)
     }
 
+    func testParent() async throws {
+        let store = try store()
+        try await store.save(Document(url: "/", parent: "/"))
+        try await store.save(Document(url: "/projects/", parent: "/"))
+        try await store.save(Document(url: "/software/", parent: "/"))
+        try await store.save(Document(url: "/projects/anytime-nixie/", parent: "/projects/"))
+        try await store.save(Document(url: "/projects/anytime-nixie/gallery/", parent: "/projects/anytime-nixie/"))
+        try await store.save(Document(url: "/software/windows/inmodem/", parent: "/software/"))
+
+        XCTAssertEqual(try store.documents().count, 6)
+
+        XCTAssertEqual(Set(try store.urls(query: QueryDescription(parent: "/"))),
+                       Set(["/",
+                            "/projects/",
+                            "/software/",
+                            "/projects/anytime-nixie/",
+                            "/projects/anytime-nixie/gallery/",
+                            "/software/windows/inmodem/"]))
+
+        XCTAssertEqual(Set(try store.urls(query: QueryDescription(parent: "/projects/"))),
+                       Set(["/projects/anytime-nixie/",
+                            "/projects/anytime-nixie/gallery/"]))
+
+        XCTAssertEqual(Set(try store.urls(query: QueryDescription(descendantsOf: "/projects/", maximumDepth: 1))),
+                       Set(["/projects/anytime-nixie/"]))
+
+        XCTAssertEqual(Set(try store.urls(query: QueryDescription(descendantsOf: "/projects/", maximumDepth: 2))),
+                       Set(["/projects/anytime-nixie/",
+                            "/projects/anytime-nixie/gallery/"]))
+
+        XCTAssertEqual(Set(try store.urls(query: QueryDescription(descendantsOf: "/software/", maximumDepth: 1))),
+                       Set([]))
+
+        XCTAssertEqual(Set(try store.urls(query: QueryDescription(descendantsOf: "/software/", maximumDepth: 2))),
+                       Set(["/software/windows/inmodem/"]))
+    }
+
+}
+
+
+extension Store {
+
+    func urls(query: QueryDescription = QueryDescription()) throws -> [String] {
+        return try documents(query: query).map { $0.url }
+    }
+
 }
