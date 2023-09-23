@@ -183,3 +183,8 @@ Generate a list of the document's immediate children:
 </ul>]]
 ```
 
+## `document.sourcePath`
+
+### Details
+
+Returns the original path of the document in the site source tree relative to the 'content' directory.
