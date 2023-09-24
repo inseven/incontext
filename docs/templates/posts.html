@@ -8,7 +8,7 @@
             </header>
         {% end %}
 
-        {% renderDocumentHTML(document) %}
+        {{ incontext.renderDocumentHTML(document) }}
 
         {% uuid = generate_uuid() %}
         <ul class="post-list" id="{{ uuid }}"></ul>

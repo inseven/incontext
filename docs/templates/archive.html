@@ -1,7 +1,7 @@
 {% include "common.lua" %}
 {% function content() %}
     <h1>{{ document.title }}</h1>
-    {% renderDocumentHTML(document) %}
+    {{ incontext.renderDocumentHTML(document) }}
     <ul>
     {% for _, document in ipairs(document.query("content")) do %}
         {% if document.link then %}

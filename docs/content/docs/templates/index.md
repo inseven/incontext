@@ -29,7 +29,7 @@ Tilt doesn't explicitly support inheritance, but it's possible to achieve someth
        <div class="post">
            {% include "post_header.html" %}
            <article class="post-content">
-               {% incontext.renderDocumentHTML(document) %}
+               {{ incontext.renderDocumentHTML(document) }}
            </article>
        </div>
    {% end %}
@@ -73,6 +73,35 @@ Titles detected from the filename are automatically transformed using titlecase 
   <h2>{{ titlecase(document.subtitle) }}</h2>
 {% end %}]]
 ```
+
+## `incontext.renderDocumentHTML(document)`
+
+### Details
+
+Convenience function that fetches a document's HTML content (`document.html()`) and evaluates any inline Tilt templates (`render()`).
+
+### Examples
+
+Render the contents of a document:
+
+```html
+[[
+<html>
+  <head>
+    <title>{{ document.title or "Untitled" }}</title>
+  </head>
+  <body>
+    <h1>{{ document.title }}</h1>
+    {{ incontext.renderDocumentHTML(document) }}
+  </body>
+</html>]]
+```
+
+<aside>
+  The implementation of <code>incontext.renderDocumentHTML()</code> is a nice example of how to use pure-Lua functions to add simple extensions to the Tilt rendering language:
+
+<pre><code class="lua hljs">function renderDocumentHTML(document)<br />    return render(document.sourcePath, document.html() or "")<br />end</code></pre>
+</aside>
 
 ## `incontext.thumbnail(url)`
 

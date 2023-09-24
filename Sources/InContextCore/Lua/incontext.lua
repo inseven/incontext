@@ -1,3 +1,4 @@
-function hello()
-    writef("Hello World from %s", document.url)
+
+function renderDocumentHTML(document)
+    return render(document.sourcePath, document.html or "")
 end
