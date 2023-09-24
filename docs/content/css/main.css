@@ -79,7 +79,7 @@ aside:before {
     content: "💡"
 }
 
-aside code {
+aside code, aside .hljs {
     background-color: palegoldenrod;
 }
 

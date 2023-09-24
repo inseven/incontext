@@ -1,7 +1,4 @@
 
 function renderDocumentHTML(document)
-    local html = document.html
-    if html then
-        eval(html, document.sourcePath)
-    end
+    return render(document.sourcePath, document.html or "")
 end
