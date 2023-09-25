@@ -43,22 +43,14 @@ These changes impact the rendering of jbmorley.co.uk and block switching to InCo
 
 - Test that the relative paths are correct for the destination directory; this likely needs to be per-importer, but it would be much easier if we had a way to generate these as part of the site so importers don't have to think too hard
 - Store the origin mime type in the database and expose through `DocumentContext`
-- Intoduce a render-time `resolve` method that can figure out what happened to a document and include it
-- Update jbmorley.co.uk to include working examples of the common.lua conveniences
-  - Adaptive image
-  - STL
-- Add a --Werror flag
-- Port legacy InContext 2 tests
 - Provide a simple, clean API to inline a relative document
-- The current `resolve` implementation is hand-tuned and isn't guaranteed to work with new document types
+- Resolve
+  - Introduce a render-time `resolve` method that can figure out what happened to a document and include it
+  - The current `resolve` implementation is hand-tuned and isn't guaranteed to work with new document types
+
 - Test resolving relative paths '.'
-- Write up Info.plist experiments
 - Support building to a custom build destination; this will make it much easier to use for GitHub Pages based deployments
 
 ### Improvements
 
-- Use Swift DSL to unify file and image handlers (this would allow easy checking of glob, regex, extension, and mime type)
-- Typesafe configuration
-  - Explicit user-defined metadata section in the site and frontmatter
-  - The derived thumbnail property is overwriting the user metadata (this should somehow be protected)
 - Consider special files in directories for nested behaviours
