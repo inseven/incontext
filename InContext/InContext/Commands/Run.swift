@@ -37,7 +37,7 @@ struct Run: AsyncParsableCommand {
 
     mutating func run() async throws {
         let site = try options.resolveSite()
-        guard let action = site.action(task) else {
+        guard let action = site.actions.first(where: { $0.id == task }) else {
             throw InContextError.internalInconsistency("Unknown task '\(task)'.")
         }
         let runner = ActionRunner(site: site, action: action, tracker: LoggingTracker())

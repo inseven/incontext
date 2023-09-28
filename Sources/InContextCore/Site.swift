@@ -135,14 +135,6 @@ public struct Site {
         return nil
     }
 
-    // TODO: Remove this.
-    public func action(_ name: String) -> Action? {
-        guard let task = settings.actions[name] else {
-            return nil
-        }
-        return Action(id: name, name: task.name, run: task.run)
-    }
-
     func outputURL(relativePath: String) -> URL {
         return URL(filePath: relativePath, relativeTo: filesURL)
     }
