@@ -70,7 +70,7 @@ class SiteModel: ObservableObject, Identifiable {
 
     func start() {
         dispatchPrecondition(condition: .onQueue(.main))
-        self.task = Task {
+        self.task = Task(priority: .background) {
             do {
                 try await server.start(watch: true)
             } catch {
