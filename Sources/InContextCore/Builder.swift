@@ -240,9 +240,8 @@ public class Builder {
                     if let status = try await self.store.status(for: fileURL.relativePath,
                                                                 contentURL: self.site.contentURL) {
 
-                        let fileModified = !Calendar.current.isDate(status.contentModificationDate,
-                                                                    equalTo: contentModificationDate,
-                                                                    toGranularity: .nanosecond)
+                        let fileModified = (status.contentModificationDate.millisecondsSinceReferenceDate !=
+                                            contentModificationDate.millisecondsSinceReferenceDate)
                         let differentImporterVersion = status.fingerprint != handlerFingerprint
 
                         if !fileModified && !differentImporterVersion {

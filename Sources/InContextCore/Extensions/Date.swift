@@ -24,6 +24,15 @@ import Foundation
 
 extension Date: EvaluationContext {
 
+    var millisecondsSinceReferenceDate: Int {
+        return Int(timeIntervalSinceReferenceDate * 1000)
+    }
+
+    init(millisecondsSinceReferenceDate: Int) {
+        let timeInterval: TimeInterval = Double(millisecondsSinceReferenceDate) / 1000.0
+        self.init(timeIntervalSinceReferenceDate: timeInterval)
+    }
+
     func lookup(_ name: String) throws -> Any? {
         switch name {
         case "format": return Function { (format: String) -> String in

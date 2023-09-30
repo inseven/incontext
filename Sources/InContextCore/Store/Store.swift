@@ -35,7 +35,7 @@ class Store {
 
         // common
         static let url = Expression<String>("url")
-        static let contentModificationDate = Expression<Date>("content_modification_date")
+        static let contentModificationDate = Expression<Int>("content_modification_date")
         static let relativeSourcePath = Expression<String>("relative_source_path")
         static let fingerprint = Expression<String>("fingerprint")
 
@@ -177,7 +177,7 @@ class Store {
                                                            Schema.title <- document.title,
                                                            Schema.metadata <- metadata,
                                                            Schema.contents <- document.contents,
-                                                           Schema.contentModificationDate <- document.contentModificationDate,
+                                                           Schema.contentModificationDate <- document.contentModificationDate.millisecondsSinceReferenceDate,
                                                            Schema.template <- document.template,
                                                            Schema.inlineTemplate <- document.inlineTemplate,
                                                            Schema.relativeSourcePath <- document.relativeSourcePath,
@@ -192,7 +192,7 @@ class Store {
             }
             try connection.run(Schema.status.insert(or: .replace,
                                                     Schema.relativePath <- status.relativePath,
-                                                    Schema.contentModificationDate <- status.contentModificationDate,
+                                                    Schema.contentModificationDate <- status.contentModificationDate.millisecondsSinceReferenceDate,
                                                     Schema.importer <- status.importer,
                                                     Schema.fingerprint <- status.fingerprint))
         }
@@ -205,7 +205,7 @@ class Store {
             return nil
         }
         return Status(fileURL: URL(filePath: try status.get(Schema.relativePath), relativeTo: contentURL),
-                      contentModificationDate: try status.get(Schema.contentModificationDate),
+                      contentModificationDate: Date(millisecondsSinceReferenceDate: try status.get(Schema.contentModificationDate)),
                       importer: try status.get(Schema.importer),
                       fingerprint: try status.get(Schema.fingerprint))
     }
@@ -286,7 +286,7 @@ class Store {
                             title: row[Schema.title],
                             metadata: metadata,
                             contents: row[Schema.contents],
-                            contentModificationDate: row[Schema.contentModificationDate],
+                            contentModificationDate: Date(millisecondsSinceReferenceDate: row[Schema.contentModificationDate]),
                             template: row[Schema.template],
                             inlineTemplate: row[Schema.inlineTemplate],
                             relativeSourcePath: row[Schema.relativeSourcePath],
