@@ -24,16 +24,42 @@ import Foundation
 
 import InContextCore
 
-class HelperTracker: ObservableObject, Tracker {
+class HelperSessionTask: ObservableObject, SessionTask, Identifiable {
 
-    @Published var sessions: [HelperSession] = []
+    enum State: Equatable {
+        case running
+        case success(CompletionState)
+        case failure(String)
+    }
 
-    func new(type: SessionType, name: String) -> Session {
-        let session = HelperSession(type: type, name: name)
+    let id = UUID()
+    let description: String
+    let startDate: Date
+
+    @MainActor @Published var state: State = .running
+    @MainActor @Published var events: [Event] = []
+
+    init(description: String) {
+        self.description = description
+        self.startDate = Date()
+    }
+
+    func log(level: InContextCore.LogLevel, _ message: String) {
+        let event = Event(date: Date(), level: level, message: message)
         DispatchQueue.main.async {
-            self.sessions.append(session)
+            self.events.append(event)
         }
-        return session
+    }
+
+    func finish(result: Result<CompletionState, Error>) {
+        DispatchQueue.main.async {
+            switch result {
+            case .success(let state):
+                self.state = .success(state)
+            case .failure(let error):
+                self.state = .failure(error.localizedDescription)
+            }
+        }
     }
 
 }

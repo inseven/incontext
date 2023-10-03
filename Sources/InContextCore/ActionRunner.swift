@@ -34,11 +34,8 @@ public class ActionRunner {
         self.tracker = tracker
     }
 
-    public func run() {
-
-        let session = tracker.new(action.name)
-        session.info("Running action '\(action.name)'...")
-        session.debug(action.run.trimmingCharacters(in: .whitespacesAndNewlines))
+    static func run(site: Site, action: Site.Action, logger: Logger) throws {
+        logger.debug(action.run.trimmingCharacters(in: .whitespacesAndNewlines))
 
         let process = Process()
         let input = Pipe()
@@ -54,41 +51,41 @@ public class ActionRunner {
             guard let data = try output.fileHandleForReading.readToEnd(),
                   let result = String(data: data, encoding: .utf8)
             else {
-                session.error("Failed to read data!")
-                return
+                throw InContextError.internalInconsistency("Failed to read data!")
             }
             for line in result.split(separator: /\n+/) {
                 guard !line.isEmpty else {
                     continue
                 }
-                session.info(String(line))
+                logger.info(String(line))
             }
         }
 
         guard let command = action.run.data(using: .utf8) else {
-            session.error("Failed to encode action script as input.")
-            return
+            throw InContextError.internalInconsistency("Failed to encode action script as input.")
         }
-        do {
-            try input.fileHandleForWriting.write(contentsOf: command)
-            try input.fileHandleForWriting.close()
-        } catch {
-            session.error("Failed to run action with error '\(error)'.")
-            return
-        }
+
+        try input.fileHandleForWriting.write(contentsOf: command)
+        try input.fileHandleForWriting.close()
+
         process.waitUntilExit()
+        try outputReader.awaitResult()
 
-        do {
-            try outputReader.awaitResult()
-        } catch {
-            session.error("Failed to get output with error \(error).")
-            return
+        guard process.terminationStatus == 0 else {
+            throw InContextError.internalInconsistency("Failed with exit code \(process.terminationStatus).")
         }
+    }
 
-        if process.terminationStatus == 0 {
-            session.info("Complete.")
-        } else {
-            session.error("Failed with exit code \(process.terminationStatus).")
+    public func run() {
+        do {
+            try tracker.withSession(type: .action, name: action.name) { session in
+                try session.withTask("Running action '\(action.name)'...") { task in
+                    try Self.run(site: site, action: action, logger: task)
+                }
+
+            }
+        } catch {
+            print("Task failed with error \(error).")
         }
     }
 

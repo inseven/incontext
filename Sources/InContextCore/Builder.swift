@@ -176,32 +176,35 @@ public class Builder {
         let destinationFileURL = destinationDirectoryURL
             .appendingPathComponent("index")
             .appendingPathExtension(document.template.pathExtension)
-        session.info("Rendering '\(document.url)' with template '\(document.template)'...")
 
-        // Render the document using its top-level template.
-        // This is tracked using our document-specific `RenderTracker` instance to allow us to track dependencies
-        // (queries and templates) and see if they've changed on future incremental builds.
-        let renderTracker = RenderTracker(site: site, store: store, renderManager: renderManager)
-        let content = try renderTracker.render(document)
-        let renderStatus = renderTracker.renderStatus(for: document)
-        try await store.save(renderStatus: renderStatus, for: document.url)
+        try await session.withTask("Rendering '\(document.url)' with template '\(document.template)'...") { _ in
+            // Render the document using its top-level template.
+            // This is tracked using our document-specific `RenderTracker` instance to allow us to track dependencies
+            // (queries and templates) and see if they've changed on future incremental builds.
+            let renderTracker = RenderTracker(site: site, store: store, renderManager: renderManager)
+            let content = try renderTracker.render(document)
+            let renderStatus = renderTracker.renderStatus(for: document)
+            try await store.save(renderStatus: renderStatus, for: document.url)
 
-        // Write the contents to a file.
-        try FileManager.default.createDirectory(at: destinationDirectoryURL, withIntermediateDirectories: true)
-        guard let data = content.data(using: .utf8) else {
-            throw InContextError.encodingError
+            // Write the contents to a file.
+            try FileManager.default.createDirectory(at: destinationDirectoryURL, withIntermediateDirectories: true)
+            guard let data = content.data(using: .utf8) else {
+                throw InContextError.encodingError
+            }
+            try data.write(to: destinationFileURL)
         }
-        try data.write(to: destinationFileURL)
     }
 
     func importContent(session: Session) async throws {
 
         let fileManager = FileManager.default
 
+        let task = session.startTask("Scanning files...")
         let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey, .contentModificationDateKey])
         let directoryEnumerator = fileManager.enumerator(at: site.contentURL,
                                                          includingPropertiesForKeys: Array(resourceKeys),
                                                          options: [.skipsHiddenFiles, .producesRelativePathURLs])!
+        task.success()
 
         let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
             for case let fileURL as URL in directoryEnumerator {
@@ -219,9 +222,12 @@ public class Builder {
                     continue
                 }
 
+                let task = session.startTask("Importing '\(fileURL.relativePath)'...")
+
                 // Get the handler for the file.
                 guard let handler = try self.site.handler(for: fileURL) else {
-                    session.warning("Ignoring unsupported file '\(fileURL.relativePath)'.")
+                    task.warning("Ignoring unsupported file '\(fileURL.relativePath)'.")
+                    task.success(.skipped)
                     continue
                 }
 
@@ -245,8 +251,12 @@ public class Builder {
                         let differentImporterVersion = status.fingerprint != handlerFingerprint
 
                         if !fileModified && !differentImporterVersion {
+                            task.debug("File unchanged")
+                            task.success(.skipped)
                             return fileURL
                         }
+
+                        print("CHANGE: \(status.contentModificationDate.millisecondsSinceReferenceDate) != \(contentModificationDate.millisecondsSinceReferenceDate): \(fileURL.relativePath)")
 
                         // Clean up the existing assets.
                         // TODO: We also need to do this for files that just don't exist anymore.
@@ -254,9 +264,9 @@ public class Builder {
                         let fileManager = FileManager.default
                         for asset in try await self.store.assets(for: fileURL.relativePath,
                                                                  filesURL: self.site.filesURL) {
-                            session.info("Removing intermediate '\(asset.fileURL.relativePath)'...")
+                            task.info("Removing intermediate '\(asset.fileURL.relativePath)'...")
                             guard fileManager.fileExists(atPath: asset.fileURL.path) else {
-                                session.warning("Skipping missing file...")
+                                task.warning("Skipping missing file...")
                                 continue
                             }
                             try FileManager.default.removeItem(at: asset.fileURL)
@@ -267,19 +277,22 @@ public class Builder {
                         // TODO: Clean up the existing intermediates if we know that the contents have changed.
                     }
 
-                    session.info("[\(handler.identifier)] Importing '\(fileURL.relativePath)'...")
+                    task.debug("File new or changed; re-importing")
 
                     // Import the file.
                     let file = File(url: fileURL, contentModificationDate: contentModificationDate)
                     do {
+                        // TODO: Inject the task into the process operation.
                         let result = try await handler.process(file: file, outputURL: self.site.filesURL)
                         let status = Status(fileURL: file.url,
                                             contentModificationDate: file.contentModificationDate,
                                             importer: handler.identifier,
                                             fingerprint: handlerFingerprint)
                         try await self.store.save(document: result.document, assets: result.assets, status: status)
+                        task.success()
                         return fileURL
                     } catch {
+                        task.failure(error)
                         throw InContextError.importError(fileURL, error)
                     }
                 }
@@ -299,45 +312,49 @@ public class Builder {
     func renderContent(session: Session, concurrent: Bool) async throws {
 
         // Preload the existing render statuses in one batch in the hope that it's faster.
-        session.debug("Loading render cache...")
-        let renderStatuses = try await store.renderStatuses()
-            .reduce(into: [String: RenderStatus](), { partialResult, renderStatus in
-                partialResult[renderStatus.0] = renderStatus.1
-            })
+        let renderStatuses = try await session.withTask("Loading render cache...") { _ in
+            return try await store.renderStatuses()
+                .reduce(into: [String: RenderStatus](), { partialResult, renderStatus in
+                    partialResult[renderStatus.0] = renderStatus.1
+                })
+        }
 
-        session.debug("Getting documents...")
-        let documents = try store.documents()
+        let documents = try session.withTask("Getting documents...") { _ in
+            return try store.documents()
+        }
 
-        session.debug("Checking for changes...")
-        let updates = try await withThrowingTaskGroup(of: (Document?).self) { group in
-            for document in documents {
-                group.addTask {
-                    if try await self.needsRender(document: document, renderStatus: renderStatuses[document.url]) {
-                        return document
-                    } else {
-                        return nil
+        let updates = try await session.withTask("Checking for changes...") { _ in
+            return try await withThrowingTaskGroup(of: (Document?).self) { group in
+                for document in documents {
+                    group.addTask {
+                        if try await self.needsRender(document: document, renderStatus: renderStatuses[document.url]) {
+                            return document
+                        } else {
+                            return nil
+                        }
                     }
                 }
-            }
-            var result: [Document] = []
-            for try await document in group {
-                guard let document else {
-                    continue
+                var result: [Document] = []
+                for try await document in group {
+                    guard let document else {
+                        continue
+                    }
+                    result.append(document)
                 }
-                result.append(document)
+                return result
             }
-            return result
         }
 
         // Render the documents that need updates.
-        session.info("Rendering \(updates.count) documents...")
-        _ = try await withTaskRunner(of: Void.self, concurrent: concurrent) { tasks in
-            for document in updates {
-                tasks.add {
-                    try await self.render(session: session,
-                                          document: document,
-                                          documents: documents,
-                                          renderStatus: renderStatuses[document.url])
+        try await session.withTask("Rendering \(updates.count) documents...") { _ in
+            _ = try await withTaskRunner(of: Void.self, concurrent: concurrent) { tasks in
+                for document in updates {
+                    tasks.add {
+                        try await self.render(session: session,
+                                              document: document,
+                                              documents: documents,
+                                              renderStatus: renderStatuses[document.url])
+                    }
                 }
             }
         }
@@ -348,18 +365,18 @@ public class Builder {
         try FileManager.default.createDirectory(at: site.filesURL, withIntermediateDirectories: true)
     }
 
+    // TODO: We need a version of this which actually fails and returns an error on failure.
     func doBuild() async {
-        let session = tracker.new("Build")
+        let session = tracker.new(type: .build, name: "Build")
         do {
-            let clock = ContinuousClock()
-            let duration = try await clock.measure {
+            try await session.run {
                 renderManager.clearTemplateCache()
                 try await importContent(session: session)
                 try await renderContent(session: session, concurrent: !serializeRender)
+                session.success()
             }
-            session.info("Build took \(duration.formatted()).")
         } catch {
-            session.error(error.localizedDescription)
+            print("FAILED WITH ERORR")
         }
     }
 

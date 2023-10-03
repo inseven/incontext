@@ -22,18 +22,6 @@
 
 import Foundation
 
-import InContextCore
-
-class HelperTracker: ObservableObject, Tracker {
-
-    @Published var sessions: [HelperSession] = []
-
-    func new(type: SessionType, name: String) -> Session {
-        let session = HelperSession(type: type, name: name)
-        DispatchQueue.main.async {
-            self.sessions.append(session)
-        }
-        return session
-    }
+public protocol SessionTask: Logger, Finishable {
 
 }

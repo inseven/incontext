@@ -27,15 +27,11 @@ struct SessionView: View {
     @ObservedObject var session: HelperSession
 
     var body: some View {
-        ForEach(session.events) { event in
-            HStack(alignment: .top) {
-                Text(event.date.ISO8601Format())
-                    .foregroundColor(.secondary)
-                Text(event.message)
+        List {
+            ForEach(session.tasks) { task in
+                TaskRow(task: task)
             }
-            .textSelection(.enabled)
-            .monospaced()
-            .foregroundColor(event.level.color)
+            SessionFooter(session: session)
         }
     }
 

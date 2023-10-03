@@ -22,10 +22,49 @@
 
 import SwiftUI
 
+struct SessionRow: View {
+
+    @ObservedObject var session: HelperSession
+
+    var body: some View {
+        Label {
+            HStack {
+                Text(session.name)
+                Text(session.startDate.formatted())
+                    .foregroundStyle(.secondary)
+                Spacer()
+                switch session.state {
+                case .running:
+                    ProgressView()
+                        .controlSize(.small)
+                case .success:
+                    Image(systemName: "checkmark.circle")
+                        .foregroundStyle(.green)
+                case .failure:
+                    Image(systemName: "xmark.circle")
+                        .foregroundStyle(.red)
+                }
+            }
+        } icon: {
+            switch session.type {
+            case .build:
+                Image(systemName: "hammer")
+                    .foregroundStyle(.primary)
+            case .action:
+                Image(systemName: "play")
+                    .foregroundStyle(.primary)
+            }
+        }
+    }
+
+}
+
 struct LogView: View {
 
     @ObservedObject var siteModel: SiteModel
     @ObservedObject var helperTracker: HelperTracker
+
+    @State var selection: HelperSession.ID? = nil
 
     init(siteModel: SiteModel) {
         self.siteModel = siteModel
@@ -33,11 +72,18 @@ struct LogView: View {
     }
 
     var body: some View {
-        List {
-            ForEach(helperTracker.sessions) { session in
-                Text(session.name)
-                    .font(.title)
+        NavigationSplitView {
+            List(selection: $selection) {
+                ForEach(helperTracker.sessions) { session in
+                    SessionRow(session: session)
+                }
+            }
+            .toolbar(removing: .sidebarToggle)
+        } detail: {
+            if let session = helperTracker.sessions.first(where: { $0.id == selection }) {
                 SessionView(session: session)
+            } else {
+                ContentUnavailableView("No Log Selected", systemImage: "list.bullet.rectangle")
             }
         }
         .navigationTitle(siteModel.title)

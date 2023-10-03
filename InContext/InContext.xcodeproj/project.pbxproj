@@ -36,6 +36,7 @@
 		D86BCDEF2A9B016E00C81BA5 /* HelperUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDEE2A9B016E00C81BA5 /* HelperUITestsLaunchTests.swift */; };
 		D86BCDFA2A9B030400C81BA5 /* Geocoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDF92A9B030400C81BA5 /* Geocoder.swift */; };
 		D86BCDFC2A9B032200C81BA5 /* HelperError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDFB2A9B032200C81BA5 /* HelperError.swift */; };
+		D882D9472ACCC7B3001469DA /* LoggingTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = D882D9462ACCC7B3001469DA /* LoggingTask.swift */; };
 		D8864FF32AB277D600DE6548 /* Run.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8864FF22AB277D600DE6548 /* Run.swift */; };
 		D8920F1B2AB2AB8700137912 /* Diligence in Frameworks */ = {isa = PBXBuildFile; productRef = D8920F1A2AB2AB8700137912 /* Diligence */; };
 		D8A739B42AA660F400946EED /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A739B32AA660F400946EED /* LogView.swift */; };
@@ -45,6 +46,9 @@
 		D8AD37AF2AA69FDF0006555F /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AD37AE2AA69FDF0006555F /* Event.swift */; };
 		D8E592242AB3A840000EE676 /* ActionsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E592232AB3A840000EE676 /* ActionsMenu.swift */; };
 		D8E592262AB3A8C3000EE676 /* FavoritesMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E592252AB3A8C3000EE676 /* FavoritesMenu.swift */; };
+		D8F672782AC8988D0073900D /* TaskRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F672772AC8988D0073900D /* TaskRow.swift */; };
+		D8F6727A2AC898B00073900D /* SessionFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F672792AC898B00073900D /* SessionFooter.swift */; };
+		D8F6727C2AC89DF00073900D /* HelperSessionTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6727B2AC89DF00073900D /* HelperSessionTask.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,6 +111,7 @@
 		D86BCDEE2A9B016E00C81BA5 /* HelperUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		D86BCDF92A9B030400C81BA5 /* Geocoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Geocoder.swift; sourceTree = "<group>"; };
 		D86BCDFB2A9B032200C81BA5 /* HelperError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperError.swift; sourceTree = "<group>"; };
+		D882D9462ACCC7B3001469DA /* LoggingTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingTask.swift; sourceTree = "<group>"; };
 		D8864FF22AB277D600DE6548 /* Run.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Run.swift; sourceTree = "<group>"; };
 		D890630A2A98293A0001A8E2 /* incontext */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = incontext; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89063152A9829500001A8E2 /* incontext-waialua */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "incontext-waialua"; path = ..; sourceTree = "<group>"; };
@@ -118,6 +123,9 @@
 		D8AD37AE2AA69FDF0006555F /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		D8E592232AB3A840000EE676 /* ActionsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionsMenu.swift; sourceTree = "<group>"; };
 		D8E592252AB3A8C3000EE676 /* FavoritesMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesMenu.swift; sourceTree = "<group>"; };
+		D8F672772AC8988D0073900D /* TaskRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRow.swift; sourceTree = "<group>"; };
+		D8F672792AC898B00073900D /* SessionFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionFooter.swift; sourceTree = "<group>"; };
+		D8F6727B2AC89DF00073900D /* HelperSessionTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperSessionTask.swift; sourceTree = "<group>"; };
 		D8F75F462AA34811000DEDB7 /* InContext HelperRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "InContext HelperRelease.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -179,6 +187,8 @@
 				D8A739B92AA6627500946EED /* SettingsMenu.swift */,
 				D8121A742AA05D7F00EEDF5B /* SiteList.swift */,
 				D8121A7E2AA105CC00EEDF5B /* SiteMenu.swift */,
+				D8F672772AC8988D0073900D /* TaskRow.swift */,
+				D8F672792AC898B00073900D /* SessionFooter.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -192,6 +202,7 @@
 				D80E4FD02AA7AD5300FD4BB5 /* HelperTracker.swift */,
 				D8121A6D2AA0465200EEDF5B /* Settings.swift */,
 				D8121A782AA05F9A00EEDF5B /* SiteModel.swift */,
+				D8F6727B2AC89DF00073900D /* HelperSessionTask.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -220,6 +231,7 @@
 			isa = PBXGroup;
 			children = (
 				D84E77F72AA954F800ED193A /* LoggingSession.swift */,
+				D882D9462ACCC7B3001469DA /* LoggingTask.swift */,
 				D84E77F92AA9555000ED193A /* LoggingTracker.swift */,
 			);
 			path = Model;
@@ -484,9 +496,12 @@
 				D8121A792AA05F9A00EEDF5B /* SiteModel.swift in Sources */,
 				D8AD37AF2AA69FDF0006555F /* Event.swift in Sources */,
 				D84E77FD2AA95CA500ED193A /* LogLevel.swift in Sources */,
+				D8F6727A2AC898B00073900D /* SessionFooter.swift in Sources */,
+				D8F6727C2AC89DF00073900D /* HelperSessionTask.swift in Sources */,
 				D8121A732AA05C3D00EEDF5B /* ApplicationModel.swift in Sources */,
 				D8121A752AA05D7F00EEDF5B /* SiteList.swift in Sources */,
 				D8121A712AA04BDA00EEDF5B /* URL.swift in Sources */,
+				D8F672782AC8988D0073900D /* TaskRow.swift in Sources */,
 				D8A739B82AA6621E00946EED /* SessionView.swift in Sources */,
 				D86BCDFA2A9B030400C81BA5 /* Geocoder.swift in Sources */,
 				D8E592262AB3A8C3000EE676 /* FavoritesMenu.swift in Sources */,
@@ -526,6 +541,7 @@
 				D8121A8A2AA11BAE00EEDF5B /* Build.swift in Sources */,
 				D8864FF32AB277D600DE6548 /* Run.swift in Sources */,
 				D8121A872AA11B5F00EEDF5B /* Serve.swift in Sources */,
+				D882D9472ACCC7B3001469DA /* LoggingTask.swift in Sources */,
 				D849DDF92A982C8D00C5041E /* Command.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -20,20 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import SwiftUI
 
-import InContextCore
+struct SessionFooter: View {
 
-class HelperTracker: ObservableObject, Tracker {
+    @ObservedObject var session: HelperSession
 
-    @Published var sessions: [HelperSession] = []
-
-    func new(type: SessionType, name: String) -> Session {
-        let session = HelperSession(type: type, name: name)
-        DispatchQueue.main.async {
-            self.sessions.append(session)
+    var body: some View {
+        VStack(alignment: .leading) {
+            switch session.state {
+            case .running:
+                EmptyView()
+            case .success:
+                Text("Build succeeded.")
+            case .failure(let string):
+                Text(string)
+                    .monospaced()
+                    .foregroundStyle(.red)
+            }
         }
-        return session
     }
 
 }

@@ -26,20 +26,42 @@ import InContextCore
 
 class HelperSession: ObservableObject, Session, Identifiable {
 
-    let id = UUID()
-    let name: String
-
-    @MainActor @Published var events: [Event] = []
-
-    init(name: String) {
-        self.name = name
+    enum State: Equatable {
+        case running
+        case success(CompletionState)
+        case failure(String)
     }
 
-    func log(level: LogLevel, _ message: String) {
-        print("-> \(level) \(message)")
-        let event = Event(date: Date(), level: level, message: message)
+    let id = UUID()
+    let type: SessionType
+    let name: String
+    let startDate: Date
+
+    @MainActor @Published var state: State = .running
+    @MainActor @Published var tasks: [HelperSessionTask] = []
+
+    init(type: SessionType, name: String) {
+        self.type = type
+        self.name = name
+        self.startDate = Date()
+    }
+
+    func startTask(_ description: String) -> SessionTask {
+        let task = HelperSessionTask(description: description)
         DispatchQueue.main.async {
-            self.events.append(event)
+            self.tasks.append(task)
+        }
+        return task
+    }
+
+    func finish(result: Result<CompletionState, Error>) {
+        DispatchQueue.main.async {
+            switch result {
+            case .success(let state):
+                self.state = .success(state)
+            case .failure(let error):
+                self.state = .failure(error.localizedDescription)
+            }
         }
     }
 
