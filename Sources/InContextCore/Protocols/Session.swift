@@ -22,18 +22,35 @@
 
 import Foundation
 
-import InContextCore
+public enum SessionType {
 
-class HelperTracker: ObservableObject, Tracker {
+    case build
+    case action
 
-    @Published var sessions: [HelperSession] = []
+}
 
-    func new(type: SessionType, name: String) -> Session {
-        let session = HelperSession(type: type, name: name)
-        DispatchQueue.main.async {
-            self.sessions.append(session)
+public protocol Session: Finishable {
+
+    var type: SessionType { get }
+
+    func startTask(_ description: String) -> SessionTask
+
+}
+
+extension Session {
+
+    func withTask<T>(_ description: String, perform: (SessionTask) async throws -> T) async rethrows -> T {
+        let task = startTask(description)
+        return try await task.run {
+            try await perform(task)
         }
-        return session
+    }
+
+    func withTask<T>(_ description: String, perform: (SessionTask) throws -> T) rethrows -> T {
+        let task = startTask(description)
+        return try task.run {
+            try perform(task)
+        }
     }
 
 }

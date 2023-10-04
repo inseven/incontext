@@ -20,20 +20,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import SwiftUI
 
-import InContextCore
+struct TaskRow: View {
 
-class HelperTracker: ObservableObject, Tracker {
+    @ObservedObject var task: HelperSessionTask
 
-    @Published var sessions: [HelperSession] = []
-
-    func new(type: SessionType, name: String) -> Session {
-        let session = HelperSession(type: type, name: name)
-        DispatchQueue.main.async {
-            self.sessions.append(session)
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                switch task.state {
+                case .running:
+                    ProgressView()
+                        .controlSize(.small)
+                case .success(let state):
+                    switch state {
+                    case .completed:
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                    case .skipped:
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.tertiary)
+                    }
+                case .failure:
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.red)
+                }
+                Text(task.description)
+            }
         }
-        return session
     }
 
 }

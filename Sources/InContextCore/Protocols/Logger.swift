@@ -22,18 +22,37 @@
 
 import Foundation
 
-import InContextCore
+public enum LogLevel {
+    case debug
+    case info
+    case notice
+    case warning
+    case error
+}
 
-class HelperTracker: ObservableObject, Tracker {
 
-    @Published var sessions: [HelperSession] = []
+public protocol Logger {
 
-    func new(type: SessionType, name: String) -> Session {
-        let session = HelperSession(type: type, name: name)
-        DispatchQueue.main.async {
-            self.sessions.append(session)
-        }
-        return session
+    func log(level: LogLevel, _ message: String)
+
+}
+
+extension Logger {
+
+    func debug(_ message: String) {
+        log(level: .debug, message)
+    }
+
+    func info(_ message: String) {
+        log(level: .info, message)
+    }
+
+    func warning(_ message: String) {
+        log(level: .warning, message)
+    }
+
+    func error(_ message: String) {
+        log(level: .error, message)
     }
 
 }

@@ -22,43 +22,49 @@
 
 import Foundation
 
-public protocol Tracker {
+public enum CompletionState {
 
-    func new(_ name: String) -> Session
-
-}
-
-public enum LogLevel {
-    case debug
-    case info
-    case notice
-    case warning
-    case error
-}
-
-public protocol Session {
-
-    func log(level: LogLevel, _ message: String)
+    case completed
+    case skipped
 
 }
 
-// TODO: Sessions should have a completion state (success or failure).
-extension Session {
+public protocol Finishable {
 
-    func debug(_ message: String) {
-        log(level: .debug, message)
+    func finish(result: Result<CompletionState, Error>)
+
+}
+
+extension Finishable {
+
+    func success(_ state: CompletionState = .completed) {
+        finish(result: .success(state))
     }
 
-    func info(_ message: String) {
-        log(level: .info, message)
+    func failure(_ error: Error) {
+        finish(result: .failure(error))
     }
 
-    func warning(_ message: String) {
-        log(level: .warning, message)
+    func run<T>(_ task: () async throws -> T) async rethrows -> T {
+        do {
+            let result = try await task()
+            success()
+            return result
+        } catch {
+            failure(error)
+            throw error
+        }
     }
 
-    func error(_ message: String) {
-        log(level: .error, message)
+    func run<T>(_ task: () throws -> T) rethrows -> T {
+        do {
+            let result = try task()
+            success()
+            return result
+        } catch {
+            failure(error)
+            throw error
+        }
     }
 
 }

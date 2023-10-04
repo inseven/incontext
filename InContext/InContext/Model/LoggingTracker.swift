@@ -26,8 +26,8 @@ import InContextCore
 
 struct LoggingTracker: Tracker {
 
-    func new(_ name: String) -> Session {
-        let session = LoggingSession()
+    func new(type: SessionType, name: String) -> Session {
+        let session = LoggingSession(type: type, name: name)
         session.log(level: .info, name)
         return session
     }
