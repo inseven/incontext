@@ -22,8 +22,6 @@
 
 import Foundation
 
-import MarkdownKit
-
 extension String {
 
     private static let schemeRegex = /[a-z]+:/.ignoresCase()
@@ -40,10 +38,21 @@ extension String {
         return prefix + self + suffix
     }
 
+    func safeIdentifier() -> String? {
+        return lowercased()
+            .replacing(/\s+/, with: "-")
+    }
+
     func html() -> String {
-        let markdown = ExtendedMarkdownParser.standard.parse(self)
-        let html = HtmlGenerator.standard.generate(doc: markdown)
-        return html
+        return Hoedown.render(
+            markdown: self,
+            extensions: [
+                .footnotes,
+                .fencedCode,
+                .tables,
+                .strikethrough,
+                .highlight,
+            ]) ?? ""
     }
 
     var hasScheme: Bool {
