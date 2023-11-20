@@ -41,7 +41,7 @@ queries:
 Here's some **Markdown** content
 """, generateHTML: true)
 
-        XCTAssertEqual(document.content, "<p>Here's some <strong>Markdown</strong> content</p>\n")
+        XCTAssertEqual(document.content, "<p>Here&#39;s some <strong>Markdown</strong> content</p>\n")
         let metadata: [AnyHashable: Any] = ["template": "tags.html",
                                             "title": "Tags",
                                             "category": "pages",
