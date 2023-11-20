@@ -13,3 +13,6 @@
 [submodule "Dependencies/hummingbird"]
 	path = Dependencies/hummingbird
 	url = git@github.com:jbmorley/hummingbird.git
+[submodule "Dependencies/hoedown"]
+	path = Dependencies/hoedown
+	url = git@github.com:hoedown/hoedown.git
