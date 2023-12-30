@@ -58,7 +58,7 @@ jobs:
         lfs: true
 
     - name: Download the build artifacts
-      uses: actions/download-artifact@master
+      uses: actions/download-artifact@v3
       with:
         path: build
 
