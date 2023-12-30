@@ -81,17 +81,9 @@ class TiltRenderer {
         lua_setupvalue(L, 1, 1) // moduleFn->_ENV = incontextModuleEnv
         try! L.pcall(nargs: 0, nret: 0) // moduleFn()
         
-        L.registerMetatable(for: TemplateCache.self, functions: [:])
-        L.registerDefaultMetatable(functions: [
-            "__call": .closure { L in
-                guard let function: Callable = L.touserdata(1) else {
-                    throw InContextError.internalInconsistency("Object does not support Callable")
-                }
-                let result = try function.call(with: LuaStateArgumentProvider(L: L))
-                L.push(any: result)
-                return 1
-            },
-            "__index": .closure { L in
+        L.register(Metatable(for: TemplateCache.self))
+        L.register(DefaultMetatable(
+            index: .closure { L in
                 guard let obj: EvaluationContext = L.touserdata(1) else {
                     throw InContextError.internalInconsistency("Object does not support EvaluationContext")
                 }
@@ -103,9 +95,17 @@ class TiltRenderer {
                 L.push(any: result)
                 return 1
             },
-        ])
+            call: .closure { L in
+                guard let function: Callable = L.touserdata(1) else {
+                    throw InContextError.internalInconsistency("Object does not support Callable")
+                }
+                let result = try function.call(with: LuaStateArgumentProvider(L: L))
+                L.push(any: result)
+                return 1
+            }
+        ))
 
-        L.pushGlobals()
+        L.pushglobals()
 
         L.push(userdata: templateCache)
         lua_pushcclosure(L, readFile, 1)
