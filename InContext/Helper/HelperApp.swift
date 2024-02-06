@@ -77,9 +77,9 @@ struct HelperApp: App {
 
         } label: {
 #if DEBUG
-            Text("🦫 Debug")
+            Label("InContext Helper", systemImage: "hammer")
 #else
-            Text("🦫")
+            Label("InContext Helper", systemImage: "hammer.fill")
 #endif
         }
 
