@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2016-2024 Jason Morley
+// Copyright (c) 2023 Jason Barrie Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +22,19 @@
 
 import Foundation
 
-#if canImport(UniformTypeIdentifiers)
+import ArgumentParser
+import InContextCore
 
-import UniformTypeIdentifiers
+struct Clean: AsyncParsableCommand {
 
-extension UTType {
+    @OptionGroup var options: Options
 
-    static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
+    static var configuration = CommandConfiguration(commandName: "clean",
+                                                    abstract: "Remove the build directory.")
 
-}
-
-#else
-
-class UTType {
-
-    let filenameExtension: String
-
-    init(filenameExtension: String) {
-        self.filenameExtension = filenameExtension
-    }
-
-    func conforms(to type: UTType) -> Bool {
-        return type.filenameExtension == filenameExtension
+    mutating func run() async throws {
+        let site = try options.resolveSite()
+        try FileManager.default.removeItem(at: site.buildURL)
     }
 
 }
-
-
-extension UTType {
-
-    static let markdown: UTType = UTType(filenameExtension: "markdown")
-    static let html: UTType = UTType(filenameExtension: "html")
-    static let jpeg: UTType = UTType(filenameExtension: "jpeg")
-    static let tiff: UTType = UTType(filenameExtension: "tiff")
-    static let heic: UTType = UTType(filenameExtension: "heic")
-
-}
-
-#endif

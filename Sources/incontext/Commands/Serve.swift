@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2016-2024 Jason Morley
+// Copyright (c) 2023 Jason Barrie Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +22,22 @@
 
 import Foundation
 
-#if canImport(UniformTypeIdentifiers)
+import ArgumentParser
+import InContextCore
 
-import UniformTypeIdentifiers
+struct Serve: AsyncParsableCommand {
 
-extension UTType {
+    static var configuration = CommandConfiguration(commandName: "serve",
+                                                    abstract: "Run a local web server for development.")
 
-    static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
+    @OptionGroup var options: Options
 
-}
-
-#else
-
-class UTType {
-
-    let filenameExtension: String
-
-    init(filenameExtension: String) {
-        self.filenameExtension = filenameExtension
-    }
-
-    func conforms(to type: UTType) -> Bool {
-        return type.filenameExtension == filenameExtension
+    mutating func run() async throws {
+        let server = Server(site: try options.resolveSite(),
+                            tracker: LoggingTracker(),
+                            serializeImport: options.serializeImport,
+                            serializeRender: options.serializeRender)
+        try await server.start(watch: options.watch)
     }
 
 }
-
-
-extension UTType {
-
-    static let markdown: UTType = UTType(filenameExtension: "markdown")
-    static let html: UTType = UTType(filenameExtension: "html")
-    static let jpeg: UTType = UTType(filenameExtension: "jpeg")
-    static let tiff: UTType = UTType(filenameExtension: "tiff")
-    static let heic: UTType = UTType(filenameExtension: "heic")
-
-}
-
-#endif

@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2016-2024 Jason Morley
+// Copyright (c) 2023 Jason Barrie Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +22,37 @@
 
 import Foundation
 
-#if canImport(UniformTypeIdentifiers)
+import ArgumentParser
+import InContextCore
 
-import UniformTypeIdentifiers
+struct Options: ParsableArguments {
 
-extension UTType {
+    @Option(help: "path to the root of the site",
+            completion: .file(),
+            transform: URL.init(fileURLWithPath:))
+    var site: URL?
 
-    static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
+    @Flag(help: "serialize import")
+    var serializeImport = false
 
-}
+    @Flag(help: "serialize template render")
+    var serializeRender = false
 
-#else
+    @Flag(help: "watch for changes to the content directory")
+    var watch = false
 
-class UTType {
-
-    let filenameExtension: String
-
-    init(filenameExtension: String) {
-        self.filenameExtension = filenameExtension
+    func resolveSite() throws -> Site {
+        if let site {
+            return try Site(rootURL: site)
+        }
+        let fileManager = FileManager.default
+        for directoryURL in ParentIterator(fileManager.currentDirectoryURL) {
+            let settingsURL = directoryURL.appendingPathComponent("site.yaml")
+            if fileManager.fileExists(at: settingsURL) {
+                return try Site(rootURL: directoryURL)
+            }
+        }
+        throw InContextError.internalInconsistency("Unable to detect site in current directory tree.")
     }
 
-    func conforms(to type: UTType) -> Bool {
-        return type.filenameExtension == filenameExtension
-    }
-
 }
-
-
-extension UTType {
-
-    static let markdown: UTType = UTType(filenameExtension: "markdown")
-    static let html: UTType = UTType(filenameExtension: "html")
-    static let jpeg: UTType = UTType(filenameExtension: "jpeg")
-    static let tiff: UTType = UTType(filenameExtension: "tiff")
-    static let heic: UTType = UTType(filenameExtension: "heic")
-
-}
-
-#endif

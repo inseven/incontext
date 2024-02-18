@@ -20,10 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if canImport(CoreGraphics)
 import CoreGraphics
+#endif
+
 import Foundation
+
+#if canImport(ImageIO)
 import ImageIO
+#endif
+
+#if canImport(UniformTypeIdentifiers)
 import UniformTypeIdentifiers
+#endif
+
+/*
 
 protocol _Test {
     // TODO: This needs to pass in the metadata
@@ -283,6 +294,8 @@ let configuration = _Configuration {
 
 }
 
+*/
+
 class ImageImporter: Importer {
 
     struct Settings: ImporterSettings {
@@ -313,6 +326,10 @@ class ImageImporter: Importer {
                  settings: Settings,
                  outputURL: URL) async throws -> ImporterResult {
 
+        throw InContextError.internalInconsistency("Unsupported")
+        
+
+        /*
         let fileURL = file.url
 
         // Create the assets directory.
@@ -399,6 +416,8 @@ class ImageImporter: Importer {
                                     relativeSourcePath: file.relativePath,
                                     format: .image)
         return ImporterResult(document: document, assets: context.assets)
+
+        */
     }
 
 }

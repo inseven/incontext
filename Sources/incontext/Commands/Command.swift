@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2016-2024 Jason Morley
+// Copyright (c) 2023 Jason Barrie Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +22,35 @@
 
 import Foundation
 
-#if canImport(UniformTypeIdentifiers)
+import ArgumentParser
 
-import UniformTypeIdentifiers
+@main
+struct Command: AsyncParsableCommand {
 
-extension UTType {
+    static func version() -> String {
+        guard let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+              let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+        else {
+            return "unknown"
+        }
 
-    static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
+        var components: [String] = [version, buildNumber]
 
-}
-
-#else
-
-class UTType {
-
-    let filenameExtension: String
-
-    init(filenameExtension: String) {
-        self.filenameExtension = filenameExtension
-    }
-
-    func conforms(to type: UTType) -> Bool {
-        return type.filenameExtension == filenameExtension
-    }
-
-}
-
-
-extension UTType {
-
-    static let markdown: UTType = UTType(filenameExtension: "markdown")
-    static let html: UTType = UTType(filenameExtension: "html")
-    static let jpeg: UTType = UTType(filenameExtension: "jpeg")
-    static let tiff: UTType = UTType(filenameExtension: "tiff")
-    static let heic: UTType = UTType(filenameExtension: "heic")
-
-}
-
+#if DEBUG
+        components.append("debug")
 #endif
+
+        return components.joined(separator: " ")
+    }
+
+    static var configuration = CommandConfiguration(
+        commandName: "incontext",
+        version: version(),
+        subcommands: [
+            Build.self,
+            Clean.self,
+            Serve.self,
+            Run.self,
+        ])
+
+}

@@ -22,6 +22,12 @@
 
 import Foundation
 
+extension TimeZone {
+
+    static let gmt = TimeZone(secondsFromGMT: 0)
+
+}
+
 struct Formatters {
 
     static let dayDate: DateFormatter = {

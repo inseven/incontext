@@ -20,7 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if canImport(AVFoundation)
 import AVFoundation
+#endif
+
 import Foundation
 
 class VideoImporter: Importer {
@@ -52,6 +55,10 @@ class VideoImporter: Importer {
     func process(file: File,
                  settings: Settings,
                  outputURL: URL) async throws -> ImporterResult {
+
+        throw InContextError.internalInconsistency("Unsupported")
+
+        /* 
 
         let fileURL = file.url
 
@@ -154,7 +161,11 @@ class VideoImporter: Importer {
                                     format: .video)
 
         return ImporterResult(document: document, assets: [Asset(fileURL: videoURL), Asset(fileURL: thumbnailURL)])
+
+        */
     }
+
+    /*
 
     func thumbnail(asset: AVAsset, destinationURL: URL) async throws {
         let generator = AVAssetImageGenerator(asset: asset)
@@ -200,5 +211,7 @@ class VideoImporter: Importer {
         // Convert the video to the output file type and export it to the output URL.
         await exportSession.export()
     }
+
+    */
 
 }

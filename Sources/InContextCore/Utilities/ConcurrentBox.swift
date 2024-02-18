@@ -22,6 +22,14 @@
 
 import Foundation
 
+extension NSCondition {
+
+    func withLock<R>(_ body: () throws -> R) rethrows -> R {
+        return try body()
+    }
+
+}
+
 class ConcurrentBox<Content> {
 
     let condition = NSCondition()
