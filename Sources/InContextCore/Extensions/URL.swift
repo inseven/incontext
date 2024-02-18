@@ -77,3 +77,26 @@ extension URL {
     }
 
 }
+
+#if os(Linux)
+
+enum DirectoryHint {
+
+    case isDirectory
+    case notDirectory
+
+}
+
+extension URL {
+
+    init(filePath: String, directoryHint: DirectoryHint = .notDirectory) {
+        self.init(fileURLWithPath: filePath, isDirectory: directoryHint == .isDirectory ? true : false)
+    }
+
+    init(filePath: String, relativeTo url: URL?) {
+        self.init(fileURLWithPath: filePath, relativeTo: url)
+    }
+
+}
+
+#endif
