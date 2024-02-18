@@ -22,19 +22,33 @@
 
 import Foundation
 
-extension TimeZone {
+import InContextCore
 
-    static let gmt = TimeZone(secondsFromGMT: 0)
+struct LoggingSession: Session {
 
-}
+    let type: SessionType
+    let name: String
 
-struct Formatters {
+    init(type: SessionType, name: String) {
+        self.type = type
+        self.name = name
+    }
 
-    static let dayDate: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = .gmt
-        return dateFormatter
-    }()
+    func startTask(_ description: String) -> InContextCore.SessionTask {
+        return LoggingTask(description: description)
+    }
+    
+    func finish(result: Result<InContextCore.CompletionState, Error>) {
+        switch result {
+        case .success:
+            print("Done.")
+        case .failure(let error):
+            print("Failed with error \(error).")
+        }
+    }
+
+    func log(level: LogLevel, _ message: String) {
+        print(message)
+    }
 
 }

@@ -22,19 +22,19 @@
 
 import Foundation
 
-extension TimeZone {
+import ArgumentParser
+import InContextCore
 
-    static let gmt = TimeZone(secondsFromGMT: 0)
+struct Clean: AsyncParsableCommand {
 
-}
+    @OptionGroup var options: Options
 
-struct Formatters {
+    static var configuration = CommandConfiguration(commandName: "clean",
+                                                    abstract: "Remove the build directory.")
 
-    static let dayDate: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = .gmt
-        return dateFormatter
-    }()
+    mutating func run() async throws {
+        let site = try options.resolveSite()
+        try FileManager.default.removeItem(at: site.buildURL)
+    }
 
 }

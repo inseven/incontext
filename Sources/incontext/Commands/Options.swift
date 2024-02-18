@@ -22,19 +22,37 @@
 
 import Foundation
 
-extension TimeZone {
+import ArgumentParser
+import InContextCore
 
-    static let gmt = TimeZone(secondsFromGMT: 0)
+struct Options: ParsableArguments {
 
-}
+    @Option(help: "path to the root of the site",
+            completion: .file(),
+            transform: URL.init(fileURLWithPath:))
+    var site: URL?
 
-struct Formatters {
+    @Flag(help: "serialize import")
+    var serializeImport = false
 
-    static let dayDate: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = .gmt
-        return dateFormatter
-    }()
+    @Flag(help: "serialize template render")
+    var serializeRender = false
+
+    @Flag(help: "watch for changes to the content directory")
+    var watch = false
+
+    func resolveSite() throws -> Site {
+        if let site {
+            return try Site(rootURL: site)
+        }
+        let fileManager = FileManager.default
+        for directoryURL in ParentIterator(fileManager.currentDirectoryURL) {
+            let settingsURL = directoryURL.appendingPathComponent("site.yaml")
+            if fileManager.fileExists(at: settingsURL) {
+                return try Site(rootURL: directoryURL)
+            }
+        }
+        throw InContextError.internalInconsistency("Unable to detect site in current directory tree.")
+    }
 
 }

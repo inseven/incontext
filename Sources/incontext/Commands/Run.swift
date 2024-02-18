@@ -22,19 +22,26 @@
 
 import Foundation
 
-extension TimeZone {
+import ArgumentParser
+import InContextCore
 
-    static let gmt = TimeZone(secondsFromGMT: 0)
+struct Run: AsyncParsableCommand {
 
-}
+    static var configuration = CommandConfiguration(commandName: "run",
+                                                    abstract: "Run a task.")
 
-struct Formatters {
+    @OptionGroup var options: Options
 
-    static let dayDate: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = .gmt
-        return dateFormatter
-    }()
+    @Argument(help: "Task to run.")
+    var task: String
+
+    mutating func run() async throws {
+        let site = try options.resolveSite()
+        guard let action = site.actions.first(where: { $0.id == task }) else {
+            throw InContextError.internalInconsistency("Unknown task '\(task)'.")
+        }
+        let runner = ActionRunner(site: site, action: action, tracker: LoggingTracker())
+        runner.run()
+    }
 
 }

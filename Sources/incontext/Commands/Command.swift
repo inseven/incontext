@@ -22,19 +22,35 @@
 
 import Foundation
 
-extension TimeZone {
+import ArgumentParser
 
-    static let gmt = TimeZone(secondsFromGMT: 0)
+@main
+struct Command: AsyncParsableCommand {
 
-}
+    static func version() -> String {
+        guard let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+              let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+        else {
+            return "unknown"
+        }
 
-struct Formatters {
+        var components: [String] = [version, buildNumber]
 
-    static let dayDate: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = .gmt
-        return dateFormatter
-    }()
+#if DEBUG
+        components.append("debug")
+#endif
+
+        return components.joined(separator: " ")
+    }
+
+    static var configuration = CommandConfiguration(
+        commandName: "incontext",
+        version: version(),
+        subcommands: [
+            Build.self,
+            Clean.self,
+            Serve.self,
+            Run.self,
+        ])
 
 }

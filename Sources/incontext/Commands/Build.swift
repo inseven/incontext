@@ -22,19 +22,23 @@
 
 import Foundation
 
-extension TimeZone {
+import ArgumentParser
+import InContextCore
 
-    static let gmt = TimeZone(secondsFromGMT: 0)
+struct Build: AsyncParsableCommand {
 
-}
+    static var configuration = CommandConfiguration(commandName: "build",
+                                                    abstract: "Build the website.")
 
-struct Formatters {
+    @OptionGroup var options: Options
 
-    static let dayDate: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = .gmt
-        return dateFormatter
-    }()
+    mutating func run() async throws {
+        let site = try options.resolveSite()
+        let ic = try await Builder(site: site,
+                                   tracker: LoggingTracker(),
+                                   serializeImport: options.serializeImport,
+                                   serializeRender: options.serializeRender)
+        try await ic.build(watch: options.watch)
+    }
 
 }

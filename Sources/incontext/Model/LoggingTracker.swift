@@ -22,19 +22,14 @@
 
 import Foundation
 
-extension TimeZone {
+import InContextCore
 
-    static let gmt = TimeZone(secondsFromGMT: 0)
+struct LoggingTracker: Tracker {
 
-}
-
-struct Formatters {
-
-    static let dayDate: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = .gmt
-        return dateFormatter
-    }()
+    func new(type: SessionType, name: String) -> Session {
+        let session = LoggingSession(type: type, name: name)
+        session.log(level: .info, name)
+        return session
+    }
 
 }

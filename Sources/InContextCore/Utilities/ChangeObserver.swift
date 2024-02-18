@@ -22,14 +22,40 @@
 
 import Foundation
 
+#if canImport(FSEventsWrapper)
 import FSEventsWrapper
+#endif
+
+enum DirectoryHint {
+
+    case isDirectory
+    case notDirectory
+
+}
+
+extension URL {
+
+    init(filePath: String, directoryHint: DirectoryHint = .notDirectory) {
+        self.init(fileURLWithPath: filePath, isDirectory: directoryHint == .isDirectory ? true : false)
+    }
+
+    init(filePath: String, relativeTo url: URL?) {
+        self.init(fileURLWithPath: filePath, relativeTo: url)
+    }
+
+}
 
 class ChangeObserver {
 
     let box: ConcurrentBox<Bool>
-    let streams: [FSEventStream]
+    
+    // `let streams: [FSEventStream]
 
     init(fileURLs: [URL]) throws {
+
+        self.box = ConcurrentBox<Bool>()
+
+        /*
         for fileURL in fileURLs {
             precondition(fileURL.isFileURL)
         }
@@ -54,6 +80,8 @@ class ChangeObserver {
         streams.forEach { stream in
             stream.startWatching()
         }
+
+        */
     }
 
     func wait() throws {

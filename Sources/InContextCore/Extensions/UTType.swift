@@ -21,6 +21,9 @@
 // SOFTWARE.
 
 import Foundation
+
+#if canImport(UniformTypeIdentifiers)
+
 import UniformTypeIdentifiers
 
 extension UTType {
@@ -28,3 +31,32 @@ extension UTType {
     static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
 
 }
+
+#else
+
+class UTType {
+
+    let filenameExtension: String
+
+    init(filenameExtension: String) {
+        self.filenameExtension = filenameExtension
+    }
+
+    func conforms(to type: UTType) -> Bool {
+        return type.filenameExtension == filenameExtension
+    }
+
+}
+
+
+extension UTType {
+
+    static let markdown: UTType = UTType(filenameExtension: "markdown")
+    static let html: UTType = UTType(filenameExtension: "html")
+    static let jpeg: UTType = UTType(filenameExtension: "jpeg")
+    static let tiff: UTType = UTType(filenameExtension: "tiff")
+    static let heic: UTType = UTType(filenameExtension: "heic")
+
+}
+
+#endif
