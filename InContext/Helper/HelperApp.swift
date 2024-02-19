@@ -50,7 +50,8 @@ struct HelperApp: App {
         LogWindow(applicationModel: applicationModel)
 
         About(repository: "inseven/incontext", copyright: "Copyright © 2016-2024 Jason Morley") {
-            Diligence.Action("GitHub", url: URL(string: "https://github.com/inseven/incontext")!)
+            Action("Website", url: URL(string: "https://incontext.app")!)
+            Action("GitHub", url: URL(string: "https://github.com/inseven/incontext")!)
         } acknowledgements: {
             Acknowledgements("Developers") {
                 Credit("Jason Morley", url: URL(string: "https://jbmorley.co.uk"))
@@ -62,6 +63,7 @@ struct HelperApp: App {
             }
         } licenses: {
             License("InContext", author: "Jason Morley", filename: "incontext-license")
+            License("Tilt", author: "Tom Sutcliffe", filename: "tilt-license")
         }
         .handlesExternalEvents(matching: [.aboutURL])
 
