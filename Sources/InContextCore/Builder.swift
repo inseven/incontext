@@ -207,7 +207,10 @@ public class Builder {
         task.success()
 
         let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
-            for case let fileURL as URL in directoryEnumerator {
+            for case let absoluteFileURL as URL in directoryEnumerator {
+
+                // The enumerator won't create relative paths on Linux so we do some extra fix-up.
+                let fileURL = absoluteFileURL.relative(to: site.contentURL)
 
                 // Get the file metadata.
                 let isDirectory = try fileURL

@@ -22,15 +22,8 @@
 
 import Foundation
 
-import InContextCore
+extension TimeZone {
 
-extension Date {
-
-    init(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int) {
-        let dateComponents = DateComponents(year: year, month: month, day: day, hour: hour, minute: minute)
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = .gmt
-        self = calendar.date(from: dateComponents)!
-    }
+    public static let gmt = TimeZone(secondsFromGMT: 0)!
 
 }

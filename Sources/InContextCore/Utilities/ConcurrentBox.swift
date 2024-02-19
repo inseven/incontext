@@ -22,13 +22,23 @@
 
 import Foundation
 
-extension NSCondition {
+#if os(Linux)
+
+// Unhelpfully Foundation on Linux doesn't provide `withLock` so we implement it here.
+
+extension NSLocking {
 
     func withLock<R>(_ body: () throws -> R) rethrows -> R {
+        lock()
+        defer {
+            unlock()
+        }
         return try body()
     }
 
 }
+
+#endif
 
 class ConcurrentBox<Content> {
 

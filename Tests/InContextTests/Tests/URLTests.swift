@@ -22,15 +22,18 @@
 
 import Foundation
 
-import InContextCore
+import XCTest
+@testable import InContextCore
 
-extension Date {
+class URLTests: XCTestCase {
 
-    init(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int) {
-        let dateComponents = DateComponents(year: year, month: month, day: day, hour: hour, minute: minute)
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = .gmt
-        self = calendar.date(from: dateComponents)!
+    func testRelativePath() {
+        XCTAssertEqual(URL(filePath: "/a").relativePath, "/a")
+        XCTAssertEqual(URL(filePath: "/a", relativeTo: URL(filePath: "/b")).relativePath, "/a")
+        XCTAssertEqual(URL(filePath: "/a", relativeTo: URL(filePath: "/b")).path, "/a")
+        XCTAssertEqual(URL(filePath: "a", relativeTo: URL(filePath: "/b")).relativePath, "a")
+        XCTAssertEqual(URL(filePath: "/a", directoryHint: .isDirectory).hasDirectoryPath, true)
+        XCTAssertEqual(URL(filePath: "/a", directoryHint: .notDirectory).hasDirectoryPath, false)
     }
-
+    
 }
