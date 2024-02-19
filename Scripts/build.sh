@@ -89,8 +89,7 @@ swift test
 pushd InContext
 
     # Install the provisioning profiles.
-    build-tools install-provisioning-profile "Helper/InContext_Helper_Developer_ID_Profile.provisionprofile"
-    build-tools install-provisioning-profile "Helper/InContext_Helper_Mac_App_Store_Profile.provisionprofile"
+    build-tools install-provisioning-profile "InContext_Helper_Developer_ID_Profile.provisionprofile"
 
     # Build and archive the command.
     xcodebuild \
