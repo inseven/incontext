@@ -37,6 +37,13 @@
 		D86BCDFA2A9B030400C81BA5 /* Geocoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDF92A9B030400C81BA5 /* Geocoder.swift */; };
 		D86BCDFC2A9B032200C81BA5 /* HelperError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDFB2A9B032200C81BA5 /* HelperError.swift */; };
 		D882D9472ACCC7B3001469DA /* LoggingTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = D882D9462ACCC7B3001469DA /* LoggingTask.swift */; };
+		D8850A132B841AEE00E17977 /* incontext-license in Resources */ = {isa = PBXBuildFile; fileRef = D8850A122B841AE500E17977 /* incontext-license */; };
+		D8850A172B841D6E00E17977 /* MainMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8850A152B841D4A00E17977 /* MainMenu.swift */; };
+		D8850A1B2B8420B400E17977 /* Scene.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8850A182B841E5F00E17977 /* Scene.swift */; };
+		D8850A1D2B84217200E17977 /* tilt-license in Resources */ = {isa = PBXBuildFile; fileRef = D8850A1C2B84217200E17977 /* tilt-license */; };
+		D8850A212B84253500E17977 /* hummingbird-license in Resources */ = {isa = PBXBuildFile; fileRef = D8850A202B84253500E17977 /* hummingbird-license */; };
+		D8850A232B84260D00E17977 /* luaswift-license in Resources */ = {isa = PBXBuildFile; fileRef = D8850A222B84260D00E17977 /* luaswift-license */; };
+		D8850A252B8426B900E17977 /* sqliteswift-license in Resources */ = {isa = PBXBuildFile; fileRef = D8850A242B8426B900E17977 /* sqliteswift-license */; };
 		D8864FF32AB277D600DE6548 /* Run.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8864FF22AB277D600DE6548 /* Run.swift */; };
 		D8920F1B2AB2AB8700137912 /* Diligence in Frameworks */ = {isa = PBXBuildFile; productRef = D8920F1A2AB2AB8700137912 /* Diligence */; };
 		D8A739B42AA660F400946EED /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A739B32AA660F400946EED /* LogView.swift */; };
@@ -112,6 +119,14 @@
 		D86BCDF92A9B030400C81BA5 /* Geocoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Geocoder.swift; sourceTree = "<group>"; };
 		D86BCDFB2A9B032200C81BA5 /* HelperError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperError.swift; sourceTree = "<group>"; };
 		D882D9462ACCC7B3001469DA /* LoggingTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingTask.swift; sourceTree = "<group>"; };
+		D8850A122B841AE500E17977 /* incontext-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "incontext-license"; sourceTree = "<group>"; };
+		D8850A142B841C3900E17977 /* InContext-Helper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "InContext-Helper-Info.plist"; sourceTree = "<group>"; };
+		D8850A152B841D4A00E17977 /* MainMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
+		D8850A182B841E5F00E17977 /* Scene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scene.swift; sourceTree = "<group>"; };
+		D8850A1C2B84217200E17977 /* tilt-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tilt-license"; sourceTree = "<group>"; };
+		D8850A202B84253500E17977 /* hummingbird-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "hummingbird-license"; sourceTree = "<group>"; };
+		D8850A222B84260D00E17977 /* luaswift-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "luaswift-license"; sourceTree = "<group>"; };
+		D8850A242B8426B900E17977 /* sqliteswift-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "sqliteswift-license"; sourceTree = "<group>"; };
 		D8864FF22AB277D600DE6548 /* Run.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Run.swift; sourceTree = "<group>"; };
 		D890630A2A98293A0001A8E2 /* incontext */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = incontext; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89063152A9829500001A8E2 /* incontext-waialua */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "incontext-waialua"; path = ..; sourceTree = "<group>"; };
@@ -172,6 +187,7 @@
 				D84E77FB2AA95C3700ED193A /* LogLevel.swift */,
 				D8121A7C2AA0747000EEDF5B /* Publisher.swift */,
 				D8121A702AA04BDA00EEDF5B /* URL.swift */,
+				D8850A182B841E5F00E17977 /* Scene.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -183,12 +199,13 @@
 				D8E592252AB3A8C3000EE676 /* FavoritesMenu.swift */,
 				D8A739B32AA660F400946EED /* LogView.swift */,
 				D8A739B52AA6611E00946EED /* LogWindow.swift */,
+				D8850A152B841D4A00E17977 /* MainMenu.swift */,
+				D8F672792AC898B00073900D /* SessionFooter.swift */,
 				D8A739B72AA6621E00946EED /* SessionView.swift */,
 				D8A739B92AA6627500946EED /* SettingsMenu.swift */,
 				D8121A742AA05D7F00EEDF5B /* SiteList.swift */,
 				D8121A7E2AA105CC00EEDF5B /* SiteMenu.swift */,
 				D8F672772AC8988D0073900D /* TaskRow.swift */,
-				D8F672792AC898B00073900D /* SessionFooter.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -198,11 +215,12 @@
 			children = (
 				D8121A722AA05C3D00EEDF5B /* ApplicationModel.swift */,
 				D8AD37AE2AA69FDF0006555F /* Event.swift */,
+				D86BCDFB2A9B032200C81BA5 /* HelperError.swift */,
 				D80E4FCE2AA7AD3300FD4BB5 /* HelperSession.swift */,
+				D8F6727B2AC89DF00073900D /* HelperSessionTask.swift */,
 				D80E4FD02AA7AD5300FD4BB5 /* HelperTracker.swift */,
 				D8121A6D2AA0465200EEDF5B /* Settings.swift */,
 				D8121A782AA05F9A00EEDF5B /* SiteModel.swift */,
-				D8F6727B2AC89DF00073900D /* HelperSessionTask.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -241,13 +259,13 @@
 			isa = PBXGroup;
 			children = (
 				D86BCDD92A9B016D00C81BA5 /* Helper.entitlements */,
-				D86BCDF92A9B030400C81BA5 /* Geocoder.swift */,
 				D86BCDD02A9B016A00C81BA5 /* HelperApp.swift */,
-				D86BCDFB2A9B032200C81BA5 /* HelperError.swift */,
 				D86BCDD42A9B016D00C81BA5 /* Assets.xcassets */,
 				D8121A6F2AA04BC900EEDF5B /* Extensions */,
+				D8850A0F2B841AB100E17977 /* Licenses */,
 				D8121A772AA05E7100EEDF5B /* Model */,
 				D86BCDD62A9B016D00C81BA5 /* Preview Content */,
+				D8850A1A2B84208E00E17977 /* Utilities */,
 				D8121A762AA05DB300EEDF5B /* Views */,
 			);
 			path = Helper;
@@ -278,9 +296,30 @@
 			path = HelperUITests;
 			sourceTree = "<group>";
 		};
+		D8850A0F2B841AB100E17977 /* Licenses */ = {
+			isa = PBXGroup;
+			children = (
+				D8850A202B84253500E17977 /* hummingbird-license */,
+				D8850A122B841AE500E17977 /* incontext-license */,
+				D8850A222B84260D00E17977 /* luaswift-license */,
+				D8850A242B8426B900E17977 /* sqliteswift-license */,
+				D8850A1C2B84217200E17977 /* tilt-license */,
+			);
+			path = Licenses;
+			sourceTree = "<group>";
+		};
+		D8850A1A2B84208E00E17977 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				D86BCDF92A9B030400C81BA5 /* Geocoder.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		D89063012A9829390001A8E2 = {
 			isa = PBXGroup;
 			children = (
+				D8850A142B841C3900E17977 /* InContext-Helper-Info.plist */,
 				D8F75F462AA34811000DEDB7 /* InContext HelperRelease.entitlements */,
 				D89063142A9829500001A8E2 /* Packages */,
 				D890630C2A98293A0001A8E2 /* InContext */,
@@ -462,7 +501,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				D86BCDD82A9B016D00C81BA5 /* Preview Assets.xcassets in Resources */,
+				D8850A232B84260D00E17977 /* luaswift-license in Resources */,
+				D8850A1D2B84217200E17977 /* tilt-license in Resources */,
 				D86BCDD52A9B016D00C81BA5 /* Assets.xcassets in Resources */,
+				D8850A212B84253500E17977 /* hummingbird-license in Resources */,
+				D8850A132B841AEE00E17977 /* incontext-license in Resources */,
+				D8850A252B8426B900E17977 /* sqliteswift-license in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -489,6 +533,7 @@
 			files = (
 				D8A739B62AA6611E00946EED /* LogWindow.swift in Sources */,
 				D8E592242AB3A840000EE676 /* ActionsMenu.swift in Sources */,
+				D8850A1B2B8420B400E17977 /* Scene.swift in Sources */,
 				D80E4FD12AA7AD5300FD4BB5 /* HelperTracker.swift in Sources */,
 				D8A739BA2AA6627500946EED /* SettingsMenu.swift in Sources */,
 				D80E4FCF2AA7AD3300FD4BB5 /* HelperSession.swift in Sources */,
@@ -506,6 +551,7 @@
 				D86BCDFA2A9B030400C81BA5 /* Geocoder.swift in Sources */,
 				D8E592262AB3A8C3000EE676 /* FavoritesMenu.swift in Sources */,
 				D86BCDFC2A9B032200C81BA5 /* HelperError.swift in Sources */,
+				D8850A172B841D6E00E17977 /* MainMenu.swift in Sources */,
 				D86BCDD12A9B016A00C81BA5 /* HelperApp.swift in Sources */,
 				D8121A6E2AA0465200EEDF5B /* Settings.swift in Sources */,
 				D8A739B42AA660F400946EED /* LogView.swift in Sources */,
@@ -576,6 +622,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "InContext-Helper-Info.plist";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -607,6 +654,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "InContext-Helper-Info.plist";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (

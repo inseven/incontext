@@ -22,6 +22,8 @@
 
 import SwiftUI
 
+import Diligence
+
 @main
 struct HelperApp: App {
 
@@ -35,46 +37,8 @@ struct HelperApp: App {
     var body: some Scene {
 
         MenuBarExtra {
-            SiteList(applicationModel: applicationModel)
-            Divider()
-            Menu {
-                SettingsMenu(applicationModel: applicationModel)
-            } label: {
-                Text("Settings")
-            }
-            Divider()
-            Menu {
-                Menu {
-                    Button("Copy x-location") {
-                        Task {
-                            do {
-                                let pasteboard = NSPasteboard.general
-                                guard let address = pasteboard.string(forType: .string) else {
-                                    return
-                                }
-                                let location = try await Geocoder.xLocation(for: address)
-                                pasteboard.clearContents()
-                                pasteboard.setString(location, forType: .string)
-                            } catch {
-                                print("Failed to geocode address with error \(error).")
-                            }
-                        }
-                    }
-                } label: {
-                    Text("Location")
-                }
-            } label: {
-                Text("Utilities")
-            }
-
-            Divider()
-
-            Button {
-                applicationModel.quit()
-            } label: {
-                Text("Quit")
-            }
-
+            MainMenu()
+                .environmentObject(applicationModel)
         } label: {
 #if DEBUG
             Label("InContext Helper", systemImage: "hammer")
@@ -85,7 +49,27 @@ struct HelperApp: App {
 
         LogWindow(applicationModel: applicationModel)
 
-    }
+        About(repository: "inseven/incontext", copyright: "Copyright © 2016-2024 Jason Morley") {
+            Action("Website", url: URL(string: "https://incontext.app")!)
+            Action("GitHub", url: URL(string: "https://github.com/inseven/incontext")!)
+        } acknowledgements: {
+            Acknowledgements("Developers") {
+                Credit("Jason Morley", url: URL(string: "https://jbmorley.co.uk"))
+                Credit("Tom Sutcliffe", url: URL(string: "https://github.com/tomsci"))
+            }
+            Acknowledgements("Thanks") {
+                Credit("Lukas Fittl")
+                Credit("Sarah Barbour")
+            }
+        } licenses: {
+            License("Hummingbird", author: "Hummingbird", filename: "hummingbird-license")
+            License("InContext", author: "Jason Morley", filename: "incontext-license")
+            License("LuaSwift", author: "Tom Sutcliffe", filename: "luaswift-license")
+            License("SQLite.swift", author: "Stephen Celis", filename: "sqliteswift-license")
+            License("Tilt", author: "Tom Sutcliffe", filename: "tilt-license")
+        }
+        .handlesExternalEvents(matching: [.aboutURL])
 
+    }
     
 }

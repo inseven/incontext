@@ -22,10 +22,10 @@
 
 import SwiftUI
 
-extension URL: Identifiable {
+extension Scene {
 
-    static let aboutURL = URL(string: "x-incontext-helper://about")!
-
-    public var id: Self { return self }
+    public func handlesExternalEvents(matching conditions: Set<URL>) -> some Scene {
+        return handlesExternalEvents(matching: Set(conditions.map { $0.absoluteString }))
+    }
 
 }
