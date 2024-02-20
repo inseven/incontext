@@ -62,7 +62,10 @@ struct HelperApp: App {
                 Credit("Sarah Barbour")
             }
         } licenses: {
+            License("Hummingbird", author: "Hummingbird", filename: "hummingbird-license")
             License("InContext", author: "Jason Morley", filename: "incontext-license")
+            License("LuaSwift", author: "Tom Sutcliffe", filename: "luaswift-license")
+            License("SQLite.swift", author: "Stephen Celis", filename: "sqliteswift-license")
             License("Tilt", author: "Tom Sutcliffe", filename: "tilt-license")
         }
         .handlesExternalEvents(matching: [.aboutURL])
