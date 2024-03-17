@@ -53,7 +53,6 @@ CHANGES_DIRECTORY="${SCRIPTS_DIRECTORY}/changes"
 BUILD_TOOLS_DIRECTORY="${SCRIPTS_DIRECTORY}/build-tools"
 
 # Install the Python dependencies
-pip3 install --user pipenv
 PIPENV_PIPFILE="$CHANGES_DIRECTORY/Pipfile" pipenv install
 PIPENV_PIPFILE="$BUILD_TOOLS_DIRECTORY/Pipfile" pipenv install
 
