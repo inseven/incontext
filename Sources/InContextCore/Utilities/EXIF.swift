@@ -22,6 +22,7 @@
 
 import Foundation
 
+#if canImport(ImageIO)
 import ImageIO
 
 // Metadata import details from Python.
@@ -185,3 +186,5 @@ struct EXIF {
     }
 
 }
+
+#endif

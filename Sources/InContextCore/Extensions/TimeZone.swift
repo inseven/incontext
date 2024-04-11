@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2016-2024 Jason Morley
+// Copyright (c) 2023 Jason Barrie Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +22,8 @@
 
 import Foundation
 
-#if canImport(UniformTypeIdentifiers)
+extension TimeZone {
 
-import UniformTypeIdentifiers
-
-extension UTType {
-
-    static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
+    public static let gmt = TimeZone(secondsFromGMT: 0)!
 
 }
-
-#else
-
-class UTType {
-
-    let filenameExtension: String
-
-    init(filenameExtension: String) {
-        self.filenameExtension = filenameExtension
-    }
-
-    func conforms(to type: UTType) -> Bool {
-        return type.filenameExtension == filenameExtension
-    }
-
-}
-
-
-extension UTType {
-
-    static let markdown: UTType = UTType(filenameExtension: "markdown")
-    static let html: UTType = UTType(filenameExtension: "html")
-    static let jpeg: UTType = UTType(filenameExtension: "jpeg")
-    static let tiff: UTType = UTType(filenameExtension: "tiff")
-    static let heic: UTType = UTType(filenameExtension: "heic")
-
-}
-
-#endif

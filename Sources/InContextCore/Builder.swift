@@ -200,22 +200,30 @@ public class Builder {
         let fileManager = FileManager.default
 
         let task = session.startTask("Scanning files...")
-        let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey, .contentModificationDateKey])
+        let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey /*, .contentModificationDateKey */])
         let directoryEnumerator = fileManager.enumerator(at: site.contentURL,
                                                          includingPropertiesForKeys: Array(resourceKeys),
-                                                         options: [.skipsHiddenFiles, .producesRelativePathURLs])!
+                                                         options: [.skipsHiddenFiles /*, .producesRelativePathURLs */])!
         task.success()
 
         let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
-            for case let fileURL as URL in directoryEnumerator {
+            for case let absoluteFileURL as URL in directoryEnumerator {
+
+                // The enumerator won't create relative paths on Linux so we do some extra fix-up.
+                let fileURL = absoluteFileURL.relative(to: site.contentURL)
 
                 // Get the file metadata.
                 let isDirectory = try fileURL
                     .resourceValues(forKeys: [.isDirectoryKey])
                     .isDirectory!
+
+                /*
                 let contentModificationDate = try fileURL
                     .resourceValues(forKeys: [.contentModificationDateKey])
-                    .contentModificationDate!
+                    .contentModificationDate! */
+
+                let attr = try FileManager.default.attributesOfItem(atPath: fileURL.path)
+                let contentModificationDate = attr[FileAttributeKey.modificationDate] as! Date
 
                 // Ignore directories.
                 if isDirectory {
