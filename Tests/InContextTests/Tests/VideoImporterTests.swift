@@ -52,4 +52,3 @@ class VideoImporterTests: ContentTestCase {
 }
 
 #endif
-
