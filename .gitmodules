@@ -19,3 +19,6 @@
 [submodule "Dependencies/swift-log"]
 	path = Dependencies/swift-log
 	url = git@github.com:apple/swift-log.git
+[submodule "Dependencies/interact"]
+	path = Dependencies/interact
+	url = git@github.com:inseven/interact.git

@@ -60,7 +60,7 @@ struct MainMenu: View {
         Divider()
 
         Button {
-            openURL(.aboutURL)
+            openURL(.about)
         } label: {
             Text("About...")
         }

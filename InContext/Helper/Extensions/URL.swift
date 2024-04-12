@@ -24,7 +24,7 @@ import SwiftUI
 
 extension URL: Identifiable {
 
-    static let aboutURL = URL(string: "x-incontext-helper://about")!
+    static let about = URL(string: "x-incontext-helper://about")!
 
     public var id: Self { return self }
 

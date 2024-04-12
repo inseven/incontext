@@ -23,6 +23,7 @@
 import SwiftUI
 
 import Diligence
+import Interact
 
 @main
 struct HelperApp: App {
@@ -68,7 +69,7 @@ struct HelperApp: App {
             License("SQLite.swift", author: "Stephen Celis", filename: "sqliteswift-license")
             License("Tilt", author: "Tom Sutcliffe", filename: "tilt-license")
         }
-        .handlesExternalEvents(matching: [.aboutURL])
+        .handlesExternalEvents(matching: [.about])
 
     }
     
