@@ -22,6 +22,8 @@
 
 import Foundation
 
+import InContextCommand
+
 @main
 struct Main {
     static func main() async throws {

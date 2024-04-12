@@ -24,7 +24,7 @@ import Foundation
 
 import ArgumentParser
 
-struct Command: AsyncParsableCommand {
+public struct Command: AsyncParsableCommand {
 
     static func version() -> String {
         guard let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
@@ -42,7 +42,7 @@ struct Command: AsyncParsableCommand {
         return components.joined(separator: " ")
     }
 
-    static var configuration = CommandConfiguration(
+    public static var configuration = CommandConfiguration(
         commandName: "incontext",
         version: version(),
         subcommands: [
@@ -51,5 +51,9 @@ struct Command: AsyncParsableCommand {
             Serve.self,
             Run.self,
         ])
+
+    public init() {
+
+    }
 
 }
