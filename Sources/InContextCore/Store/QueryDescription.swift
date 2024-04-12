@@ -156,10 +156,16 @@ struct QueryDescription: Codable, Hashable {
             throw InContextError.invalidQueryDefinition
         }
         if let include = structuredQuery["include"] {
-            guard let include = include as? [String] else {
+
+            if let include = include as? [String] {
+                includeCategories = include
+            } else if let includeTable = include as? [AnyHashable: Any],
+                      let include = includeTable.luaTableToArray() as? [String] {
+                includeCategories = include
+            } else {
                 throw InContextError.invalidQueryDefinition
             }
-            includeCategories = include
+
         } else {
             includeCategories = nil
         }
