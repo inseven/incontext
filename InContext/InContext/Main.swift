@@ -22,35 +22,11 @@
 
 import Foundation
 
-import ArgumentParser
+import InContextCommand
 
 @main
-struct Command: AsyncParsableCommand {
-
-    static func version() -> String {
-        guard let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
-              let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
-        else {
-            return "unknown"
-        }
-
-        var components: [String] = [version, buildNumber]
-
-#if DEBUG
-        components.append("debug")
-#endif
-
-        return components.joined(separator: " ")
+struct Main {
+    static func main() async throws {
+        await Command.main()
     }
-
-    static var configuration = CommandConfiguration(
-        commandName: "incontext",
-        version: version(),
-        subcommands: [
-            Build.self,
-            Clean.self,
-            Serve.self,
-            Run.self,
-        ])
-
 }
