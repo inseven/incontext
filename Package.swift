@@ -14,6 +14,11 @@ let package = Package(
             targets: [
                 "InContextCore"
             ]),
+        .library(
+            name: "InContextCommand",
+            targets: [
+                "InContextCommand"
+            ]),
     ],
     dependencies: [
         .package(path: "Dependencies/hummingbird"),
@@ -27,8 +32,17 @@ let package = Package(
         .package(url: "https://github.com/jwells89/Titlecaser.git", from: "1.0.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.14.1"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
     ],
     targets: [
+       .target(
+            name: "InContextCommand",
+            dependencies: [
+               "InContextCore",
+               .product(name: "ArgumentParser", package: "swift-argument-parser"),
+               .product(name: "Hummingbird", package: "hummingbird"),
+               .product(name: "HummingbirdFoundation", package: "hummingbird"),
+           ]),
         .target(
             name: "InContextCore",
             dependencies: [
