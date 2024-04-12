@@ -25,7 +25,9 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-/* class VideoImporterTests: ContentTestCase {
+#if !os(Linux)
+
+class VideoImporterTests: ContentTestCase {
 
     func testExtractTitle() async throws {
 
@@ -45,22 +47,9 @@ import XCTest
             XCTAssertEqual(result.document?.title, "Royal Wave")
         }
 
-//        // TODO: It shouldn't be necessary to pass the site into the importer.
-//        let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg"),
-//                                                   to: "image.jpeg",
-//                                                   location: .content)
-//        let importer = ImageImporter()
-//        let settings =  ImageImporter.Settings(defaultCategory: "photos",
-//                                               titleFromFilename: false,
-//                                               defaultTemplate: TemplateIdentifier("photo.html"),
-//                                               inlineTemplate: TemplateIdentifier("image.html"))
-//        let result = try await importer.process(site: defaultSourceDirectory.site,
-//                                                file: file,
-//                                                settings: settings,
-//                                                outputURL: defaultSourceDirectory.site.filesURL)
-//        XCTAssertNotNil(result.document)
-//        XCTAssertEqual(result.document?.title, "Hallgrímskirkja Church")
     }
 
 }
-*/
+
+#endif
+
