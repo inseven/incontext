@@ -25,14 +25,18 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
+#if !os(Linux)
+
 class ConcurrentBoxTests: XCTestCase {
 
-    // func testConcurrentBox() throws {
-    //     let task = Task {
-    //         try await Task.sleep(nanoseconds: 1000000000)
-    //         return "cheese"
-    //     }
-    //     XCTAssertEqual(try task.awaitResult(), "cheese")
-    // }
+    func testConcurrentBox() throws {
+        let task = Task {
+            try await Task.sleep(nanoseconds: 1000000000)
+            return "cheese"
+        }
+        XCTAssertEqual(try task.awaitResult(), "cheese")
+    }
     
 }
+
+#endif
