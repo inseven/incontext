@@ -22,21 +22,16 @@
 
 import Foundation
 
-#if canImport(FSEventsWrapper)
+#if os(macOS)
+
 import FSEventsWrapper
-#endif
 
 class ChangeObserver {
 
     let box: ConcurrentBox<Bool>
-    
-    // `let streams: [FSEventStream]
+    let streams: [FSEventStream]
 
     init(fileURLs: [URL]) throws {
-
-        self.box = ConcurrentBox<Bool>()
-
-        /*
         for fileURL in fileURLs {
             precondition(fileURL.isFileURL)
         }
@@ -61,8 +56,6 @@ class ChangeObserver {
         streams.forEach { stream in
             stream.startWatching()
         }
-
-        */
     }
 
     func wait() throws {
@@ -70,3 +63,21 @@ class ChangeObserver {
     }
 
 }
+
+#else
+
+class ChangeObserver {
+
+    let box = ConcurrentBox<Bool>()
+
+    init(fileURLs: [URL]) throws {
+    }
+
+    func wait() throws {
+        _ = try box.take()
+    }
+
+}
+
+#endif
+
