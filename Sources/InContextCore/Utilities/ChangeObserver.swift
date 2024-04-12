@@ -22,7 +22,7 @@
 
 import Foundation
 
-#if os(macOS)
+#if !os(Linux)
 
 import FSEventsWrapper
 
