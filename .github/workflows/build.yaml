@@ -43,7 +43,7 @@ jobs:
         path: build
         if-no-files-found: error
 
-  build-linux:
+  build-ubuntu:
     runs-on: ubuntu-latest
     steps:
 
@@ -57,7 +57,7 @@ jobs:
 
     - name: Build, test, and release
       run: |
-        ./build-linux.sh
+        ./scripts/build-ubuntu.sh
 
   documentation:
     needs: build

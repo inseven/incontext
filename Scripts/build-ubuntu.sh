@@ -14,4 +14,8 @@ if [ -d .build ] ; then
     rm -rf .build
 fi
 
+# Run the tests.
+swift test
+
+# Build the project.
 swift build
