@@ -49,7 +49,7 @@ These are the contents of the file.
         let importer = MarkdownImporter()
         let result = try await importer.process(file: file,
                                                 settings: .init(defaultCategory: "general",
-                                                                defaultTemplate: TemplateIdentifier("posts.html")),
+                                                                defaultTemplate: "posts.html"),
                                                 outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
         XCTAssertEqual(result.document!.metadata["title"] as? String, "Fromage")
@@ -71,7 +71,7 @@ steps:
         let importer = MarkdownImporter()
         let result = try await importer.process(file: file,
                                                 settings: .init(defaultCategory: "general",
-                                                                defaultTemplate: TemplateIdentifier("posts.html")),
+                                                                defaultTemplate: "posts.html"),
                                                 outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
         XCTAssertEqual(result.document!.metadata["title"] as? String, "Cheese")

@@ -41,8 +41,8 @@ class VideoImporterTests: ContentTestCase {
             let result = try await importer.process(file: video,
                                                     settings: VideoImporter.Settings(defaultCategory: "snapshots",
                                                                                      titleFromFilename: false,
-                                                                                     defaultTemplate: TemplateIdentifier("video.html"),
-                                                                                     inlineTemplate: TemplateIdentifier("video.html")),
+                                                                                     defaultTemplate: "video.html",
+                                                                                     inlineTemplate: "video.html"),
                                                     outputURL: temporaryDirectoryURL)
             XCTAssertEqual(result.document?.title, "Royal Wave")
         }

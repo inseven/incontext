@@ -112,7 +112,7 @@ struct DocumentContext: EvaluationContext {
         return try content.html()
     }
 
-    func render(template: TemplateIdentifier? = nil) throws -> String {
+    func render(template: String? = nil) throws -> String {
         // TODO: Perhaps the render tracker method could be promoted to here?
         return try renderTracker.render(document, template: template)
     }

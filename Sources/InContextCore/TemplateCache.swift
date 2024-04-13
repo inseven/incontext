@@ -27,7 +27,7 @@ import Foundation
 class TemplateCache {
 
     private let rootURL: URL
-    private let cache = Cache<TemplateIdentifier, TemplateDetails>()
+    private let cache = Cache<String, TemplateDetails>()
 
 
     init(rootURL: URL) async throws {
@@ -35,7 +35,7 @@ class TemplateCache {
         self.rootURL = rootURL
     }
 
-    func details(for identifier: TemplateIdentifier) throws -> TemplateDetails? {
+    func details(for identifier: String) throws -> TemplateDetails? {
 
         // Check the cache.
         if let details = cache[identifier] {
@@ -44,9 +44,9 @@ class TemplateCache {
 
         // Load the template.
         let fileManager = FileManager.default
-        let templateURL = URL(filePath: identifier.name, relativeTo: rootURL)
+        let templateURL = URL(filePath: identifier, relativeTo: rootURL)
         guard fileManager.fileExists(at: templateURL) else {
-            throw InContextError.unknownTemplate(identifier.name)
+            throw InContextError.unknownTemplate(identifier)
         }
 
         // N.B. Since we can't read the mtime and contents atomically, we read the mtime first to ensure it only ever
@@ -66,7 +66,7 @@ class TemplateCache {
         return details
     }
 
-    func modificationDate(for identifier: TemplateIdentifier) throws -> Date? {
+    func modificationDate(for identifier: String) throws -> Date? {
         return try details(for: identifier)?.modificationDate
     }
 

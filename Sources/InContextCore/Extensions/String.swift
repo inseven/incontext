@@ -22,6 +22,8 @@
 
 import Foundation
 
+import PlatformSupport
+
 extension String {
 
     private static let schemeRegex = /[a-z]+:/.ignoresCase()
@@ -74,6 +76,14 @@ extension String {
     var pathDepth: Int {
         let url = URL(filePath: self, relativeTo: Self.rootURL)
         return url.pathComponents.count - 1
+    }
+
+    var pathExtension: String {
+        return URL(filePath: self).pathExtension
+    }
+
+    var type: UTType? {
+        return UTType(filenameExtension: pathExtension)
     }
 
 }

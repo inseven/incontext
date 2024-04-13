@@ -64,7 +64,7 @@ class RenderTracker {
                             templates: Array(statuses))
     }
 
-    func render(_ document: Document, template: TemplateIdentifier? = nil) throws -> String {
+    func render(_ document: Document, template: String? = nil) throws -> String {
         let template = template ?? document.template
         let context = Builder.context(for: site, document: document, renderTracker: self)
         return try renderManager.render(renderTracker: self, template: template, context: context)

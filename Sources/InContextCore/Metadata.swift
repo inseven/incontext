@@ -26,14 +26,14 @@ import Foundation
 struct Metadata: Codable {
 
     let category: String?
-    let template: TemplateIdentifier?
+    let template: String?
     let title: String?
     let subtitle: String?
     let date: Date?
     let tags: [String]?
 
     init(category: String? = nil,
-         template: TemplateIdentifier? = nil,
+         template: String? = nil,
          title: String? = nil,
          subtitle: String? = nil,
          date: Date? = nil,

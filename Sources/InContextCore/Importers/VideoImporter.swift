@@ -27,8 +27,8 @@ class VideoImporter {
     struct Settings: ImporterSettings {
         let defaultCategory: String
         let titleFromFilename: Bool
-        let defaultTemplate: TemplateIdentifier
-        let inlineTemplate: TemplateIdentifier
+        let defaultTemplate: String
+        let inlineTemplate: String
 
         func combine(into fingerprint: inout Fingerprint) throws {
             try fingerprint.update(defaultCategory)
@@ -44,8 +44,8 @@ class VideoImporter {
     func settings(for configuration: [String : Any]) throws -> Settings {
         return Settings(defaultCategory: try configuration.requiredValue(for: "category"),
                         titleFromFilename: try configuration.requiredValue(for: "titleFromFilename"),
-                        defaultTemplate: try configuration.requiredRawRepresentable(for: "defaultTemplate"),
-                        inlineTemplate: try configuration.requiredRawRepresentable(for: "inlineTemplate"))
+                        defaultTemplate: try configuration.requiredValue(for: "defaultTemplate"),
+                        inlineTemplate: try configuration.requiredValue(for: "inlineTemplate"))
     }
 
 }

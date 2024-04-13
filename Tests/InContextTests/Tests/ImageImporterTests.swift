@@ -53,8 +53,8 @@ steps:
         let importer = ImageImporter()
         let settings =  ImageImporter.Settings(defaultCategory: "photos",
                                                titleFromFilename: false,
-                                               defaultTemplate: TemplateIdentifier("photo.html"),
-                                               inlineTemplate: TemplateIdentifier("image.html"))
+                                               defaultTemplate: "photo.html",
+                                               inlineTemplate: "image.html")
         let result = try await importer.process(file: file,
                                                 settings: settings,
                                                 outputURL: defaultSourceDirectory.site.filesURL)
