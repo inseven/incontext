@@ -22,6 +22,8 @@
 
 import Foundation
 
+import PlatformSupport
+
 class ConcurrentBox<Content> {
 
     let condition = NSCondition()

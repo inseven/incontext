@@ -25,6 +25,10 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
+#if !os(Linux)
+
+// TODO: #217: `ConcurrentBox` doesn’t work on Linux (https://github.com/inseven/incontext/issues/217)
+
 class ConcurrentBoxTests: XCTestCase {
 
     func testConcurrentBox() throws {
@@ -36,3 +40,5 @@ class ConcurrentBoxTests: XCTestCase {
     }
     
 }
+
+#endif

@@ -20,33 +20,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+public class UTType {
 
-class VideoImporter {
+    public static let markdown = UTType(filenameExtension: "markdown")
+    public static let html = UTType(filenameExtension: "html")
+    public static let jpeg = UTType(filenameExtension: "jpeg")
+    public static let tiff = UTType(filenameExtension: "tiff")
+    public static let heic = UTType(filenameExtension: "heic")
 
-    struct Settings: ImporterSettings {
-        let defaultCategory: String
-        let titleFromFilename: Bool
-        let defaultTemplate: TemplateIdentifier
-        let inlineTemplate: TemplateIdentifier
+    let filenameExtension: String
 
-        func combine(into fingerprint: inout Fingerprint) throws {
-            try fingerprint.update(defaultCategory)
-            try fingerprint.update(titleFromFilename)
-            try fingerprint.update(defaultTemplate)
-            try fingerprint.update(inlineTemplate)
-        }
+    public init(filenameExtension: String) {
+        self.filenameExtension = filenameExtension
     }
 
-    let identifier = "video"
-    let version = 8
-
-    func settings(for configuration: [String : Any]) throws -> Settings {
-        return Settings(defaultCategory: try configuration.requiredValue(for: "category"),
-                        titleFromFilename: try configuration.requiredValue(for: "titleFromFilename"),
-                        defaultTemplate: try configuration.requiredRawRepresentable(for: "defaultTemplate"),
-                        inlineTemplate: try configuration.requiredRawRepresentable(for: "inlineTemplate"))
+    public func conforms(to type: UTType) -> Bool {
+        return type.filenameExtension == filenameExtension
     }
 
 }
-

@@ -22,62 +22,11 @@
 
 import Foundation
 
-#if !os(Linux)
+import InContextCommand
 
-import FSEventsWrapper
-
-class ChangeObserver {
-
-    let box: ConcurrentBox<Bool>
-    let streams: [FSEventStream]
-
-    init(fileURLs: [URL]) throws {
-        for fileURL in fileURLs {
-            precondition(fileURL.isFileURL)
-        }
-        let box = ConcurrentBox<Bool>()
-
-        self.box = box
-        self.streams = try fileURLs.map { fileURL in
-            let stream = FSEventStream(path: fileURL.path) { stream, event in
-                switch event {
-                case .itemClonedAtPath:
-                    return
-                default:
-                    _ = box.tryPut(true)
-                }
-            }
-            guard let stream else {
-                throw InContextError.internalInconsistency("Failed to monitor '\(fileURL.path)'.")
-            }
-            return stream
-        }
-
-        streams.forEach { stream in
-            stream.startWatching()
-        }
+@main
+struct Main {
+    static func main() async throws {
+        await Command.main()
     }
-
-    func wait() throws {
-        _ = try box.take()
-    }
-
 }
-
-#else
-
-class ChangeObserver {
-
-    let box = ConcurrentBox<Bool>()
-
-    init(fileURLs: [URL]) throws {
-    }
-
-    func wait() throws {
-        _ = try box.take()
-    }
-
-}
-
-#endif
-

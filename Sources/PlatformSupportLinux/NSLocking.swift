@@ -22,62 +22,16 @@
 
 import Foundation
 
-#if !os(Linux)
+extension NSLocking {
 
-import FSEventsWrapper
-
-class ChangeObserver {
-
-    let box: ConcurrentBox<Bool>
-    let streams: [FSEventStream]
-
-    init(fileURLs: [URL]) throws {
-        for fileURL in fileURLs {
-            precondition(fileURL.isFileURL)
+    // Unhelpfully Foundation on Linux doesn't provide `withLock` so we implement it here.
+    public func withLock<R>(_ body: () throws -> R) rethrows -> R {
+        lock()
+        defer {
+            unlock()
         }
-        let box = ConcurrentBox<Bool>()
-
-        self.box = box
-        self.streams = try fileURLs.map { fileURL in
-            let stream = FSEventStream(path: fileURL.path) { stream, event in
-                switch event {
-                case .itemClonedAtPath:
-                    return
-                default:
-                    _ = box.tryPut(true)
-                }
-            }
-            guard let stream else {
-                throw InContextError.internalInconsistency("Failed to monitor '\(fileURL.path)'.")
-            }
-            return stream
-        }
-
-        streams.forEach { stream in
-            stream.startWatching()
-        }
-    }
-
-    func wait() throws {
-        _ = try box.take()
+        return try body()
     }
 
 }
-
-#else
-
-class ChangeObserver {
-
-    let box = ConcurrentBox<Bool>()
-
-    init(fileURLs: [URL]) throws {
-    }
-
-    func wait() throws {
-        _ = try box.take()
-    }
-
-}
-
-#endif
 

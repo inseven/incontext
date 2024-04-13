@@ -22,62 +22,41 @@
 
 import Foundation
 
-#if !os(Linux)
+public enum DirectoryHint {
 
-import FSEventsWrapper
-
-class ChangeObserver {
-
-    let box: ConcurrentBox<Bool>
-    let streams: [FSEventStream]
-
-    init(fileURLs: [URL]) throws {
-        for fileURL in fileURLs {
-            precondition(fileURL.isFileURL)
-        }
-        let box = ConcurrentBox<Bool>()
-
-        self.box = box
-        self.streams = try fileURLs.map { fileURL in
-            let stream = FSEventStream(path: fileURL.path) { stream, event in
-                switch event {
-                case .itemClonedAtPath:
-                    return
-                default:
-                    _ = box.tryPut(true)
-                }
-            }
-            guard let stream else {
-                throw InContextError.internalInconsistency("Failed to monitor '\(fileURL.path)'.")
-            }
-            return stream
-        }
-
-        streams.forEach { stream in
-            stream.startWatching()
-        }
-    }
-
-    func wait() throws {
-        _ = try box.take()
-    }
+    case isDirectory
+    case notDirectory
 
 }
 
-#else
+extension URL {
 
-class ChangeObserver {
-
-    let box = ConcurrentBox<Bool>()
-
-    init(fileURLs: [URL]) throws {
+    public init(filePath: String, directoryHint: DirectoryHint = .notDirectory) {
+        self.init(fileURLWithPath: filePath, isDirectory: directoryHint == .isDirectory ? true : false)
     }
 
-    func wait() throws {
-        _ = try box.take()
+    public init(filePath: String, relativeTo url: URL?) {
+        self.init(fileURLWithPath: filePath, relativeTo: url)
+    }
+
+    public var pathIncludingTrailingDirectorySeparator: String {
+	if hasDirectoryPath {
+            return path + "/"
+        }
+        return path
+    }
+
+    public func relative(to url: URL) -> URL {
+        precondition(isFileURL)
+        precondition(url.isFileURL)
+	precondition(url.hasDirectoryPath)
+        let directoryPath = url.pathIncludingTrailingDirectorySeparator
+        let path = pathIncludingTrailingDirectorySeparator
+        precondition(path.starts(with: directoryPath))
+	let relativePath = String(path.dropFirst(directoryPath.count))
+	print(relativePath)
+
+        return URL(filePath: relativePath, relativeTo: url)
     }
 
 }
-
-#endif
-

@@ -20,10 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if canImport(CoreGraphics)
 import CoreGraphics
+#endif
+
 import Foundation
+
+#if canImport(ImageIO)
 import ImageIO
-import UniformTypeIdentifiers
+#endif
+
+import PlatformSupport
+
+#if !os(Linux)
 
 protocol _Test {
     // TODO: This needs to pass in the metadata
@@ -283,7 +292,9 @@ let configuration = _Configuration {
 
 }
 
-class ImageImporter: Importer {
+#endif
+
+class ImageImporter {
 
     struct Settings: ImporterSettings {
         let defaultCategory: String
@@ -308,6 +319,26 @@ class ImageImporter: Importer {
                         defaultTemplate: try configuration.requiredRawRepresentable(for: "defaultTemplate"),
                         inlineTemplate: try configuration.requiredRawRepresentable(for: "inlineTemplate"))
     }
+
+}
+
+#if os(Linux)
+
+extension ImageImporter: Importer {
+
+    func process(file: File,
+                 settings: Settings,
+                 outputURL: URL) async throws -> ImporterResult {
+
+        throw InContextError.internalInconsistency("Unsupported")
+        
+    }
+
+}
+
+#else
+
+extension ImageImporter: Importer {
 
     func process(file: File,
                  settings: Settings,
@@ -402,3 +433,5 @@ class ImageImporter: Importer {
     }
 
 }
+
+#endif

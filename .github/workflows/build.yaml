@@ -43,6 +43,22 @@ jobs:
         path: build
         if-no-files-found: error
 
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.ACCESS_TOKEN }}
+        submodules: recursive
+        fetch-depth: 0
+        lfs: true
+
+    - name: Build, test, and release
+      run: |
+        ./Scripts/build-ubuntu.sh
+
   documentation:
     needs: build
 

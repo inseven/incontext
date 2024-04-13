@@ -26,7 +26,7 @@ let package = Package(
         .package(path: "Dependencies/Tilt/LuaSwift"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
+        .package(path: "Dependencies/swift-log"),
         .package(url: "https://github.com/behrang/YamlSwift.git", from: "3.4.4"),  // Good for unknown?
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),  // Good for known structures
         .package(url: "https://github.com/jwells89/Titlecaser.git", from: "1.0.0"),
@@ -35,6 +35,13 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
     ],
     targets: [
+       .executableTarget(
+            name: "incontext",
+            dependencies: [
+               "InContextCore",
+               "InContextCommand",
+           ],
+           linkerSettings: [.unsafeFlags(["-L/libs"])]),
        .target(
             name: "InContextCommand",
             dependencies: [
@@ -49,7 +56,8 @@ let package = Package(
                 "PlatformSupport",
                 "Hoedown",
                 .product(name: "Crypto", package: "swift-crypto"),
-                .product(name: "FSEventsWrapper", package: "FSEventsWrapper"),
+                .product(name: "FSEventsWrapper", package: "FSEventsWrapper", condition:
+                    .when(platforms: [.macOS])),
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "HummingbirdFoundation", package: "hummingbird"),
                 .product(name: "Logging", package: "swift-log"),
@@ -60,6 +68,7 @@ let package = Package(
                 .product(name: "Yaml", package: "YamlSwift"),
                 .product(name: "Yams", package: "Yams"),
             ],
+            linkerSettings: [.unsafeFlags(["-L/libs"])],
             plugins: [
                 .plugin(name: "EmbedLuaPlugin", package: "LuaSwift")
             ]),

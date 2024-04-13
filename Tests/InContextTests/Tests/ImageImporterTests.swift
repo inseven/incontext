@@ -25,6 +25,8 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
+#if !os(Linux)
+
 class ImageImporterTests: ContentTestCase {
 
     func testExtractTitle() async throws {
@@ -61,3 +63,5 @@ steps:
     }
 
 }
+
+#endif

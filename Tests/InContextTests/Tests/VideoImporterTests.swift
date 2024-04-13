@@ -25,6 +25,8 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
+#if !os(Linux)
+
 class VideoImporterTests: ContentTestCase {
 
     func testExtractTitle() async throws {
@@ -48,3 +50,5 @@ class VideoImporterTests: ContentTestCase {
     }
 
 }
+
+#endif
