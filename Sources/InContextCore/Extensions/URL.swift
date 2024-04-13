@@ -23,13 +23,13 @@
 import Foundation
 
 #if canImport(UniformTypeIdentifiers)
-
 import UniformTypeIdentifiers
-
 #endif
 
 import Titlecaser
 import RegexBuilder
+
+import PlatformSupport
 
 extension URL {
 

@@ -28,6 +28,8 @@ import SQLite
 import UniformTypeIdentifiers
 #endif
 
+import PlatformSupport
+
 class TemplateIdentifier: RawRepresentable, Equatable, Codable, Hashable, CustomStringConvertible {
 
     let name: String

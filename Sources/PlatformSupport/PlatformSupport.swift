@@ -29,5 +29,6 @@ import PlatformSupportMacOS
 #endif
 
 #if os(Linux)
-import PlatformSupportLinux
+@_exported import PlatformSupportLinux
 #endif
+

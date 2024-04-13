@@ -26,6 +26,8 @@ import Foundation
 import UniformTypeIdentifiers
 #endif
 
+import PlatformSupport
+
 struct ImageTransform {
 
     let basename: String

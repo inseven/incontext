@@ -20,18 +20,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+public class UTType {
 
-#if canImport(UniformTypeIdentifiers)
+    public static let markdown = UTType(filenameExtension: "markdown")
+    public static let html = UTType(filenameExtension: "html")
+    public static let jpeg = UTType(filenameExtension: "jpeg")
+    public static let tiff = UTType(filenameExtension: "tiff")
+    public static let heic = UTType(filenameExtension: "heic")
 
-import UniformTypeIdentifiers
+    let filenameExtension: String
 
-import PlatformSupport
+    public init(filenameExtension: String) {
+        self.filenameExtension = filenameExtension
+    }
 
-extension UTType {
-
-    static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
+    public func conforms(to type: UTType) -> Bool {
+        return type.filenameExtension == filenameExtension
+    }
 
 }
-
-#endif
