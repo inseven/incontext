@@ -47,8 +47,8 @@ class Store {
         static let title = Expression<String?>("title")
         static let metadata = Expression<String>("metadata")
         static let contents = Expression<String>("contents")
-        static let template = Expression<TemplateIdentifier>("template")
-        static let inlineTemplate = Expression<TemplateIdentifier?>("inline_template")
+        static let template = Expression<String>("template")
+        static let inlineTemplate = Expression<String?>("inline_template")
         static let format = Expression<Document.Format>("format")
         static let depth = Expression<Int>("depth")
 

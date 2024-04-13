@@ -26,7 +26,7 @@ import Foundation
 // render. If either of these components change, then the render is considered invalid and needs re-running.
 struct TemplateRenderStatus: Codable, Hashable {
 
-    let identifier: TemplateIdentifier
+    let identifier: String
     let modificationDate: Date
 
 }

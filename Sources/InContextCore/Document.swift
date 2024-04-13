@@ -38,8 +38,8 @@ struct Document {
     let metadata: [AnyHashable: Any]
     let contents: String
     let contentModificationDate: Date
-    let template: TemplateIdentifier
-    let inlineTemplate: TemplateIdentifier?
+    let template: String
+    let inlineTemplate: String?
     let relativeSourcePath: String
     let format: Format
     let depth: Int
@@ -54,8 +54,8 @@ struct Document {
          metadata: [AnyHashable: Any],
          contents: String,
          contentModificationDate: Date,
-         template: TemplateIdentifier,
-         inlineTemplate: TemplateIdentifier?,
+         template: String,
+         inlineTemplate: String?,
          relativeSourcePath: String,
          format: Format,
          depth: Int,
@@ -84,8 +84,8 @@ struct Document {
          metadata: [AnyHashable: Any],
          contents: String,
          contentModificationDate: Date,
-         template: TemplateIdentifier,
-         inlineTemplate: TemplateIdentifier?,
+         template: String,
+         inlineTemplate: String?,
          relativeSourcePath: String,
          format: Format) throws {
         self.url = url

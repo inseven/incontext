@@ -85,11 +85,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--site /Users/jbmorley/Projects/incontext/docs"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--version"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--help"
