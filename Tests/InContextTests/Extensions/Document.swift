@@ -35,7 +35,7 @@ extension Document {
                       metadata: [:],
                       contents: "",
                       contentModificationDate: Date.distantPast,
-                      template: TemplateIdentifier("page.html"),
+                      template: "page.html",
                       inlineTemplate: nil,
                       relativeSourcePath: "index.md",
                       format: .text)
