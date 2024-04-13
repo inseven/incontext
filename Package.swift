@@ -102,14 +102,10 @@ let package = Package(
     ]
 )
 
-// TODO: Consider whether any of these really make sense.
+// Enable regex literals.
+
 let swiftSettings: [SwiftSetting] = [
-    // -enable-bare-slash-regex becomes
     .enableUpcomingFeature("BareSlashRegexLiterals"),
-    // -warn-concurrency becomes
-    .enableUpcomingFeature("StrictConcurrency"),
-    .unsafeFlags(["-enable-actor-data-race-checks"],
-        .when(configuration: .debug)),
 ]
 
 for target in package.targets {
