@@ -62,6 +62,16 @@ let package = Package(
             plugins: [
                 .plugin(name: "EmbedLuaPlugin", package: "LuaSwift")
             ]),
+        .target(
+            name: "PlatformSupport",
+            dependencies: [
+                .target(name: "PlatformSupportMacOS", condition: .when(platforms: [.macOS])),
+                .target(name: "PlatformSupportLinux", condition: .when(platforms: [.linux])),
+            ]),
+        .target(
+            name: "PlatformSupportMacOS"),
+        .target(
+            name: "PlatformSupportLinux"),
         .testTarget(
             name: "InContextTests",
             dependencies: [
