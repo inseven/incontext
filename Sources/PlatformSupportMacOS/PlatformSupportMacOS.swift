@@ -20,14 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// This makes the platform-specific magic happen. It relies on the fact that
-// Swift modules re-export their imports, meaning that `import PlatformSupport`
-// will pull in all platform-specific code.
+struct PlatformSupportMacOS {
 
-#if os(macOS)
-import PlatformSupportMacOS
-#endif
-
-#if os(Linux)
-import PlatformSupportLinux
-#endif
+}
