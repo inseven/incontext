@@ -20,33 +20,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(Linux)
+
 import Foundation
 
-class VideoImporter {
+extension VideoImporter: Importer {
 
-    struct Settings: ImporterSettings {
-        let defaultCategory: String
-        let titleFromFilename: Bool
-        let defaultTemplate: TemplateIdentifier
-        let inlineTemplate: TemplateIdentifier
+    func process(file: File,
+                 settings: Settings,
+                 outputURL: URL) async throws -> ImporterResult {
 
-        func combine(into fingerprint: inout Fingerprint) throws {
-            try fingerprint.update(defaultCategory)
-            try fingerprint.update(titleFromFilename)
-            try fingerprint.update(defaultTemplate)
-            try fingerprint.update(inlineTemplate)
-        }
+        throw InContextError.internalInconsistency("Unsupported")
     }
-
-    let identifier = "video"
-    let version = 8
-
-    func settings(for configuration: [String : Any]) throws -> Settings {
-        return Settings(defaultCategory: try configuration.requiredValue(for: "category"),
-                        titleFromFilename: try configuration.requiredValue(for: "titleFromFilename"),
-                        defaultTemplate: try configuration.requiredRawRepresentable(for: "defaultTemplate"),
-                        inlineTemplate: try configuration.requiredRawRepresentable(for: "inlineTemplate"))
-    }
-
 }
 
+#endif
