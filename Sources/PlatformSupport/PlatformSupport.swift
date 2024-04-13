@@ -25,7 +25,8 @@
 // will pull in all platform-specific code.
 
 #if os(macOS)
-import PlatformSupportMacOS
+@_exported import PlatformSupportMacOS
+@_exported import UniformTypeIdentifiers
 #endif
 
 #if os(Linux)

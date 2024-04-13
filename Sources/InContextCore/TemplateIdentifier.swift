@@ -24,10 +24,6 @@ import Foundation
 
 import SQLite
 
-#if canImport(UniformTypeIdentifiers)
-import UniformTypeIdentifiers
-#endif
-
 import PlatformSupport
 
 class TemplateIdentifier: RawRepresentable, Equatable, Codable, Hashable, CustomStringConvertible {

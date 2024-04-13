@@ -26,8 +26,6 @@ import Foundation
 
 import UniformTypeIdentifiers
 
-import PlatformSupport
-
 extension UTType {
 
     static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!

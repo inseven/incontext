@@ -30,9 +30,7 @@ import Foundation
 import ImageIO
 #endif
 
-#if canImport(UniformTypeIdentifiers)
-import UniformTypeIdentifiers
-#endif
+import PlatformSupport
 
 /*
 
