@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2023 Jason Barrie Morley
+// Copyright (c) 2016-2024 Jason Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +22,11 @@
 
 import Foundation
 
-import ArgumentParser
-import InContextCore
+import InContextCommand
 
-struct Run: AsyncParsableCommand {
-
-    static var configuration = CommandConfiguration(commandName: "run",
-                                                    abstract: "Run a task.")
-
-    @OptionGroup var options: Options
-
-    @Argument(help: "Task to run.")
-    var task: String
-
-    mutating func run() async throws {
-        let site = try options.resolveSite()
-        guard let action = site.actions.first(where: { $0.id == task }) else {
-            throw InContextError.internalInconsistency("Unknown task '\(task)'.")
-        }
-        let runner = ActionRunner(site: site, action: action, tracker: LoggingTracker())
-        runner.run()
+@main
+struct Main {
+    static func main() async throws {
+        await Command.main()
     }
-
 }

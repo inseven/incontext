@@ -39,6 +39,7 @@ let package = Package(
             name: "incontext",
             dependencies: [
                "InContextCore",
+               "InContextCommand",
                /* "InContextMetadata", */
                .product(name: "ArgumentParser", package: "swift-argument-parser"),
                .product(name: "Hummingbird", package: "hummingbird"),
