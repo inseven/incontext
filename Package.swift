@@ -40,8 +40,7 @@ let package = Package(
             dependencies: [
                "InContextCore",
                "InContextCommand",
-           ],
-           linkerSettings: [.unsafeFlags(["-L/libs"])]),
+           ]),
        .target(
             name: "InContextCommand",
             dependencies: [
@@ -68,7 +67,6 @@ let package = Package(
                 .product(name: "Yaml", package: "YamlSwift"),
                 .product(name: "Yams", package: "Yams"),
             ],
-            linkerSettings: [.unsafeFlags(["-L/libs"])],
             plugins: [
                 .plugin(name: "EmbedLuaPlugin", package: "LuaSwift")
             ]),
