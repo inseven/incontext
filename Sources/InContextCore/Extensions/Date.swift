@@ -22,10 +22,6 @@
 
 import Foundation
 
-// #if canImport(InContextCoreLinux)
-// import InContextCoreLinux
-// #endif
-
 import PlatformSupport
 
 extension Date: EvaluationContext {
