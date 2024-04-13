@@ -21,7 +21,8 @@
 // SOFTWARE.
 
 import Foundation
-import UniformTypeIdentifiers
+
+import PlatformSupport
 
 struct ImageTransform {
 

@@ -21,10 +21,11 @@
 // SOFTWARE.
 
 import Foundation
-import UniformTypeIdentifiers
 
 import Titlecaser
 import RegexBuilder
+
+import PlatformSupport
 
 extension URL {
 

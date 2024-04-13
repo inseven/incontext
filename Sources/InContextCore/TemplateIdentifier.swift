@@ -23,7 +23,8 @@
 import Foundation
 
 import SQLite
-import UniformTypeIdentifiers
+
+import PlatformSupport
 
 class TemplateIdentifier: RawRepresentable, Equatable, Codable, Hashable, CustomStringConvertible {
 

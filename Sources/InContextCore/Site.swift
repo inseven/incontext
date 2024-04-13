@@ -21,9 +21,10 @@
 // SOFTWARE.
 
 import Foundation
-import UniformTypeIdentifiers
 
 import Yams
+
+import PlatformSupport
 
 public struct Site {
 

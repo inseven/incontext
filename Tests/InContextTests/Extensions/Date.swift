@@ -22,6 +22,8 @@
 
 import Foundation
 
+import InContextCore
+
 extension Date {
 
     init(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int) {

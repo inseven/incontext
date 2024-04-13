@@ -46,6 +46,8 @@ let package = Package(
         .target(
             name: "InContextCore",
             dependencies: [
+                "PlatformSupport",
+                "Hoedown",
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "FSEventsWrapper", package: "FSEventsWrapper"),
                 .product(name: "Hummingbird", package: "hummingbird"),
@@ -57,7 +59,6 @@ let package = Package(
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yaml", package: "YamlSwift"),
                 .product(name: "Yams", package: "Yams"),
-                "Hoedown",
             ],
             plugins: [
                 .plugin(name: "EmbedLuaPlugin", package: "LuaSwift")
