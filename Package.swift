@@ -40,10 +40,6 @@ let package = Package(
             dependencies: [
                "InContextCore",
                "InContextCommand",
-               /* "InContextMetadata", */
-               .product(name: "ArgumentParser", package: "swift-argument-parser"),
-               .product(name: "Hummingbird", package: "hummingbird"),
-               .product(name: "HummingbirdFoundation", package: "hummingbird"),
            ],
            linkerSettings: [.unsafeFlags(["-L/libs"])]),
        .target(
