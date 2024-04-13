@@ -58,7 +58,6 @@ let package = Package(
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "FSEventsWrapper", package: "FSEventsWrapper", condition:
                     .when(platforms: [.macOS])),
-                "PlatformSupport",
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "HummingbirdFoundation", package: "hummingbird"),
                 .product(name: "Logging", package: "swift-log"),
