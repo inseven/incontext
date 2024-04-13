@@ -20,8 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(Linux)
-
 import Foundation
 
 extension TimeZone {
@@ -29,6 +27,4 @@ extension TimeZone {
     public static let gmt = TimeZone(secondsFromGMT: 0)!
 
 }
-
-#endif
 
