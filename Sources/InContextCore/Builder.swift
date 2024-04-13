@@ -394,18 +394,13 @@ public class Builder {
         try FileManager.default.createDirectory(at: site.filesURL, withIntermediateDirectories: true)
     }
 
-    // TODO: We need a version of this which actually fails and returns an error on failure.
-    func doBuild() async {
+    func doBuild() async throws {
         let session = tracker.new(type: .build, name: "Build")
-        do {
-            try await session.run {
-                renderManager.clearTemplateCache()
-                try await importContent(session: session)
-                try await renderContent(session: session, concurrent: !serializeRender)
-                session.success()
-            }
-        } catch {
-            print("FAILED WITH ERORR")
+        try await session.run {
+            renderManager.clearTemplateCache()
+            try await importContent(session: session)
+            try await renderContent(session: session, concurrent: !serializeRender)
+            session.success()
         }
     }
 
@@ -421,19 +416,18 @@ public class Builder {
             site.templatesURL
         ])
 
-        // TODO: Unify this and the other blocks.
-        // TODO: Start a new build session.
-        await doBuild()
+        // TODO: The InContext Helper GUI currently starts different logging sessions whenever rebuilding. We should
+        //       explore these two implementations could be somehow unified to avoid duplicate approaches.
+        //       That might also improve on the need to have two different code paths (below).
 
-        // Check to see if we should watch for changes.
-        guard watch else {
-            return
-        }
-
-        // Watch for changes and rebuild.
-        while true {
-            try changeObserver.wait()
-            await doBuild()
+        // We have different error reporting requirements if we're watching and running one-shot.
+        if watch {
+            while true {
+                try await doBuild()
+                try changeObserver.wait()
+            }
+        } else {
+            try await doBuild()
         }
 
     }
