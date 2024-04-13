@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2016-2024 Jason Morley
+// Copyright (c) 2023 Jason Barrie Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,35 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+// This makes the platform-specific magic happen. It relies on the fact that
+// Swift modules re-export their imports, meaning that `import PlatformSupport`
+// will pull in all platform-specific code.
 
-// #if canImport(InContextCoreLinux)
-// import InContextCoreLinux
-// #endif
+#if os(Linux)
+import PlatformSupportLinux
+#endif
 
-import PlatformSupport
-
-extension Date: EvaluationContext {
-
-    var millisecondsSinceReferenceDate: Int {
-        return Int(timeIntervalSinceReferenceDate * 1000)
-    }
-
-    init(millisecondsSinceReferenceDate: Int) {
-        let timeInterval: TimeInterval = Double(millisecondsSinceReferenceDate) / 1000.0
-        self.init(timeIntervalSinceReferenceDate: timeInterval)
-    }
-
-    func lookup(_ name: String) throws -> Any? {
-        switch name {
-        case "format": return Function { (format: String) -> String in
-            let formatter = DateFormatter()
-            formatter.dateFormat = format
-            return formatter.string(from: self)
-        }
-        default:
-            throw InContextError.unknownSymbol(name)
-        }
-    }
-
-}
