@@ -200,30 +200,51 @@ public class Builder {
         let fileManager = FileManager.default
 
         let task = session.startTask("Scanning files...")
-        let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey /*, .contentModificationDateKey */])
+
+        // Specify the enumeration resource keys. Unhelpfully, Linux doesn't support loading the modification times
+        // during enumeration so we guard against that here and load the modification times differently.
+        // Ideally we would extract this code into a shared enumerator that works identically across platforms to avoid
+        // cross platform considerations bleeding into the application logic.
+        var resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey])
+#if !os(Linux)
+        resourceKeys.insert(.contentModificationDateKey)
+#endif
+
+        // Linux also has issues with creating relative paths (which we should probably drop anyhow because they're
+        // horribly confusing), so we don't ask for these unless we know the platform supports them.
+        var options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
+#if !os(Linux)
+        options.insert(.producesRelativePathURLs)
+#endif
+
         let directoryEnumerator = fileManager.enumerator(at: site.contentURL,
                                                          includingPropertiesForKeys: Array(resourceKeys),
-                                                         options: [.skipsHiddenFiles /*, .producesRelativePathURLs */])!
+                                                         options: options)!
         task.success()
 
         let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
-            for case let absoluteFileURL as URL in directoryEnumerator {
+            for case let enumeratorFileURL as URL in directoryEnumerator {
 
                 // The enumerator won't create relative paths on Linux so we do some extra fix-up.
-                let fileURL = absoluteFileURL.relative(to: site.contentURL)
+#if !os(Linux)
+                let fileURL = enumeratorFileURL
+#else
+                let fileURL = enumeratorFileURL.relative(to: site.contentURL)
+#endif
 
                 // Get the file metadata.
                 let isDirectory = try fileURL
                     .resourceValues(forKeys: [.isDirectoryKey])
                     .isDirectory!
 
-                /*
+#if !os(Linux)
                 let contentModificationDate = try fileURL
                     .resourceValues(forKeys: [.contentModificationDateKey])
-                    .contentModificationDate! */
-
+                    .contentModificationDate!
+#else
                 let attr = try FileManager.default.attributesOfItem(atPath: fileURL.path)
                 let contentModificationDate = attr[FileAttributeKey.modificationDate] as! Date
+#endif
 
                 // Ignore directories.
                 if isDirectory {
