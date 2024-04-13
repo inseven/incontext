@@ -53,6 +53,8 @@ let package = Package(
         .target(
             name: "InContextCore",
             dependencies: [
+                "PlatformSupport",
+                "Hoedown",
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "FSEventsWrapper", package: "FSEventsWrapper", condition:
                     .when(platforms: [.macOS])),
@@ -66,7 +68,6 @@ let package = Package(
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yaml", package: "YamlSwift"),
                 .product(name: "Yams", package: "Yams"),
-                "Hoedown",
             ],
             linkerSettings: [.unsafeFlags(["-L/libs"])],
             plugins: [
