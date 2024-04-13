@@ -21,9 +21,6 @@
 // SOFTWARE.
 
 import Foundation
-
-#if canImport(UniformTypeIdentifiers)
-
 import UniformTypeIdentifiers
 
 extension UTType {
@@ -31,5 +28,3 @@ extension UTType {
     public static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
 
 }
-
-#endif
