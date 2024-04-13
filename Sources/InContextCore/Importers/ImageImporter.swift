@@ -32,7 +32,7 @@ import ImageIO
 
 import PlatformSupport
 
-/*
+#if !os(Linux)
 
 protocol _Test {
     // TODO: This needs to pass in the metadata
@@ -292,9 +292,9 @@ let configuration = _Configuration {
 
 }
 
-*/
+#endif
 
-class ImageImporter: Importer {
+class ImageImporter {
 
     struct Settings: ImporterSettings {
         let defaultCategory: String
@@ -320,14 +320,30 @@ class ImageImporter: Importer {
                         inlineTemplate: try configuration.requiredRawRepresentable(for: "inlineTemplate"))
     }
 
+}
+
+#if os(Linux)
+
+extension ImageImporter: Importer {
+
     func process(file: File,
                  settings: Settings,
                  outputURL: URL) async throws -> ImporterResult {
 
         throw InContextError.internalInconsistency("Unsupported")
         
+    }
 
-        /*
+}
+
+#else
+
+extension ImageImporter: Importer {
+
+    func process(file: File,
+                 settings: Settings,
+                 outputURL: URL) async throws -> ImporterResult {
+
         let fileURL = file.url
 
         // Create the assets directory.
@@ -414,8 +430,8 @@ class ImageImporter: Importer {
                                     relativeSourcePath: file.relativePath,
                                     format: .image)
         return ImporterResult(document: document, assets: context.assets)
-
-        */
     }
 
 }
+
+#endif
