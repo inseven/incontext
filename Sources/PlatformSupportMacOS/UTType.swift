@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2023 Jason Barrie Morley
+// Copyright (c) 2016-2024 Jason Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-struct PlatformSupportMacOS {
+import Foundation
+
+#if canImport(UniformTypeIdentifiers)
+
+import UniformTypeIdentifiers
+
+extension UTType {
+
+    public static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
 
 }
+
+#endif
