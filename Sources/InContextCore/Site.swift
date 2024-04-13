@@ -22,11 +22,9 @@
 
 import Foundation
 
-#if canImport(UniformTypeIdentifiers)
-import UniformTypeIdentifiers
-#endif
-
 import Yams
+
+import PlatformSupport
 
 public struct Site {
 
