@@ -22,6 +22,8 @@
 
 import Foundation
 
+import PlatformSupport
+
 extension Date: EvaluationContext {
 
     var millisecondsSinceReferenceDate: Int {

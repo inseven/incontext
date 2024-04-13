@@ -24,6 +24,8 @@ import Foundation
 
 import SwiftSoup
 
+import PlatformSupport
+
 class RenderManager {
 
     private let templateCache: TemplateCache
