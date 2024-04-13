@@ -22,6 +22,10 @@
 
 import Foundation
 
+#if canImport(InContextCoreLinux)
+import InContextCoreLinux
+#endif
+
 extension Date: EvaluationContext {
 
     var millisecondsSinceReferenceDate: Int {

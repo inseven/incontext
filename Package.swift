@@ -60,6 +60,8 @@ let package = Package(
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "FSEventsWrapper", package: "FSEventsWrapper", condition:
                     .when(platforms: [.macOS])),
+                .target(name: "InContextCoreLinux", condition:
+                    .when(platforms: [.linux])),
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "HummingbirdFoundation", package: "hummingbird"),
                 .product(name: "Logging", package: "swift-log"),
@@ -75,6 +77,8 @@ let package = Package(
             plugins: [
                 .plugin(name: "EmbedLuaPlugin", package: "LuaSwift")
             ]),
+        .target(
+            name: "InContextCoreLinux"),
         .testTarget(
             name: "InContextTests",
             dependencies: [
