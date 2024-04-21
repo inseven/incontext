@@ -22,28 +22,23 @@
 
 import Foundation
 
-import InContextCore
+import XCTest
+@testable import InContextCore
 
-extension Date {
+class DateParserTests: XCTestCase {
 
-    init(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int, _ second: Int = 0, timeZone: TimeZone = .gmt) {
-        let dateComponents = DateComponents(year: year,
-                                            month: month,
-                                            day: day,
-                                            hour: hour,
-                                            minute: minute,
-                                            second: second)
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = timeZone
-        self = calendar.date(from: dateComponents)!
+    func testDateParsers() {
+        let dateParser = DateParser()
+        let date = dateParser.date(from: "2024-01-17T17:53:07-1000")
+        let testDate = Date(2024, 01, 17, 17, 53, 07, timeZone: TimeZone(-10)!)
+        XCTAssertEqual(date, testDate)
     }
 
-}
-
-extension TimeZone {
-
-    init?(_ hours: Int, _ minutes: Int = 0) {
-        self.init(secondsFromGMT: (hours * 60 + minutes) * 60)
+    func testDateParsers2() {
+        let dateParser = DateParser()
+        let date = dateParser.date(from: "2001-10-02 01:54:02 +01:00")
+        let testDate = Date(2001, 10, 02, 01, 54, 02, timeZone: TimeZone(1)!)
+        XCTAssertEqual(date, testDate)
     }
 
 }

@@ -22,28 +22,32 @@
 
 import Foundation
 
-import InContextCore
+public struct DateParser {
 
-extension Date {
+    private static let formats = [
+        "yyyy'-'MM'-'dd'T'HH':'mm':'sszzzz",
+        "yyyy'-'MM'-'dd' 'HH':'mm':'ss' 'zzzzz",
+    ]
 
-    init(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int, _ second: Int = 0, timeZone: TimeZone = .gmt) {
-        let dateComponents = DateComponents(year: year,
-                                            month: month,
-                                            day: day,
-                                            hour: hour,
-                                            minute: minute,
-                                            second: second)
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = timeZone
-        self = calendar.date(from: dateComponents)!
+    private let formatters = formats
+        .map { format in
+            let formatter = DateFormatter()
+            formatter.dateFormat = format
+            return formatter
+        }
+
+    public init() {
+
     }
 
-}
-
-extension TimeZone {
-
-    init?(_ hours: Int, _ minutes: Int = 0) {
-        self.init(secondsFromGMT: (hours * 60 + minutes) * 60)
+    public func date(from string: String) -> Date? {
+        for formatter in formatters {
+            guard let date = formatter.date(from: string) else {
+                continue
+            }
+            return date
+        }
+        return nil
     }
 
 }
