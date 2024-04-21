@@ -25,6 +25,15 @@ import Foundation
 // InContext permits additional metadata, but expects some structured keys to be of specific types.
 struct Metadata: Codable {
 
+    enum CodingKeys: CodingKey {
+        case category
+        case template
+        case title
+        case subtitle
+        case date
+        case tags
+    }
+
     let category: String?
     let template: String?
     let title: String?
@@ -44,6 +53,26 @@ struct Metadata: Codable {
         self.subtitle = subtitle
         self.date = date
         self.tags = tags
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.category = try container.decodeIfPresent(String.self, forKey: .category)
+        self.template = try container.decodeIfPresent(String.self, forKey: .template)
+        self.title = try container.decodeIfPresent(String.self, forKey: .title)
+        self.subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle)
+        self.date = try container.decodeIfPresent(PermissiveDate.self, forKey: .date)?.date
+        self.tags = try container.decodeIfPresent([String].self, forKey: .tags)
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(self.category, forKey: .category)
+        try container.encodeIfPresent(self.template, forKey: .template)
+        try container.encodeIfPresent(self.title, forKey: .title)
+        try container.encodeIfPresent(self.subtitle, forKey: .subtitle)
+        try container.encodeIfPresent(self.date, forKey: .date)
+        try container.encodeIfPresent(self.tags, forKey: .tags)
     }
 
 }

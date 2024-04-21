@@ -64,4 +64,26 @@ Here's some **Markdown** content
         XCTAssertEqual(document.metadata as NSObject, [AnyHashable: Any]() as NSObject)
     }
 
+    func testFrontmatterStandardDate() throws {
+        let document = try FrontmatterDocument(contents: """
+---
+date: '2001-10-02 01:54:02 +01:00'
+---
+Here's some **Markdown** content
+""", generateHTML: true)
+        let testDate = Date(2001, 10, 02, 01, 54, 02, timeZone: TimeZone(1)!)
+        XCTAssertEqual(document.structuredMetadata.date, testDate)
+    }
+
+    func testFrontmatterAlternativeISOFormatDate() throws {
+        let document = try FrontmatterDocument(contents: """
+---
+date: '2024-01-17T17:53:07-1000'
+---
+Here's some **Markdown** content
+""", generateHTML: true)
+        let testDate = Date(2024, 01, 17, 17, 53, 07, timeZone: TimeZone(-10)!)
+        XCTAssertEqual(document.structuredMetadata.date, testDate)
+    }
+
 }
