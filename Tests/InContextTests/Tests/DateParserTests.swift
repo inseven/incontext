@@ -27,18 +27,13 @@ import XCTest
 
 class DateParserTests: XCTestCase {
 
-    func testDateParsers() {
-        let dateParser = DateParser()
-        let date = dateParser.date(from: "2024-01-17T17:53:07-1000")
-        let testDate = Date(2024, 01, 17, 17, 53, 07, timeZone: TimeZone(-10)!)
-        XCTAssertEqual(date, testDate)
-    }
-
-    func testDateParsers2() {
-        let dateParser = DateParser()
-        let date = dateParser.date(from: "2001-10-02 01:54:02 +01:00")
-        let testDate = Date(2001, 10, 02, 01, 54, 02, timeZone: TimeZone(1)!)
-        XCTAssertEqual(date, testDate)
+    func testFormats() {
+        XCTAssertEqual(DateParser().date(from: "2024-01-17T17:53:07-1000"),
+                       Date(2024, 01, 17, 17, 53, 07, timeZone: TimeZone(-10)!))
+        XCTAssertEqual(DateParser().date(from: "2001-10-02 01:54:02 +01:00"),
+                       Date(2001, 10, 02, 01, 54, 02, timeZone: TimeZone(1)!))
+        XCTAssertEqual(DateParser().date(from: "2023-03-31T19:00:13.118338+01:00"),
+                       Date(2023, 03, 31, 19, 00, 13, 118, timeZone: TimeZone(1)!))
     }
 
 }

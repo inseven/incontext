@@ -27,7 +27,11 @@ public struct DateParser {
     // http://www.unicode.org/reports/tr35/tr35-31/tr35-dates.html#Date_Format_Patterns
     private static let formats = [
         "yyyy'-'MM'-'dd'T'HH':'mm':'sszzzz",
+        "yyyy'-'MM'-'dd' 'HH':'mm':'sszzzzz",  // 2014-10-12 18:01:18+01:00
         "yyyy'-'MM'-'dd' 'HH':'mm':'ss' 'zzzzz",
+        "yyyy'-'MM'-'dd' 'HH':'mm':'ss", // 2016-11-04 03:19:04
+        "yyyy'-'MM'-'dd'", // 2016-11-23
+        "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SSSSSSzzzzz",
     ]
 
     private let formatters = formats

@@ -26,13 +26,21 @@ import InContextCore
 
 extension Date {
 
-    init(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _ minute: Int, _ second: Int = 0, timeZone: TimeZone = .gmt) {
+    init(_ year: Int,
+         _ month: Int,
+         _ day: Int,
+         _ hour: Int,
+         _ minute: Int,
+         _ second: Int = 0,
+         _ millisecond: Int = 0,
+         timeZone: TimeZone = .gmt) {
         let dateComponents = DateComponents(year: year,
                                             month: month,
                                             day: day,
                                             hour: hour,
                                             minute: minute,
-                                            second: second)
+                                            second: second,
+                                            nanosecond: millisecond * 1000000)
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = timeZone
         self = calendar.date(from: dateComponents)!
