@@ -86,4 +86,22 @@ Here's some **Markdown** content
         XCTAssertEqual(document.structuredMetadata.date, testDate)
     }
 
+    func testDatePromotion() throws {
+        let document = try FrontmatterDocument(contents: """
+---
+date: '2024-01-17T17:53:07-1000'
+title: Hello, World!
+end_date: 2024-04-21
+---
+Here's some **Markdown** content
+""", generateHTML: true)
+        XCTAssertEqual(document.structuredMetadata.date,
+                       Date(2024, 01, 17, 17, 53, 07, timeZone: TimeZone(-10)!))
+        XCTAssertEqual(document.structuredMetadata.title,
+                       "Hello, World!")
+        XCTAssertEqual(document.metadata["end_date"] as? Date,
+                       Date(2024, 04, 21))
+
+    }
+
 }

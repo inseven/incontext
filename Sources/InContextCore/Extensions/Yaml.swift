@@ -26,6 +26,8 @@ import Yaml
 
 extension Yaml {
 
+    static let dateParser = DateParser()
+
     func dictionary() throws -> [AnyHashable: Any] {
         guard let dictionary = native() as? [AnyHashable: Any] else {
             throw InContextError.invalidMetadata
@@ -44,7 +46,7 @@ extension Yaml {
         case .double(let value):
             return value
         case .string(let value):
-            return value
+            return Self.dateParser.date(from: value) ?? value
         case .array(let values):
             return values.compactMap {
                 $0.native()
