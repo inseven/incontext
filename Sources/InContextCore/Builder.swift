@@ -423,7 +423,11 @@ public class Builder {
         // We have different error reporting requirements if we're watching and running one-shot.
         if watch {
             while true {
-                try await doBuild()
+                do {
+                    try await doBuild()
+                } catch {
+                    print("Build failed with error \(error).")
+                }
                 try changeObserver.wait()
             }
         } else {
