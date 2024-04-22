@@ -36,6 +36,8 @@ class DateParserTests: XCTestCase {
                        Date(2023, 03, 31, 19, 00, 13, 118, timeZone: TimeZone(1)!))
         XCTAssertEqual(DateParser().date(from: "2017-07-03 09:38:22.602694"),
                        Date(2017, 07, 03, 09, 38, 22, 602))
+        XCTAssertEqual(DateParser().date(from: "2016-11-23"),
+                       Date(2016, 11, 23))
 
     }
 

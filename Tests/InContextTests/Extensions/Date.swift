@@ -29,8 +29,8 @@ extension Date {
     init(_ year: Int,
          _ month: Int,
          _ day: Int,
-         _ hour: Int,
-         _ minute: Int,
+         _ hour: Int = 0,
+         _ minute: Int = 0,
          _ second: Int = 0,
          _ millisecond: Int = 0,
          timeZone: TimeZone = .gmt) {
