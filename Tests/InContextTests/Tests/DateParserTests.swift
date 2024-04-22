@@ -22,36 +22,23 @@
 
 import Foundation
 
-import InContextCore
+import XCTest
+@testable import InContextCore
 
-extension Date {
+class DateParserTests: XCTestCase {
 
-    init(_ year: Int,
-         _ month: Int,
-         _ day: Int,
-         _ hour: Int = 0,
-         _ minute: Int = 0,
-         _ second: Int = 0,
-         _ millisecond: Int = 0,
-         timeZone: TimeZone = .gmt) {
-        let dateComponents = DateComponents(year: year,
-                                            month: month,
-                                            day: day,
-                                            hour: hour,
-                                            minute: minute,
-                                            second: second,
-                                            nanosecond: millisecond * 1000000)
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = timeZone
-        self = calendar.date(from: dateComponents)!
-    }
+    func testFormats() {
+        XCTAssertEqual(DateParser().date(from: "2024-01-17T17:53:07-1000"),
+                       Date(2024, 01, 17, 17, 53, 07, timeZone: TimeZone(-10)!))
+        XCTAssertEqual(DateParser().date(from: "2001-10-02 01:54:02 +01:00"),
+                       Date(2001, 10, 02, 01, 54, 02, timeZone: TimeZone(1)!))
+        XCTAssertEqual(DateParser().date(from: "2023-03-31T19:00:13.118338+01:00"),
+                       Date(2023, 03, 31, 19, 00, 13, 118, timeZone: TimeZone(1)!))
+        XCTAssertEqual(DateParser().date(from: "2017-07-03 09:38:22.602694"),
+                       Date(2017, 07, 03, 09, 38, 22, 602))
+        XCTAssertEqual(DateParser().date(from: "2016-11-23"),
+                       Date(2016, 11, 23))
 
-}
-
-extension TimeZone {
-
-    init?(_ hours: Int, _ minutes: Int = 0) {
-        self.init(secondsFromGMT: (hours * 60 + minutes) * 60)
     }
 
 }

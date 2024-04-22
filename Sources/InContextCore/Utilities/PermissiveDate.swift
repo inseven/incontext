@@ -22,36 +22,32 @@
 
 import Foundation
 
-import InContextCore
+public struct PermissiveDate: Codable {
 
-extension Date {
+    static let dateParser = DateParser()
 
-    init(_ year: Int,
-         _ month: Int,
-         _ day: Int,
-         _ hour: Int = 0,
-         _ minute: Int = 0,
-         _ second: Int = 0,
-         _ millisecond: Int = 0,
-         timeZone: TimeZone = .gmt) {
-        let dateComponents = DateComponents(year: year,
-                                            month: month,
-                                            day: day,
-                                            hour: hour,
-                                            minute: minute,
-                                            second: second,
-                                            nanosecond: millisecond * 1000000)
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = timeZone
-        self = calendar.date(from: dateComponents)!
+    enum CodingKeys: CodingKey {
+        case date
     }
 
-}
+    let date: Date
 
-extension TimeZone {
+    public init(date: Date) {
+        self.date = date
+    }
 
-    init?(_ hours: Int, _ minutes: Int = 0) {
-        self.init(secondsFromGMT: (hours * 60 + minutes) * 60)
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let string = try container.decode(String.self)
+        guard let date = Self.dateParser.date(from: string) else {
+            throw InContextError.encodingError  // TODO: Is this the correct error?
+        }
+        self.date = date
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.date, forKey: .date)
     }
 
 }
