@@ -42,9 +42,20 @@ extension Date: EvaluationContext {
             formatter.dateFormat = format
             return formatter.string(from: self)
         }
+        case "timeIntervalSinceReferenceDate": return Function { () -> Int in
+            return Int(self.timeIntervalSinceReferenceDate)
+        }
         default:
             throw InContextError.unknownSymbol(name)
         }
+    }
+
+}
+
+extension Date: Fingerprintable {
+
+    func combine(into fingerprint: inout Fingerprint) throws {
+        try fingerprint.update(millisecondsSinceReferenceDate)
     }
 
 }

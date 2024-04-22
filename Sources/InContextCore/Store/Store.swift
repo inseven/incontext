@@ -152,6 +152,54 @@ class Store {
         }
     }
 
+    let iso8601DateForamtter: ISO8601DateFormatter = {
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [
+            .withInternetDateTime
+        ]
+        return dateFormatter
+    }()
+
+    private func transform(input: Any) -> Any {
+        if let dictionary = input as? Dictionary<AnyHashable, Any> {
+            return dictionary
+                .map { key, value in
+                    return (key, transform(input: value))
+                }
+                .reduce(into: Dictionary<AnyHashable, Any>()) { partialResult, item in
+                    partialResult[item.0] = item.1
+                }
+        } else if let array = input as? Array<Any> {
+            return array.map { item in
+                return transform(input: item)
+            }
+        } else if let date = input as? Date {
+            return iso8601DateForamtter.string(from: date)
+        } else {
+            return input
+        }
+    }
+
+    private func untransform(input: Any) -> Any {
+        if let dictionary = input as? Dictionary<AnyHashable, Any> {
+            return dictionary
+                .map { key, value in
+                    return (key, untransform(input: value))
+                }
+                .reduce(into: Dictionary<AnyHashable, Any>()) { partialResult, item in
+                    partialResult[item.0] = item.1
+                }
+        } else if let array = input as? Array<Any> {
+            return array.map { item in
+                return untransform(input: item)
+            }
+        } else if let string = input as? String {
+            return iso8601DateForamtter.date(from: string) ?? input
+        } else {
+            return input
+        }
+    }
+
     private func syncQueue_save(document: Document?, assets: [Asset], status: Status) throws {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.transaction {
@@ -164,7 +212,7 @@ class Store {
             if let document {
 
                 // Serialise the metadata.
-                let data = try JSONSerialization.data(withJSONObject: document.metadata)
+                let data = try JSONSerialization.data(withJSONObject: transform(input: document.metadata))
                 guard let metadata = String(data: data, encoding: .utf8) else {
                     throw InContextError.encodingError
                 }
@@ -274,7 +322,7 @@ class Store {
             // Deserialize the metadata.
             let metadataString = row[Schema.metadata]
             guard let data = metadataString.data(using: .utf8),
-                  let metadata = try JSONSerialization.jsonObject(with: data) as? [AnyHashable: Any]
+                  let metadata = untransform(input: try JSONSerialization.jsonObject(with: data)) as? [AnyHashable: Any]
             else {
                 throw InContextError.internalInconsistency("Failed to load document metadata.")
             }
