@@ -104,7 +104,7 @@ Here's some **Markdown** content
 
     }
 
-    func testUnicodeDelimiters() throws {
+    func testEscapedUnicode() throws {
         let document = try FrontmatterDocument(contents: """
 ---
 date: 2024-04-22T21:39:25.747002006Z
