@@ -121,8 +121,8 @@ extension VideoImporter: Importer {
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,
                                     category: settings.defaultCategory,
-                                    date: content?.structuredMetadata.date ?? date,
-                                    title: content?.structuredMetadata.title,  // TODO: Title
+                                    date: content?.date ?? date,
+                                    title: content?.title,
                                     metadata: metadata,
                                     contents: content?.content ?? "",
                                     contentModificationDate: file.contentModificationDate,

@@ -415,7 +415,7 @@ extension ImageImporter: Importer {
         // N.B. The EXIF 'DateTimeOriginal' field sometimes appears to be invalid so we fall back on DateTimeDigitized.
 
         let date = try (try? exif.dateTimeOriginal) ?? (try exif.dateTimeDigitized) ?? details.date
-        let title = try exif.firstTitle ?? content?.structuredMetadata.title ?? filenameTitle
+        let title = try exif.firstTitle ?? content?.title ?? filenameTitle
 
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,

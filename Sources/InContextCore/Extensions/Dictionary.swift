@@ -24,6 +24,20 @@ import Foundation
 
 extension Dictionary {
 
+    func promotingStringDates() -> Dictionary<Key, Any> {
+        return map { (key, value) -> (Key, Any) in
+            if let string = value as? String,
+               let date = DateParser.default.date(from: string) {
+                return (key, date)
+            } else {
+                return (key, value)
+            }
+        }
+        .reduce(into: [Key: Any]()) { partialResult, element in
+            partialResult[element.0] = element.1
+        }
+    }
+
     func value<T>(for key: Key, default defaultValue: T) throws -> T {
         guard let value = self[key] else {
             return defaultValue

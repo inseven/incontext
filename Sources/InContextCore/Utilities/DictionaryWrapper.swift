@@ -22,30 +22,15 @@
 
 import Foundation
 
-public struct PermissiveDate: Codable {
+struct DictionaryWrapper: Decodable {
 
-    enum CodingKeys: CodingKey {
-        case date
-    }
+    let dictionary: [String: Any]
 
-    let date: Date
-
-    public init(date: Date) {
-        self.date = date
-    }
-
-    public init(from decoder: any Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let string = try container.decode(String.self)
-        guard let date = DateParser.default.date(from: string) else {
-            throw InContextError.encodingError  // TODO: Is this the correct error?
-        }
-        self.date = date
-    }
-
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.date, forKey: .date)
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: UnknownCodingKeys.self)
+        self.dictionary = try container
+            .decode(Dictionary<String, Any>.self)
+            .promotingStringDates()
     }
 
 }
