@@ -72,7 +72,7 @@ date: '2001-10-02 01:54:02 +01:00'
 Here's some **Markdown** content
 """, generateHTML: true)
         let testDate = Date(2001, 10, 02, 01, 54, 02, timeZone: TimeZone(1)!)
-        XCTAssertEqual(document.structuredMetadata.date, testDate)
+        XCTAssertEqual(document.date, testDate)
     }
 
     func testFrontmatterAlternativeISOFormatDate() throws {
@@ -83,7 +83,7 @@ date: '2024-01-17T17:53:07-1000'
 Here's some **Markdown** content
 """, generateHTML: true)
         let testDate = Date(2024, 01, 17, 17, 53, 07, timeZone: TimeZone(-10)!)
-        XCTAssertEqual(document.structuredMetadata.date, testDate)
+        XCTAssertEqual(document.date, testDate)
     }
 
     func testDatePromotion() throws {
@@ -95,13 +95,64 @@ end_date: 2024-04-21
 ---
 Here's some **Markdown** content
 """, generateHTML: true)
-        XCTAssertEqual(document.structuredMetadata.date,
+        XCTAssertEqual(document.date,
                        Date(2024, 01, 17, 17, 53, 07, timeZone: TimeZone(-10)!))
-        XCTAssertEqual(document.structuredMetadata.title,
+        XCTAssertEqual(document.title,
                        "Hello, World!")
         XCTAssertEqual(document.metadata["end_date"] as? Date,
                        Date(2024, 04, 21))
 
+    }
+
+    func testUnicodeDelimiters() throws {
+        let document = try FrontmatterDocument(contents: """
+---
+date: 2024-04-22T21:39:25.747002006Z
+tags:
+- coffee
+- software
+- development
+location:
+  latitude: 2.15908652921416e+1
+  longitude: -1.58102978162547e+2
+  locality: "Hale\\u02BBiwa"
+
+---
+Let’s see if this actually stores the location for us. This is a post written in Island Vintage in Hale’iwa.
+""")
+        XCTAssertNotNil(document.metadata["location"])
+        let location = document.metadata["location"] as? Dictionary<String, Any>
+        XCTAssertEqual(location?["locality"] as? String, "Haleʻiwa")
+    }
+
+    func testUnicode() throws {
+        let document = try FrontmatterDocument(contents: """
+---
+date: 2024-04-22T21:39:25.747002006Z
+tags:
+- coffee
+- software
+- development
+location:
+  latitude: 2.15908652921416e+1
+  longitude: -1.58102978162547e+2
+  locality: "Haleʻiwa"
+
+---
+Let’s see if this actually stores the location for us. This is a post written in Island Vintage in Hale’iwa.
+""")
+        XCTAssertNotNil(document.metadata["location"])
+        let location = document.metadata["location"] as? Dictionary<String, Any>
+        XCTAssertEqual(location?["locality"] as? String, "Haleʻiwa")
+    }
+
+    func testJapanese() throws {
+        let document = try FrontmatterDocument(contents: """
+---
+title: おはよう
+---
+""")
+        XCTAssertEqual(document.title, "おはよう")
     }
 
 }

@@ -22,17 +22,16 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "Dependencies/hummingbird"),
+        .package(path: "Dependencies/swift-log"),
         .package(path: "Dependencies/Tilt"),
         .package(path: "Dependencies/Tilt/LuaSwift"),
-        .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
-        .package(path: "Dependencies/swift-log"),
-        .package(url: "https://github.com/behrang/YamlSwift.git", from: "3.4.4"),  // Good for unknown?
-        .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),  // Good for known structures
+        .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
+        .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),
         .package(url: "https://github.com/jwells89/Titlecaser.git", from: "1.0.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.14.1"),
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
     ],
     targets: [
        .executableTarget(
@@ -64,7 +63,6 @@ let package = Package(
                 .product(name: "SwiftSoup", package: "SwiftSoup"),
                 .product(name: "Tilt", package: "Tilt"),
                 .product(name: "Titlecaser", package: "Titlecaser"),
-                .product(name: "Yaml", package: "YamlSwift"),
                 .product(name: "Yams", package: "Yams"),
             ],
             plugins: [

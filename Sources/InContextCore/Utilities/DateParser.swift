@@ -24,6 +24,8 @@ import Foundation
 
 public struct DateParser {
 
+    static let `default` = DateParser()
+
     // http://www.unicode.org/reports/tr35/tr35-31/tr35-dates.html#Date_Format_Patterns
     private static let formats = [
         "yyyy'-'MM'-'dd'T'HH':'mm':'sszzzz",
