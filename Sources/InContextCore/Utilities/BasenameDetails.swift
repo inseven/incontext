@@ -21,10 +21,46 @@
 // SOFTWARE.
 
 import Foundation
+import RegexBuilder
 
 struct BasenameDetails: CustomStringConvertible {
 
-    static let regex = /^((\d{4}-\d{2}-\d{2})-)?(.*?)(@([0-9])x)?$/
+    private static let dateReference = Reference(Date?.self)
+    private static let titleReference = Reference(String?.self)
+    private static let scaleReference = Reference(Float?.self)
+
+    private static let regex = Regex {
+        Anchor.startOfLine
+        Optionally {
+            Capture(as: dateReference) {
+                /((\d{4}-\d{2}-\d{2}(-\d{2}-\d{2}-\d{2})?))/
+            } transform: { text in
+                String(text).date()
+            }
+            Optionally {
+                "-"
+            }
+        }
+        Optionally {
+            Capture(as: titleReference) {
+                /.+?/
+            } transform: { text in
+                String(text)
+                    .replacingOccurrences(of: "-", with: " ")
+                    .toTitleCase()
+            }
+        }
+        Optionally {
+            "@"
+            Capture(as: scaleReference) {
+                OneOrMore(.digit)
+            } transform: { text in
+                String(text).float()
+            }
+            "x"
+        }
+        Anchor.endOfLine
+    }
 
     let date: Date?
     let title: String?
@@ -37,17 +73,17 @@ struct BasenameDetails: CustomStringConvertible {
     }
 
     init(basename: String) {
-        let regex = /^((\d{4}-\d{2}-\d{2})-)?(.*?)(@([0-9])x)?$/
-        guard let match = basename.firstMatch(of: regex) else {
+
+        guard let match = basename.firstMatch(of: Self.regex) else {
             self.date = nil
             self.title = basename
             self.scale = nil
             return
         }
         // TODO: Decide on, and document, the timezone policy.
-        self.date = match.2?.date()
-        self.title = String(match.3).replacingOccurrences(of: "-", with: " ").toTitleCase()
-        self.scale = match.5?.float()
+        self.date = match[Self.dateReference]
+        self.title = match[Self.titleReference]
+        self.scale = match[Self.scaleReference]
     }
 
     var description: String {

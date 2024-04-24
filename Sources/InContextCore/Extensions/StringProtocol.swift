@@ -30,7 +30,7 @@ extension StringProtocol {
 
     func date() -> Date? {
         // TODO: Does swift have an equivalent of `formatted` for parsing?
-        return Formatters.dayDate.date(from: String(self))
+        return Formatters.filenameDateTimeFormatter.date(from: String(self)) ?? Formatters.filenameDateFormatter.date(from: String(self))
     }
 
 }

@@ -40,8 +40,35 @@ class BasenameDetailsTests: XCTestCase {
         let url = URL(filePath: "/posts/2017-12-11-this-is-a-post.markdown")
         let details = url.basenameDetails()
         XCTAssertEqual(details.title, "This Is a Post")
-        XCTAssertEqual(details.date, Date(2017, 12, 11, 0, 0))
+        XCTAssertEqual(details.date, Date(2017, 12, 11))
         XCTAssertEqual(url.siteURL, "/posts/2017-12-11-this-is-a-post/")
+        XCTAssertEqual(url.parentURL, "/posts/")
+    }
+
+    func testPostDateMissingTitle() {
+        let url = URL(filePath: "/posts/2017-12-11.markdown")
+        let details = url.basenameDetails()
+        XCTAssertEqual(details.title, nil)
+        XCTAssertEqual(details.date, Date(2017, 12, 11))
+        XCTAssertEqual(url.siteURL, "/posts/2017-12-11/")
+        XCTAssertEqual(url.parentURL, "/posts/")
+    }
+
+    func testPostExtendedDate() {
+        let url = URL(filePath: "/posts/2017-12-11-05-23-59-this-is-a-post.markdown")
+        let details = url.basenameDetails()
+        XCTAssertEqual(details.title, "This Is a Post")
+        XCTAssertEqual(details.date, Date(2017, 12, 11, 05, 23, 59))
+        XCTAssertEqual(url.siteURL, "/posts/2017-12-11-05-23-59-this-is-a-post/")
+        XCTAssertEqual(url.parentURL, "/posts/")
+    }
+
+    func testPostExtendedDateMissingTitle() {
+        let url = URL(filePath: "/posts/2017-12-11-05-23-59.markdown")
+        let details = url.basenameDetails()
+        XCTAssertEqual(details.title, nil)
+        XCTAssertEqual(details.date, Date(2017, 12, 11, 05, 23, 59))
+        XCTAssertEqual(url.siteURL, "/posts/2017-12-11-05-23-59/")
         XCTAssertEqual(url.parentURL, "/posts/")
     }
 
