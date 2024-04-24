@@ -25,7 +25,42 @@ import RegexBuilder
 
 struct BasenameDetails: CustomStringConvertible {
 
-//    static let regex = /^((\d{4}-\d{2}-\d{2})-)?(.*?)(@([0-9])x)?$/
+    private static let dateReference = Reference(Date?.self)
+    private static let titleReference = Reference(String?.self)
+    private static let scaleReference = Reference(Float?.self)
+
+    private static let regex = Regex {
+        Anchor.startOfLine
+        Optionally {
+            Capture(as: dateReference) {
+                /((\d{4}-\d{2}-\d{2}(-\d{2}-\d{2}-\d{2})?))/
+            } transform: { text in
+                String(text).date()
+            }
+            Optionally {
+                "-"
+            }
+        }
+        Optionally {
+            Capture(as: titleReference) {
+                /.+?/
+            } transform: { text in
+                String(text)
+                    .replacingOccurrences(of: "-", with: " ")
+                    .toTitleCase()
+            }
+        }
+        Optionally {
+            "@"
+            Capture(as: scaleReference) {
+                OneOrMore(.digit)
+            } transform: { text in
+                String(text).float()
+            }
+            "x"
+        }
+        Anchor.endOfLine
+    }
 
     let date: Date?
     let title: String?
@@ -39,58 +74,16 @@ struct BasenameDetails: CustomStringConvertible {
 
     init(basename: String) {
 
-        let date = Reference(Date?.self)
-        let title = Reference(String?.self)
-        let scale = Reference(Float?.self)
-
-        let regex = Regex {
-            Anchor.startOfLine
-            Optionally {
-                Capture(as: date) {
-                    /((\d{4}-\d{2}-\d{2}(-\d{2}-\d{2}-\d{2})?))/
-                } transform: { text in
-                    String(text).date()
-                }
-                Optionally {
-                    "-"
-                }
-            }
-            Optionally {
-                Capture(as: title) {
-                    /.+?/
-                } transform: { text in
-                    String(text)
-                        .replacingOccurrences(of: "-", with: " ")
-                        .toTitleCase()
-                }
-            }
-            Optionally {
-                "@"
-                Capture(as: scale) {
-                    OneOrMore(.digit)
-                } transform: { text in
-                    String(text).float()
-                }
-                "x"
-            }
-            Anchor.endOfLine
-        }
-
-        guard let match = basename.firstMatch(of: regex) else {
+        guard let match = basename.firstMatch(of: Self.regex) else {
             self.date = nil
             self.title = basename
             self.scale = nil
             return
         }
         // TODO: Decide on, and document, the timezone policy.
-
-        print(match[date] ?? "nil")
-        print(match[title] ?? "nil")
-        print(match[scale] ?? -1)
-
-        self.date = match[date]
-        self.title = match[title]
-        self.scale = match[scale]
+        self.date = match[Self.dateReference]
+        self.title = match[Self.titleReference]
+        self.scale = match[Self.scaleReference]
     }
 
     var description: String {
