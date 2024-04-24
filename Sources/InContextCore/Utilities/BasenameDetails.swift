@@ -21,10 +21,11 @@
 // SOFTWARE.
 
 import Foundation
+import RegexBuilder
 
 struct BasenameDetails: CustomStringConvertible {
 
-    static let regex = /^((\d{4}-\d{2}-\d{2})-)?(.*?)(@([0-9])x)?$/
+//    static let regex = /^((\d{4}-\d{2}-\d{2})-)?(.*?)(@([0-9])x)?$/
 
     let date: Date?
     let title: String?
@@ -37,7 +38,44 @@ struct BasenameDetails: CustomStringConvertible {
     }
 
     init(basename: String) {
-        let regex = /^((\d{4}-\d{2}-\d{2})-)?(.*?)(@([0-9])x)?$/
+
+        let date = Reference(Date?.self)
+        let title = Reference(String?.self)
+        let scale = Reference(Float?.self)
+
+        let regex = Regex {
+            Anchor.startOfLine
+            Optionally {
+                Capture(as: date) {
+                    /((\d{4}-\d{2}-\d{2}(-\d{2}-\d{2}-\d{2})?))/
+                } transform: { text in
+                    String(text).date()
+                }
+                Optionally {
+                    "-"
+                }
+            }
+            Optionally {
+                Capture(as: title) {
+                    /.+?/
+                } transform: { text in
+                    String(text)
+                        .replacingOccurrences(of: "-", with: " ")
+                        .toTitleCase()
+                }
+            }
+            Optionally {
+                "@"
+                Capture(as: scale) {
+                    OneOrMore(.digit)
+                } transform: { text in
+                    String(text).float()
+                }
+                "x"
+            }
+            Anchor.endOfLine
+        }
+
         guard let match = basename.firstMatch(of: regex) else {
             self.date = nil
             self.title = basename
@@ -45,9 +83,14 @@ struct BasenameDetails: CustomStringConvertible {
             return
         }
         // TODO: Decide on, and document, the timezone policy.
-        self.date = match.2?.date()
-        self.title = String(match.3).replacingOccurrences(of: "-", with: " ").toTitleCase()
-        self.scale = match.5?.float()
+
+        print(match[date] ?? "nil")
+        print(match[title] ?? "nil")
+        print(match[scale] ?? -1)
+
+        self.date = match[date]
+        self.title = match[title]
+        self.scale = match[scale]
     }
 
     var description: String {

@@ -24,9 +24,16 @@ import Foundation
 
 struct Formatters {
 
-    static let dayDate: DateFormatter = {
+    static let filenameDateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = .gmt
+        return dateFormatter
+    }()
+
+    static let filenameDateTimeFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"
         dateFormatter.timeZone = .gmt
         return dateFormatter
     }()
