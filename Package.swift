@@ -28,6 +28,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
+        .package(url: "https://github.com/inseven/licensable", from: "0.0.13"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),
         .package(url: "https://github.com/jwells89/Titlecaser.git", from: "1.0.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
@@ -58,12 +59,16 @@ let package = Package(
                     .when(platforms: [.macOS])),
                 .product(name: "Hummingbird", package: "hummingbird"),
                 .product(name: "HummingbirdFoundation", package: "hummingbird"),
+                .product(name: "Licensable", package: "licensable"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "SQLite", package: "SQLite.swift"),
                 .product(name: "SwiftSoup", package: "SwiftSoup"),
                 .product(name: "Tilt", package: "Tilt"),
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yams", package: "Yams"),
+            ],
+            resources: [
+                .process("Licenses"),
             ],
             plugins: [
                 .plugin(name: "EmbedLuaPlugin", package: "LuaSwift")

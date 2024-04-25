@@ -31,12 +31,7 @@
 		D86BCDFA2A9B030400C81BA5 /* Geocoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDF92A9B030400C81BA5 /* Geocoder.swift */; };
 		D86BCDFC2A9B032200C81BA5 /* HelperError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D86BCDFB2A9B032200C81BA5 /* HelperError.swift */; };
 		D877BF4C2BC9FDDC00C51E9D /* InContextCommand in Frameworks */ = {isa = PBXBuildFile; productRef = D877BF4B2BC9FDDC00C51E9D /* InContextCommand */; };
-		D8850A132B841AEE00E17977 /* incontext-license in Resources */ = {isa = PBXBuildFile; fileRef = D8850A122B841AE500E17977 /* incontext-license */; };
 		D8850A172B841D6E00E17977 /* MainMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8850A152B841D4A00E17977 /* MainMenu.swift */; };
-		D8850A1D2B84217200E17977 /* tilt-license in Resources */ = {isa = PBXBuildFile; fileRef = D8850A1C2B84217200E17977 /* tilt-license */; };
-		D8850A212B84253500E17977 /* hummingbird-license in Resources */ = {isa = PBXBuildFile; fileRef = D8850A202B84253500E17977 /* hummingbird-license */; };
-		D8850A232B84260D00E17977 /* luaswift-license in Resources */ = {isa = PBXBuildFile; fileRef = D8850A222B84260D00E17977 /* luaswift-license */; };
-		D8850A252B8426B900E17977 /* sqliteswift-license in Resources */ = {isa = PBXBuildFile; fileRef = D8850A242B8426B900E17977 /* sqliteswift-license */; };
 		D8920F1B2AB2AB8700137912 /* Diligence in Frameworks */ = {isa = PBXBuildFile; productRef = D8920F1A2AB2AB8700137912 /* Diligence */; };
 		D8A739B42AA660F400946EED /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A739B32AA660F400946EED /* LogView.swift */; };
 		D8A739B62AA6611E00946EED /* LogWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A739B52AA6611E00946EED /* LogWindow.swift */; };
@@ -104,13 +99,8 @@
 		D86BCDEE2A9B016E00C81BA5 /* HelperUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		D86BCDF92A9B030400C81BA5 /* Geocoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Geocoder.swift; sourceTree = "<group>"; };
 		D86BCDFB2A9B032200C81BA5 /* HelperError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperError.swift; sourceTree = "<group>"; };
-		D8850A122B841AE500E17977 /* incontext-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "incontext-license"; sourceTree = "<group>"; };
 		D8850A142B841C3900E17977 /* InContext-Helper-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "InContext-Helper-Info.plist"; sourceTree = "<group>"; };
 		D8850A152B841D4A00E17977 /* MainMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
-		D8850A1C2B84217200E17977 /* tilt-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tilt-license"; sourceTree = "<group>"; };
-		D8850A202B84253500E17977 /* hummingbird-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "hummingbird-license"; sourceTree = "<group>"; };
-		D8850A222B84260D00E17977 /* luaswift-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "luaswift-license"; sourceTree = "<group>"; };
-		D8850A242B8426B900E17977 /* sqliteswift-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "sqliteswift-license"; sourceTree = "<group>"; };
 		D890630A2A98293A0001A8E2 /* incontext */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = incontext; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89063152A9829500001A8E2 /* incontext */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = incontext; path = ..; sourceTree = "<group>"; };
 		D8920F192AB2AB4B00137912 /* diligence */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = diligence; path = ../Dependencies/diligence; sourceTree = "<group>"; };
@@ -224,7 +214,6 @@
 				D86BCDD02A9B016A00C81BA5 /* HelperApp.swift */,
 				D86BCDD42A9B016D00C81BA5 /* Assets.xcassets */,
 				D8121A6F2AA04BC900EEDF5B /* Extensions */,
-				D8850A0F2B841AB100E17977 /* Licenses */,
 				D8121A772AA05E7100EEDF5B /* Model */,
 				D86BCDD62A9B016D00C81BA5 /* Preview Content */,
 				D8850A1A2B84208E00E17977 /* Utilities */,
@@ -256,18 +245,6 @@
 				D86BCDEE2A9B016E00C81BA5 /* HelperUITestsLaunchTests.swift */,
 			);
 			path = HelperUITests;
-			sourceTree = "<group>";
-		};
-		D8850A0F2B841AB100E17977 /* Licenses */ = {
-			isa = PBXGroup;
-			children = (
-				D8850A202B84253500E17977 /* hummingbird-license */,
-				D8850A122B841AE500E17977 /* incontext-license */,
-				D8850A222B84260D00E17977 /* luaswift-license */,
-				D8850A242B8426B900E17977 /* sqliteswift-license */,
-				D8850A1C2B84217200E17977 /* tilt-license */,
-			);
-			path = Licenses;
 			sourceTree = "<group>";
 		};
 		D8850A1A2B84208E00E17977 /* Utilities */ = {
@@ -465,12 +442,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D86BCDD82A9B016D00C81BA5 /* Preview Assets.xcassets in Resources */,
-				D8850A232B84260D00E17977 /* luaswift-license in Resources */,
-				D8850A1D2B84217200E17977 /* tilt-license in Resources */,
 				D86BCDD52A9B016D00C81BA5 /* Assets.xcassets in Resources */,
-				D8850A212B84253500E17977 /* hummingbird-license in Resources */,
-				D8850A132B841AEE00E17977 /* incontext-license in Resources */,
-				D8850A252B8426B900E17977 /* sqliteswift-license in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

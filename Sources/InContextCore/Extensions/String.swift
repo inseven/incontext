@@ -28,6 +28,11 @@ extension String {
 
     private static let schemeRegex = /[a-z]+:/.ignoresCase()
 
+    init(contentsOfResource resource: String) {
+        let url = Bundle.module.url(forResource: resource, withExtension: nil)!
+        try! self.init(contentsOf: url)
+    }
+
     func ensuringTrailingSlash() -> String {
         return hasSuffix("/") ? self : self + "/"
     }
