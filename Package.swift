@@ -65,6 +65,9 @@ let package = Package(
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yams", package: "Yams"),
             ],
+            resources: [
+                .process("Licenses"),
+            ],
             plugins: [
                 .plugin(name: "EmbedLuaPlugin", package: "LuaSwift")
             ]),
