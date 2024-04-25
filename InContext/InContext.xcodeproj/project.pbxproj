@@ -284,7 +284,7 @@
 				D8850A142B841C3900E17977 /* InContext-Helper-Info.plist */,
 				D8F75F462AA34811000DEDB7 /* InContext HelperRelease.entitlements */,
 				D89063142A9829500001A8E2 /* Packages */,
-				D890630C2A98293A0001A8E2 /* InContext */,
+				D890630C2A98293A0001A8E2 /* Command */,
 				D86BCDCF2A9B016A00C81BA5 /* Helper */,
 				D86BCDE12A9B016E00C81BA5 /* HelperTests */,
 				D86BCDEB2A9B016E00C81BA5 /* HelperUITests */,
@@ -304,13 +304,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D890630C2A98293A0001A8E2 /* InContext */ = {
+		D890630C2A98293A0001A8E2 /* Command */ = {
 			isa = PBXGroup;
 			children = (
 				D849DDFA2A982E7900C5041E /* Info.plist */,
 				D8E4C1202BC9F77300B09A78 /* Main.swift */,
 			);
-			path = InContext;
+			path = Command;
 			sourceTree = "<group>";
 		};
 		D89063142A9829500001A8E2 /* Packages */ = {
@@ -820,7 +820,7 @@
 				CURRENT_PROJECT_VERSION = 00000000;
 				DEVELOPMENT_TEAM = QS82QFHKWB;
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = "$(SRCROOT)/InContext/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Command/Info.plist";
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.incontext.cli;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -838,7 +838,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = QS82QFHKWB;
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = "$(SRCROOT)/InContext/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Command/Info.plist";
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.incontext.cli;
 				PRODUCT_NAME = "$(TARGET_NAME)";
