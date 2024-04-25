@@ -24,77 +24,78 @@ import Foundation
 
 import Licensable
 
+fileprivate let hummingbirdLicense = License(id: "https://github.com/hummingbird-project/hummingbird",
+                                             name: "Hummingbird",
+                                             author: "Hummingbird Authors",
+                                             text: String(contentsOfResource: "hummingbird-license"),
+                                             attributes: [
+                                                .url(URL(string: "https://github.com/hummingbird-project/hummingbird")!,
+                                                     title: "GitHub"),
+                                             ])
+
+fileprivate let luaSwiftLicense = License(id: "https://github.com/tomsci/LuaSwift",
+                                          name: "LuaSwift",
+                                          author: "Tom Sutcliffe",
+                                          text: String(contentsOfResource: "luaswift-license"),
+                                          attributes: [
+                                            .url(URL(string: "https://github.com/tomsci/LuaSwift")!, title: "GitHub"),
+                                          ])
+
+fileprivate let sqliteSwiftLicense = License(id: "https://github.com/stephencelis/SQLite.swift",
+                                             name: "SQLite.swift",
+                                             author: "Stephen Celis",
+                                             text: String(contentsOfResource: "sqliteswift-license"),
+                                             attributes: [
+                                                .url(URL(string: "https://github.com/stephencelis/SQLite.swift")!,
+                                                     title: "GitHub"),
+                                             ])
+
+fileprivate let tiltLicense = License(id: "https://github.com/tomsci/tomscis-lua-templater",
+                                      name: "Tilt",
+                                      author: "Tom Sutcliffe",
+                                      text: String(contentsOfResource: "tilt-license"),
+                                      attributes: [
+                                        .url(URL(string: "https://github.com/tomsci/tomscis-lua-templater")!,
+                                             title: "GitHub"),
+                                      ])
+
+fileprivate let titlecaserLicense = License(id: "https://github.com/jwells89/Titlecaser",
+                                            name: "Titlecaser",
+                                            author: "John Ivan Wells",
+                                            text: String(contentsOfResource: "titlecaser-license"),
+                                            attributes: [
+                                                .url(URL(string: "https://github.com/jwells89/Titlecaser")!,
+                                                     title: "GitHub"),
+                                            ])
+
+fileprivate let yamsLicense = License(id: "https://github.com/jpsim/Yams",
+                                      name: "Yams",
+                                      author: "JP Simard",
+                                      text: String(contentsOfResource: "yams-license"),
+                                      attributes: [
+                                        .url(URL(string: "https://github.com/jpsim/Yams")!, title: "GitHub"),
+                                      ])
+
+fileprivate let incontextLicense = License(id: "https://github.com/inseven/interact",
+                                           name: "InContext",
+                                           author: "Jason Morley",
+                                           text: String(contentsOfResource: "incontext-license"),
+                                           attributes: [
+                                            .url(URL(string: "https://github.com/inseven/incontext")!, title: "GitHub"),
+                                           ],
+                                           licenses: [
+                                            .licensable,
+                                            hummingbirdLicense,
+                                            luaSwiftLicense,
+                                            sqliteSwiftLicense,
+                                            tiltLicense,
+                                            titlecaserLicense,
+                                            yamsLicense,
+                                           ])
+
+
 extension Licensable where Self == License {
 
-    public static var incontext: License {
-
-        let hummingbird = License(id: "https://github.com/hummingbird-project/hummingbird",
-                                  name: "Hummingbird",
-                                  author: "Hummingbird Authors",
-                                  text: String(contentsOfResource: "hummingbird-license"),
-                                  attributes: [
-                                      .url(URL(string: "https://github.com/hummingbird-project/hummingbird")!,
-                                           title: "GitHub"),
-                                  ])
-
-        let luaSwift = License(id: "https://github.com/tomsci/LuaSwift",
-                               name: "LuaSwift",
-                               author: "Tom Sutcliffe",
-                               text: String(contentsOfResource: "luaswift-license"),
-                               attributes: [
-                                .url(URL(string: "https://github.com/tomsci/LuaSwift")!, title: "GitHub"),
-                               ])
-
-        let sqliteSwift = License(id: "https://github.com/stephencelis/SQLite.swift",
-                                  name: "SQLite.swift",
-                                  author: "Stephen Celis",
-                                  text: String(contentsOfResource: "sqliteswift-license"),
-                                  attributes: [
-                                    .url(URL(string: "https://github.com/stephencelis/SQLite.swift")!, title: "GitHub"),
-                                  ])
-
-        let tilt = License(id: "https://github.com/tomsci/tomscis-lua-templater",
-                           name: "Tilt",
-                           author: "Tom Sutcliffe",
-                           text: String(contentsOfResource: "tilt-license"),
-                           attributes: [
-                            .url(URL(string: "https://github.com/tomsci/tomscis-lua-templater")!,
-                                 title: "GitHub"),
-                           ])
-
-        let titlecaser = License(id: "https://github.com/jwells89/Titlecaser",
-                                 name: "Titlecaser",
-                                 author: "John Ivan Wells",
-                                 text: String(contentsOfResource: "titlecaser-license"),
-                                 attributes: [
-                                    .url(URL(string: "https://github.com/jwells89/Titlecaser")!,
-                                         title: "GitHub"),
-                                 ])
-
-        let yams = License(id: "https://github.com/jpsim/Yams",
-                           name: "Yams",
-                           author: "JP Simard",
-                           text: String(contentsOfResource: "yams-license"),
-                           attributes: [
-                            .url(URL(string: "https://github.com/jpsim/Yams")!, title: "GitHub"),
-                           ])
-        
-        return License(id: "https://github.com/inseven/interact",
-                       name: "InContext",
-                       author: "Jason Morley",
-                       text: String(contentsOfResource: "incontext-license"),
-                       attributes: [
-                           .url(URL(string: "https://github.com/inseven/incontext")!, title: "GitHub"),
-                       ],
-                       licenses: [
-                           .licensable,
-                           hummingbird,
-                           luaSwift,
-                           sqliteSwift,
-                           titlecaser,
-                           tilt,
-                           yams,
-                       ])
-    }
+    public static var incontext: License { incontextLicense }
 
 }
