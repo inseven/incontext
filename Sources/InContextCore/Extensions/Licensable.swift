@@ -42,8 +42,7 @@ extension Licensable where Self == License {
                                author: "Tom Sutcliffe",
                                text: String(contentsOfResource: "luaswift-license"),
                                attributes: [
-                                .url(URL(string: "https://github.com/tomsci/LuaSwift")!,
-                                     title: "GitHub"),
+                                .url(URL(string: "https://github.com/tomsci/LuaSwift")!, title: "GitHub"),
                                ])
 
         let sqliteSwift = License(id: "https://github.com/stephencelis/SQLite.swift",
@@ -51,8 +50,7 @@ extension Licensable where Self == License {
                                   author: "Stephen Celis",
                                   text: String(contentsOfResource: "sqliteswift-license"),
                                   attributes: [
-                                    .url(URL(string: "https://github.com/stephencelis/SQLite.swift")!,
-                                         title: "GitHub"),
+                                    .url(URL(string: "https://github.com/stephencelis/SQLite.swift")!, title: "GitHub"),
                                   ])
 
         let tilt = License(id: "https://github.com/tomsci/tomscis-lua-templater",
@@ -64,6 +62,23 @@ extension Licensable where Self == License {
                                  title: "GitHub"),
                            ])
 
+        let titlecaser = License(id: "https://github.com/jwells89/Titlecaser",
+                                 name: "Titlecaser",
+                                 author: "John Ivan Wells",
+                                 text: String(contentsOfResource: "titlecaser-license"),
+                                 attributes: [
+                                    .url(URL(string: "https://github.com/jwells89/Titlecaser")!,
+                                         title: "GitHub"),
+                                 ])
+
+        let yams = License(id: "https://github.com/jpsim/Yams",
+                           name: "Yams",
+                           author: "JP Simard",
+                           text: String(contentsOfResource: "yams-license"),
+                           attributes: [
+                            .url(URL(string: "https://github.com/jpsim/Yams")!, title: "GitHub"),
+                           ])
+        
         return License(id: "https://github.com/inseven/interact",
                        name: "InContext",
                        author: "Jason Morley",
@@ -76,7 +91,9 @@ extension Licensable where Self == License {
                            hummingbird,
                            luaSwift,
                            sqliteSwift,
+                           titlecaser,
                            tilt,
+                           yams,
                        ])
     }
 
