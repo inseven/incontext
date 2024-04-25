@@ -112,7 +112,7 @@
 		D8850A222B84260D00E17977 /* luaswift-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "luaswift-license"; sourceTree = "<group>"; };
 		D8850A242B8426B900E17977 /* sqliteswift-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "sqliteswift-license"; sourceTree = "<group>"; };
 		D890630A2A98293A0001A8E2 /* incontext */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = incontext; sourceTree = BUILT_PRODUCTS_DIR; };
-		D89063152A9829500001A8E2 /* incontext-waialua */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "incontext-waialua"; path = ..; sourceTree = "<group>"; };
+		D89063152A9829500001A8E2 /* incontext */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "incontext"; path = ..; sourceTree = "<group>"; };
 		D8920F192AB2AB4B00137912 /* diligence */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = diligence; path = ../Dependencies/diligence; sourceTree = "<group>"; };
 		D8A739B32AA660F400946EED /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		D8A739B52AA6611E00946EED /* LogWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogWindow.swift; sourceTree = "<group>"; };
@@ -316,7 +316,7 @@
 		D89063142A9829500001A8E2 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				D89063152A9829500001A8E2 /* incontext-waialua */,
+				D89063152A9829500001A8E2 /* incontext */,
 				D8920F192AB2AB4B00137912 /* diligence */,
 			);
 			name = Packages;
