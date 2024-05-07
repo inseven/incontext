@@ -30,7 +30,6 @@ struct DictionaryWrapper: Decodable {
         let container = try decoder.container(keyedBy: UnknownCodingKeys.self)
         self.dictionary = try container
             .decode(Dictionary<String, Any>.self)
-            .promotingStringDates()
     }
 
 }
