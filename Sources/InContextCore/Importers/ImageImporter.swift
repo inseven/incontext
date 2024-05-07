@@ -202,9 +202,8 @@ struct _Resize: _Transform {
         context.assets.append(Asset(fileURL: destinationURL as URL))
 
         let details = [
-            "width": width,
-            "height": height,
-            "filename": "cheese", // TODO: Remove??
+            "width": targetSize.width,
+            "height": targetSize.height,
             "url": destinationURL.relativePath.ensuringLeadingSlash(),
         ] as [String: Any]
 
@@ -281,13 +280,17 @@ let configuration = _Configuration {
 //    }
 
     _Where(_Type(.heic) || _Type(.tiff)) {
-        _Resize(basename: "large", width: 1600, format: .jpeg, sets: ["image", "previews"])
-        _Resize(basename: "small", width: 480, format: .jpeg, sets: ["thumbnail", "previews"])
+        _Resize(basename: "1600", width: 1600, format: .jpeg, sets: ["image", "previews"])
+        _Resize(basename: "1200", width: 1200, format: .jpeg, sets: ["previews"])
+        _Resize(basename: "800", width: 800, format: .jpeg, sets: ["previews"])
+        _Resize(basename: "400", width: 400, format: .jpeg, sets: ["thumbnail", "previews"])
     }
 
     _Where(_True()) {
-        _Resize(basename: "large", width: 1600, sets: ["image", "previews"])
-        _Resize(basename: "small", width: 480, sets: ["thumbnail", "previews"])
+        _Resize(basename: "1600", width: 1600, sets: ["image", "previews"])
+        _Resize(basename: "1200", width: 1200, sets: ["previews"])
+        _Resize(basename: "800", width: 800, sets: ["previews"])
+        _Resize(basename: "400", width: 400, sets: ["thumbnail", "previews"])
     }
 
 }
@@ -311,7 +314,7 @@ class ImageImporter {
     }
 
     let identifier = "image"
-    let version = 10
+    let version = 13
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         return Settings(defaultCategory: try configuration.requiredValue(for: "category"),
