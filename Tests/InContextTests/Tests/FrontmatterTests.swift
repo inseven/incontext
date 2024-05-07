@@ -155,4 +155,75 @@ title: おはよう
         XCTAssertEqual(document.title, "おはよう")
     }
 
+    func testInt() throws {
+        let document = try FrontmatterDocument(contents: """
+---
+random: 12
+---
+""")
+        XCTAssertEqual(document.metadata["random"] as? Int, 12)
+    }
+
+    func testDouble() throws {
+        let document = try FrontmatterDocument(contents: """
+---
+random: 12.5
+---
+""")
+        XCTAssertEqual(document.metadata["random"] as? Double, 12.5)
+    }
+
+    func testQueryDefinition() throws {
+        let document = try FrontmatterDocument(contents: """
+---
+template: posts.html
+item_template: post_content.html
+category: pages
+queries:
+  posts:
+    include:
+      - general
+    sort: descending
+    limit: 3
+---
+""")
+
+        guard let queries = document.metadata["queries"] as? [AnyHashable: Any],
+              let postsQuery = queries["posts"] as? [AnyHashable: Any] else {
+            XCTFail("Unexpected metadata query structure")
+            return
+        }
+
+        XCTAssertEqual(postsQuery["include"] as? [String], ["general"])
+        XCTAssertEqual(postsQuery["sort"] as? String, "descending")
+        XCTAssertEqual(postsQuery["limit"] as? Int, 3)
+    }
+
+    func testCommentsWithDates() throws {
+        let document = try FrontmatterDocument(contents: """
+---
+category: Computing
+comments:
+- author: Daniel
+  author_email: ''
+  author_url: ''
+  content: I debate the validity of 'Cambridgidian' as an English word. Try Cantabrigian
+    instead ;)
+  date: 2005-06-01 19:24:30 +0000
+date: 2005-05-30 22:17:44 +0000
+template: post
+title: Oh The Shame...
+---
+""")
+
+        XCTAssertEqual(document.metadata["date"] as? Date, Date(2005, 05, 30, 22, 17, 44))
+
+        guard let comments = document.metadata["comments"] as? [[AnyHashable: Any]],
+              let comment = comments.first else {
+            XCTFail("Unexpected metadata comment structure")
+            return
+        }
+        XCTAssertEqual(comment["date"] as? Date, Date(2005, 06, 01, 19, 24, 30))
+    }
+
 }

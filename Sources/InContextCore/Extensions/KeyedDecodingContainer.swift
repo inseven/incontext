@@ -58,11 +58,15 @@ extension KeyedDecodingContainer {
             if let boolValue = try? decode(Bool.self, forKey: key) {
                 dictionary[key.stringValue] = boolValue
             } else if let stringValue = try? decode(String.self, forKey: key) {
-                dictionary[key.stringValue] = stringValue
-            } else if let intValue = try? decode(Int.self, forKey: key) {
-                dictionary[key.stringValue] = intValue
-            } else if let doubleValue = try? decode(Double.self, forKey: key) {
-                dictionary[key.stringValue] = doubleValue
+                if let intValue = Int(stringValue) {
+                    dictionary[key.stringValue] = intValue
+                } else if let doubleValue = Double(stringValue) {
+                    dictionary[key.stringValue] = doubleValue
+                } else if let dateValue = DateParser.default.date(from: stringValue) {
+                    dictionary[key.stringValue] = dateValue
+                } else {
+                    dictionary[key.stringValue] = stringValue
+                }
             } else if let nestedDictionary = try? decode(Dictionary<String, Any>.self, forKey: key) {
                 dictionary[key.stringValue] = nestedDictionary
             } else if let nestedArray = try? decode(Array<Any>.self, forKey: key) {

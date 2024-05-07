@@ -32,10 +32,16 @@ extension UnkeyedDecodingContainer {
         while isAtEnd == false {
             if let value = try? decode(Bool.self) {
                 array.append(value)
-            } else if let value = try? decode(Double.self) {
-                array.append(value)
-            } else if let value = try? decode(String.self) {
-                array.append(value)
+            } else if let string = try? decode(String.self) {
+                if let int = Int(string) {
+                    array.append(int)
+                } else if let double = Double(string) {
+                    array.append(double)
+                } else if let date = DateParser.default.date(from: string) {
+                    array.append(date)
+                } else {
+                    array.append(string)
+                }
             } else if let nestedDictionary = try? decode(Dictionary<String, Any>.self) {
                 array.append(nestedDictionary)
             } else if let nestedArray = try? decode(Array<Any>.self) {
