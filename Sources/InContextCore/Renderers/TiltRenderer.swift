@@ -57,30 +57,66 @@ fileprivate func warning(_ L: LuaState!) -> CInt {
     return 0
 }
 
+struct Extension {
+
+    let name: String
+    let content: String
+
+}
+
+struct Module {
+
+    let table: String
+    let env: LuaValue
+    let mt: LuaValue
+
+}
+
 class TiltRenderer {
 
     static let version = 1
 
     let templateCache: TemplateCache
+    let extensions: [Extension]
+    let modules: [Module]
 
     let env: TiltEnvironment
-    let incontextModuleEnv: LuaValue
-    let incontextModuleMt: LuaValue
 
-    init(templateCache: TemplateCache) {
+    init(templateCache: TemplateCache, extensions: [Extension]) {
         self.templateCache = templateCache
+        self.extensions = extensions
         env = TiltEnvironment()
         let L = env.L
 
-        incontextModuleEnv = .newtable(L)
-        incontextModuleMt = .newtable(L)
+        let incontextModuleEnv: LuaValue = .newtable(L)
+        let incontextModuleMt: LuaValue = .newtable(L)
         incontextModuleMt["__index"] = L.globals // for now
         incontextModuleEnv.metatable = incontextModuleMt
         try! L.load(data: lua_sources["incontext"]!, name: "@incontext.lua", mode: .binary) // 1: moduleFn
         L.push(incontextModuleEnv)
         lua_setupvalue(L, 1, 1) // moduleFn->_ENV = incontextModuleEnv
         try! L.pcall(nargs: 0, nret: 0) // moduleFn()
-        
+
+        let incontextModule = Module(table: "incontext", env: incontextModuleEnv, mt: incontextModuleMt)
+
+        var modules = [incontextModule]
+
+        // Load the extensions.
+        for ext in extensions {
+            let moduleEnv: LuaValue = .newtable(L)
+            let moduleMt: LuaValue = .newtable(L)
+            moduleMt["__index"] = L.globals // for now
+            moduleEnv.metatable = moduleMt
+            try! L.load(string: ext.content, name: "@" + ext.name + ".lua") // 1: moduleFn
+            L.push(moduleEnv)
+            lua_setupvalue(L, 1, 1) // moduleFn->_ENV = moduleEnv
+            try! L.pcall(nargs: 0, nret: 0) // moduleFn()
+            let module = Module(table: "extensions", env: moduleEnv, mt: moduleMt)
+            modules.append(module)
+        }
+
+        self.modules = modules
+
         L.register(Metatable(for: TemplateCache.self))
         L.register(DefaultMetatable(
             index: .closure { L in
@@ -117,21 +153,25 @@ class TiltRenderer {
         L.pop() // globals
     }
 
-    func render(string: String, filename: String, context: [String: Any]) throws -> RenderResult {
+    func render(string: String,
+                filename: String,
+                context: [String: Any]) throws -> RenderResult {
         let renderEnv = env.makeSandbox()
         // Add everything in context to renderEnv
         for (k, v) in context {
             try! renderEnv.set(k, v)
         }
+        try! renderEnv.set("extensions", [:])
 
-        // Add everything from incontext.lua to renderEnv["incontext"]
-        let incontextTable = renderEnv["incontext"]
-        for (k, v) in try! incontextModuleEnv.pairs() {
-            incontextTable[k] = v
+        // Add the extensions to the environment.
+        for module in modules {
+            let table = renderEnv[module.table]
+            for (k, v) in try! module.env.pairs() {
+                table[k] = v
+            }
+            // Give all the functions access to the current sandbox env.
+            module.mt["__index"] = renderEnv
         }
-
-        // Finally, give all the functions from incontext.lua access to the current sandbox env
-        incontextModuleMt["__index"] = renderEnv
 
         let result = try env.render(filename: filename, contents: string, env: renderEnv)
         return RenderResult(content: result.text, templatesUsed: result.includes)
