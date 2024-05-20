@@ -122,7 +122,7 @@ public class Builder {
         self.serializeRender = serializeRender
         self.store = try Store(databaseURL: site.storeURL)
         self.templateCache = try await TemplateCache(rootURL: site.templatesURL)  // TODO: Does this need to exist here?
-        self.renderManager = RenderManager(templateCache: templateCache)
+        self.renderManager = RenderManager(templateCache: templateCache, extensionsURL: site.extensionsURL)
     }
 
     // TODO: Perhaps this can get pushed into the RenderManager?

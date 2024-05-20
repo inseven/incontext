@@ -66,6 +66,7 @@ public struct Site {
     public let settingsURL: URL
     public let contentURL: URL
     public let templatesURL: URL
+    public let extensionsURL: URL
     public let buildURL: URL
     public let storeURL: URL
     public let filesURL: URL
@@ -108,6 +109,7 @@ public struct Site {
         self.settingsURL = rootURL.appendingPathComponent("site.yaml")
         self.contentURL = rootURL.appendingPathComponent("content", isDirectory: true)
         self.templatesURL = rootURL.appendingPathComponent("templates", isDirectory: true)
+        self.extensionsURL = rootURL.appendingPathComponent("extensions", isDirectory: true)
         self.buildURL = rootURL.appendingPathComponent("build", isDirectory: true)
         self.storeURL = buildURL.appendingPathComponent("store.sqlite")
         self.filesURL = buildURL.appendingPathComponent("files", isDirectory: true)

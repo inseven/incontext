@@ -29,12 +29,14 @@ import PlatformSupport
 class RenderManager {
 
     private let templateCache: TemplateCache
+    private let extensionsURL: URL
 
     private let syncQueue = DispatchQueue(label: "RenderManager.syncQueue")
     private var renderers: [TiltRenderer] = []
 
-    init(templateCache: TemplateCache) {
+    init(templateCache: TemplateCache, extensionsURL: URL) {
         self.templateCache = templateCache
+        self.extensionsURL = extensionsURL
     }
 
     var rendererVersion: Int {
@@ -53,12 +55,25 @@ class RenderManager {
         return renderStatuses
     }
 
+    func extensions() throws -> [Extension] {
+        let fileManager = FileManager.default
+        guard fileManager.directoryExists(at: extensionsURL) else {
+            return []
+        }
+        return try fileManager.contentsOfDirectory(at: extensionsURL, includingPropertiesForKeys: nil)
+            .filter { $0.pathExtension == "lua" }
+            .map { extensionURL in
+                let basename = (extensionURL.lastPathComponent as NSString).deletingPathExtension
+                return Extension(name: basename, content: try String(contentsOf: extensionURL))
+             }
+    }
+
     func render(renderTracker: RenderTracker,
                 template: String,
                 context: [String: Any]) throws -> String {
 
         // Perform the render.
-        let renderer = TiltRenderer(templateCache: templateCache)
+        let renderer = TiltRenderer(templateCache: templateCache, extensions: try extensions())
         let renderResult = try renderer.render(name: template, context: context)
 
         // Track the renderer instance and templates used.
@@ -79,7 +94,7 @@ class RenderManager {
                 context: [String: Any]) throws -> String {
 
         // Perform the render.
-        let renderer = TiltRenderer(templateCache: templateCache)
+        let renderer = TiltRenderer(templateCache: templateCache, extensions: try extensions())
         let renderResult = try renderer.render(string: string, filename: filename, context: context)
 
         // Track the renderer instance and templates used.
