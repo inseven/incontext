@@ -57,6 +57,9 @@ class RenderManager {
 
     func extensions() throws -> [Extension] {
         let fileManager = FileManager.default
+        guard fileManager.directoryExists(at: extensionsURL) else {
+            return []
+        }
         return try fileManager.contentsOfDirectory(at: extensionsURL, includingPropertiesForKeys: nil)
             .filter { $0.pathExtension == "lua" }
             .map { extensionURL in
