@@ -41,8 +41,8 @@ class RenderTracker {
         renderers.insert(rendererInstance)
     }
 
-    func add(_ templateStatus: TemplateRenderStatus) {
-        statuses.insert(templateStatus)
+    func add(_ templateStatuses: [TemplateRenderStatus]) {
+        statuses.formUnion(templateStatuses)
     }
 
     func documents(query: QueryDescription) throws -> [Document] {
@@ -68,6 +68,14 @@ class RenderTracker {
         let template = template ?? document.template
         let context = Builder.context(for: site, document: document, renderTracker: self)
         return try renderManager.render(renderTracker: self, template: template, context: context)
+    }
+
+    func render(_ document: Document, string: String) throws -> String {
+        let context = Builder.context(for: site, document: document, renderTracker: self)
+        return try renderManager.render(renderTracker: self,
+                                        string: string,
+                                        filename: document.relativeSourcePath,
+                                        context: context)
     }
 
 }

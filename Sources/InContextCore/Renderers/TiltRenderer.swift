@@ -117,7 +117,7 @@ class TiltRenderer {
         L.pop() // globals
     }
 
-    func render(name: String, context: [String : Any]) throws -> RenderResult {
+    func render(string: String, filename: String, context: [String: Any]) throws -> RenderResult {
         let renderEnv = env.makeSandbox()
         // Add everything in context to renderEnv
         for (k, v) in context {
@@ -132,12 +132,16 @@ class TiltRenderer {
 
         // Finally, give all the functions from incontext.lua access to the current sandbox env
         incontextModuleMt["__index"] = renderEnv
-        
+
+        let result = try env.render(filename: filename, contents: string, env: renderEnv)
+        return RenderResult(content: result.text, templatesUsed: result.includes)
+    }
+
+    func render(name: String, context: [String : Any]) throws -> RenderResult {
         guard let template = try templateCache.details(for: name) else {
             throw InContextError.unknownTemplate(name)
         }
-        let result = try env.render(filename: name, contents: template.contents, env: renderEnv)
-        return RenderResult(content: result.text, templatesUsed: result.includes)
+        return try render(string: template.contents, filename: name, context: context)
     }
 
 }
