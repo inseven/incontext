@@ -270,12 +270,15 @@ struct DocumentContext: EvaluationContext {
             
             return relativeSourcePath.ensuringLeadingSlash().ensuringTrailingSlash()
         }
-        case "resolve_document": return Function { (relativePath: String) -> DocumentContext? in
+        case "resolve_document": return Function { (relativePath: String) throws -> DocumentContext? in
             guard relativePath != "." else {
                 return self
             }
             let relativeSourcePath = relativeSourcePath(for: relativePath)
             return try renderTracker.documentContexts(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first
+        }
+        case "render": return Function { () throws -> String in
+            return try renderTracker.render(document, string: self.html())
         }
         default:
             return document.metadata[name]

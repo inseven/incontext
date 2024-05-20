@@ -3,7 +3,7 @@
     <div class="post">
         {% include "post_header.html" %}
         <article class="post-content">
-            {{ incontext.renderDocumentHTML(document) }}
+            {{ document.render() }}
         </article>
     </div>
 {% end %}

@@ -154,9 +154,21 @@ Renders:
 
 #### Breadcrumbs
 
-Generate full breadcrumbs for the current document by adding a pure-Lua convenience function:
+Generate full breadcrumbs for the current document by adding pure-Lua convenience functions:
 
 ```lua
+[[
+function reversedipairsiter(t, i)
+  i = i - 1
+  if i ~= 0 then
+      return i, t[i]
+  end
+end
+
+function reversedipairs(t)
+  return reversedipairsiter, t, #t + 1
+end
+
 function ancestors(document)
   local ancestor = document
   local ancestors = {}
@@ -169,11 +181,13 @@ function ancestors(document)
     end
   end
 end
+]]
 ```
 
 Calling it as follows:
 
 ```html
+[[
 {% for _, ancestor in reversedipairs(ancestors(document)) do %}
   &gt; <a href="{{ ancestor.url }}">{{ ancestor.title }}</a>
 {% end %}]]
@@ -181,10 +195,39 @@ Calling it as follows:
 
 Renders:
 
+{%
+function reversedipairsiter(t, i)
+    i = i - 1
+    if i ~= 0 then
+        return i, t[i]
+    end
+end
+%}
+
+{%
+function reversedipairs(t)
+  return reversedipairsiter, t, #t + 1
+end
+%}
+
+{%
+function ancestors(document)
+  local ancestor = document
+  local ancestors = {}
+  while true do
+    ancestor = ancestor.closestAncestor()
+    if ancestor then
+      table.insert(ancestors, ancestor)
+    else
+      return ancestors
+    end
+  end
+end
+%}
+
 {% for _, ancestor in reversedipairs(ancestors(document)) do %}
   &gt; <a href="{{ ancestor.url }}">{{ ancestor.title }}</a>
 {% end %}
-
 
 ## `document.children(options)`
 

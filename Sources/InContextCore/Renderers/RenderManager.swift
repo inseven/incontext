@@ -41,34 +41,29 @@ class RenderManager {
         return TiltRenderer.version
     }
 
+    // Look-up the modification date for each template, generate an associated render status.
+    private func renderStatuses(for templates: [String]) throws -> [TemplateRenderStatus] {
+        var renderStatuses: [TemplateRenderStatus] = []
+        for template in templates {
+            guard let modificationDate = try templateCache.modificationDate(for: template) else {
+                throw InContextError.internalInconsistency("Failed to get content modification date for template '\(template)'.")
+            }
+            renderStatuses.append(TemplateRenderStatus(identifier: template, modificationDate: modificationDate))
+        }
+        return renderStatuses
+    }
+
     func render(renderTracker: RenderTracker,
                 template: String,
                 context: [String: Any]) throws -> String {
 
-        let renderer = TiltRenderer(templateCache: templateCache)
-//        let renderer = syncQueue.sync { renderers.popLast() } ?? TiltRenderer(templateCache: templateCache)
-//        defer {
-//            syncQueue.async {
-//                self.renderers.append(renderer)
-//            }
-//        }
-
         // Perform the render.
+        let renderer = TiltRenderer(templateCache: templateCache)
         let renderResult = try renderer.render(name: template, context: context)
 
-        // Record the renderer instance used.
-        // It is sufficient to record this once for the whole render operation even though multiple templates might be
-        // used, as we do not allow mixing of template languages within a single top-level render.
+        // Track the renderer instance and templates used.
         renderTracker.add(RendererInstance(version: type(of: renderer).self.version))
-
-        // Look-up the modification date for each template, generate an associated render status, and add this to the
-        // tracker.
-        for template in renderResult.templatesUsed {
-            guard let modificationDate = try templateCache.modificationDate(for: template) else {
-                throw InContextError.internalInconsistency("Failed to get content modification date for template '\(template)'.")
-            }
-            renderTracker.add(TemplateRenderStatus(identifier: template, modificationDate: modificationDate))
-        }
+        renderTracker.add(try renderStatuses(for: renderResult.templatesUsed))
 
         // Prettify HTML output to make debugging a little easier.
         guard template.type?.conforms(to: .html) ?? false else {
@@ -76,6 +71,25 @@ class RenderManager {
         }
         let dom = try SwiftSoup.parse(renderResult.content)
         return try dom.html()
+    }
+
+    func render(renderTracker: RenderTracker,
+                string: String,
+                filename: String,
+                context: [String: Any]) throws -> String {
+
+        // Perform the render.
+        let renderer = TiltRenderer(templateCache: templateCache)
+        let renderResult = try renderer.render(string: string, filename: filename, context: context)
+
+        // Track the renderer instance and templates used.
+        // N.B. This code works around behavior currently built into Tilt that currently explicitly adds the filename
+        // hint to the list of templates used.
+        // #254: Tilt shouldn’t track the filename hint as a used template (https://github.com/inseven/incontext/issues/254)
+        renderTracker.add(RendererInstance(version: type(of: renderer).self.version))
+        renderTracker.add(try renderStatuses(for: renderResult.templatesUsed.filter { $0 != filename }))
+
+        return renderResult.content
     }
 
     func clearTemplateCache() {
