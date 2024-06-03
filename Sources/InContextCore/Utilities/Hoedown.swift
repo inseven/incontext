@@ -120,7 +120,6 @@ class Hoedown {
     static func render(markdown: String,
                        flags: Hoedown.HTMLFlags = [],
                        extensions: Hoedown.Extensions = [],
-                       useSmartyPants: Bool = false,
                        nestingLevel: Int = 0,
                        maxNesting: UInt = 16) -> String? {
 
@@ -170,20 +169,27 @@ class Hoedown {
         // Create the processing buffers.
         guard let outputBuffer = hoedown_buffer_new(16) else { return nil }
         defer { hoedown_buffer_free(outputBuffer) }
-        guard let sourceBuffer = hoedown_buffer_new(16) else { return nil }
-        defer { hoedown_buffer_free(sourceBuffer) }
-
-        // Optionally pre-process with SmartyPants.
-        if useSmartyPants {
-            hoedown_html_smartypants(sourceBuffer, markdown, markdown.utf8.count);
-        } else {
-            hoedown_buffer_put(sourceBuffer, markdown, markdown.utf8.count);
-        }
 
         // Process the Markdown.
-        hoedown_document_render(document, outputBuffer, sourceBuffer.pointee.data, sourceBuffer.pointee.size);
+        hoedown_document_render(document, outputBuffer, markdown, markdown.utf8.count);
 
         return outputBuffer.asString()
+    }
+
+    static func smartypants(_ string: String) throws -> String {
+
+        guard let outputBuffer = hoedown_buffer_new(16) else {
+            throw InContextError.allocationFailure
+        }
+        defer { hoedown_buffer_free(outputBuffer) }
+
+        hoedown_html_smartypants(outputBuffer, string, string.utf8.count);
+
+        guard let result = outputBuffer.asString() else {
+            throw InContextError.allocationFailure
+        }
+        
+        return result
     }
 
 }
