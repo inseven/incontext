@@ -278,7 +278,8 @@ struct DocumentContext: EvaluationContext {
             return try renderTracker.documentContexts(query: QueryDescription(relativeSourcePath: relativeSourcePath)).first
         }
         case "render": return Function { () throws -> String in
-            return try renderTracker.render(document, string: self.html())
+            let html = try renderTracker.render(document, string: self.html())
+            return try Hoedown.smartypants(html)
         }
         default:
             return document.metadata[name]

@@ -42,6 +42,7 @@ public enum InContextError: Error {
     case interrupted
     case unknownTemplate(String)
     case importError(URL, Error)
+    case allocationFailure
 
     // Function calls.
     case incorrectType(expected: Any.Type, received: Any?)
