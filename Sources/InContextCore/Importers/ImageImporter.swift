@@ -186,18 +186,34 @@ struct _Resize: _Transform {
             throw InContextError.internalInconsistency("Failed to detect output type for '\(context.fileURL.relativePath)'.")
         }
 
+        let frameCount = CGImageSourceGetCount(context.imageSource)
+
         // TODO: Honour the input format if we don't have one.
         let destinationFilename = basename + "." + (format.preferredFilenameExtension ?? "")
         let destinationURL = context.assetsURL.appending(component: destinationFilename)
-
-        let thumbnail = CGImageSourceCreateThumbnailAtIndex(context.imageSource, 0, options)!
         guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL,
                                                                 format.identifier as CFString,
-                                                                1,
+                                                                frameCount,
                                                                 nil) else {
             throw InContextError.internalInconsistency("Failed to resize image at '\(context.fileURL.relativePath)'.")
         }
-        CGImageDestinationAddImage(destination, thumbnail, nil)
+
+        // Cherry-pick relevant image properties.
+        var destinationProperties: [String: Any] = [:]
+        if let sourceProperties = CGImageSourceCopyProperties(context.imageSource, nil) as? [String: Any] {
+            if let gifProperties = sourceProperties[kCGImagePropertyGIFDictionary as String] {
+                destinationProperties[kCGImagePropertyGIFDictionary as String] = gifProperties
+            }
+        }
+        CGImageDestinationSetProperties(destination, destinationProperties as CFDictionary)
+
+        // Resize the frames.
+        for i in 0..<frameCount {
+            let thumbnail = CGImageSourceCreateThumbnailAtIndex(context.imageSource, i, options)!
+            let properties = CGImageSourceCopyPropertiesAtIndex(context.imageSource, i, nil)
+            CGImageDestinationAddImage(destination, thumbnail, properties)
+        }
+
         CGImageDestinationFinalize(destination)  // TODO: Handle error here?
         context.assets.append(Asset(fileURL: destinationURL as URL))
 
