@@ -210,8 +210,13 @@ struct _Resize: _Transform {
         // Resize the frames.
         for i in 0..<frameCount {
             let thumbnail = CGImageSourceCreateThumbnailAtIndex(context.imageSource, i, options)!
-            let properties = CGImageSourceCopyPropertiesAtIndex(context.imageSource, i, nil)
-            CGImageDestinationAddImage(destination, thumbnail, properties)
+            if let properties = CGImageSourceCopyPropertiesAtIndex(context.imageSource, i, nil) as? [String: Any] {
+                var frameProperties: [String: Any] = [:]
+                if let gifProperties = properties[kCGImagePropertyGIFDictionary as String] {
+                    frameProperties[kCGImagePropertyGIFDictionary as String] = gifProperties
+                }
+                CGImageDestinationAddImage(destination, thumbnail, frameProperties as CFDictionary)
+            }
         }
 
         CGImageDestinationFinalize(destination)  // TODO: Handle error here?
