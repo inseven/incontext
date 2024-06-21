@@ -30,7 +30,6 @@ import XCTest
 class ImageImporterTests: ContentTestCase {
 
     func testExtractTitle() async throws {
-
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
 version: 2
 title: Example
@@ -60,6 +59,52 @@ steps:
                                                 outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
         XCTAssertEqual(result.document?.title, "Hallgrímskirkja Church")
+    }
+
+    func testResizeGif() async throws {
+        _ = try defaultSourceDirectory.add("site.yaml", contents: """
+version: 2
+title: Example
+url: http://example.com
+steps:
+  - when: '(.*/)?.*\\.gif'
+    then: image
+    args:
+        category: general
+        defaultTemplate: photo.html
+        inlineTemplate: image.html
+        titleFromFilename: false
+""")
+
+
+        // TODO: It shouldn't be necessary to pass the site into the importer.
+        let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "nezumi_anim", withExtension: "gif"),
+                                                   to: "nezumi_anim.gif",
+                                                   location: .content)
+        let importer = ImageImporter()
+        let settings =  ImageImporter.Settings(defaultCategory: "photos",
+                                               titleFromFilename: false,
+                                               defaultTemplate: "photo.html",
+                                               inlineTemplate: "image.html")
+        let result = try await importer.process(file: file,
+                                                settings: settings,
+                                                outputURL: defaultSourceDirectory.site.filesURL)
+        XCTAssertNotNil(result.document)
+//        XCTAssertEqual(result.document?.title, "Hallgrímskirkja Church")
+        XCTAssert(FileManager.default.fileExists(at: defaultSourceDirectory.site.filesURL
+            .appendingPathComponent("nezumi_anim")))
+        XCTAssert(FileManager.default.fileExists(at: defaultSourceDirectory.site.filesURL
+            .appendingPathComponent("nezumi_anim")
+            .appendingPathComponent("1600", conformingTo: .gif)))
+
+        // Check the number of frames in the image.
+        guard let imageSource = CGImageSourceCreateWithURL(defaultSourceDirectory.site.filesURL
+            .appendingPathComponent("nezumi_anim")
+            .appendingPathComponent("1600", conformingTo: .gif) as CFURL, nil) else {
+            fatalError("Failed to create image source")
+        }
+
+        XCTAssertEqual(CGImageSourceGetCount(imageSource), 14)
     }
 
 }
