@@ -10,11 +10,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-
-    name: build
+  macos-build:
     runs-on: macos-ventura
-
     steps:
 
     - name: Checkout repository
@@ -48,7 +45,7 @@ jobs:
         path: build
         if-no-files-found: error
 
-  build-ubuntu:
+  ubuntu-build:
     runs-on: ubuntu-latest
     steps:
 
@@ -64,9 +61,8 @@ jobs:
       run: |
         scripts/build-ubuntu.sh
 
-  documentation:
-    needs: build
-
+  website-build:
+    needs: macos-build
     runs-on: macos-13
     steps:
 
@@ -100,8 +96,8 @@ jobs:
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v3
 
-  deploy:
-    needs: documentation
+  website-deploy:
+    needs: website-build
     if: ${{ github.ref == 'refs/heads/main' }}
 
     permissions:
@@ -118,8 +114,8 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-  homebrew-update:
-    needs: build
+  macos-update-homebrew:
+    needs: macos-build
     if: ${{ github.ref == 'refs/heads/main' }}
 
     runs-on: ubuntu-latest
@@ -132,10 +128,9 @@ jobs:
         repository: inseven/homebrew-incontext
         event-type: update
 
-  sparkle-update:
-    needs: build
+  macos-update-sparkle:
+    needs: macos-build
     if: ${{ github.ref == 'refs/heads/main' }}
-
     runs-on: ubuntu-latest
     steps:
 
