@@ -77,13 +77,6 @@ public struct Site {
         return settings.metadata
     }
 
-    public var favorites: [Favorite] {
-        return settings.favorites.map { path, location in
-            return Favorite(rootURL: URL(fileURLWithPath: path, relativeTo: contentURL),
-                            title: location.title)
-        }
-    }
-
     public init(rootURL: URL) throws {
         self.rootURL = rootURL
         self.settingsURL = rootURL.appendingPathComponent("site.yaml")

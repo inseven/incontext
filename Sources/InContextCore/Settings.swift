@@ -63,8 +63,6 @@ struct Settings: Codable {
         case url
         case metadata
         case port
-        case favorites
-        case actions
         case steps
     }
 
@@ -74,8 +72,6 @@ struct Settings: Codable {
     let url: URL
     let metadata: [String: Any]
     let port: Int
-    let favorites: [String: Location]
-    let actions: [String: Action]
     let steps: [ImportStep]
 
     init(version: Int,
@@ -84,7 +80,6 @@ struct Settings: Codable {
          url: URL,
          metadata: [String: Any] = [:],
          port: Int,
-         favorites: [String: Location] = [:],
          actions: [String: Action] = [:],
          steps: [ImportStep] = []) {
         self.version = version
@@ -93,8 +88,6 @@ struct Settings: Codable {
         self.url = url
         self.metadata = metadata
         self.port = port
-        self.favorites = favorites
-        self.actions = actions
         self.steps = steps
     }
 
@@ -109,8 +102,6 @@ struct Settings: Codable {
         self.url = try container.decode(URL.self, forKey: .url)
         self.metadata = try container.decodeIfPresent([String: Any].self, forKey: .metadata) ?? [:]
         self.port = try container.decodeIfPresent(Int.self, forKey: .port) ?? 8000
-        self.favorites = try container.decodeIfPresent([String: Location].self, forKey: .favorites) ?? [:]
-        self.actions = try container.decodeIfPresent([String: Action].self, forKey: .actions) ?? [:]
         self.steps = try container.decode([ImportStep].self, forKey: .steps)
     }
 

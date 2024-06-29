@@ -39,8 +39,6 @@ struct SiteMenu: View {
             }
         }
         Divider()
-        FavoritesMenu(siteModel: siteModel)
-        Divider()
         Button("Logs...") {
             openWindow(id: LogWindow.windowID, value: siteModel.rootURL)
         }
