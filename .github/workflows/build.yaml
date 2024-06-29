@@ -40,7 +40,7 @@ jobs:
         RELEASE: ${{ github.ref == 'refs/heads/main' }}
 
       run: |
-        Scripts/bootstrap.sh Scripts/build.sh
+        cheese/bootstrap.sh cheese/build.sh
 
     - name: Archive the build directory
       uses: actions/upload-artifact@v4
@@ -62,7 +62,7 @@ jobs:
 
     - name: Build, test, and release
       run: |
-        ./Scripts/build-ubuntu.sh
+        cheese/build-ubuntu.sh
 
   documentation:
     needs: build
