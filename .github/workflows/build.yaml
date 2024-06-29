@@ -10,11 +10,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-
-    name: macos-build
+  macos-build:
     runs-on: macos-ventura
-
     steps:
 
     - name: Checkout repository
@@ -66,7 +63,6 @@ jobs:
 
   documentation:
     needs: macos-build
-
     runs-on: macos-13
     steps:
 
@@ -135,7 +131,6 @@ jobs:
   sparkle-update:
     needs: macos-build
     if: ${{ github.ref == 'refs/heads/main' }}
-
     runs-on: ubuntu-latest
     steps:
 
