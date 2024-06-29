@@ -39,7 +39,6 @@ struct SiteMenu: View {
             }
         }
         Divider()
-        ActionsMenu(siteModel: siteModel)
         FavoritesMenu(siteModel: siteModel)
         Divider()
         Button("Logs...") {

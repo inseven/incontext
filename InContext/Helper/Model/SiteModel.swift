@@ -49,23 +49,12 @@ class SiteModel: ObservableObject, Identifiable {
         return site.favorites
     }
 
-    var actions: [Site.Action] {
-        return site.actions
-    }
-
     init(rootURL: URL) {
         self.rootURL = rootURL
         // TODO: Guard the configuration loading.
         // TODO: The configuration should likely be pushed into the server as we need to watch for changes
         self.site = try! Site(rootURL: rootURL)
         self.server = Server(site: site, tracker: tracker)
-    }
-
-    func run(_ action: Site.Action) {
-        Task {
-            let runner = ActionRunner(site: site, action: action, tracker: self.tracker)
-            runner.run()
-        }
     }
 
     func start() {

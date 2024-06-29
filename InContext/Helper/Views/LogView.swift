@@ -106,19 +106,6 @@ struct LogView: View {
                 }
             }
 
-            ToolbarItem {
-                Menu {
-                    ForEach(siteModel.actions) { action in
-                        Button(action.name) {
-                            siteModel.run(action)
-                        }
-                    }
-                } label: {
-                    Label("Actions", systemImage: "play")
-                }
-                .disabled(siteModel.actions.isEmpty)
-            }
-
         }
     }
 

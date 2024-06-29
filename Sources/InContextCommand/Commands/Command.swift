@@ -49,7 +49,6 @@ public struct Command: AsyncParsableCommand {
             Build.self,
             Clean.self,
             Serve.self,
-            Run.self,
         ])
 
     public init() {
