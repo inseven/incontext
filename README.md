@@ -40,10 +40,6 @@ Frontmatter is supported in Markdown files and image and video descriptions. InC
 - Test resolving relative paths '.'
 - Support building to a custom build destination; this will make it much easier to use for GitHub Pages based deployments
 
-### Improvements
-
-- Consider special files in directories for nested behaviours
-
 ## License
 
 InContext is licensed under the MIT License (see [LICENSE](https://github.com/inseven/thoughts/blob/main/LICENSE)). It depends on the following separately licensed third-party libraries and components:
