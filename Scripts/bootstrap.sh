@@ -38,7 +38,7 @@ set -u
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
-TEMPORARY_DIRECTORY="${ROOT_DIRECTORY}/temp"
+export TEMPORARY_DIRECTORY="${ROOT_DIRECTORY}/temp"
 
 export PYTHONUSERBASE="${ROOT_DIRECTORY}/.local/python"
 mkdir -p "$PYTHONUSERBASE"

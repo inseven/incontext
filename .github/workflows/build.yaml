@@ -29,16 +29,21 @@ jobs:
       env:
         DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64: ${{ secrets.PERSONAL_DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64 }}
         DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD: ${{ secrets.PERSONAL_DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD }}
+
         APPLE_API_KEY_BASE64: ${{ secrets.PERSONAL_APPLE_API_KEY_BASE64 }}
         APPLE_API_KEY_ID: ${{ secrets.PERSONAL_APPLE_API_KEY_ID }}
         APPLE_API_KEY_ISSUER_ID: ${{ secrets.PERSONAL_APPLE_API_KEY_ISSUER_ID }}
+
+        SPARKLE_PRIVATE_KEY_BASE64: ${{ secrets.SPARKLE_PRIVATE_KEY_BASE64 }}
+
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RELEASE: ${{ github.ref == 'refs/heads/main' }}
+
       run: |
         Scripts/bootstrap.sh Scripts/build.sh
 
     - name: Archive the build directory
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build
         if-no-files-found: error
@@ -74,7 +79,7 @@ jobs:
         lfs: true
 
     - name: Download the build artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: build
 

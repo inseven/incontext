@@ -22,6 +22,8 @@
 
 import SwiftUI
 
+import Sparkle
+
 struct MainMenu: View {
 
     @EnvironmentObject var applicationModel: ApplicationModel
@@ -70,6 +72,10 @@ struct MainMenu: View {
         } label: {
             Text("Settings")
         }
+
+        Divider()
+
+        CheckForUpdatesView(updater: applicationModel.updaterController.updater)
 
         Divider()
 

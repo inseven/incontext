@@ -29,11 +29,17 @@ SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd 
 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
+ARCHIVES_DIRECTORY="${ROOT_DIRECTORY}/archives"
+SPARKLE_DIRECTORY="${SCRIPTS_DIRECTORY}/Sparkle"
 
 CLI_ARCHIVE_PATH="${BUILD_DIRECTORY}/Command.xcarchive"
 HELPER_ARCHIVE_PATH="${BUILD_DIRECTORY}/Helper.xcarchive"
 
 KEYCHAIN_PATH=${KEYCHAIN_PATH:-login}
+
+RELEASE_SCRIPT_PATH="${SCRIPTS_DIRECTORY}/release.sh"
+
+RELEASE_NOTES_TEMPLATE_PATH="${SCRIPTS_DIRECTORY}/release-notes.html"
 
 # Process the command line arguments.
 POSITIONAL=()
@@ -55,11 +61,17 @@ done
 
 cd "$ROOT_DIRECTORY"
 
-# Clean up the build directory.
+# Clean up and recreate the output directories.
+
 if [ -d "$BUILD_DIRECTORY" ] ; then
     rm -r "$BUILD_DIRECTORY"
 fi
 mkdir -p "$BUILD_DIRECTORY"
+
+if [ -d "$ARCHIVES_DIRECTORY" ] ; then
+    rm -r "$BUILD_DIRECTORY"
+fi
+mkdir -p "$ARCHIVES_DIRECTORY"
 
 # Configure Xcode version
 if [ -z ${MACOS_XCODE_PATH+x} ] ; then
@@ -118,10 +130,10 @@ popd
 cp "${CLI_ARCHIVE_PATH}/Products/usr/local/bin/incontext" "${BUILD_DIRECTORY}/incontext"
 
 # Export the command.
-ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
-ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
+ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}"
+ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}.zip"
 pushd "$BUILD_DIRECTORY"
-zip -r "$ZIP_BASENAME" incontext
+zip -r "$ZIP_PATH" incontext
 rm incontext
 popd
 
@@ -135,23 +147,16 @@ xcodebuild \
 # Compress the helper.
 # Apple recommends we use ditto to prepare zips for notarization.
 # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-HELPER_ZIP_BASENAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER.zip"
-HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME"
+HELPER_ZIP_BASENAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER"
+HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME.zip"
 pushd "$BUILD_DIRECTORY"
-/usr/bin/ditto -c -k --keepParent "InContext Helper.app" "$HELPER_ZIP_BASENAME"
+/usr/bin/ditto -c -k --keepParent "InContext Helper.app" "$HELPER_ZIP_PATH"
 rm -r "InContext Helper.app"
 popd
 
-API_KEY_PATH="${ROOT_DIRECTORY}/api.key"
-
 # Notarization.
 
-function cleanup {
-    echo "Cleaning up API key..."
-    rm -f "${API_KEY_PATH}"
-}
-trap cleanup EXIT
-
+API_KEY_PATH="$TEMPORARY_DIRECTORY/api.key"
 echo "$APPLE_API_KEY_BASE64" | base64 -d > "$API_KEY_PATH"
 
 # Notarize the command.
@@ -198,6 +203,22 @@ if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
     exit 1
 fi
 
+# Build Sparkle.
+cd "$SPARKLE_DIRECTORY"
+xcodebuild -project Sparkle.xcodeproj -scheme generate_appcast SYMROOT=`pwd`/.build
+GENERATE_APPCAST=`pwd`/.build/Debug/generate_appcast
+
+SPARKLE_PRIVATE_KEY_FILE="$TEMPORARY_DIRECTORY/private-key-file"
+echo -n "$SPARKLE_PRIVATE_KEY_BASE64" | base64 --decode -o "$SPARKLE_PRIVATE_KEY_FILE"
+
+# Generate the appcast.
+cd "$ROOT_DIRECTORY"
+cp "$HELPER_ZIP_PATH" "$ARCHIVES_DIRECTORY"
+changes notes --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRECTORY/$HELPER_ZIP_BASENAME.html"
+"$GENERATE_APPCAST" --ed-key-file "$SPARKLE_PRIVATE_KEY_FILE" "$ARCHIVES_DIRECTORY"
+APPCAST_PATH="$ARCHIVES_DIRECTORY/appcast.xml"
+cp "$APPCAST_PATH" "$BUILD_DIRECTORY"
+
 # Create a GitHub release.
 
 if $RELEASE ; then
@@ -208,6 +229,7 @@ if $RELEASE ; then
         --push \
         --exec "Scripts/gh-release.sh" \
         "$ZIP_PATH" \
-        "$HELPER_ZIP_PATH"
+        "$HELPER_ZIP_PATH" \
+        "$BUILD_DIRECTORY/appcast.xml"
 
 fi

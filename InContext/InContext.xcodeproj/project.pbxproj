@@ -17,6 +17,9 @@
 		D8121A7B2AA05FCA00EEDF5B /* InContextCore in Frameworks */ = {isa = PBXBuildFile; productRef = D8121A7A2AA05FCA00EEDF5B /* InContextCore */; };
 		D8121A7D2AA0747000EEDF5B /* Publisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8121A7C2AA0747000EEDF5B /* Publisher.swift */; };
 		D8121A7F2AA105CC00EEDF5B /* SiteMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8121A7E2AA105CC00EEDF5B /* SiteMenu.swift */; };
+		D83B4DDD2C2F98DE003C3DC1 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = D83B4DDC2C2F98DE003C3DC1 /* Sparkle */; };
+		D83B4DE32C2F99FA003C3DC1 /* CheckForUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83B4DE22C2F99FA003C3DC1 /* CheckForUpdatesView.swift */; };
+		D83B4DE52C2F9A18003C3DC1 /* CheckForUpdatesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83B4DE42C2F9A18003C3DC1 /* CheckForUpdatesViewModel.swift */; };
 		D83C2F8B2B857F3C00CE60F7 /* Interact in Frameworks */ = {isa = PBXBuildFile; productRef = D83C2F8A2B857F3C00CE60F7 /* Interact */; };
 		D849DDEC2A982B0F00C5041E /* InContextCore in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDEB2A982B0F00C5041E /* InContextCore */; };
 		D849DDF42A982B9200C5041E /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF32A982B9200C5041E /* ArgumentParser */; };
@@ -85,6 +88,8 @@
 		D8121A782AA05F9A00EEDF5B /* SiteModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteModel.swift; sourceTree = "<group>"; };
 		D8121A7C2AA0747000EEDF5B /* Publisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Publisher.swift; sourceTree = "<group>"; };
 		D8121A7E2AA105CC00EEDF5B /* SiteMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteMenu.swift; sourceTree = "<group>"; };
+		D83B4DE22C2F99FA003C3DC1 /* CheckForUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesView.swift; sourceTree = "<group>"; };
+		D83B4DE42C2F9A18003C3DC1 /* CheckForUpdatesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesViewModel.swift; sourceTree = "<group>"; };
 		D849DDFA2A982E7900C5041E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D84E77FB2AA95C3700ED193A /* LogLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogLevel.swift; sourceTree = "<group>"; };
 		D86BCDCE2A9B016A00C81BA5 /* InContext Helper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "InContext Helper.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -124,6 +129,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8121A7B2AA05FCA00EEDF5B /* InContextCore in Frameworks */,
+				D83B4DDD2C2F98DE003C3DC1 /* Sparkle in Frameworks */,
 				D8920F1B2AB2AB8700137912 /* Diligence in Frameworks */,
 				D83C2F8B2B857F3C00CE60F7 /* Interact in Frameworks */,
 			);
@@ -181,6 +187,7 @@
 				D8121A742AA05D7F00EEDF5B /* SiteList.swift */,
 				D8121A7E2AA105CC00EEDF5B /* SiteMenu.swift */,
 				D8F672772AC8988D0073900D /* TaskRow.swift */,
+				D83B4DE22C2F99FA003C3DC1 /* CheckForUpdatesView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -189,6 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				D8121A722AA05C3D00EEDF5B /* ApplicationModel.swift */,
+				D83B4DE42C2F9A18003C3DC1 /* CheckForUpdatesViewModel.swift */,
 				D8AD37AE2AA69FDF0006555F /* Event.swift */,
 				D86BCDFB2A9B032200C81BA5 /* HelperError.swift */,
 				D80E4FCE2AA7AD3300FD4BB5 /* HelperSession.swift */,
@@ -319,6 +327,7 @@
 				D8121A7A2AA05FCA00EEDF5B /* InContextCore */,
 				D8920F1A2AB2AB8700137912 /* Diligence */,
 				D83C2F8A2B857F3C00CE60F7 /* Interact */,
+				D83B4DDC2C2F98DE003C3DC1 /* Sparkle */,
 			);
 			productName = "InContext Helper";
 			productReference = D86BCDCE2A9B016A00C81BA5 /* InContext Helper.app */;
@@ -423,6 +432,7 @@
 				D849DDF22A982B9200C5041E /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				D849DDF52A982BA000C5041E /* XCRemoteSwiftPackageReference "swift-log" */,
 				D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../Dependencies/interact" */,
+				D83B4DDB2C2F98DE003C3DC1 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			productRefGroup = D890630B2A98293A0001A8E2 /* Products */;
 			projectDirPath = "";
@@ -490,6 +500,8 @@
 				D86BCDD12A9B016A00C81BA5 /* HelperApp.swift in Sources */,
 				D8121A6E2AA0465200EEDF5B /* Settings.swift in Sources */,
 				D8A739B42AA660F400946EED /* LogView.swift in Sources */,
+				D83B4DE32C2F99FA003C3DC1 /* CheckForUpdatesView.swift in Sources */,
+				D83B4DE52C2F9A18003C3DC1 /* CheckForUpdatesViewModel.swift in Sources */,
 				D8121A7F2AA105CC00EEDF5B /* SiteMenu.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -879,6 +891,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		D83B4DDB2C2F98DE003C3DC1 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.6.3;
+			};
+		};
 		D849DDED2A982B7800C5041E /* XCRemoteSwiftPackageReference "hummingbird" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hummingbird-project/hummingbird.git";
@@ -909,6 +929,11 @@
 		D8121A7A2AA05FCA00EEDF5B /* InContextCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = InContextCore;
+		};
+		D83B4DDC2C2F98DE003C3DC1 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D83B4DDB2C2F98DE003C3DC1 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 		D83C2F8A2B857F3C00CE60F7 /* Interact */ = {
 			isa = XCSwiftPackageProductDependency;

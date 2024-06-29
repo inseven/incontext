@@ -24,10 +24,10 @@ import Combine
 import ServiceManagement
 import SwiftUI
 
+import Sparkle
+
 class ApplicationModel: ObservableObject {
 
-    let settings = Settings()
-    var cancellables: [AnyCancellable] = []
     @Published var sites: [URL: SiteModel] = [:]
 
     @MainActor var openAtLogin: Bool {
@@ -51,7 +51,14 @@ class ApplicationModel: ObservableObject {
         }
     }
 
+    let settings = Settings()
+    var cancellables: [AnyCancellable] = []
+    let updaterController = SPUStandardUpdaterController(startingUpdater: false,
+                                                         updaterDelegate: nil,
+                                                         userDriverDelegate: nil)
+
     init() {
+        updaterController.startUpdater()
     }
 
     func start() {
