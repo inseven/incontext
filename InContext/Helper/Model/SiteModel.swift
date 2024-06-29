@@ -45,10 +45,6 @@ class SiteModel: ObservableObject, Identifiable {
         return site.title
     }
 
-    var favorites: [Site.Favorite] {
-        return site.favorites
-    }
-
     init(rootURL: URL) {
         self.rootURL = rootURL
         // TODO: Guard the configuration loading.
