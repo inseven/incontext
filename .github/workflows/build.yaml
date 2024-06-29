@@ -61,7 +61,7 @@ jobs:
       run: |
         scripts/build-ubuntu.sh
 
-  documentation:
+  website-build:
     needs: macos-build
     runs-on: macos-13
     steps:
@@ -96,8 +96,8 @@ jobs:
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v3
 
-  deploy:
-    needs: documentation
+  website-deploy:
+    needs: website-build
     if: ${{ github.ref == 'refs/heads/main' }}
 
     permissions:
