@@ -29,6 +29,7 @@ SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd 
 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
 BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
+ARCHIVES_DIRECTORY="${ROOT_DIRECTORY}/archives"
 
 CLI_ARCHIVE_PATH="${BUILD_DIRECTORY}/Command.xcarchive"
 HELPER_ARCHIVE_PATH="${BUILD_DIRECTORY}/Helper.xcarchive"
@@ -36,6 +37,8 @@ HELPER_ARCHIVE_PATH="${BUILD_DIRECTORY}/Helper.xcarchive"
 KEYCHAIN_PATH=${KEYCHAIN_PATH:-login}
 
 RELEASE_SCRIPT_PATH="${SCRIPTS_DIRECTORY}/release.sh"
+
+RELEASE_NOTES_TEMPLATE_PATH="${SCRIPTS_DIRECTORY}/release-notes.html"
 
 # Process the command line arguments.
 POSITIONAL=()
@@ -57,11 +60,17 @@ done
 
 cd "$ROOT_DIRECTORY"
 
-# Clean up the build directory.
+# Clean up and recreate the output directories.
+
 if [ -d "$BUILD_DIRECTORY" ] ; then
     rm -r "$BUILD_DIRECTORY"
 fi
 mkdir -p "$BUILD_DIRECTORY"
+
+if [ -d "$ARCHIVES_DIRECTORY" ] ; then
+    rm -r "$BUILD_DIRECTORY"
+fi
+mkdir -p "$ARCHIVES_DIRECTORY"
 
 # Configure Xcode version
 if [ -z ${MACOS_XCODE_PATH+x} ] ; then
@@ -144,16 +153,9 @@ pushd "$BUILD_DIRECTORY"
 rm -r "InContext Helper.app"
 popd
 
-API_KEY_PATH="${ROOT_DIRECTORY}/api.key"
-
 # Notarization.
 
-function cleanup {
-    echo "Cleaning up API key..."
-    rm -f "${API_KEY_PATH}"
-}
-trap cleanup EXIT
-
+API_KEY_PATH="$TEMPORARY_DIRECTORY/api.key"
 echo "$APPLE_API_KEY_BASE64" | base64 -d > "$API_KEY_PATH"
 
 # Notarize the command.
@@ -200,6 +202,22 @@ if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
     exit 1
 fi
 
+# Build Sparkle.
+cd "$SPARKLE_DIRECTORY"
+xcodebuild -project Sparkle.xcodeproj -scheme generate_appcast SYMROOT=`pwd`/.build
+GENERATE_APPCAST=`pwd`/.build/Debug/generate_appcast
+
+SPARKLE_PRIVATE_KEY_FILE="$TEMPORARY_DIRECTORY/private-key-file"
+echo -n "$SPARKLE_PRIVATE_KEY_BASE64" | base64 --decode -o "$SPARKLE_PRIVATE_KEY_FILE"
+
+# Generate the appcast.
+cd "$ROOT_DIRECTORY"
+cp "$HELPER_ZIP_PATH" "$ARCHIVES_DIRECTORY"
+changes notes --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRECTORY/$HELPER_ZIP_BASENAME.html"
+"$GENERATE_APPCAST" --ed-key-file "$SPARKLE_PRIVATE_KEY_FILE" "$ARCHIVES_DIRECTORY"
+APPCAST_PATH="$ARCHIVES_DIRECTORY/appcast.xml"
+cp "$APPCAST_PATH" "$BUILD_DIRECTORY"
+
 # Create a GitHub release.
 
 if $RELEASE ; then
@@ -210,6 +228,7 @@ if $RELEASE ; then
         --push \
         --exec "Scripts/gh-release.sh" \
         "$ZIP_PATH" \
-        "$HELPER_ZIP_PATH"
+        "$HELPER_ZIP_PATH" \
+        "$BUILD_DIRECTORY/appcast.xml"
 
 fi

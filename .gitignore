@@ -2,5 +2,6 @@
 /.local
 /.swiftpm
 /_site
+/archives
 /build
 /docs/build
