@@ -22,7 +22,23 @@
 
 import Foundation
 
+import Yams
+
 @testable import InContextCore
+
+func withTemporarySourceDirectory(perform: (SourceDirectory) throws -> Void) throws {
+    let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+    try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+    defer {
+        try! FileManager.default.removeItem(at: directoryURL)
+    }
+    let sourceDirectory = try SourceDirectory(rootURL: directoryURL)
+    try perform(sourceDirectory)
+
+    lazy var defaultSourceDirectory = {
+        try! SourceDirectory(rootURL: directoryURL)
+    }()
+}
 
 class SourceDirectory {
 
@@ -51,6 +67,19 @@ class SourceDirectory {
         case .content:
             return contentURL
         }
+    }
+
+    // TODO: Do I need to make it obvoius this outputs YAML?
+    func add(_ path: String, location: Location = .root, contents: Codable) throws -> File {
+        let rootURL = url(for: location)
+        assert(!path.hasPrefix("/"), "Paths must be relative")
+        let fileURL = URL(filePath: path, relativeTo: rootURL)
+        let directoryURL = fileURL.deletingLastPathComponent()
+        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        let encoder = YAMLEncoder()
+        let contents = try encoder.encode(contents)
+        try contents.write(to: fileURL, atomically: true, encoding: .utf8)
+        return try File(url: fileURL)
     }
 
     func add(_ path: String, location: Location = .root, contents: String) throws -> File {

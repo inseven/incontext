@@ -25,7 +25,7 @@ import Foundation
 // Structured site settings.
 // This is currently only used to parse a known-structured part of the site settings, but it should ultimately handle
 // all configuration.
-struct Settings: Decodable {
+struct Settings: Codable {
 
     struct Location: Codable {
         let title: String
@@ -78,6 +78,26 @@ struct Settings: Decodable {
     let actions: [String: Action]
     let steps: [ImportStep]
 
+    init(version: Int,
+         title: String,
+         author: String? = nil,
+         url: URL,
+         metadata: [String: Any] = [:],
+         port: Int,
+         favorites: [String: Location] = [:],
+         actions: [String: Action] = [:],
+         steps: [ImportStep] = []) {
+        self.version = version
+        self.title = title
+        self.author = author
+        self.url = url
+        self.metadata = metadata
+        self.port = port
+        self.favorites = favorites
+        self.actions = actions
+        self.steps = steps
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.version = try container.decode(Int.self, forKey: .version)
@@ -92,6 +112,11 @@ struct Settings: Decodable {
         self.favorites = try container.decodeIfPresent([String: Location].self, forKey: .favorites) ?? [:]
         self.actions = try container.decodeIfPresent([String: Action].self, forKey: .actions) ?? [:]
         self.steps = try container.decode([ImportStep].self, forKey: .steps)
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: Settings.CodingKeys.self)
+        try container.encode(self.title, forKey: Settings.CodingKeys.title)
     }
 
 }
