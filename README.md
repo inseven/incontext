@@ -28,19 +28,6 @@ Frontmatter is supported in Markdown files and image and video descriptions. InC
 
 ## Issues
 
-### High Priority
-
-These changes impact the rendering of jbmorley.co.uk and block switching to InContext 3.
-
-1. **Check adaptive images work**
-2. Check that gifs are transformed correctly
-3. Markdown issues (Footnotes, Strikethrough, mdash)
-4. Timezone handling is currently inconsistent and unclear (this could be improved by using the time and date HTML tags)
-   1. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time
-   2. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
-   3. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local
-5. Galleries aren't appearing in the infinite scroll (e.g. PowerBook, Vision of the Future, Weeknotes #1)
-
 ### Background
 
 - Test that the relative paths are correct for the destination directory; this likely needs to be per-importer, but it would be much easier if we had a way to generate these as part of the site so importers don't have to think too hard
