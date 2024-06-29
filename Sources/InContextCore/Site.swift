@@ -40,20 +40,6 @@ public struct Site {
         public let title: String
     }
 
-    public struct Action: Identifiable {
-
-        public let id: String
-        public let name: String
-        public let run: String
-
-        init(id: String, name: String? = nil, run: String) {
-            self.id = id
-            self.name = name ?? id
-            self.run = run
-        }
-
-    }
-
     private static let importers: [any Importer] = [
         CopyImporter(),
         IgnoreImporter(),
@@ -95,12 +81,6 @@ public struct Site {
         return settings.favorites.map { path, location in
             return Favorite(rootURL: URL(fileURLWithPath: path, relativeTo: contentURL),
                             title: location.title)
-        }
-    }
-
-    public var actions: [Action] {
-        return settings.actions.map { name, action in
-            return Action(id: name, name: action.name, run: action.run)
         }
     }
 
