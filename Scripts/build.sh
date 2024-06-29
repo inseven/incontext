@@ -35,6 +35,8 @@ HELPER_ARCHIVE_PATH="${BUILD_DIRECTORY}/Helper.xcarchive"
 
 KEYCHAIN_PATH=${KEYCHAIN_PATH:-login}
 
+RELEASE_SCRIPT_PATH="${SCRIPTS_DIRECTORY}/release.sh"
+
 # Process the command line arguments.
 POSITIONAL=()
 RELEASE=${RELEASE:-false}
@@ -118,10 +120,10 @@ popd
 cp "${CLI_ARCHIVE_PATH}/Products/usr/local/bin/incontext" "${BUILD_DIRECTORY}/incontext"
 
 # Export the command.
-ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
-ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
+ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}"
+ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}.zip"
 pushd "$BUILD_DIRECTORY"
-zip -r "$ZIP_BASENAME" incontext
+zip -r "$ZIP_PATH" incontext
 rm incontext
 popd
 
@@ -135,10 +137,10 @@ xcodebuild \
 # Compress the helper.
 # Apple recommends we use ditto to prepare zips for notarization.
 # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-HELPER_ZIP_BASENAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER.zip"
-HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME"
+HELPER_ZIP_BASENAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER"
+HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME.zip"
 pushd "$BUILD_DIRECTORY"
-/usr/bin/ditto -c -k --keepParent "InContext Helper.app" "$HELPER_ZIP_BASENAME"
+/usr/bin/ditto -c -k --keepParent "InContext Helper.app" "$HELPER_ZIP_PATH"
 rm -r "InContext Helper.app"
 popd
 
