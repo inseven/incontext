@@ -120,7 +120,6 @@
 		D8F672772AC8988D0073900D /* TaskRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRow.swift; sourceTree = "<group>"; };
 		D8F672792AC898B00073900D /* SessionFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionFooter.swift; sourceTree = "<group>"; };
 		D8F6727B2AC89DF00073900D /* HelperSessionTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperSessionTask.swift; sourceTree = "<group>"; };
-		D8F75F462AA34811000DEDB7 /* InContext HelperRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "InContext HelperRelease.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -267,7 +266,6 @@
 			isa = PBXGroup;
 			children = (
 				D8850A142B841C3900E17977 /* InContext-Helper-Info.plist */,
-				D8F75F462AA34811000DEDB7 /* InContext HelperRelease.entitlements */,
 				D89063142A9829500001A8E2 /* Packages */,
 				D890630C2A98293A0001A8E2 /* Command */,
 				D86BCDCF2A9B016A00C81BA5 /* Helper */,
