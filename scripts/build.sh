@@ -227,7 +227,7 @@ if $RELEASE ; then
         release \
         --skip-if-empty \
         --push \
-        --exec "Scripts/gh-release.sh" \
+        --exec "scripts/gh-release.sh" \
         "$ZIP_PATH" \
         "$HELPER_ZIP_PATH" \
         "$BUILD_DIRECTORY/appcast.xml"

@@ -1,11 +1,11 @@
 [submodule "Dependencies/Tilt"]
 	path = Dependencies/Tilt
 	url = git@github.com:tomsci/tomscis-lua-templater.git
-[submodule "Scripts/changes"]
-	path = Scripts/changes
+[submodule "scripts/changes"]
+	path = scripts/changes
 	url = git@github.com:jbmorley/changes.git
-[submodule "Scripts/build-tools"]
-	path = Scripts/build-tools
+[submodule "scripts/build-tools"]
+	path = scripts/build-tools
 	url = git@github.com:jbmorley/build-tools.git
 [submodule "Dependencies/diligence"]
 	path = Dependencies/diligence
@@ -22,6 +22,6 @@
 [submodule "Dependencies/interact"]
 	path = Dependencies/interact
 	url = git@github.com:inseven/interact.git
-[submodule "Scripts/Sparkle"]
-	path = Scripts/Sparkle
+[submodule "scripts/Sparkle"]
+	path = scripts/Sparkle
 	url = https://github.com/sparkle-project/Sparkle
