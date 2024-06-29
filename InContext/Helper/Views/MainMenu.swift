@@ -35,32 +35,6 @@ struct MainMenu: View {
 
         Divider()
 
-        Menu {
-            Menu {
-                Button("Copy x-location") {
-                    Task {
-                        do {
-                            let pasteboard = NSPasteboard.general
-                            guard let address = pasteboard.string(forType: .string) else {
-                                return
-                            }
-                            let location = try await Geocoder.xLocation(for: address)
-                            pasteboard.clearContents()
-                            pasteboard.setString(location, forType: .string)
-                        } catch {
-                            print("Failed to geocode address with error \(error).")
-                        }
-                    }
-                }
-            } label: {
-                Text("Location")
-            }
-        } label: {
-            Text("Utilities")
-        }
-
-        Divider()
-
         Button {
             openURL(.about)
         } label: {
