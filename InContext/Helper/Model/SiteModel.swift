@@ -73,11 +73,6 @@ class SiteModel: ObservableObject, Identifiable {
 
     @MainActor func open() {
         dispatchPrecondition(condition: .onQueue(.main))
-        NSWorkspace.shared.open(site.url)
-    }
-
-    @MainActor func preview() {
-        dispatchPrecondition(condition: .onQueue(.main))
         NSWorkspace.shared.open(url)
     }
 
