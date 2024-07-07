@@ -34,9 +34,6 @@ struct SiteMenu: View {
             Button("Open") {
                 siteModel.open()
             }
-            Button("Preview") {
-                siteModel.preview()
-            }
         }
         Divider()
         Button("Logs...") {

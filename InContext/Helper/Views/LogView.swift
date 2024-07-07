@@ -94,15 +94,7 @@ struct LogView: View {
                 Button {
                     siteModel.open()
                 } label: {
-                    Label("Open", systemImage: "globe")
-                }
-            }
-
-            ToolbarItem {
-                Button {
-                    siteModel.preview()
-                } label: {
-                    Label("Preview", systemImage: "eye.circle")
+                    Label("Open", systemImage: "eye.circle")
                 }
             }
 
