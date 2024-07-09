@@ -21,10 +21,10 @@ let package = Package(
             ]),
     ],
     dependencies: [
-        .package(path: "Dependencies/hummingbird"),
-        .package(path: "Dependencies/swift-log"),
-        .package(path: "Dependencies/Tilt"),
-        .package(path: "Dependencies/Tilt/LuaSwift"),
+        .package(path: "dependencies/hummingbird"),
+        .package(path: "dependencies/swift-log"),
+        .package(path: "dependencies/Tilt"),
+        .package(path: "dependencies/Tilt/LuaSwift"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
@@ -94,7 +94,7 @@ let package = Package(
         .target(
             name: "Hoedown",
             dependencies: [],
-            path: "Dependencies/hoedown",
+            path: "dependencies/hoedown",
             sources: [
                 "src"
             ],

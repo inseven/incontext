@@ -104,7 +104,7 @@
 		D8850A152B841D4A00E17977 /* MainMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
 		D890630A2A98293A0001A8E2 /* incontext */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = incontext; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89063152A9829500001A8E2 /* incontext */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = incontext; path = ..; sourceTree = "<group>"; };
-		D8920F192AB2AB4B00137912 /* diligence */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = diligence; path = ../Dependencies/diligence; sourceTree = "<group>"; };
+		D8920F192AB2AB4B00137912 /* diligence */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = diligence; path = ../dependencies/diligence; sourceTree = "<group>"; };
 		D8A739B32AA660F400946EED /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		D8A739B52AA6611E00946EED /* LogWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogWindow.swift; sourceTree = "<group>"; };
 		D8A739B72AA6621E00946EED /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
@@ -412,7 +412,7 @@
 				D849DDED2A982B7800C5041E /* XCRemoteSwiftPackageReference "hummingbird" */,
 				D849DDF22A982B9200C5041E /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				D849DDF52A982BA000C5041E /* XCRemoteSwiftPackageReference "swift-log" */,
-				D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../Dependencies/interact" */,
+				D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../dependencies/interact" */,
 				D83B4DDB2C2F98DE003C3DC1 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			productRefGroup = D890630B2A98293A0001A8E2 /* Products */;
@@ -862,9 +862,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../Dependencies/interact" */ = {
+		D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../dependencies/interact" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Dependencies/interact;
+			relativePath = ../dependencies/interact;
 		};
 /* End XCLocalSwiftPackageReference section */
 
