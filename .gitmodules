@@ -1,5 +1,5 @@
-[submodule "Dependencies/Tilt"]
-	path = Dependencies/Tilt
+[submodule "dependencies/Tilt"]
+	path = dependencies/Tilt
 	url = git@github.com:tomsci/tomscis-lua-templater.git
 [submodule "scripts/changes"]
 	path = scripts/changes
@@ -7,20 +7,20 @@
 [submodule "scripts/build-tools"]
 	path = scripts/build-tools
 	url = git@github.com:jbmorley/build-tools.git
-[submodule "Dependencies/diligence"]
-	path = Dependencies/diligence
+[submodule "dependencies/diligence"]
+	path = dependencies/diligence
 	url = git@github.com:inseven/diligence.git
-[submodule "Dependencies/hummingbird"]
-	path = Dependencies/hummingbird
+[submodule "dependencies/hummingbird"]
+	path = dependencies/hummingbird
 	url = git@github.com:jbmorley/hummingbird.git
-[submodule "Dependencies/hoedown"]
-	path = Dependencies/hoedown
+[submodule "dependencies/hoedown"]
+	path = dependencies/hoedown
 	url = git@github.com:hoedown/hoedown.git
-[submodule "Dependencies/swift-log"]
-	path = Dependencies/swift-log
+[submodule "dependencies/swift-log"]
+	path = dependencies/swift-log
 	url = git@github.com:apple/swift-log.git
-[submodule "Dependencies/interact"]
-	path = Dependencies/interact
+[submodule "dependencies/interact"]
+	path = dependencies/interact
 	url = git@github.com:inseven/interact.git
 [submodule "scripts/Sparkle"]
 	path = scripts/Sparkle
