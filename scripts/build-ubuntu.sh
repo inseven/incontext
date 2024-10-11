@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+set -e
+set -o pipefail
+set -x
+set -u
+
 export SWIFT_BIN=$PWD/swift-5.10-RELEASE-ubuntu22.04/usr/bin
 
 if [ ! -d "$SWIFT_BIN" ] ; then
