@@ -89,7 +89,6 @@ class BasenameDetailsTests: XCTestCase {
         let rootURL = URL(filePath: "/tmp", directoryHint: .isDirectory)
         let url = URL(filePath: "index.markdown", relativeTo: rootURL)
         let details = url.basenameDetails()
-        print(url.absoluteString)
         XCTAssertNil(details.date)
         XCTAssertNil(details.title)
         XCTAssertNil(details.scale)
