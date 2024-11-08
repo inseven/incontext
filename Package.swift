@@ -33,6 +33,7 @@ let package = Package(
         .package(url: "https://github.com/jwells89/Titlecaser.git", from: "1.0.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.14.1"),
+        .package(url: "https://github.com/kradalby/SwiftExif.git", from: "0.0.7"),
     ],
     targets: [
        .executableTarget(
@@ -66,6 +67,7 @@ let package = Package(
                 .product(name: "Tilt", package: "Tilt"),
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yams", package: "Yams"),
+                .product(name: "SwiftExif", package: "SwiftExif"),
             ],
             resources: [
                 .process("Licenses"),

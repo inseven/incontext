@@ -28,6 +28,10 @@ public class UTType {
     public static let tiff = UTType(filenameExtension: "tiff")
     public static let heic = UTType(filenameExtension: "heic")
 
+    public var preferredFilenameExtension: String {
+        return filenameExtension
+    }
+
     let filenameExtension: String
 
     public init(filenameExtension: String) {

@@ -16,6 +16,16 @@ brew install inseven/incontext/incontext
 
 See [https://incontext.app/docs](https://incontext.app/docs).
 
+## Development
+
+### Linux
+
+Install third-party dependencies:
+
+```bash
+sudo dnf install libexif-devel libiptcdata-devel 
+```` 
+
 ## Frontmatter
 
 Frontmatter is supported in Markdown files and image and video descriptions. InContext will pass through all unknown markdown fields, but puts type constraints on fields that have specific meaning:

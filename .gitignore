@@ -1,6 +1,7 @@
 /.build
 /.local
 /.swiftpm
+/.vscode
 /_site
 /archives
 /build
