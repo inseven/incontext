@@ -255,23 +255,6 @@ struct _Resize: _Transform {
             context.metadata[set] = container
         }
 
-        print(context.metadata)
-        context.metadata["cheese"] = 12
-        context.metadata["random"] = ["hello": 42]
-
-        print(type(of: context.metadata["image"]))
-
-        if var image = context.metadata["image"] as? [String: Any],
-           let width = image["width"] as? Int {
-            image["width"] = 12
-            // print(width)
-            // print(type(of: width))
-            // image["width"] = Int(width)
-            context.metadata["image"] = image
-        }
-
-        context.metadata["foo"] = 1024
-
     }
 
 }
@@ -365,44 +348,6 @@ class ImageImporter {
     }
 
 }
-
-#if os(Linux)
-
-class PlatformImage {
-
-    let url: URL
-    let exif: EXIF
-
-    init(url: URL) throws {
-        self.url = url
-        self.exif = try EXIF(url: url)
-    }
-    
-}
-
-#else
-
-class PlatformImage {
-
-    let url: URL
-    let source: CGImageSource
-    let exif: EXIF
-
-    init(url: URL) throws {
-        guard let image = CGImageSourceCreateWithURL(url as CFURL, nil) else {
-            throw InContextError.internalInconsistency("Failed to open image file at '\(url.relativePath)'.")
-        }
-        guard let exif = try EXIF(image, 0) else {
-            throw InContextError.internalInconsistency("Failed to load properties for image at '\(url.relativePath)'.")
-        }
-        self.url = url
-        self.image = image
-        self.exif = exif
-    }
-    
-}
-
-#endif
 
 extension ImageImporter: Importer {
 
