@@ -67,7 +67,7 @@ let package = Package(
                 .product(name: "Tilt", package: "Tilt"),
                 .product(name: "Titlecaser", package: "Titlecaser"),
                 .product(name: "Yams", package: "Yams"),
-                .product(name: "SwiftExif", package: "SwiftExif"),
+                .product(name: "SwiftExif", package: "SwiftExif", condition: .when(platforms: [.linux])),
             ],
             resources: [
                 .process("Licenses"),
