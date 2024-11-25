@@ -185,13 +185,13 @@ struct _Resize: _Transform {
 
 #if os(Linux)
 
-#else        
+#else
 
         let options = [kCGImageSourceCreateThumbnailWithTransform: kCFBooleanTrue,
                      kCGImageSourceCreateThumbnailFromImageAlways: kCFBooleanTrue,
                               kCGImageSourceThumbnailMaxPixelSize: maxPixelSize as NSNumber] as CFDictionary
 
-        let frameCount = CGImageSourceGetCount(context.imageSource)
+        let frameCount = CGImageSourceGetCount(context.image.source)
 
         guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL,
                                                                 format.identifier as CFString,
@@ -202,7 +202,7 @@ struct _Resize: _Transform {
 
         // Cherry-pick relevant image properties.
         var destinationProperties: [String: Any] = [:]
-        if let sourceProperties = CGImageSourceCopyProperties(context.imageSource, nil) as? [String: Any] {
+        if let sourceProperties = CGImageSourceCopyProperties(context.image.source, nil) as? [String: Any] {
             if let gifProperties = sourceProperties[kCGImagePropertyGIFDictionary as String] {
                 destinationProperties[kCGImagePropertyGIFDictionary as String] = gifProperties
             }
@@ -211,8 +211,8 @@ struct _Resize: _Transform {
 
         // Resize the frames.
         for i in 0..<frameCount {
-            let thumbnail = CGImageSourceCreateThumbnailAtIndex(context.imageSource, i, options)!
-            if let properties = CGImageSourceCopyPropertiesAtIndex(context.imageSource, i, nil) as? [String: Any] {
+            let thumbnail = CGImageSourceCreateThumbnailAtIndex(context.image.source, i, options)!
+            if let properties = CGImageSourceCopyPropertiesAtIndex(context.image.source, i, nil) as? [String: Any] {
                 var frameProperties: [String: Any] = [:]
                 if let gifProperties = properties[kCGImagePropertyGIFDictionary as String] {
                     frameProperties[kCGImagePropertyGIFDictionary as String] = gifProperties

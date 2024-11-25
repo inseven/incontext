@@ -33,12 +33,13 @@ class PlatformImage {
         self.url = url
         self.exif = try EXIF(url: url)
     }
-    
+
 }
 
 #else
 
 import CoreGraphics
+import ImageIO
 
 class PlatformImage {
 
@@ -50,14 +51,11 @@ class PlatformImage {
         guard let image = CGImageSourceCreateWithURL(url as CFURL, nil) else {
             throw InContextError.internalInconsistency("Failed to open image file at '\(url.relativePath)'.")
         }
-        guard let exif = try EXIF(image, 0) else {
-            throw InContextError.internalInconsistency("Failed to load properties for image at '\(url.relativePath)'.")
-        }
         self.url = url
-        self.image = image
-        self.exif = exif
+        self.source = image
+        self.exif = try EXIF(image, 0)
     }
-    
+
 }
 
 #endif
