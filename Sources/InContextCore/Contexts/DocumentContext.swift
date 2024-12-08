@@ -105,11 +105,14 @@ struct DocumentContext: EvaluationContext {
 
     // TODO: Add per-document render cache, uniqued by URL (and fingerprint?)
     func html() throws -> String {
-        let content = try SwiftSoup.parse(document.contents)
+        let content = try SwiftSoup.parseBodyFragment(document.contents)
         for transform in transforms {
             try transform.transform(renderTracker: renderTracker, document: self, content: content)
         }
-        return try content.html()
+        // SwiftSoup will always give us a full HTML document even though we're dealing with partial HTML contents at
+        // this point in the stack, so we need to explicitly select the body before rendering it out.
+        let html = try content.body()!.html()
+        return html
     }
 
     func render(template: String? = nil) throws -> String {
