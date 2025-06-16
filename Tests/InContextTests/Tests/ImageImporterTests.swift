@@ -25,7 +25,7 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-#if !os(Linux)
+// #if !os(Linux)
 
 class ImageImporterTests: ContentTestCase {
 
@@ -109,4 +109,4 @@ steps:
 
 }
 
-#endif
+// #endif
