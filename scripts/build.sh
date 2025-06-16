@@ -95,7 +95,8 @@ else
 fi
 
 # Build and test the package.
-# TODO: Re-enable tests.
+# TODO: Re-enable tests #299
+#       https://github.com/inseven/incontext/issues/299
 # swift build
 # swift test
 
