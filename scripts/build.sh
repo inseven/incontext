@@ -37,9 +37,9 @@ HELPER_ARCHIVE_PATH="${BUILD_DIRECTORY}/Helper.xcarchive"
 
 KEYCHAIN_PATH=${KEYCHAIN_PATH:-login}
 
-RELEASE_SCRIPT_PATH="${SCRIPTS_DIRECTORY}/release.sh"
+RELEASE_SCRIPT_PATH="$SCRIPTS_DIRECTORY/release.sh"
 
-RELEASE_NOTES_TEMPLATE_PATH="${SCRIPTS_DIRECTORY}/release-notes.html"
+RELEASE_NOTES_TEMPLATE_PATH="$SCRIPTS_DIRECTORY/release-notes.html"
 
 # Process the command line arguments.
 POSITIONAL=()
@@ -69,7 +69,7 @@ fi
 mkdir -p "$BUILD_DIRECTORY"
 
 if [ -d "$ARCHIVES_DIRECTORY" ] ; then
-    rm -r "$BUILD_DIRECTORY"
+    rm -r "$ARCHIVES_DIRECTORY"
 fi
 mkdir -p "$ARCHIVES_DIRECTORY"
 
