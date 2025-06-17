@@ -14,7 +14,7 @@ brew install inseven/incontext/incontext
 
 ## Documentation
 
-See [https://incontext.app/docs](https://incontext.app/docs).
+See [https://incontext.jbmorley.co.uk/docs](https://incontext.jbmorley.co.uk/docs).
 
 ## Frontmatter
 
