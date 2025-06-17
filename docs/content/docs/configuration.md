@@ -12,7 +12,7 @@ A typical configuration (the one for this site) looks something like this:
 version: 2
 
 title: InContext
-url: "https://incontext.app"
+url: "https://incontext.jbmorley.co.uk"
 
 port: 8003
 

@@ -53,7 +53,7 @@ struct HelperApp: App {
         LogWindow(applicationModel: applicationModel)
 
         About(repository: "inseven/incontext", copyright: "Copyright © 2016-2024 Jason Morley") {
-            Action("Website", url: URL(string: "https://incontext.app")!)
+            Action("Website", url: URL(string: "https://incontext.jbmorley.co.uk")!)
             Action("GitHub", url: URL(string: "https://github.com/inseven/incontext")!)
         } acknowledgements: {
             Acknowledgements("Developers") {
