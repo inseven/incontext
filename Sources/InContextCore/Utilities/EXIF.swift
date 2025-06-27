@@ -20,11 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !os(Linux)
-
 import Foundation
 
+#if !os(Linux)
 import ImageIO
+#else
+import SwiftExif
+#endif
 
 // Metadata import details from Python.
 //METADATA_SCHEMA = Dictionary({
@@ -65,31 +67,52 @@ struct EXIF {
     }()
 
     let _properties: [String: Any]
-    let _metadata: CGImageMetadata
 
-    init?(_ imageSource: CGImageSource, _ index: Int) throws {
+#if !os(Linux)
+    let _metadata: CGImageMetadata
+#endif
+
+// TODO: Use a protocol for the platform specific image to ensure it's clear what we're doing.
+
+#if os(Linux)
+
+    init(url: URL) throws {
+        let image = SwiftExif.Image(imagePath: url)
+        let exifRaw = image.ExifRaw()
+        guard !exifRaw.isEmpty else {
+            throw InContextError.internalInconsistency("Unable to load EXIF")
+        }
+        self._properties = exifRaw["EXIF"] ?? [:]
+    }
+
+#else
+
+    init(_ imageSource: CGImageSource, _ index: Int) throws {
         guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, index, nil) else {
-            return nil
+            throw InContextError.internalInconsistency("Failed to load image properties")
         }
         guard let typedProperties = properties as? [String: Any] else {
             throw InContextError.internalInconsistency("Failed to load image properties")
         }
-
-        // Image metadata, not image properties?
         guard let imageMetadata = CGImageSourceCopyMetadataAtIndex(imageSource, 0, nil) else {
             throw InContextError.internalInconsistency("Failed to load image metadata")
         }
-
         self._properties = typedProperties
         self._metadata = imageMetadata
     }
 
+#endif
+
     var pixelWidth: Int? {
-        get throws { return try _properties.optionalValue(for: "PixelWidth") }
+        get throws {
+            return try _properties.optionalValue(for: "Pixel X Dimension")
+        }
     }
 
     var pixelHeight: Int? {
-        get throws { return try _properties.optionalValue(for: "PixelHeight") }
+        get throws {
+            return try _properties.optionalValue(for: "Pixel Y Dimension")
+        }
     }
 
     // TODO: Use EXIF timezones if they exist.
@@ -151,6 +174,12 @@ struct EXIF {
         get throws { return try _properties.optionalRawRepresentable(for: ["{GPS}", "LongitudeRef"])}
     }
 
+#if os(Linux)
+
+    let projectionType: String? = nil
+
+#else
+
     var projectionType: String? {
         get throws {
             guard let tag = CGImageMetadataCopyTagWithPath(_metadata, nil, "GPano:ProjectionType" as NSString) else {
@@ -163,6 +192,8 @@ struct EXIF {
             return value
         }
     }
+
+#endif
 
     var signedLatitude: Double? {
         get throws {
@@ -187,5 +218,3 @@ struct EXIF {
     }
 
 }
-
-#endif

@@ -22,6 +22,33 @@
 
 import Foundation
 
+protocol Transformable {
+
+    // TODO: I think this might actually be returning an Any?
+    // TODO: ASK TOM WTF
+    static func transform(from value: Any) -> Self?
+    
+}
+
+extension Int: Transformable {
+
+    static func transform(from value: Any) -> Int? {
+        if let stringValue = value as? String {
+            return Int(stringValue)
+        }
+        return nil
+    }
+    
+}
+
+extension String {
+
+    func convert<T>(type: T.Type) -> T? {
+        return nil
+    }
+    
+}
+
 extension Dictionary {
 
     func value<T>(for key: Key, default defaultValue: T) throws -> T {
@@ -51,10 +78,14 @@ extension Dictionary {
         guard let value = self[key] else {
             return nil
         }
-        guard let value = value as? T else {
-            throw InContextError.incorrectType(expected: T.Type.self, received: value)
+        if let value = value as? T {
+            return value
         }
-        return value
+        if let transformable = T.self as? Transformable.Type,
+           let value = transformable.transform(from: value) as? T {
+            return value
+        }
+        throw InContextError.incorrectType(expected: T.Type.self, received: value)
     }
 
     func requiredValue<T>(for key: Key) throws -> T {
