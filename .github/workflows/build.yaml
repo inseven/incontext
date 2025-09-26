@@ -6,12 +6,15 @@ on:
   push:
     branches: [ main ]
   schedule:
-    - cron:  '0 9 * * *'
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:
+
   macos-build:
-    runs-on: macos-ventura
+
+    runs-on: inseven-macos-26
+
     steps:
 
     - name: Checkout repository
@@ -21,6 +24,9 @@ jobs:
         submodules: recursive
         fetch-depth: 0
         lfs: true
+
+    - name: Install dependencies
+      run: scripts/install-dependencies.sh
 
     - name: Build, test, and release
       env:
@@ -37,7 +43,7 @@ jobs:
         RELEASE: ${{ github.ref == 'refs/heads/main' }}
 
       run: |
-        scripts/bootstrap.sh scripts/build.sh
+        scripts/build.sh
 
     - name: Archive the build directory
       uses: actions/upload-artifact@v4
@@ -47,6 +53,7 @@ jobs:
 
   ubuntu-build:
     runs-on: ubuntu-latest
+
     steps:
 
     - name: Checkout repository

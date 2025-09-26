@@ -27,19 +27,28 @@ set -u
 
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
-BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
-ARCHIVES_DIRECTORY="${ROOT_DIRECTORY}/archives"
-SPARKLE_DIRECTORY="${SCRIPTS_DIRECTORY}/Sparkle"
+ROOT_DIRECTORY="$SCRIPTS_DIRECTORY/.."
+BUILD_DIRECTORY="$ROOT_DIRECTORY/build"
+ARCHIVES_DIRECTORY="$ROOT_DIRECTORY/archives"
+TEMPORARY_DIRECTORY="$ROOT_DIRECTORY/temp"
+SPARKLE_DIRECTORY="$SCRIPTS_DIRECTORY/Sparkle"
+
+KEYCHAIN_PATH="$TEMPORARY_DIRECTORY/temporary.keychain"
 
 CLI_ARCHIVE_PATH="${BUILD_DIRECTORY}/Command.xcarchive"
 HELPER_ARCHIVE_PATH="${BUILD_DIRECTORY}/Helper.xcarchive"
+ENV_PATH="$ROOT_DIRECTORY/.env"
 
-KEYCHAIN_PATH=${KEYCHAIN_PATH:-login}
+RELEASE_NOTES_TEMPLATE_PATH="$SCRIPTS_DIRECTORY/release-notes.html"
 
 RELEASE_SCRIPT_PATH="$SCRIPTS_DIRECTORY/release.sh"
 
-RELEASE_NOTES_TEMPLATE_PATH="$SCRIPTS_DIRECTORY/release-notes.html"
+MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
+
+source "$SCRIPTS_DIRECTORY/environment.sh"
+
+# Check that the GitHub command is available on the path.
+which gh || (echo "GitHub cli (gh) not available on the path." && exit 1)
 
 # Process the command line arguments.
 POSITIONAL=()
@@ -59,7 +68,19 @@ do
     esac
 done
 
+# Generate a random string to secure the local keychain.
+export TEMPORARY_KEYCHAIN_PASSWORD=`openssl rand -base64 14`
+
+# Source the .env file if it exists to make local development easier.
+if [ -f "$ENV_PATH" ] ; then
+    echo "Sourcing .env..."
+    source "$ENV_PATH"
+fi
+
 cd "$ROOT_DIRECTORY"
+
+# Select the correct Xcode.
+sudo xcode-select --switch "$MACOS_XCODE_PATH"
 
 # Clean up and recreate the output directories.
 
@@ -73,26 +94,30 @@ if [ -d "$ARCHIVES_DIRECTORY" ] ; then
 fi
 mkdir -p "$ARCHIVES_DIRECTORY"
 
-# Configure Xcode version
-if [ -z ${MACOS_XCODE_PATH+x} ] ; then
-    echo "Skipping Xcode selection..."
-else
-    sudo xcode-select --switch "$MACOS_XCODE_PATH"
+# Create the a new keychain.
+if [ -d "$TEMPORARY_DIRECTORY" ] ; then
+    rm -rf "$TEMPORARY_DIRECTORY"
 fi
+mkdir -p "$TEMPORARY_DIRECTORY"
+echo "$TEMPORARY_KEYCHAIN_PASSWORD" | build-tools create-keychain "$KEYCHAIN_PATH" --password
+
+function cleanup {
+
+    # Cleanup the temporary files, keychain and keys.
+    cd "$ROOT_DIRECTORY"
+    build-tools delete-keychain "$KEYCHAIN_PATH"
+    rm -rf "$TEMPORARY_DIRECTORY"
+    rm -rf ~/.appstoreconnect/private_keys
+}
+
+trap cleanup EXIT
 
 # Determine the version and build number.
 VERSION_NUMBER=`changes version`
 BUILD_NUMBER=`build-tools generate-build-number`
 
 # Import the certificates into our dedicated keychain.
-if [ -z ${DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD+x} ] ; then
-    echo "Skipping certificate import..."
-else
-    echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \
-        --password \
-        "$KEYCHAIN_PATH" \
-        "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
-fi
+echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
 # Build and test the package.
 # TODO: Re-enable tests #299
@@ -102,27 +127,27 @@ fi
 
 pushd InContext
 
-    # Install the provisioning profiles.
-    build-tools install-provisioning-profile "InContext_Helper_Developer_ID_Profile.provisionprofile"
+# Install the provisioning profiles.
+build-tools install-provisioning-profile "InContext_Helper_Developer_ID_Profile.provisionprofile"
 
-    # Build and archive the command.
-    xcodebuild \
-        -project InContext.xcodeproj \
-        -scheme "InContext" \
-        -archivePath "$CLI_ARCHIVE_PATH" \
-        OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
-        MARKETING_VERSION=$VERSION_NUMBER \
-        CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
-        clean archive
+# Build and archive the command.
+xcodebuild \
+    -project InContext.xcodeproj \
+    -scheme "InContext" \
+    -archivePath "$CLI_ARCHIVE_PATH" \
+    OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
+    MARKETING_VERSION=$VERSION_NUMBER \
+    CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+    clean archive
 
-    # Build and archive the helper.
-    xcodebuild \
-        -project InContext.xcodeproj \
-        -scheme "InContext Helper" \
-        -archivePath "$HELPER_ARCHIVE_PATH" \
-        MARKETING_VERSION=$VERSION_NUMBER \
-        CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
-        clean archive
+# Build and archive the helper.
+xcodebuild \
+    -project InContext.xcodeproj \
+    -scheme "InContext Helper" \
+    -archivePath "$HELPER_ARCHIVE_PATH" \
+    MARKETING_VERSION=$VERSION_NUMBER \
+    CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+    clean archive
 
 popd
 
@@ -133,7 +158,7 @@ cp "${CLI_ARCHIVE_PATH}/Products/usr/local/bin/incontext" "${BUILD_DIRECTORY}/in
 
 # Export the command.
 ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}"
-ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}.zip"
+ZIP_PATH="$BUILD_DIRECTORY/$ZIP_BASENAME.zip"
 pushd "$BUILD_DIRECTORY"
 zip -r "$ZIP_PATH" incontext
 rm incontext
@@ -149,11 +174,11 @@ xcodebuild \
 # Compress the helper.
 # Apple recommends we use ditto to prepare zips for notarization.
 # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-HELPER_ZIP_BASENAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER"
-HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME.zip"
+HELPER_NAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER"
+HELPER_ZIP_BASENAME="$HELPER_NAME.zip"
+HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME"
 pushd "$BUILD_DIRECTORY"
 /usr/bin/ditto -c -k --keepParent "InContext Helper.app" "$HELPER_ZIP_PATH"
-rm -r "InContext Helper.app"
 popd
 
 # Notarization.
@@ -205,6 +230,26 @@ if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
     exit 1
 fi
 
+# Remove the zip file used for notarization.
+rm "$HELPER_ZIP_PATH"
+
+# Staple and validate the app; this bakes the notarization into the app in case the device trying to run it can't do an
+# online check with Apple's servers for some reason.
+xcrun stapler staple "$BUILD_DIRECTORY/InContext Helper.app"
+xcrun stapler validate "$BUILD_DIRECTORY/InContext Helper.app"
+
+# Next up, we perform a belt-and-braces check that the app validates after stapling.
+codesign --verify --deep --strict --verbose=2 "$BUILD_DIRECTORY/InContext Helper.app"
+
+# Compress the stapled app and package it for release.
+# Curiously, ditto, which Apple recommends for compressing app bundles only seems to create valid zip files when using
+# Sequoia and subsequently notarizing the zip file. Since we need to recompress the stapled app package, we instead use
+# `zip --symlinks` which, thankfully, seems to work just fine.
+pushd "$BUILD_DIRECTORY"
+zip --symlinks -r "$HELPER_ZIP_BASENAME" "InContext Helper.app"
+rm -r "InContext Helper.app"
+popd
+
 # Build Sparkle.
 cd "$SPARKLE_DIRECTORY"
 xcodebuild -project Sparkle.xcodeproj -scheme generate_appcast SYMROOT=`pwd`/.build
@@ -216,7 +261,7 @@ echo -n "$SPARKLE_PRIVATE_KEY_BASE64" | base64 --decode -o "$SPARKLE_PRIVATE_KEY
 # Generate the appcast.
 cd "$ROOT_DIRECTORY"
 cp "$HELPER_ZIP_PATH" "$ARCHIVES_DIRECTORY"
-changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRECTORY/$HELPER_ZIP_BASENAME.html"
+changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRECTORY/$HELPER_NAME.html"
 "$GENERATE_APPCAST" --ed-key-file "$SPARKLE_PRIVATE_KEY_FILE" "$ARCHIVES_DIRECTORY"
 APPCAST_PATH="$ARCHIVES_DIRECTORY/appcast.xml"
 cp "$APPCAST_PATH" "$BUILD_DIRECTORY"
