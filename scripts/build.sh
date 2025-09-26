@@ -158,7 +158,7 @@ cp "${CLI_ARCHIVE_PATH}/Products/usr/local/bin/incontext" "${BUILD_DIRECTORY}/in
 
 # Export the command.
 ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}"
-ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}.zip"
+ZIP_PATH="$BUILD_DIRECTORY/$ZIP_BASENAME.zip"
 pushd "$BUILD_DIRECTORY"
 zip -r "$ZIP_PATH" incontext
 rm incontext
@@ -174,11 +174,11 @@ xcodebuild \
 # Compress the helper.
 # Apple recommends we use ditto to prepare zips for notarization.
 # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-HELPER_ZIP_BASENAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER"
-HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME.zip"
+HELPER_NAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER"
+HELPER_ZIP_BASENAME="$HELPER_NAME.zip"
+HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME"
 pushd "$BUILD_DIRECTORY"
 /usr/bin/ditto -c -k --keepParent "InContext Helper.app" "$HELPER_ZIP_PATH"
-rm -r "InContext Helper.app"
 popd
 
 # Notarization.
@@ -230,6 +230,26 @@ if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
     exit 1
 fi
 
+# Remove the zip file used for notarization.
+rm "$HELPER_ZIP_PATH"
+
+# Staple and validate the app; this bakes the notarization into the app in case the device trying to run it can't do an
+# online check with Apple's servers for some reason.
+xcrun stapler staple "$BUILD_DIRECTORY/InContext Helper.app"
+xcrun stapler validate "$BUILD_DIRECTORY/InContext Helper.app"
+
+# Next up, we perform a belt-and-braces check that the app validates after stapling.
+codesign --verify --deep --strict --verbose=2 "$BUILD_DIRECTORY/InContext Helper.app"
+
+# Compress the stapled app and package it for release.
+# Curiously, ditto, which Apple recommends for compressing app bundles only seems to create valid zip files when using
+# Sequoia and subsequently notarizing the zip file. Since we need to recompress the stapled app package, we instead use
+# `zip --symlinks` which, thankfully, seems to work just fine.
+pushd "$BUILD_DIRECTORY"
+zip --symlinks -r "$HELPER_ZIP_BASENAME" "InContext Helper.app"
+rm -r "InContext Helper.app"
+popd
+
 # Build Sparkle.
 cd "$SPARKLE_DIRECTORY"
 xcodebuild -project Sparkle.xcodeproj -scheme generate_appcast SYMROOT=`pwd`/.build
@@ -241,7 +261,7 @@ echo -n "$SPARKLE_PRIVATE_KEY_BASE64" | base64 --decode -o "$SPARKLE_PRIVATE_KEY
 # Generate the appcast.
 cd "$ROOT_DIRECTORY"
 cp "$HELPER_ZIP_PATH" "$ARCHIVES_DIRECTORY"
-changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRECTORY/$HELPER_ZIP_BASENAME.html"
+changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRECTORY/$HELPER_NAME.html"
 "$GENERATE_APPCAST" --ed-key-file "$SPARKLE_PRIVATE_KEY_FILE" "$ARCHIVES_DIRECTORY"
 APPCAST_PATH="$ARCHIVES_DIRECTORY/appcast.xml"
 cp "$APPCAST_PATH" "$BUILD_DIRECTORY"
