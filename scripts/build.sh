@@ -27,19 +27,28 @@ set -u
 
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
-BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
-ARCHIVES_DIRECTORY="${ROOT_DIRECTORY}/archives"
-SPARKLE_DIRECTORY="${SCRIPTS_DIRECTORY}/Sparkle"
+ROOT_DIRECTORY="$SCRIPTS_DIRECTORY/.."
+BUILD_DIRECTORY="$ROOT_DIRECTORY/build"
+ARCHIVES_DIRECTORY="$ROOT_DIRECTORY/archives"
+TEMPORARY_DIRECTORY="$ROOT_DIRECTORY/temp"
+SPARKLE_DIRECTORY="$SCRIPTS_DIRECTORY/Sparkle"
+
+KEYCHAIN_PATH="$TEMPORARY_DIRECTORY/temporary.keychain"
 
 CLI_ARCHIVE_PATH="${BUILD_DIRECTORY}/Command.xcarchive"
 HELPER_ARCHIVE_PATH="${BUILD_DIRECTORY}/Helper.xcarchive"
+ENV_PATH="$ROOT_DIRECTORY/.env"
 
-KEYCHAIN_PATH=${KEYCHAIN_PATH:-login}
+RELEASE_NOTES_TEMPLATE_PATH="$SCRIPTS_DIRECTORY/release-notes.html"
 
 RELEASE_SCRIPT_PATH="$SCRIPTS_DIRECTORY/release.sh"
 
-RELEASE_NOTES_TEMPLATE_PATH="$SCRIPTS_DIRECTORY/release-notes.html"
+MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
+
+source "$SCRIPTS_DIRECTORY/environment.sh"
+
+# Check that the GitHub command is available on the path.
+which gh || (echo "GitHub cli (gh) not available on the path." && exit 1)
 
 # Process the command line arguments.
 POSITIONAL=()
@@ -59,7 +68,19 @@ do
     esac
 done
 
+# Generate a random string to secure the local keychain.
+export TEMPORARY_KEYCHAIN_PASSWORD=`openssl rand -base64 14`
+
+# Source the .env file if it exists to make local development easier.
+if [ -f "$ENV_PATH" ] ; then
+    echo "Sourcing .env..."
+    source "$ENV_PATH"
+fi
+
 cd "$ROOT_DIRECTORY"
+
+# Select the correct Xcode.
+sudo xcode-select --switch "$MACOS_XCODE_PATH"
 
 # Clean up and recreate the output directories.
 
@@ -73,26 +94,30 @@ if [ -d "$ARCHIVES_DIRECTORY" ] ; then
 fi
 mkdir -p "$ARCHIVES_DIRECTORY"
 
-# Configure Xcode version
-if [ -z ${MACOS_XCODE_PATH+x} ] ; then
-    echo "Skipping Xcode selection..."
-else
-    sudo xcode-select --switch "$MACOS_XCODE_PATH"
+# Create the a new keychain.
+if [ -d "$TEMPORARY_DIRECTORY" ] ; then
+    rm -rf "$TEMPORARY_DIRECTORY"
 fi
+mkdir -p "$TEMPORARY_DIRECTORY"
+echo "$TEMPORARY_KEYCHAIN_PASSWORD" | build-tools create-keychain "$KEYCHAIN_PATH" --password
+
+function cleanup {
+
+    # Cleanup the temporary files, keychain and keys.
+    cd "$ROOT_DIRECTORY"
+    build-tools delete-keychain "$KEYCHAIN_PATH"
+    rm -rf "$TEMPORARY_DIRECTORY"
+    rm -rf ~/.appstoreconnect/private_keys
+}
+
+trap cleanup EXIT
 
 # Determine the version and build number.
 VERSION_NUMBER=`changes version`
 BUILD_NUMBER=`build-tools generate-build-number`
 
 # Import the certificates into our dedicated keychain.
-if [ -z ${DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD+x} ] ; then
-    echo "Skipping certificate import..."
-else
-    echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate \
-        --password \
-        "$KEYCHAIN_PATH" \
-        "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
-fi
+echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
 # Build and test the package.
 # TODO: Re-enable tests #299
@@ -102,27 +127,27 @@ fi
 
 pushd InContext
 
-    # Install the provisioning profiles.
-    build-tools install-provisioning-profile "InContext_Helper_Developer_ID_Profile.provisionprofile"
+# Install the provisioning profiles.
+build-tools install-provisioning-profile "InContext_Helper_Developer_ID_Profile.provisionprofile"
 
-    # Build and archive the command.
-    xcodebuild \
-        -project InContext.xcodeproj \
-        -scheme "InContext" \
-        -archivePath "$CLI_ARCHIVE_PATH" \
-        OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
-        MARKETING_VERSION=$VERSION_NUMBER \
-        CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
-        clean archive
+# Build and archive the command.
+xcodebuild \
+    -project InContext.xcodeproj \
+    -scheme "InContext" \
+    -archivePath "$CLI_ARCHIVE_PATH" \
+    OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
+    MARKETING_VERSION=$VERSION_NUMBER \
+    CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+    clean archive
 
-    # Build and archive the helper.
-    xcodebuild \
-        -project InContext.xcodeproj \
-        -scheme "InContext Helper" \
-        -archivePath "$HELPER_ARCHIVE_PATH" \
-        MARKETING_VERSION=$VERSION_NUMBER \
-        CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
-        clean archive
+# Build and archive the helper.
+xcodebuild \
+    -project InContext.xcodeproj \
+    -scheme "InContext Helper" \
+    -archivePath "$HELPER_ARCHIVE_PATH" \
+    MARKETING_VERSION=$VERSION_NUMBER \
+    CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+    clean archive
 
 popd
 
