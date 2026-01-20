@@ -223,7 +223,7 @@ public class Builder {
         task.success()
 
         let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
-            for case let enumeratorFileURL as URL in directoryEnumerator {
+            while let enumeratorFileURL = directoryEnumerator.nextObject() as? URL {
 
                 // The enumerator won't create relative paths on Linux so we do some extra fix-up.
 #if !os(Linux)
