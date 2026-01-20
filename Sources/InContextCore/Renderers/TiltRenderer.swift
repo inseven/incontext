@@ -117,7 +117,7 @@ class TiltRenderer {
 
         self.modules = modules
 
-        L.register(Metatable(for: TemplateCache.self))
+        L.register(Metatable<TemplateCache>())
         L.register(DefaultMetatable(
             index: .closure { L in
                 guard let obj: EvaluationContext = L.touserdata(1) else {

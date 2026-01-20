@@ -107,6 +107,7 @@ let package = Package(
 
 let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("BareSlashRegexLiterals"),
+    .unsafeFlags(["-warnings-as-errors"]),
 ]
 
 for target in package.targets {
