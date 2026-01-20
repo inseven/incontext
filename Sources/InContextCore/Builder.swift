@@ -195,6 +195,22 @@ public class Builder {
         }
     }
 
+    /**
+     * Remove intermeidates associated with a relative file path; should be called in advance of re-rendering a path.
+     */
+    private func removeIntermediates(for relativePath: String, filesURL: URL, task: SessionTask) async throws {
+        let fileManager = FileManager.default
+        for asset in try await self.store.assets(for: relativePath, filesURL: filesURL) {
+            task.info("Removing intermediate '\(asset.fileURL.relativePath)'...")
+            guard fileManager.fileExists(atPath: asset.fileURL.path) else {
+                task.warning("Skipping cleanup for missing intermediate file ('\(asset.fileURL.path)')...")
+                continue
+            }
+            try FileManager.default.removeItem(at: asset.fileURL)
+        }
+        try await self.store.forgetAssets(for: relativePath)
+    }
+
     func importContent(session: Session) async throws {
 
         let fileManager = FileManager.default
@@ -221,6 +237,8 @@ public class Builder {
                                                          includingPropertiesForKeys: Array(resourceKeys),
                                                          options: options)!
         task.success()
+
+        // TODO: Prune intermediates for deleted files.
 
         let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
             while let enumeratorFileURL = directoryEnumerator.nextObject() as? URL {
@@ -288,22 +306,7 @@ public class Builder {
                         print("CHANGE: \(status.contentModificationDate.millisecondsSinceReferenceDate) != \(contentModificationDate.millisecondsSinceReferenceDate): \(fileURL.relativePath)")
 
                         // Clean up the existing assets.
-                        // TODO: We also need to do this for files that just don't exist anymore.
-                        // TODO: This needs to be a utility.
-                        let fileManager = FileManager.default
-                        for asset in try await self.store.assets(for: fileURL.relativePath,
-                                                                 filesURL: self.site.filesURL) {
-                            task.info("Removing intermediate '\(asset.fileURL.relativePath)'...")
-                            guard fileManager.fileExists(atPath: asset.fileURL.path) else {
-                                task.warning("Skipping missing file...")
-                                continue
-                            }
-                            try FileManager.default.removeItem(at: asset.fileURL)
-                        }
-                        try await self.store.forgetAssets(for: fileURL.relativePath)
-
-
-                        // TODO: Clean up the existing intermediates if we know that the contents have changed.
+                        try await self.removeIntermediates(for: fileURL.relativePath, filesURL: self.site.filesURL, task: task)
                     }
 
                     task.debug("File new or changed; re-importing")
