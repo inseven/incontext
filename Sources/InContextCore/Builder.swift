@@ -167,10 +167,10 @@ public class Builder {
         return false
     }
 
-    func render(session: Session,
-                document: Document,
-                documents: [Document],
-                renderStatus: RenderStatus?) async throws {
+    private func render(session: Session,
+                        document: Document,
+                        documents: [Document],
+                        renderStatus: RenderStatus?) async throws {
 
         let destinationDirectoryURL = site.filesURL.appendingPathComponent(document.url)
         let destinationFileURL = destinationDirectoryURL
@@ -217,15 +217,6 @@ public class Builder {
 
         let task = session.startTask("Scanning files...")
 
-        // Specify the enumeration resource keys. Unhelpfully, Linux doesn't support loading the modification times
-        // during enumeration so we guard against that here and load the modification times differently.
-        // Ideally we would extract this code into a shared enumerator that works identically across platforms to avoid
-        // cross platform considerations bleeding into the application logic.
-        var resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey])
-#if !os(Linux)
-        resourceKeys.insert(.contentModificationDateKey)
-#endif
-
         // Linux also has issues with creating relative paths (which we should probably drop anyhow because they're
         // horribly confusing), so we don't ask for these unless we know the platform supports them.
         var options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
@@ -233,8 +224,9 @@ public class Builder {
         options.insert(.producesRelativePathURLs)
 #endif
 
+        // Note that Linux directory enumeration doesn't support loading the modification times, so we do that later.
         let directoryEnumerator = fileManager.enumerator(at: site.contentURL,
-                                                         includingPropertiesForKeys: Array(resourceKeys),
+                                                         includingPropertiesForKeys: [.nameKey, .isDirectoryKey],
                                                          options: options)!
         task.success()
 
@@ -251,18 +243,8 @@ public class Builder {
 #endif
 
                 // Get the file metadata.
-                let isDirectory = try fileURL
-                    .resourceValues(forKeys: [.isDirectoryKey])
-                    .isDirectory!
-
-#if !os(Linux)
-                let contentModificationDate = try fileURL
-                    .resourceValues(forKeys: [.contentModificationDateKey])
-                    .contentModificationDate!
-#else
-                let attr = try FileManager.default.attributesOfItem(atPath: fileURL.path)
-                let contentModificationDate = attr[FileAttributeKey.modificationDate] as! Date
-#endif
+                let isDirectory = try fileURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory!
+                let contentModificationDate = try FileManager.default.modificationDateOfItem(at: fileURL)
 
                 // Ignore directories.
                 if isDirectory {
