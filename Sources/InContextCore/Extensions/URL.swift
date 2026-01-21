@@ -72,4 +72,22 @@ extension URL {
         return UTType(filenameExtension: pathExtension)
     }
 
+    public var pathIncludingTrailingDirectorySeparator: String {
+    if hasDirectoryPath {
+            return path + "/"
+        }
+        return path
+    }
+
+    public func relative(to url: URL) -> URL {
+        precondition(isFileURL)
+        precondition(url.isFileURL)
+        precondition(url.hasDirectoryPath)
+        let directoryPath = url.pathIncludingTrailingDirectorySeparator
+        let path = pathIncludingTrailingDirectorySeparator
+        precondition(path.starts(with: directoryPath))
+        let relativePath = String(path.dropFirst(directoryPath.count))
+        return URL(filePath: relativePath, relativeTo: url)
+    }
+
 }
