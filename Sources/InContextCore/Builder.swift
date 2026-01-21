@@ -217,17 +217,10 @@ public class Builder {
 
         let task = session.startTask("Scanning files...")
 
-        // Linux also has issues with creating relative paths (which we should probably drop anyhow because they're
-        // horribly confusing), so we don't ask for these unless we know the platform supports them.
-        var options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
-#if !os(Linux)
-        options.insert(.producesRelativePathURLs)
-#endif
-
         // Note that Linux directory enumeration doesn't support loading the modification times, so we do that later.
         let directoryEnumerator = fileManager.enumerator(at: site.contentURL,
                                                          includingPropertiesForKeys: [.nameKey, .isDirectoryKey],
-                                                         options: options)!
+                                                         options: [.skipsHiddenFiles])!
         task.success()
 
         // TODO: Prune intermediates for deleted files.
@@ -235,14 +228,8 @@ public class Builder {
         let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
             while let enumeratorFileURL = directoryEnumerator.nextObject() as? URL {
 
-                // The enumerator won't create relative paths on Linux so we do some extra fix-up.
-#if !os(Linux)
-                let fileURL = enumeratorFileURL
-#else
-                let fileURL = enumeratorFileURL.relative(to: site.contentURL)
-#endif
-
                 // Get the file metadata.
+                let fileURL = enumeratorFileURL.relative(to: site.contentURL)  // Ensure consistency between macOS and Linux.
                 let isDirectory = try fileURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory!
                 let contentModificationDate = try FileManager.default.modificationDateOfItem(at: fileURL)
 
