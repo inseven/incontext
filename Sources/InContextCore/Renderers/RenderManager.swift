@@ -68,6 +68,7 @@ class RenderManager {
              }
     }
 
+    @available(*, noasync)
     func render(renderTracker: RenderTracker,
                 template: String,
                 context: [String: Any]) throws -> String {
@@ -88,6 +89,7 @@ class RenderManager {
         return try dom.html()
     }
 
+    @available(*, noasync)
     func render(renderTracker: RenderTracker,
                 string: String,
                 filename: String,

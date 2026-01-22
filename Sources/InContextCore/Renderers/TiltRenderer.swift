@@ -72,6 +72,8 @@ struct Module {
 
 }
 
+// Note that while methods in this class are annotated with `@available(*, noasync)`, this doesn't appear to be
+// transitive (in Swift 5 at least), meaning it doesn't offer the hard compile-time guarnatees we might want.
 class TiltRenderer {
 
     static let version = 1
@@ -82,6 +84,7 @@ class TiltRenderer {
 
     let env: TiltEnvironment
 
+    @available(*, noasync)
     init(templateCache: TemplateCache, extensions: [Extension]) {
         self.templateCache = templateCache
         self.extensions = extensions
@@ -153,6 +156,7 @@ class TiltRenderer {
         L.pop() // globals
     }
 
+    @available(*, noasync)
     func render(string: String,
                 filename: String,
                 context: [String: Any]) throws -> RenderResult {
@@ -177,6 +181,7 @@ class TiltRenderer {
         return RenderResult(content: result.text, templatesUsed: result.includes)
     }
 
+    @available(*, noasync)
     func render(name: String, context: [String : Any]) throws -> RenderResult {
         guard let template = try templateCache.details(for: name) else {
             throw InContextError.unknownTemplate(name)

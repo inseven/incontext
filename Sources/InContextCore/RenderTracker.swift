@@ -64,12 +64,14 @@ class RenderTracker {
                             templates: Array(statuses))
     }
 
+    @available(*, noasync)
     func render(_ document: Document, template: String? = nil) throws -> String {
         let template = template ?? document.template
         let context = Builder.context(for: site, document: document, renderTracker: self)
         return try renderManager.render(renderTracker: self, template: template, context: context)
     }
 
+    @available(*, noasync)
     func render(_ document: Document, string: String) throws -> String {
         let context = Builder.context(for: site, document: document, renderTracker: self)
         return try renderManager.render(renderTracker: self,

@@ -109,6 +109,7 @@ public class Builder {
     let store: Store
     let templateCache: TemplateCache
     let renderManager: RenderManager
+    let threadExecutor = ThreadExecutor()
 
     // TODO: Probably shouldn't await the template cache
     public init(site: Site,
@@ -181,8 +182,13 @@ public class Builder {
             // Render the document using its top-level template.
             // This is tracked using our document-specific `RenderTracker` instance to allow us to track dependencies
             // (queries and templates) and see if they've changed on future incremental builds.
+            // We dispatch the render operation to a `ThreadExecutor` instance which will ensure it's called in a
+            // classic GCD context as we have fears that Lua isn't playing nicely with the async context. This
+            // effectively serializes the render operation and we should switch to a thread pool in the future.
             let renderTracker = RenderTracker(site: site, store: store, renderManager: renderManager)
-            let content = try renderTracker.render(document)
+            let content = try await threadExecutor.perform {
+                return try renderTracker.render(document)
+            }
             let renderStatus = renderTracker.renderStatus(for: document)
             try await store.save(renderStatus: renderStatus, for: document.url)
 
@@ -251,8 +257,6 @@ public class Builder {
 
                 tasks.add {
 
-                    // TODO: Consider moving this out into a separate function.
-                    // TODO: Database access is serial and probably introduces contention.
                     // TODO: Templates are stored in cached data so input settings need to invalidate the cache.
 
                     // Cache metadata about the importer instance / handler.
@@ -272,10 +276,10 @@ public class Builder {
                             return fileURL
                         }
 
-                        print("CHANGE: \(status.contentModificationDate.millisecondsSinceReferenceDate) != \(contentModificationDate.millisecondsSinceReferenceDate): \(fileURL.relativePath)")
-
                         // Clean up the existing assets.
-                        try await self.removeIntermediates(for: fileURL.relativePath, filesURL: self.site.filesURL, task: task)
+                        try await self.removeIntermediates(for: fileURL.relativePath,
+                                                           filesURL: self.site.filesURL,
+                                                           task: task)
                     }
 
                     task.debug("File new or changed; re-importing")
