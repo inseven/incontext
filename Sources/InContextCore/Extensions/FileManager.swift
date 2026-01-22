@@ -52,4 +52,31 @@ public extension FileManager {
         return fileExists && isDirectory.boolValue
     }
 
+    func listFiles(at rootURL: URL) throws -> [File] {
+
+        // Note that Linux directory enumeration doesn't support loading the modification times, so we do that later.
+        let enumerator = enumerator(at: rootURL,
+                                    includingPropertiesForKeys: [.nameKey, .isDirectoryKey],
+                                    options: [.skipsHiddenFiles])!
+
+        var results: [File] = []
+        while let url = enumerator.nextObject() as? URL {
+
+            // Get the file metadata.
+            // N.B. The Linux directory enumerator can't generate relative URLs, so we do it manually on both platforms.
+            let fileURL = url.relative(to: rootURL)
+            let isDirectory = try url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory!
+
+            // Ignore directories.
+            guard !isDirectory else {
+                continue
+            }
+
+            results.append(try File(url: fileURL))
+        }
+
+        return results
+    }
+
+
 }

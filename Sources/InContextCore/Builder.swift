@@ -219,36 +219,17 @@ public class Builder {
 
     func importContent(session: Session) async throws {
 
-        let fileManager = FileManager.default
-
         let task = session.startTask("Scanning files...")
-
-        // Note that Linux directory enumeration doesn't support loading the modification times, so we do that later.
-        let directoryEnumerator = fileManager.enumerator(at: site.contentURL,
-                                                         includingPropertiesForKeys: [.nameKey, .isDirectoryKey],
-                                                         options: [.skipsHiddenFiles])!
+        let sourceFiles = try FileManager.default.listFiles(at: site.contentURL)
         task.success()
 
-        // TODO: Prune intermediates for deleted files.
-
         let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
-            while let enumeratorFileURL = directoryEnumerator.nextObject() as? URL {
-
-                // Get the file metadata.
-                let fileURL = enumeratorFileURL.relative(to: site.contentURL)  // Ensure consistency between macOS and Linux.
-                let isDirectory = try fileURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory!
-                let contentModificationDate = try FileManager.default.modificationDateOfItem(at: fileURL)
-
-                // Ignore directories.
-                if isDirectory {
-                    continue
-                }
-
-                let task = session.startTask("Importing '\(fileURL.relativePath)'...")
+            for file in sourceFiles {
+                let task = session.startTask("Importing '\(file.url.relativePath)'...")
 
                 // Get the handler for the file.
-                guard let handler = try self.site.handler(for: fileURL) else {
-                    task.warning("Ignoring unsupported file '\(fileURL.relativePath)'.")
+                guard let handler = try self.site.handler(for: file.url) else {
+                    task.warning("Ignoring unsupported file '\(file.url.relativePath)'.")
                     task.success(.skipped)
                     continue
                 }
@@ -263,21 +244,21 @@ public class Builder {
                     let handlerFingerprint = try handler.fingerprint()
 
                     // Check to see if the file already exists in the store and has a matching modification date.
-                    if let status = try await self.store.status(for: fileURL.relativePath,
+                    if let status = try await self.store.status(for: file.url.relativePath,
                                                                 contentURL: self.site.contentURL) {
 
                         let fileModified = (status.contentModificationDate.millisecondsSinceReferenceDate !=
-                                            contentModificationDate.millisecondsSinceReferenceDate)
+                                            file.contentModificationDate.millisecondsSinceReferenceDate)
                         let differentImporterVersion = status.fingerprint != handlerFingerprint
 
                         if !fileModified && !differentImporterVersion {
                             task.debug("File unchanged")
                             task.success(.skipped)
-                            return fileURL
+                            return file.url
                         }
 
                         // Clean up the existing assets.
-                        try await self.removeIntermediates(for: fileURL.relativePath,
+                        try await self.removeIntermediates(for: file.url.relativePath,
                                                            filesURL: self.site.filesURL,
                                                            task: task)
                     }
@@ -285,7 +266,6 @@ public class Builder {
                     task.debug("File new or changed; re-importing")
 
                     // Import the file.
-                    let file = File(url: fileURL, contentModificationDate: contentModificationDate)
                     do {
                         // TODO: Inject the task into the process operation.
                         let result = try await handler.process(file: file, outputURL: self.site.filesURL)
@@ -295,10 +275,10 @@ public class Builder {
                                             fingerprint: handlerFingerprint)
                         try await self.store.save(document: result.document, assets: result.assets, status: status)
                         task.success()
-                        return fileURL
+                        return file.url
                     } catch {
                         task.failure(error)
-                        throw InContextError.importError(fileURL, error)
+                        throw InContextError.importError(file.url, error)
                     }
                 }
             }
