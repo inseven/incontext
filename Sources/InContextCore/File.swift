@@ -22,21 +22,21 @@
 
 import Foundation
 
-struct File {
+public struct File {
 
-    var relativePath: String {
+    public var relativePath: String {
         return url.relativePath
     }
 
-    let url: URL
-    let contentModificationDate: Date
+    public let url: URL
+    public let contentModificationDate: Date
 
-    init(url: URL, contentModificationDate: Date) {
+    public init(url: URL, contentModificationDate: Date) {
         self.url = url
         self.contentModificationDate = contentModificationDate
     }
 
-    init(url: URL) throws {
+    public init(url: URL) throws {
         self.url = url
         self.contentModificationDate = try FileManager.default.modificationDateOfItem(at: url)
     }
