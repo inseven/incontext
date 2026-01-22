@@ -168,10 +168,10 @@ public class Builder {
         return false
     }
 
-    private func render(session: Session,
-                        document: Document,
-                        documents: [Document],
-                        renderStatus: RenderStatus?) async throws {
+    private func renderDocument(_ document: Document,
+                                documents: [Document],
+                                renderStatus: RenderStatus?,
+                                session: Session) async throws {
 
         let destinationDirectoryURL = site.filesURL.appendingPathComponent(document.url)
         let destinationFileURL = destinationDirectoryURL
@@ -217,81 +217,93 @@ public class Builder {
         try await self.store.forgetAssets(for: relativePath)
     }
 
+    /**
+     * Import a single file using a specific handler.
+     *
+     * This function is currently repsonsible for performing any clean-up from previous builds (though perhaps it
+     * shouldn't be), and returns a relative URL representing the resulting file path in the database.
+     */
+    func importFile(_ file: File, task: SessionTask) async throws -> URL? {
+
+        // Get the handler for the file.
+        guard let handler = try self.site.handler(for: file.url) else {
+            task.warning("Ignoring unsupported file '\(file.url.relativePath)'.")
+            task.success(.skipped)
+            return nil
+        }
+
+        // TODO: Templates are stored in cached data so input settings need to invalidate the cache.
+
+        // Cache metadata about the importer instance / handler.
+        let handlerFingerprint = try handler.fingerprint()
+
+        // Check to see if the file already exists in the store and has a matching modification date.
+        if let status = try await self.store.status(for: file.url.relativePath,
+                                                    contentURL: self.site.contentURL) {
+
+            let fileModified = (status.contentModificationDate.millisecondsSinceReferenceDate !=
+                                file.contentModificationDate.millisecondsSinceReferenceDate)
+            let differentImporterVersion = status.fingerprint != handlerFingerprint
+
+            if !fileModified && !differentImporterVersion {
+                task.debug("File unchanged")
+                task.success(.skipped)
+                return file.url
+            }
+
+            // Clean up the existing assets.
+            try await self.removeIntermediates(for: file.url.relativePath,
+                                               filesURL: self.site.filesURL,
+                                               task: task)
+        }
+
+        task.debug("File new or changed; re-importing")
+
+        // Import the file.
+        do {
+            // TODO: Inject the task into the process operation.
+            let result = try await handler.process(file: file, outputURL: self.site.filesURL)
+            let status = Status(fileURL: file.url,
+                                contentModificationDate: file.contentModificationDate,
+                                importer: handler.identifier,
+                                fingerprint: handlerFingerprint)
+            try await self.store.save(document: result.document, assets: result.assets, status: status)
+            task.success()
+            return file.url
+        } catch {
+            task.failure(error)
+            throw InContextError.importError(file.url, error)
+        }
+    }
+
+    /**
+     * Perform an incremental import of all the site content.
+     */
     func importContent(session: Session) async throws {
 
+        // Get all the site source files in the content directory.
         let task = session.startTask("Scanning files...")
         let sourceFiles = try FileManager.default.listFiles(at: site.contentURL)
         task.success()
 
+        // Enqueue and wait on tasks to import each individual file.
         let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
             for file in sourceFiles {
                 let task = session.startTask("Importing '\(file.url.relativePath)'...")
-
-                // Get the handler for the file.
-                guard let handler = try self.site.handler(for: file.url) else {
-                    task.warning("Ignoring unsupported file '\(file.url.relativePath)'.")
-                    task.success(.skipped)
-                    continue
-                }
-
-                // Schedule the import.
-
                 tasks.add {
-
-                    // TODO: Templates are stored in cached data so input settings need to invalidate the cache.
-
-                    // Cache metadata about the importer instance / handler.
-                    let handlerFingerprint = try handler.fingerprint()
-
-                    // Check to see if the file already exists in the store and has a matching modification date.
-                    if let status = try await self.store.status(for: file.url.relativePath,
-                                                                contentURL: self.site.contentURL) {
-
-                        let fileModified = (status.contentModificationDate.millisecondsSinceReferenceDate !=
-                                            file.contentModificationDate.millisecondsSinceReferenceDate)
-                        let differentImporterVersion = status.fingerprint != handlerFingerprint
-
-                        if !fileModified && !differentImporterVersion {
-                            task.debug("File unchanged")
-                            task.success(.skipped)
-                            return file.url
-                        }
-
-                        // Clean up the existing assets.
-                        try await self.removeIntermediates(for: file.url.relativePath,
-                                                           filesURL: self.site.filesURL,
-                                                           task: task)
-                    }
-
-                    task.debug("File new or changed; re-importing")
-
-                    // Import the file.
-                    do {
-                        // TODO: Inject the task into the process operation.
-                        let result = try await handler.process(file: file, outputURL: self.site.filesURL)
-                        let status = Status(fileURL: file.url,
-                                            contentModificationDate: file.contentModificationDate,
-                                            importer: handler.identifier,
-                                            fingerprint: handlerFingerprint)
-                        try await self.store.save(document: result.document, assets: result.assets, status: status)
-                        task.success()
-                        return file.url
-                    } catch {
-                        task.failure(error)
-                        throw InContextError.importError(file.url, error)
-                    }
+                    return try await self.importFile(file, task: task)
                 }
             }
         }
 
         // Remove the documents associated with the files that don't exist any more.
+        // TODO: Remove the assets associated with the files that don't exist anymore.
+        // TODO: Remove the render output for documents that no longer exist.
         let documentSourcePaths = Set(try await store.documentRelativeSourcePaths())
         let sourcePaths = Set(fileURLs.map { $0.relativePath })
         let deletedSourcePaths = documentSourcePaths.subtracting(sourcePaths)
         try await store.deleteDocuments(relativeSourcePaths: Array(deletedSourcePaths))
 
-        // TODO: Remove the assets associated with the files that don't exist anymore.
-        // TODO: Remove the render output for documents that no longer exist.
     }
 
     func renderContent(session: Session, concurrent: Bool) async throws {
@@ -308,6 +320,7 @@ public class Builder {
             return try store.documents()
         }
 
+        // TODO: withTaskRunner?
         let updates = try await session.withTask("Checking for changes...") { _ in
             return try await withThrowingTaskGroup(of: (Document?).self) { group in
                 for document in documents {
@@ -335,10 +348,10 @@ public class Builder {
             _ = try await withTaskRunner(of: Void.self, concurrent: concurrent) { tasks in
                 for document in updates {
                     tasks.add {
-                        try await self.render(session: session,
-                                              document: document,
-                                              documents: documents,
-                                              renderStatus: renderStatuses[document.url])
+                        try await self.renderDocument(document,
+                                                      documents: documents,
+                                                      renderStatus: renderStatuses[document.url],
+                                                      session: session)
                     }
                 }
             }
