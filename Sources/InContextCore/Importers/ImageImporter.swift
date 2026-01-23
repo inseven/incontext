@@ -350,9 +350,9 @@ class ImageImporter {
 
 extension ImageImporter: Importer {
 
-    func process(file: File,
-                 settings: Settings,
-                 outputURL: URL) async throws -> ImporterResult {
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL) async throws -> ImporterResult {
 
         throw InContextError.internalInconsistency("Unsupported")
         
@@ -364,9 +364,9 @@ extension ImageImporter: Importer {
 
 extension ImageImporter: Importer {
 
-    func process(file: File,
-                 settings: Settings,
-                 outputURL: URL) async throws -> ImporterResult {
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL) async throws -> ImporterResult {
 
         let fileURL = file.url
 

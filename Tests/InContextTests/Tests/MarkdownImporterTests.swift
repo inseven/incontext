@@ -46,11 +46,10 @@ title: Fromage
 
 These are the contents of the file.
 """)
-        let importer = MarkdownImporter()
-        let result = try await importer.process(file: file,
-                                                settings: .init(defaultCategory: "general",
-                                                                defaultTemplate: "posts.html"),
-                                                outputURL: defaultSourceDirectory.site.filesURL)
+        let result = try await MarkdownImporter.process(file: file,
+                                                        settings: .init(defaultCategory: "general",
+                                                                        defaultTemplate: "posts.html"),
+                                                        outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
         XCTAssertEqual(result.document!.metadata["title"] as? String, "Fromage")
     }
@@ -68,11 +67,10 @@ steps:
         defaultTemplate: posts.html
 """)
         let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
-        let importer = MarkdownImporter()
-        let result = try await importer.process(file: file,
-                                                settings: .init(defaultCategory: "general",
-                                                                defaultTemplate: "posts.html"),
-                                                outputURL: defaultSourceDirectory.site.filesURL)
+        let result = try await MarkdownImporter.process(file: file,
+                                                        settings: .init(defaultCategory: "general",
+                                                                        defaultTemplate: "posts.html"),
+                                                        outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
         XCTAssertEqual(result.document!.metadata["title"] as? String, "Cheese")
     }

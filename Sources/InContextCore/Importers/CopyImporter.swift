@@ -36,9 +36,9 @@ class CopyImporter: Importer {
         return EmptySettings()
     }
 
-    func process(file: File,
-                 settings: Settings,
-                 outputURL: URL) async throws -> ImporterResult {
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL) async throws -> ImporterResult {
         // TODO: Consider whether these actually get a tracking context that lets them add to the site instead of
         //       returning documents. That feels like it might be cleaner and more flexible?
         //       That approach would have the benefit of meaning that we don't really need to do significant path

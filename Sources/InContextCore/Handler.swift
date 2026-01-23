@@ -63,7 +63,7 @@ extension Handler: Fingerprintable {
     }
 
     func process(file: File, outputURL: URL) async throws -> ImporterResult {
-        return try await importer.process(file: file, settings: settings, outputURL: outputURL)
+        return try await T.process(file: file, settings: settings, outputURL: outputURL)
     }
 
 }
