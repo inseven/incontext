@@ -3,6 +3,44 @@
 
 import PackageDescription
 
+#if os(macOS)
+
+let coreDependencies: [Target.Dependency] = [
+    "PlatformSupport",
+    "Hoedown",
+    .product(name: "Crypto", package: "swift-crypto"),
+    .product(name: "FSEventsWrapper", package: "FSEventsWrapper"),
+    .product(name: "Hummingbird", package: "hummingbird"),
+    .product(name: "HummingbirdFoundation", package: "hummingbird"),
+    .product(name: "Licensable", package: "licensable"),
+    .product(name: "Logging", package: "swift-log"),
+    .product(name: "SQLite", package: "SQLite.swift"),
+    .product(name: "SwiftSoup", package: "SwiftSoup"),
+    .product(name: "Tilt", package: "Tilt"),
+    .product(name: "Titlecaser", package: "Titlecaser"),
+    .product(name: "Yams", package: "Yams"),
+]
+
+#else
+
+let coreDependencies: [Target.Dependency] = [
+    "PlatformSupport",
+    "Hoedown",
+    .product(name: "Crypto", package: "swift-crypto"),
+    .product(name: "Hummingbird", package: "hummingbird"),
+    .product(name: "HummingbirdFoundation", package: "hummingbird"),
+    .product(name: "Licensable", package: "licensable"),
+    .product(name: "Logging", package: "swift-log"),
+    .product(name: "SQLite", package: "SQLite.swift"),
+    .product(name: "SwiftExif", package: "SwiftExif"),
+    .product(name: "SwiftSoup", package: "SwiftSoup"),
+    .product(name: "Tilt", package: "Tilt"),
+    .product(name: "Titlecaser", package: "Titlecaser"),
+    .product(name: "Yams", package: "Yams"),
+]
+
+#endif
+
 let package = Package(
     name: "incontext",
     platforms: [
@@ -33,6 +71,7 @@ let package = Package(
         .package(url: "https://github.com/jwells89/Titlecaser.git", from: "1.0.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.14.1"),
+        .package(url: "https://github.com/kradalby/SwiftExif.git", from: "0.0.7"),
     ],
     targets: [
        .executableTarget(
@@ -51,22 +90,7 @@ let package = Package(
            ]),
         .target(
             name: "InContextCore",
-            dependencies: [
-                "PlatformSupport",
-                "Hoedown",
-                .product(name: "Crypto", package: "swift-crypto"),
-                .product(name: "FSEventsWrapper", package: "FSEventsWrapper", condition:
-                    .when(platforms: [.macOS])),
-                .product(name: "Hummingbird", package: "hummingbird"),
-                .product(name: "HummingbirdFoundation", package: "hummingbird"),
-                .product(name: "Licensable", package: "licensable"),
-                .product(name: "Logging", package: "swift-log"),
-                .product(name: "SQLite", package: "SQLite.swift"),
-                .product(name: "SwiftSoup", package: "SwiftSoup"),
-                .product(name: "Tilt", package: "Tilt"),
-                .product(name: "Titlecaser", package: "Titlecaser"),
-                .product(name: "Yams", package: "Yams"),
-            ],
+            dependencies: coreDependencies,
             resources: [
                 .process("Licenses"),
             ],

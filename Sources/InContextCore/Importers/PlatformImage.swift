@@ -20,26 +20,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-public class UTType {
+import Foundation
 
-    public static let markdown = UTType(filenameExtension: "markdown")
-    public static let html = UTType(filenameExtension: "html")
-    public static let jpeg = UTType(filenameExtension: "jpeg")
-    public static let tiff = UTType(filenameExtension: "tiff")
-    public static let heic = UTType(filenameExtension: "heic")
+#if os(Linux)
 
-    public var preferredFilenameExtension: String? {
-        return filenameExtension
-    }
+class PlatformImage {
 
-    let filenameExtension: String
+    let url: URL
+    let exif: EXIF
 
-    public init(filenameExtension: String) {
-        self.filenameExtension = filenameExtension
-    }
-
-    public func conforms(to type: UTType) -> Bool {
-        return type.filenameExtension == filenameExtension
+    init(url: URL) throws {
+        self.url = url
+        self.exif = try EXIF(url: url)
     }
 
 }
+
+#else
+
+import CoreGraphics
+import ImageIO
+
+class PlatformImage {
+
+    let url: URL
+    let source: CGImageSource
+    let exif: EXIF
+
+    init(url: URL) throws {
+        guard let image = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+            throw InContextError.internalInconsistency("Failed to open image file at '\(url.relativePath)'.")
+        }
+        self.url = url
+        self.source = image
+        self.exif = try EXIF(image, 0)
+    }
+
+}
+
+#endif
