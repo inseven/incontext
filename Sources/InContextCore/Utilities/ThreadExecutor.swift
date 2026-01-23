@@ -25,14 +25,18 @@ import Foundation
 class ThreadExecutor {
 
     private let workQueue = DispatchQueue(label: "RenderExecutor.workQueue")
+    private let operationQueue = OperationQueue()
+
+    init() {
+        operationQueue.maxConcurrentOperationCount = 8
+    }
 
     // Guarantee that a throwing synchronous block is executed in a classical thread context and not an async one,
     // wrapping it as a throwing async call in the process. This works by using `withCheckedThrowingContinuation`
-    // to cross the boundary, and then dispatching async onto a single internal serial queue, serializing all dispatched
-    // blocks.
+    // to cross the boundary, and then enqueueing the work on a concurrent operation queue.
     func perform<T>(_ block: @escaping () throws -> T) async throws -> T {
         return try await withCheckedThrowingContinuation { continuation in
-            workQueue.async {
+            operationQueue.addOperation {
                 do {
                     let result = try block()
                     continuation.resume(returning: result)
