@@ -25,8 +25,6 @@
 import AVFoundation
 import Foundation
 
-fileprivate let executor = ThreadExecutor()
-
 extension VideoImporter: Importer {
 
     func process(file: File,
