@@ -171,8 +171,6 @@ extension VideoImporter: Importer {
                                                        presetName: preset) else {
             throw InContextError.internalInconsistency("Failed to create export session.")
         }
-        exportSession.outputFileType = outputFileType
-        exportSession.outputURL = outputURL
 
         // Convert the video to the output file type and export it to the output URL.
         try await exportSession.export(to: outputURL, as: outputFileType)
