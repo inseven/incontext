@@ -25,6 +25,8 @@
 import AVFoundation
 import Foundation
 
+fileprivate let executor = ThreadExecutor()
+
 extension VideoImporter: Importer {
 
     func process(file: File,
@@ -175,7 +177,7 @@ extension VideoImporter: Importer {
         exportSession.outputURL = outputURL
 
         // Convert the video to the output file type and export it to the output URL.
-        await exportSession.export()
+        try await exportSession.export(to: outputURL, as: outputFileType)
     }
 
 }
