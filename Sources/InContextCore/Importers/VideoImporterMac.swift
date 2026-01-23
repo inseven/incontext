@@ -27,9 +27,9 @@ import Foundation
 
 extension VideoImporter: Importer {
 
-    func process(file: File,
-                 settings: Settings,
-                 outputURL: URL) async throws -> ImporterResult {
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL) async throws -> ImporterResult {
 
         let fileURL = file.url
 
@@ -134,7 +134,7 @@ extension VideoImporter: Importer {
         return ImporterResult(document: document, assets: [Asset(fileURL: videoURL), Asset(fileURL: thumbnailURL)])
     }
 
-    func thumbnail(asset: AVAsset, destinationURL: URL) async throws {
+    static func thumbnail(asset: AVAsset, destinationURL: URL) async throws {
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
         let time = CMTime(seconds: 1, preferredTimescale: 1)
@@ -154,10 +154,10 @@ extension VideoImporter: Importer {
     }
 
     // https://developer.apple.com/documentation/avfoundation/media_reading_and_writing/exporting_video_to_alternative_formats
-    func export(video: AVAsset,
-                withPreset preset: String = AVAssetExportPresetHighestQuality,
-                toFileType outputFileType: AVFileType = .mov,
-                atURL outputURL: URL) async throws {
+    static func export(video: AVAsset,
+                       withPreset preset: String = AVAssetExportPresetHighestQuality,
+                       toFileType outputFileType: AVFileType = .mov,
+                       atURL outputURL: URL) async throws {
 
         // Check the compatibility of the preset to export the video to the output file type.
         guard await AVAssetExportSession.compatibility(ofExportPreset: preset,

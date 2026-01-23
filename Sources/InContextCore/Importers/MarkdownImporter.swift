@@ -44,21 +44,21 @@ class MarkdownImporter: Importer {
                         defaultTemplate: try configuration.requiredValue(for: "defaultTemplate"))
     }
 
-    func process(file: File,
-                 settings: Settings,
-                 outputURL: URL) async throws -> ImporterResult {
-
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL) async throws -> ImporterResult {
+        
         let fileURL = file.url
         let details = fileURL.basenameDetails()
         let frontmatter = try FrontmatterDocument(contentsOf: fileURL, generateHTML: true)
-
+        
         // Merge the details and metadata.
         var metadata = [AnyHashable: Any]()
         metadata["title"] = details.title
         metadata.merge(frontmatter.metadata) { $1 }
-
+        
         let category: String = try metadata.value(for: "category", default: settings.defaultCategory)
-
+        
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,
                                     category: category,
