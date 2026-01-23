@@ -50,10 +50,19 @@ func withTaskRunner<T>(of: T.Type, concurrent: Bool, body: (inout Tasks<T>) asyn
     }
 
     return try await withThrowingTaskGroup(of: Optional<T>.self) { group in
+        let limiter = TaskLimiter(max: 8)
 
         for task in tasks.tasks {
+            await limiter.waitForSlot()
             group.addTask {
-                return try await task()
+                do {
+                    let result = try await task()
+                    await limiter.release()
+                    return result
+                } catch {
+                    await limiter.release()
+                    throw error
+                }
             }
         }
 
