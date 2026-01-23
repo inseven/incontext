@@ -26,9 +26,9 @@ import Foundation
 
 extension VideoImporter: Importer {
 
-    func process(file: File,
-                 settings: Settings,
-                 outputURL: URL) async throws -> ImporterResult {
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL) async throws -> ImporterResult {
 
         throw InContextError.internalInconsistency("Unsupported")
     }

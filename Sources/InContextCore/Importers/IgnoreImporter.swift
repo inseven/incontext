@@ -36,9 +36,9 @@ class IgnoreImporter: Importer {
         return EmptySettings()
     }
 
-    func process(file: File,
-                 settings: Settings,
-                 outputURL: URL) async throws -> ImporterResult {
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL) async throws -> ImporterResult {
         return ImporterResult()
     }
 
