@@ -22,7 +22,7 @@
 
 import SwiftUI
 
-extension URL: Identifiable {
+extension URL: @retroactive Identifiable {
 
     static let about = URL(string: "x-incontext-helper://about")!
 
