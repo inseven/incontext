@@ -58,7 +58,7 @@ struct ImageDocumentTransform: Transformer {
 
 }
 
-extension Document.Format: Value {
+extension Document.Format: Value, @unchecked Sendable {
 
     typealias Datatype = String
 
