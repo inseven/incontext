@@ -267,21 +267,7 @@ class ImageImporter {
 
 }
 
-#if os(Linux)
-
-extension ImageImporter: Importer {
-
-    static func process(file: File,
-                        settings: Settings,
-                        outputURL: URL) async throws -> ImporterResult {
-
-        throw InContextError.internalInconsistency("Unsupported")
-        
-    }
-
-}
-
-#else
+#if !os(Linux)
 
 extension ImageImporter: Importer {
 
