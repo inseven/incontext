@@ -92,9 +92,8 @@ jobs:
 
     - name: Build the site
       run: |
-        ls **/*
         pushd build
-        unzip artifact/incontext-*.zip
+        unzip incontext-*.zip
         popd
         build/incontext build --site docs
         mv docs/build/files _site
