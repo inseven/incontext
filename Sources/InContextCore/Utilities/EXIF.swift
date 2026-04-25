@@ -188,4 +188,8 @@ struct EXIF {
 
 }
 
+#else
+
+struct EXIF {}
+
 #endif
