@@ -286,9 +286,7 @@ extension ImageImporter: Importer {
             throw InContextError.internalInconsistency("Failed to open image file at '\(fileURL.relativePath)'.")
         }
 
-        guard let exif = try EXIF(image, 0) else {
-            throw InContextError.internalInconsistency("Failed to load properties for image at '\(fileURL.relativePath)'.")
-        }
+        let exif = try EXIF(image, 0)
 
         let details = fileURL.basenameDetails()
 

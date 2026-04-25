@@ -87,9 +87,16 @@ struct EXIF {
 
 #else
 
-    init?(_ imageSource: CGImageSource, _ index: Int) throws {
+    init(url: URL) throws {
+        guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+            throw InContextError.internalInconsistency("Failed to open image file at '\(url.relativePath)'.")
+        }
+        try self.init(imageSource, 0)
+    }
+
+    init(_ imageSource: CGImageSource, _ index: Int) throws {
         guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, index, nil) else {
-            return nil
+            throw InContextError.missingEXIF
         }
         guard let typedProperties = properties as? [String: Any] else {
             throw InContextError.internalInconsistency("Failed to load image properties")
