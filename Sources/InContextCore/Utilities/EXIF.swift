@@ -78,7 +78,7 @@ struct EXIF {
 
     init(url: URL) throws {
         let image = try SwiftExif.Image.parse(at: url)
-        let exifRaw = image.exifRaw()
+        let exifRaw = image.exifRaw
         guard !exifRaw.isEmpty else {
             throw InContextError.internalInconsistency("Unable to load EXIF")
         }
