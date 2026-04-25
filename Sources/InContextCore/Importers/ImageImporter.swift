@@ -34,43 +34,6 @@ import PlatformSupport
 
 #if !os(Linux)
 
-protocol _Test {
-    // TODO: This needs to pass in the metadata
-    func evaluate(fileURL: URL) -> Bool
-}
-
-struct _True: _Test {
-
-    func evaluate(fileURL: URL) -> Bool {
-        return true
-    }
-
-}
-
-struct _Metadata: _Test {
-
-    let key: String
-    let value: String
-
-    init(_ key: String, equals value: String) {
-        self.key = key
-        self.value = value
-    }
-
-    func evaluate(fileURL: URL) -> Bool {
-        return true
-    }
-
-}
-
-func ||<T: _Test, Q: _Test>(lhs: T, rhs: Q) -> _Or<T, Q> {
-    return _Or(lhs, rhs)
-}
-
-func &&<T: _Test, Q: _Test>(lhs: T, rhs: Q) -> _And<T, Q> {
-    return _And(lhs, rhs)
-}
-
 struct _Type: _Test {
 
     let type: UTType
@@ -100,50 +63,8 @@ struct _Where {
 
 }
 
-struct _And<A: _Test, B: _Test>: _Test {
-
-    let lhs: A
-    let rhs: B
-
-    init(_ lhs: A, _ rhs: B) {
-        self.lhs = lhs
-        self.rhs = rhs
-    }
-
-    func evaluate(fileURL: URL) -> Bool {
-        return lhs.evaluate(fileURL: fileURL) && rhs.evaluate(fileURL: fileURL)
-    }
-
-}
-
-struct _Or<A: _Test, B: _Test>: _Test {
-
-    let lhs: A
-    let rhs: B
-
-    init(_ lhs: A, _ rhs: B) {
-        self.lhs = lhs
-        self.rhs = rhs
-    }
-
-    func evaluate(fileURL: URL) -> Bool {
-        return lhs.evaluate(fileURL: fileURL) || rhs.evaluate(fileURL: fileURL)
-    }
-
-}
-
-struct TransformContext {
-
-    let fileURL: URL
-    let imageSource: CGImageSource
-    let exif: EXIF
-
-    let assetsURL: URL
-
-    var metadata: [String: Any]
-    var assets: [Asset]
-
-}
+// TODO: Perhaps use a protocol?
+typealias ImageSource = CGImageSource
 
 // TODO: Consider making the data that's injected in generic? That way this could be used in multiple places?
 //       Perhaps an image transform could allow for a bunch of type-constrained resize transforms in a pipeline?
