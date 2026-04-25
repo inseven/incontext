@@ -7,7 +7,6 @@ var coreDependencies: [Target.Dependency] = [
     "PlatformSupport",
     "Hoedown",
     .product(name: "Crypto", package: "swift-crypto"),
-    .product(name: "FSEventsWrapper", package: "FSEventsWrapper"),
     .product(name: "Hummingbird", package: "hummingbird"),
     .product(name: "HummingbirdFoundation", package: "hummingbird"),
     .product(name: "Licensable", package: "licensable"),
@@ -19,7 +18,9 @@ var coreDependencies: [Target.Dependency] = [
     .product(name: "Yams", package: "Yams"),
 ]
 
-#if !os(macOS)
+#if os(macOS)
+coreDependencies.append(.product(name: "FSEventsWrapper", package: "FSEventsWrapper"))
+#else
 coreDependencies.append(.product(name: "SwiftExif", package: "SwiftExif"))
 #endif
 
