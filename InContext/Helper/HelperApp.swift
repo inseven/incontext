@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2016-2024 Jason Morley
+// Copyright (c) 2016-2026 Jason Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -52,7 +52,7 @@ struct HelperApp: App {
 
         LogWindow(applicationModel: applicationModel)
 
-        About(repository: "inseven/incontext", copyright: "Copyright © 2016-2024 Jason Morley") {
+        About(repository: "inseven/incontext", copyright: "Copyright © 2016-2026 Jason Morley") {
             Action("Website", url: URL(string: "https://incontext.jbmorley.co.uk")!)
             Action("GitHub", url: URL(string: "https://github.com/inseven/incontext")!)
         } acknowledgements: {
