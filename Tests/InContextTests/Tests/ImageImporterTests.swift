@@ -49,14 +49,13 @@ steps:
         let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg"),
                                                    to: "image.jpeg",
                                                    location: .content)
-        let importer = ImageImporter()
         let settings =  ImageImporter.Settings(defaultCategory: "photos",
                                                titleFromFilename: false,
                                                defaultTemplate: "photo.html",
                                                inlineTemplate: "image.html")
-        let result = try await importer.process(file: file,
-                                                settings: settings,
-                                                outputURL: defaultSourceDirectory.site.filesURL)
+        let result = try await ImageImporter.process(file: file,
+                                                     settings: settings,
+                                                     outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
         XCTAssertEqual(result.document?.title, "Hallgrímskirkja Church")
     }
@@ -81,14 +80,13 @@ steps:
         let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "nezumi_anim", withExtension: "gif"),
                                                    to: "nezumi_anim.gif",
                                                    location: .content)
-        let importer = ImageImporter()
         let settings =  ImageImporter.Settings(defaultCategory: "photos",
                                                titleFromFilename: false,
                                                defaultTemplate: "photo.html",
                                                inlineTemplate: "image.html")
-        let result = try await importer.process(file: file,
-                                                settings: settings,
-                                                outputURL: defaultSourceDirectory.site.filesURL)
+        let result = try await ImageImporter.process(file: file,
+                                                     settings: settings,
+                                                     outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
 //        XCTAssertEqual(result.document?.title, "Hallgrímskirkja Church")
         XCTAssert(FileManager.default.fileExists(at: defaultSourceDirectory.site.filesURL
