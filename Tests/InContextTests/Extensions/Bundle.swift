@@ -24,11 +24,17 @@ import Foundation
 
 extension Bundle {
 
-    func throwingURL(forResource name: String?, withExtension ext: String? = nil) throws -> URL {
+    /**
+     Return a URL for the bundle resource if it exists; throws otherwise.
+
+     The URL is relative to the bundle root, ensuring that the URL's relative path is non-absolute. This ensures it can
+     safely be used in the importers which require relative URLs.
+     */
+    func relativeURL(forResource name: String?, withExtension ext: String? = nil) throws -> URL {
         guard let url = url(forResource: name, withExtension: ext) else {
             throw TestError.missingResource((name ?? "").appending(ext ?? ""))
         }
-        return url
+        return url.relative(to: bundleURL)
     }
 
 }

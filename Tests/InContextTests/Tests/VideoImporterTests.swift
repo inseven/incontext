@@ -33,7 +33,7 @@ class VideoImporterTests: ContentTestCase {
 
         try await withTemporaryDirectory { temporaryDirectoryURL in
 
-            let videoURL = try self.bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave",
+            let videoURL = try self.bundle.relativeURL(forResource: "2022-05-31-17-55-03-royal-wave",
                                                        withExtension: "mov")
             let video = try File(url: videoURL)
 

@@ -108,13 +108,21 @@ struct EXIF {
 
     var pixelWidth: Int? {
         get throws {
+#if os(macOS)
+            return try _properties.optionalValue(for: "PixelWidth")
+#else
             return try _properties.optionalValue(for: "Pixel X Dimension")
+#endif
         }
     }
 
     var pixelHeight: Int? {
         get throws {
+#if os(macOS)
+            return try _properties.optionalValue(for: "PixelHeight")
+#else
             return try _properties.optionalValue(for: "Pixel Y Dimension")
+#endif
         }
     }
 

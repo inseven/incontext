@@ -46,7 +46,7 @@ steps:
 
 
         // TODO: It shouldn't be necessary to pass the site into the importer.
-        let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg"),
+        let file = try defaultSourceDirectory.copy(try bundle.relativeURL(forResource: "IMG_0581", withExtension: "jpeg"),
                                                    to: "image.jpeg",
                                                    location: .content)
         let settings =  ImageImporter.Settings(defaultCategory: "photos",
@@ -77,7 +77,7 @@ steps:
 
 
         // TODO: It shouldn't be necessary to pass the site into the importer.
-        let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "nezumi_anim", withExtension: "gif"),
+        let file = try defaultSourceDirectory.copy(try bundle.relativeURL(forResource: "nezumi_anim", withExtension: "gif"),
                                                    to: "nezumi_anim.gif",
                                                    location: .content)
         let settings =  ImageImporter.Settings(defaultCategory: "photos",
