@@ -28,6 +28,15 @@ public class Builder {
 
     static func context(for site: Site, document: Document, renderTracker: RenderTracker) -> [String: Any] {
 
+        let escapeXML = Function { (string: String) -> String in
+            return string
+                .replacingOccurrences(of: "&", with: "&amp;")
+                .replacingOccurrences(of: "<", with: "&lt;")
+                .replacingOccurrences(of: ">", with: "&gt;")
+                .replacingOccurrences(of: "\"", with: "&quot;")
+                .replacingOccurrences(of: "'", with: "&apos;")
+        }
+
         let generateUUID = Function {
             return UUID().uuidString
         }
@@ -98,6 +107,7 @@ public class Builder {
                 "generateUUID": generateUUID,
                 "titlecase": titlecase,
                 "thumbnail": thumbnail,
+                "escapeXML": escapeXML,
             ] as [String: Any]
         ]
     }
