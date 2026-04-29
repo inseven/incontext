@@ -22,19 +22,15 @@
 
 import Foundation
 
-extension Bundle {
+import XCTest
+@testable import InContextCore
 
-    /**
-     Return a URL for the bundle resource if it exists; throws otherwise.
+class EXIFTests: XCTestCase {
 
-     The URL is relative to the bundle root, ensuring that the URL's relative path is non-absolute. This ensures it can
-     safely be used in the importers which require relative URLs.
-     */
-    func relativeURL(forResource name: String?, withExtension ext: String? = nil) throws -> URL {
-        guard let url = url(forResource: name, withExtension: ext) else {
-            throw TestError.missingResource((name ?? "").appending(ext ?? ""))
-        }
-        return url.relative(to: bundleURL)
+    func testDescription() throws {
+        let url = try Bundle.module.relativeURL(forResource: "IMG_0581", withExtension: "jpeg")
+        let exif = try EXIF(url: url)
+        XCTAssertEqual(try exif.imageDescription, "---\ntitle: Hallgrímskirkja Church\n---")
     }
 
 }

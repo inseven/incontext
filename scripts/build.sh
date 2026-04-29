@@ -120,10 +120,8 @@ BUILD_NUMBER=`build-tools generate-build-number`
 echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
 # Build and test the package.
-# TODO: Re-enable tests #299
-#       https://github.com/inseven/incontext/issues/299
-# swift build
-# swift test
+swift build
+swift test
 
 pushd InContext
 
