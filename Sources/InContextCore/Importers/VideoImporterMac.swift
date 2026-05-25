@@ -39,13 +39,6 @@ extension VideoImporter: Importer {
 
         let asset = AVAsset(url: file.url)
 
-//        // Load the metadata.
-//        for format in try await asset.load(.availableMetadataFormats) {
-//            let metadata = try await asset.loadMetadata(for: format)
-//            print(metadata)
-//            // Process the format-specific metadata collection.
-//        }
-
         // Get the first track to guess the dimensions.
         let videoTracks = try await asset.load(.tracks).filter { track in
             return track.mediaType == .video
@@ -67,13 +60,12 @@ extension VideoImporter: Importer {
             date = nil
         }
 
-        let content: FrontmatterDocument?
-        if let descriptionItem = AVMetadataItem.metadataItems(from: quickTimeMetadata,
-                                                          filteredByIdentifier: .quickTimeMetadataDescription).first,
-           let description = try await descriptionItem.load(.stringValue) {
-            content = try FrontmatterDocument(contents: description, generateHTML: true)
+        // Get the metadata title and description.
+        let metadataTitle = try await quickTimeMetadata.quickTimeMetadataTitle
+        let content: FrontmatterDocument? = if let description = try await quickTimeMetadata.quickTimeMetadataDescription {
+            try FrontmatterDocument(contents: description, generateHTML: true)
         } else {
-            content = nil
+            nil
         }
 
         // TODO: Scale video.
@@ -118,11 +110,14 @@ extension VideoImporter: Importer {
             "video": videoDetails,
         ]
 
+        let filenameTitle = settings.titleFromFilename ? fileURL.basenameDetails().title : nil
+        let title = metadataTitle ?? content?.title ?? filenameTitle
+
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,
                                     category: settings.defaultCategory,
                                     date: content?.date ?? date,
-                                    title: content?.title,
+                                    title: title,
                                     metadata: metadata,
                                     contents: content?.content ?? "",
                                     contentModificationDate: file.contentModificationDate,
