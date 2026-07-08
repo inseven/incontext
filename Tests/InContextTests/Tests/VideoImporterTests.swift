@@ -36,17 +36,16 @@ class VideoImporterTests: ContentTestCase {
             let videoURL = try self.bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave",
                                                        withExtension: "mov")
             let video = try File(url: videoURL)
-
-            let importer = VideoImporter()
-            let result = try await importer.process(file: video,
-                                                    settings: VideoImporter.Settings(defaultCategory: "snapshots",
-                                                                                     titleFromFilename: false,
-                                                                                     defaultTemplate: "video.html",
-                                                                                     inlineTemplate: "video.html"),
-                                                    outputURL: temporaryDirectoryURL)
+            
+            let result = try await VideoImporter.process(file: video,
+                                                         settings: VideoImporter.Settings(defaultCategory: "snapshots",
+                                                                                          titleFromFilename: false,
+                                                                                          defaultTemplate: "video.html",
+                                                                                          inlineTemplate: "video.html"),
+                                                         outputURL: temporaryDirectoryURL)
             XCTAssertEqual(result.document?.title, "Royal Wave")
         }
-
+        
     }
 
 }
