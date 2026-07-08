@@ -40,6 +40,7 @@ InContext is licensed under the MIT License (see [LICENSE](https://github.com/in
 - [Backtrace](https://github.com/swift-server/swift-backtrace), Apache License, Version 2.0
 - [Diligence](https://github.com/inseven/diligence), MIT License
 - [FSEventsWrapper](https://github.com/Frizlab/FSEventsWrapper), MIT License
+- [Glitter](https://github.com/inseven/glitter), MIT License
 - [Hoedown](https://github.com/hoedown/hoedown), ISC License
 - [Hummingbird](https://github.com/hummingbird-project/hummingbird), Apache License, Version 2.0
 - [HummingbirdCore](https://github.com/hummingbird-project/hummingbird-core), Apache License, Version 2.0
@@ -49,6 +50,7 @@ InContext is licensed under the MIT License (see [LICENSE](https://github.com/in
 - [LuaSwift](https://github.com/tomsci/LuaSwift), MIT License
 - [NIO Transport Services](https://github.com/apple/swift-nio-transport-services), Apache License, Version 2.0
 - [NIOExtras](https://github.com/apple/swift-nio-extras), Apache License, Version 2.0
+- [Sparkle](https://github.com/sparkle-project/Sparkle), MIT License
 - [SQLite.swift](https://github.com/stephencelis/SQLite.swift), MIT License
 - [Swift Algorithms](https://github.com/apple/swift-algorithms), Apache License, Version 2.0
 - [Swift Argument Parser](https://github.com/apple/swift-argument-parser), Apache License, Version 2.0
