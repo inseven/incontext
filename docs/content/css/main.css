@@ -4,6 +4,8 @@
     --box-padding: 1em;
     --light-background: #fcfcfc;
     --dark-background: #f0f0f0;
+
+    --primary-color: #000;
 }
 
 body {
@@ -12,10 +14,11 @@ body {
     font-family: 'Bitter', serif;
     max-width: 1000px;
     margin: auto;
+    color: var(--primary-color);
 }
 
 a {
-    color: black;
+    color: var(--primary-color);
 }
 
 p, pre, ul, aside {
@@ -136,13 +139,6 @@ h1 {
 
 h2 {
     position: relative;
-}
-
-h2::before {
-    position: absolute;
-    left: -1em;
-    content: ">";
-    text-align: right;
 }
 
 h3 {
