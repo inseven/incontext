@@ -66,6 +66,7 @@ struct HelperApp: App {
             }
         } licenses: {
             (.incontext)
+            (.diligence)
             (.interact)
         }
         .handlesExternalEvents(matching: [.about])
