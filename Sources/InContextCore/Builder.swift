@@ -407,7 +407,7 @@ public class Builder {
                 } catch {
                     print("Build failed with error \(error).")
                 }
-                try changeObserver.wait()
+                await changeObserver.wait()
             }
         } else {
             try await doBuild()
