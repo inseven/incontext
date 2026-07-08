@@ -65,9 +65,12 @@ class RenderTracker {
     }
 
     @available(*, noasync)
-    func render(_ document: Document, template: String? = nil) throws -> String {
+    func render(_ document: Document,
+                template: String? = nil,
+                context additionalContext: [String: Any] = [:]) throws -> String {
         let template = template ?? document.template
-        let context = Builder.context(for: site, document: document, renderTracker: self)
+        var context = Builder.context(for: site, document: document, renderTracker: self)
+        context.merge(additionalContext) { _, additional in additional }
         return try renderManager.render(renderTracker: self, template: template, context: context)
     }
 

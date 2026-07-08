@@ -32,7 +32,6 @@ import SwiftSoup
 // TODO: These transforms also need rigorous testing
 struct ImageDocumentTransform: Transformer {
 
-    // TODO: Persist alt text
     func transform(renderTracker: RenderTracker, document: DocumentContext, content: SwiftSoup.Document) throws {
         for img in try content.getElementsByTag("img") {
             if img.hasAttr("src") {
@@ -46,7 +45,18 @@ struct ImageDocumentTransform: Transformer {
                 guard let inlineTemplate = document.inlineTemplate else {
                     throw InContextError.internalInconsistency("No inline template specified for '\(document.url)'.")
                 }
-                let inlineContent = try renderTracker.render(document, template: inlineTemplate)
+
+                // Extract the alt and title from the original img tag (from Markdown or inline HTML) and capture it as
+                // additional context to pass to the inline template render.
+                var tag: [String: Any] = [:]
+                if let alt = try? img.attr("alt"), !alt.isEmpty {
+                    tag["alt"] = alt
+                }
+                if let title = try? img.attr("title"), !title.isEmpty {
+                    tag["title"] = title
+                }
+
+                let inlineContent = try renderTracker.render(document, template: inlineTemplate, context: ["tag": tag])
                 let dom = try SwiftSoup.parseBodyFragment(inlineContent)
                 guard let node = dom.body() else {
                     throw InContextError.internalInconsistency("Unable to parse inline template fragment")
