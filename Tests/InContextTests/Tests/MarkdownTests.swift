@@ -82,4 +82,45 @@ Text with footnote[^1].
 """)
     }
 
+    func testHeaderAnchorsStripFormatting() {
+        XCTAssertEqual("""
+# `Code` Header
+""".html(), """
+<h1><a id="code-header"></a><code>Code</code> Header</h1>
+
+""")
+    }
+
+    func testHeaderAnchorsStripUnicode() {
+        XCTAssertEqual("""
+# Café Rocket 🚀
+""".html(), """
+<h1><a id="cafe-rocket"></a>Café Rocket 🚀</h1>
+
+""")
+    }
+
+    func testHeaderAnchorsStripHTMLSignificantCharacters() {
+        XCTAssertEqual("""
+# Fish & Chips
+""".html(), """
+<h1><a id="fish-chips"></a>Fish &amp; Chips</h1>
+
+""")
+
+        XCTAssertEqual("""
+# 5 < 10
+""".html(), """
+<h1><a id="5-10"></a>5 &lt; 10</h1>
+
+""")
+
+        XCTAssertEqual("""
+# "Quoted" Header
+""".html(), """
+<h1><a id="quoted-header"></a>&quot;Quoted&quot; Header</h1>
+
+""")
+    }
+
 }

@@ -23,6 +23,7 @@
 import Foundation
 
 import PlatformSupport
+import SwiftSoup
 
 extension String {
 
@@ -46,7 +47,14 @@ extension String {
     }
 
     func safeIdentifier() -> String? {
-        return lowercased()
+        guard let text = try? SwiftSoup.parseBodyFragment(self).text() else {
+            return nil
+        }
+        return text
+            .folding(options: .diacriticInsensitive, locale: nil)
+            .filter { $0.isASCII && ($0.isLetter || $0.isNumber || $0.isWhitespace || $0 == "-") }
+            .lowercased()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacing(/\s+/, with: "-")
     }
 
