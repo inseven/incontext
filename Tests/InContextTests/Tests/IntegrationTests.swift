@@ -27,19 +27,56 @@ import XCTest
 
 class IntegrationTests: XCTestCase {
 
-    func testCheese() throws {
+#if !os(Linux)
 
-        let settings = Settings(version: 1,
-                                title: "Example Site",
-                                url: URL(string: "https://jbmorley.co.uk")!,
-                                port: 8080)
+    func testAltAndTitlePromotedFromMarkdownImage() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            _ = try sourceDirectory.add("site.yaml", contents: """
+version: 2
+title: Example
+url: http://example.com
+steps:
+  - when: '(.*/)?.*\\.markdown'
+    then: markdown
+    args:
+        defaultCategory: general
+        defaultTemplate: page.html
+  - when: '(.*/)?.*\\.jpeg'
+    then: image
+    args:
+        category: photos
+        titleFromFilename: false
+        defaultTemplate: photo.html
+        inlineTemplate: image.html
+""")
 
-        try withTemporarySourceDirectory { sourceDirectory in
-            let settings = try sourceDirectory.add("site.yaml", contents: settings)
-            XCTAssert(settings.url.lastPathComponent == "site.yaml")
-            XCTAssertTrue(FileManager.default.fileExists(at: settings.url))
-            XCTAssertTrue(true)
+            _ = try sourceDirectory.add("templates/page.html", contents: "{{ document.render() }}")
+            _ = try sourceDirectory.add("templates/photo.html", contents: "{{ document.render() }}")
+            _ = try sourceDirectory.add("templates/image.html", contents: """
+<img src="{{ document.image.url }}" alt="{{ tag.alt }}" title="{{ tag.title }}">
+""")
+
+            _ = try sourceDirectory.copy(try Bundle.module.throwingURL(forResource: "IMG_0581", withExtension: "jpeg"),
+                                         to: "posts/photo.jpeg",
+                                         location: .content)
+            _ = try sourceDirectory.add("posts/post.markdown", location: .content, contents: """
+![A cat sitting on a windowsill](photo.jpeg "My favourite cat photo")
+""")
+
+            let builder = try await Builder(site: sourceDirectory.site,
+                                            tracker: NullTracker(),
+                                            serializeImport: true,
+                                            serializeRender: true)
+            try await builder.build()
+
+            let html = try String(contentsOf: sourceDirectory.site.filesURL.appendingPathComponent("posts/post/index.html"),
+                                  encoding: .utf8)
+
+            XCTAssertTrue(html.contains(#"alt="A cat sitting on a windowsill""#))
+            XCTAssertTrue(html.contains(#"title="My favourite cat photo""#))
         }
     }
+
+#endif
 
 }

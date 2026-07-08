@@ -26,18 +26,14 @@ import Yams
 
 @testable import InContextCore
 
-func withTemporarySourceDirectory(perform: (SourceDirectory) throws -> Void) throws {
+func withTemporarySourceDirectory(perform: (SourceDirectory) async throws -> Void) async throws {
     let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
     try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
     defer {
         try! FileManager.default.removeItem(at: directoryURL)
     }
-    let sourceDirectory = try SourceDirectory(rootURL: directoryURL)
-    try perform(sourceDirectory)
-
-    lazy var defaultSourceDirectory = {
-        try! SourceDirectory(rootURL: directoryURL)
-    }()
+    let sourceDirectory = try SourceDirectory(rootURL: directoryURL.real())
+    try await perform(sourceDirectory)
 }
 
 class SourceDirectory {
@@ -95,6 +91,8 @@ class SourceDirectory {
     func copy(_ sourceURL: URL, to path: String, location: Location = .root) throws -> File {
         let rootURL = url(for: location)
         let destinationURL = URL(filePath: path, relativeTo: rootURL)
+        let directoryURL = destinationURL.deletingLastPathComponent()
+        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
         try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
         return try File(url: destinationURL)
     }
