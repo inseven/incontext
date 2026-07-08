@@ -12,8 +12,8 @@
 {% else %}
     <div class="photo-container">
     <img class="photo-img transition loading"
-         {% if document.alt then %}alt="{{ document.alt }}"{% elseif document.title then %}alt="{{ document.title }}"{% end %}
-         {% if document.title then %}title="{{ document.title }}"{% elseif document.alt then %}title="{{ document.alt }}"{% end %}
+         {% if tag.alt then %}alt="{{ tag.alt }}"{% elseif document.alt then %}alt="{{ document.alt }}"{% elseif tag.title then %}alt="{{ tag.title }}"{% elseif document.title then %}alt="{{ document.title }}"{% end %}
+         {% if tag.title then %}title="{{ tag.title }}"{% elseif document.title then %}title="{{ document.title }}"{% elseif tag.alt then %}title="{{ tag.alt }}"{% elseif document.alt then %}title="{{ document.alt }}"{% end %}
          src="{{ document.image.url }}"
          width="{{ width }}"
          height="{{ height }}"
