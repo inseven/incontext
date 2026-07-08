@@ -22,7 +22,7 @@
 
 import SwiftUI
 
-import Sparkle
+import Glitter
 
 struct MainMenu: View {
 
@@ -49,7 +49,7 @@ struct MainMenu: View {
 
         Divider()
 
-        CheckForUpdatesView(updater: applicationModel.updaterController.updater)
+        UpdateLink(updater: applicationModel.updaterController.updater)
 
         Divider()
 

@@ -23,6 +23,7 @@
 import SwiftUI
 
 import Diligence
+import Glitter
 import Interact
 
 import InContextCore
@@ -65,8 +66,9 @@ struct HelperApp: App {
                 Credit("Sarah Barbour")
             }
         } licenses: {
-            (.incontext)
             (.diligence)
+            (.glitter)
+            (.incontext)
             (.interact)
         }
         .handlesExternalEvents(matching: [.about])

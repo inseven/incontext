@@ -22,3 +22,6 @@
 [submodule "scripts/Sparkle"]
 	path = scripts/Sparkle
 	url = https://github.com/sparkle-project/Sparkle
+[submodule "dependencies/glitter"]
+	path = dependencies/glitter
+	url = git@github.com:inseven/glitter.git
