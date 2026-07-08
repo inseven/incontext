@@ -28,23 +28,24 @@ import FSEventsWrapper
 
 class ChangeObserver {
 
-    let box: ConcurrentBox<Bool>
+    private let stream: AsyncStream<Void>
     let streams: [FSEventStream]
 
     init(fileURLs: [URL]) throws {
         for fileURL in fileURLs {
             precondition(fileURL.isFileURL)
         }
-        let box = ConcurrentBox<Bool>()
 
-        self.box = box
+        let (stream, continuation) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingNewest(1))
+        self.stream = stream
+
         self.streams = try fileURLs.map { fileURL in
             let stream = FSEventStream(path: fileURL.path) { stream, event in
                 switch event {
                 case .itemClonedAtPath:
                     return
                 default:
-                    _ = box.tryPut(true)
+                    continuation.yield()
                 }
             }
             guard let stream else {
@@ -58,8 +59,10 @@ class ChangeObserver {
         }
     }
 
-    func wait() throws {
-        _ = try box.take()
+    func wait() async {
+        for await _ in stream {
+            break
+        }
     }
 
 }
@@ -68,13 +71,15 @@ class ChangeObserver {
 
 class ChangeObserver {
 
-    let box = ConcurrentBox<Bool>()
+    private let stream = AsyncStream<Void> { _ in }
 
     init(fileURLs: [URL]) throws {
     }
 
-    func wait() throws {
-        _ = try box.take()
+    func wait() async {
+        for await _ in stream {
+            break
+        }
     }
 
 }

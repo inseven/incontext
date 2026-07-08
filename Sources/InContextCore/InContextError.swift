@@ -39,7 +39,6 @@ public enum InContextError: Error {
     case unknownQuery(String)
     case invalidQueryDefinition
     case missingKey(Any)
-    case interrupted
     case unknownTemplate(String)
     case importError(URL, Error)
     case allocationFailure
