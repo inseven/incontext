@@ -28,7 +28,7 @@ import FSEventsWrapper
 
 class ChangeObserver {
 
-    private var iterator: AsyncStream<Void>.AsyncIterator
+    private let stream: AsyncStream<Void>
     let streams: [FSEventStream]
 
     init(fileURLs: [URL]) throws {
@@ -37,7 +37,7 @@ class ChangeObserver {
         }
 
         let (stream, continuation) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingNewest(1))
-        self.iterator = stream.makeAsyncIterator()
+        self.stream = stream
 
         self.streams = try fileURLs.map { fileURL in
             let stream = FSEventStream(path: fileURL.path) { stream, event in
@@ -60,7 +60,9 @@ class ChangeObserver {
     }
 
     func wait() async {
-        _ = await iterator.next()
+        for await _ in stream {
+            break
+        }
     }
 
 }
@@ -69,13 +71,15 @@ class ChangeObserver {
 
 class ChangeObserver {
 
-    private var iterator = AsyncStream<Void> { _ in }.makeAsyncIterator()
+    private let stream = AsyncStream<Void> { _ in }
 
     init(fileURLs: [URL]) throws {
     }
 
     func wait() async {
-        _ = await iterator.next()
+        for await _ in stream {
+            break
+        }
     }
 
 }
