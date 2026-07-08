@@ -91,6 +91,7 @@ public class Builder {
             "rfc_3339_format": "yyyy-MM-dd'T'HH:mm:ssZZZZZ",
             "date": Function { (string: String) -> Date in
                 let dateFormatter = DateFormatter()
+                dateFormatter.locale = Locale.posix
                 dateFormatter.dateFormat = "yyyy-MM-dd"
                 guard let date = dateFormatter.date(from: string) else {
                     throw InContextError.internalInconsistency("Unable to construct date from string '\(string)'.")
