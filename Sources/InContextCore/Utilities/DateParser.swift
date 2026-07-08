@@ -40,6 +40,7 @@ public struct DateParser {
     private let formatters = formats
         .map { format in
             let formatter = DateFormatter()
+            formatter.locale = Locale.posix
             formatter.dateFormat = format
             formatter.timeZone = .gmt
             return formatter
