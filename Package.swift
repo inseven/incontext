@@ -23,7 +23,7 @@ let package = Package(
     dependencies: [
         .package(path: "dependencies/diligence"),
         .package(path: "dependencies/hummingbird"),
-        .package(path: "dependencies/swift-log"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.5.4"),
         .package(path: "dependencies/Tilt"),
         .package(path: "dependencies/Tilt/LuaSwift"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
