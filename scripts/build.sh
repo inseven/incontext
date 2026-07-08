@@ -113,8 +113,9 @@ function cleanup {
 trap cleanup EXIT
 
 # Determine the version and build number.
-VERSION_NUMBER=`changes version`
-BUILD_NUMBER=`build-tools generate-build-number`
+# We expect these to be injected in by our GitHub build job so we just ensure there are sensible defaults.
+VERSION_NUMBER=${VERSION_NUMBER:-0.0.0}
+BUILD_NUMBER=${BUILD_NUMBER:-0}
 
 # Import the certificates into our dedicated keychain.
 echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"

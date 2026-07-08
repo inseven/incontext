@@ -20,23 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+#pragma once
 
-import ArgumentParser
-
-public struct Command: AsyncParsableCommand {
-
-    public static var configuration = CommandConfiguration(
-        commandName: "incontext",
-        version: App.fullyQualifiedVersion,
-        subcommands: [
-            Build.self,
-            Clean.self,
-            Serve.self,
-        ])
-
-    public init() {
-
-    }
-
-}
+extern const char * const kMetadataVersion;
+extern const char * const kMetadataBuildNumber;
