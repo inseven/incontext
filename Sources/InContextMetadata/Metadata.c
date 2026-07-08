@@ -20,23 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+#include "Metadata.h"
 
-import ArgumentParser
+#if defined(VERSION_NUMBER)
+const char * const kMetadataVersion = VERSION_NUMBER;
+#else
+const char * const kMetadataVersion = "0.0.0";
+#endif
 
-public struct Command: AsyncParsableCommand {
-
-    public static var configuration = CommandConfiguration(
-        commandName: "incontext",
-        version: App.fullyQualifiedVersion,
-        subcommands: [
-            Build.self,
-            Clean.self,
-            Serve.self,
-        ])
-
-    public init() {
-
-    }
-
-}
+#if defined(BUILD_NUMBER)
+const char * const kMetadataBuildNumber = BUILD_NUMBER;
+#else
+const char * const kMetadataBuildNumber = "0";
+#endif

@@ -22,21 +22,34 @@
 
 import Foundation
 
-import ArgumentParser
+#if os(Linux)
+import InContextMetadata
+#else
+import Diligence
+#endif
 
-public struct Command: AsyncParsableCommand {
+struct App {
 
-    public static var configuration = CommandConfiguration(
-        commandName: "incontext",
-        version: App.fullyQualifiedVersion,
-        subcommands: [
-            Build.self,
-            Clean.self,
-            Serve.self,
-        ])
+#if os(Linux)
+    static let version = String(cString: kMetadataVersion)
+    static let buildNumber = String(cString: kMetadataBuildNumber)
+#else
+    static let version = Bundle.main.version ?? "0.0.0"
+    static let buildNumber = Bundle.main.build ?? "0"
+#endif
 
-    public init() {
+#if DEBUG
+    static let isDebug = true
+#else
+    static let isDebug = false
+#endif
 
-    }
+    static let fullyQualifiedVersion: String = {
+        var components: [String] = [App.version, App.buildNumber]
+        if isDebug {
+            components.append("debug")
+        }
+        return components.joined(separator: " ")
+    }()
 
 }
