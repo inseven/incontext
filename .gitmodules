@@ -16,9 +16,6 @@
 [submodule "dependencies/hoedown"]
 	path = dependencies/hoedown
 	url = git@github.com:hoedown/hoedown.git
-[submodule "dependencies/swift-log"]
-	path = dependencies/swift-log
-	url = git@github.com:apple/swift-log.git
 [submodule "dependencies/interact"]
 	path = dependencies/interact
 	url = git@github.com:inseven/interact.git
