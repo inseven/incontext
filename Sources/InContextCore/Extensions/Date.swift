@@ -39,6 +39,7 @@ extension Date: EvaluationContext {
         switch name {
         case "format": return Function { (format: String) -> String in
             let formatter = DateFormatter()
+            formatter.locale = Locale.posix
             formatter.dateFormat = format
             return formatter.string(from: self)
         }

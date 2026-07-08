@@ -26,6 +26,7 @@ struct Formatters {
 
     static let filenameDateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale.posix
         dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.timeZone = .gmt
         return dateFormatter
@@ -33,6 +34,7 @@ struct Formatters {
 
     static let filenameDateTimeFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale.posix
         dateFormatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"
         dateFormatter.timeZone = .gmt
         return dateFormatter
