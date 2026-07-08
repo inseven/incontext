@@ -9,22 +9,23 @@ title: Home
     <p style="font-size: 36px; max-width: 600px; text-align: center; margin: auto; font-weight: 300;">Multimedia-Focused Static Site Builder for macOS</p>
 </div>
 
-Most existing static site generators do a great job with text content, but treat media as an afterthought. InContext handles Markdown just as well as generators like Jekyll, and adds native support for photos and video.
+Most existing static site generators do a great job with text content, but treat media as an afterthought. InContext handles Markdown just as well as generators like Jekyll, uses Lua for templating, and adds native support for photos and video.
 
-# Features
+InContext follows some basic design principles:
 
-- Lua-based templates
-- Native multimedia support
+- No media type is more important than any other; images are just as important as text, as video, etc.
+- Every URL has a corresponding file backing it in the content directory of the site.
 
-# Installation
+# Install
+
+You can use InContext in one of two ways: on the [command line](#command-line); or with a [GUI](#gui) helper-app that lives in the Menu Bar, monitors a collection of sites,  and builds them for you in the background.
+
+## Command Line
 
 ```bash
 brew install inseven/incontext/incontext
 ```
 
-# Design Principals
+## GUI
 
-To keep things simple, InContext follows some basic design principles:
-
-- No media type is more important than any other; images are just as important as text, as video, etc.
-- Every URL has a corresponding file backing it in the content directory of the site.
+Download from [GitHub](https://github.com/inseven/incontext/releases/latest).
