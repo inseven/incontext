@@ -36,4 +36,26 @@ class UtilityTests: XCTestCase {
         XCTAssertEqual("software/incontext/".pathDepth, 2)
     }
 
+    func testSafeIdentifier() {
+        XCTAssertEqual("Header".safeIdentifier(), "header")
+        XCTAssertEqual("Header 1".safeIdentifier(), "header-1")
+        XCTAssertEqual("Multiple   Spaces".safeIdentifier(), "multiple-spaces")
+        XCTAssertEqual("Tabs\tand\nNewlines".safeIdentifier(), "tabs-and-newlines")
+        XCTAssertEqual("  Leading and trailing  ".safeIdentifier(), "leading-and-trailing")
+        XCTAssertEqual("MixedCASE".safeIdentifier(), "mixedcase")
+        XCTAssertEqual("".safeIdentifier(), "")
+        XCTAssertEqual("<em>Header</em> 1".safeIdentifier(), "header-1")
+        XCTAssertEqual("<a href=\"https://example.com\">Header</a>".safeIdentifier(), "header")
+        XCTAssertEqual("Café".safeIdentifier(), "cafe")
+        XCTAssertEqual("Rocket 🚀 Launch".safeIdentifier(), "rocket-launch")
+        XCTAssertEqual("Fish & Chips".safeIdentifier(), "fish-chips")
+        XCTAssertEqual("5 < 10".safeIdentifier(), "5-10")
+        XCTAssertEqual("10 > 5".safeIdentifier(), "10-5")
+        XCTAssertEqual("\"Quoted\" Header".safeIdentifier(), "quoted-header")
+        XCTAssertEqual("It's a Test".safeIdentifier(), "its-a-test")
+        XCTAssertEqual("AT&amp;T".safeIdentifier(), "att")
+        XCTAssertEqual("Header\"><script>alert(1)</script>".safeIdentifier(), "header")
+        XCTAssertEqual("<img src=x onerror=alert(1)>".safeIdentifier(), "")
+    }
+
 }
