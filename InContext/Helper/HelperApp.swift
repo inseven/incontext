@@ -31,6 +31,8 @@ import InContextCore
 @main
 struct HelperApp: App {
 
+    static let supportTitle = "InContext Support (\(Bundle.main.extendedVersion ?? "Unknown Version"))"
+
     let applicationModel: ApplicationModel
 
     init() {
@@ -54,8 +56,10 @@ struct HelperApp: App {
         LogWindow(applicationModel: applicationModel)
 
         About(repository: "inseven/incontext", copyright: "Copyright © 2016-2026 Jason Morley") {
-            Action("Website", url: URL(string: "https://incontext.jbmorley.co.uk")!)
-            Action("GitHub", url: URL(string: "https://github.com/inseven/incontext")!)
+            Action("Website", url: .website)
+            Action("Privacy Policy", url: .privacyPolicy)
+            Action("GitHub", url: .gitHub)
+            Action("Support", url: URL(address: "support@jbmorley.co.uk", subject: Self.supportTitle)!)
         } acknowledgements: {
             Acknowledgements("Developers") {
                 Credit("Jason Morley", url: URL(string: "https://jbmorley.co.uk"))
