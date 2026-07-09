@@ -101,6 +101,7 @@ struct DocumentContext: EvaluationContext {
     let transforms: [Transformer] = [
         ImageDocumentTransform(),
         RelativeSourceTransform(selector: "img", attribute: "src"),
+        AdmonitionTransform(),
     ]
 
     // TODO: Add per-document render cache, uniqued by URL (and fingerprint?)
