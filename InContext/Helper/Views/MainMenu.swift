@@ -35,12 +35,59 @@ struct MainMenu: View {
 
         Divider()
 
+        Button("Add Site...") {
+            print("Add Site")
+            let openPanel = NSOpenPanel()
+            openPanel.canChooseFiles = false
+            openPanel.canChooseDirectories = true
+            openPanel.canCreateDirectories = true
+            guard openPanel.runModal() ==  NSApplication.ModalResponse.OK,
+                  let url = openPanel.url else {
+                return
+            }
+            applicationModel.settings.rootURLs.append(url)
+        }
+
+        Divider()
+
         Button("About...", systemImage: "info.circle") {
             openURL(.about)
         }
 
         Menu("Settings", systemImage: "gear") {
             SettingsMenu(applicationModel: applicationModel)
+        }
+
+        Menu("Help", systemImage: "questionmark.circle") {
+
+            Button("Website", systemImage: "globe") {
+                openURL(.website)
+            }
+
+            Button("Privacy Policy", systemImage: "globe") {
+                openURL(.privacyPolicy)
+            }
+
+            Button("GitHub", systemImage: "globe") {
+                openURL(.gitHub)
+            }
+
+            Button("Support", systemImage: "envelope") {
+                openURL(URL(address: "support@jbmorley.co.uk", subject: HelperApp.supportTitle)!)
+            }
+
+            Divider()
+
+            Button("Donate", systemImage: "globe") {
+                openURL(.donate)
+            }
+
+            Button {
+                openURL(URL(string: "https://jbmorley.co.uk/software")!)
+            } label: {
+                Label("More Software by Jason Morley", systemImage: "globe")
+            }
+
         }
 
         Divider()

@@ -22,10 +22,20 @@
 
 import SwiftUI
 
-extension URL: @retroactive Identifiable {
+extension URL {
 
     static let about = URL(string: "x-incontext-helper://about")!
+    static let donate = URL(string: "https://jbmorley.co.uk/donate")!
+    static let gitHub = URL(string: "https://github.com/inseven/incontext")!
+    static let privacyPolicy = URL(string: "https://incontext.jbmorley.co.uk/privacy-policy")!
+    static let website = URL(string: "https://incontext.jbmorley.co.uk")!
 
-    public var id: Self { return self }
+}
+
+extension URL: @retroactive Identifiable {
+
+    public var id: Self {
+        return self
+    }
 
 }
