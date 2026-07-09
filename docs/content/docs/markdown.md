@@ -6,7 +6,7 @@ title: Markdown
 
 ## Admonitions
 
-InContext supports GitHub-style admonitions:
+InContext supports GitHub-style admonitions.
 
 ### Note
 
