@@ -41,32 +41,9 @@ ENV_PATH="$ROOT_DIRECTORY/.env"
 
 RELEASE_NOTES_TEMPLATE_PATH="$SCRIPTS_DIRECTORY/release-notes.html"
 
-RELEASE_SCRIPT_PATH="$SCRIPTS_DIRECTORY/release.sh"
-
 MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
 
 source "$SCRIPTS_DIRECTORY/environment.sh"
-
-# Check that the GitHub command is available on the path.
-which gh || (echo "GitHub cli (gh) not available on the path." && exit 1)
-
-# Process the command line arguments.
-POSITIONAL=()
-RELEASE=${RELEASE:-false}
-while [[ $# -gt 0 ]]
-do
-    key="$1"
-    case $key in
-        -r|--release)
-        RELEASE=true
-        shift
-        ;;
-        *)
-        POSITIONAL+=("$1")
-        shift
-        ;;
-    esac
-done
 
 # Generate a random string to secure the local keychain.
 export TEMPORARY_KEYCHAIN_PASSWORD=`openssl rand -base64 14`
@@ -264,18 +241,3 @@ changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRE
 "$GENERATE_APPCAST" --ed-key-file "$SPARKLE_PRIVATE_KEY_FILE" "$ARCHIVES_DIRECTORY"
 APPCAST_PATH="$ARCHIVES_DIRECTORY/appcast.xml"
 cp "$APPCAST_PATH" "$BUILD_DIRECTORY"
-
-# Create a GitHub release.
-
-if $RELEASE ; then
-
-    changes \
-        release \
-        --skip-if-empty \
-        --push \
-        --exec "scripts/gh-release.sh" \
-        "$ZIP_PATH" \
-        "$HELPER_ZIP_PATH" \
-        "$BUILD_DIRECTORY/appcast.xml"
-
-fi
