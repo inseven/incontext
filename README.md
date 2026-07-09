@@ -26,13 +26,6 @@ Frontmatter is supported in Markdown files and image and video descriptions. InC
 - `queries` [[String: Any]]?
 - `tags` [String]?
 
-## Issues
-
-### Background
-
-- Test that the relative paths are correct for the destination directory; this likely needs to be per-importer, but it would be much easier if we had a way to generate these as part of the site so importers don't have to think too hard
-- Store the origin mime type in the database and expose through `DocumentContext`
-
 ## License
 
 InContext is licensed under the MIT License (see [LICENSE](https://github.com/inseven/incontext/blob/main/LICENSE)). It depends on the following separately licensed third-party libraries and components:
