@@ -37,7 +37,7 @@ struct SiteList: View {
             Menu {
                 SiteMenu(applicationModel: applicationModel, siteModel: siteModel)
             } label: {
-                Text(siteModel.title)
+                Label(siteModel.title, systemImage: "globe")
             }
         }
     }
