@@ -137,6 +137,12 @@ h1 {
     border-bottom: 0.5px solid black;
 }
 
+h1.post-title {
+    border-bottom: 0;
+    font-size: 46px;
+    text-align: center;
+}
+
 h2 {
     position: relative;
 }
@@ -144,4 +150,54 @@ h2 {
 h3 {
     border-bottom: 1px solid pink;
     padding-bottom: 0.4em;
+}
+
+.admonition {
+    padding: var(--box-padding);
+    margin: 1em 0;
+    border-left: 0.3em solid var(--admonition-color, #888);
+    border-radius: var(--text-border-radius);
+    background-color: var(--admonition-background, var(--light-background));
+}
+
+.admonition::before {
+    display: block;
+    margin: 0 0 0.5em 0;
+    font-weight: bold;
+    color: var(--admonition-color, #888);
+    content: var(--admonition-title, "Note");
+}
+
+.admonition p:last-child {
+    margin-bottom: 0;
+}
+
+.admonition-note {
+    --admonition-color: #0969da;
+    --admonition-background: #ddf4ff;
+    --admonition-title: "Note";
+}
+
+.admonition-tip {
+    --admonition-color: #1a7f37;
+    --admonition-background: #dafbe1;
+    --admonition-title: "Tip";
+}
+
+.admonition-important {
+    --admonition-color: #8250df;
+    --admonition-background: #fbefff;
+    --admonition-title: "Important";
+}
+
+.admonition-warning {
+    --admonition-color: #9a6700;
+    --admonition-background: #fff8c5;
+    --admonition-title: "Warning";
+}
+
+.admonition-caution {
+    --admonition-color: #cf222e;
+    --admonition-background: #ffebe9;
+    --admonition-title: "Caution";
 }

@@ -79,4 +79,41 @@ steps:
 
 #endif
 
+    func testAdmonitionRewritesBlockquote() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            _ = try sourceDirectory.add("site.yaml", contents: """
+version: 2
+title: Example
+url: http://example.com
+steps:
+  - when: '(.*/)?.*\\.markdown'
+    then: markdown
+    args:
+        defaultCategory: general
+        defaultTemplate: page.html
+""")
+
+            _ = try sourceDirectory.add("templates/page.html", contents: "{{ document.render() }}")
+
+            _ = try sourceDirectory.add("posts/post.markdown", location: .content, contents: """
+> [!NOTE]
+> Useful information.
+""")
+
+            let builder = try await Builder(site: sourceDirectory.site,
+                                            tracker: NullTracker(),
+                                            serializeImport: true,
+                                            serializeRender: true)
+            try await builder.build()
+
+            let html = try String(contentsOf: sourceDirectory.site.filesURL.appendingPathComponent("posts/post/index.html"),
+                                  encoding: .utf8)
+
+            XCTAssertTrue(html.contains(#"class="admonition admonition-note""#))
+            XCTAssertTrue(html.contains("Useful information."))
+            XCTAssertFalse(html.contains("<blockquote>"))
+            XCTAssertFalse(html.contains("[!NOTE]"))
+        }
+    }
+
 }
