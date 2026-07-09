@@ -35,16 +35,12 @@ struct MainMenu: View {
 
         Divider()
 
-        Button {
+        Button("About...", systemImage: "info.circle") {
             openURL(.about)
-        } label: {
-            Text("About...")
         }
 
-        Menu {
+        Menu("Settings", systemImage: "gear") {
             SettingsMenu(applicationModel: applicationModel)
-        } label: {
-            Text("Settings")
         }
 
         Divider()
@@ -53,10 +49,8 @@ struct MainMenu: View {
 
         Divider()
 
-        Button {
+        Button("Quit", systemImage: "xmark.rectangle") {
             applicationModel.quit()
-        } label: {
-            Text("Quit")
         }
     }
 
