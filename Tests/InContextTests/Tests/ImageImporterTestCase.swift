@@ -25,9 +25,17 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-#if !os(Linux)
+class ImageImporterTestCase: ContentTestCase {
 
-class ImageImporterTests: ContentTestCase {
+    var imageBackend: any PlatformImage.Type {
+        fatalError("Subclasses must override `imageBackend`.")
+    }
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        try XCTSkipIf(type(of: self) == ImageImporterTestCase.self,
+                     "ImageImporterTestCase is abstract; run its subclasses instead.")
+    }
 
     func testExtractTitle() async throws {
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
@@ -44,8 +52,6 @@ steps:
         titleFromFilename: false
 """)
 
-
-        // TODO: It shouldn't be necessary to pass the site into the importer.
         let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg"),
                                                    to: "image.jpeg",
                                                    location: .content)
@@ -55,7 +61,8 @@ steps:
                                                inlineTemplate: "image.html")
         let result = try await ImageImporter.process(file: file,
                                                      settings: settings,
-                                                     outputURL: defaultSourceDirectory.site.filesURL)
+                                                     outputURL: defaultSourceDirectory.site.filesURL,
+                                                     imageBackend: imageBackend)
         XCTAssertNotNil(result.document)
         XCTAssertEqual(result.document?.title, "Hallgrímskirkja Church")
     }
@@ -75,8 +82,6 @@ steps:
         titleFromFilename: false
 """)
 
-
-        // TODO: It shouldn't be necessary to pass the site into the importer.
         let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "nezumi_anim", withExtension: "gif"),
                                                    to: "nezumi_anim.gif",
                                                    location: .content)
@@ -86,25 +91,19 @@ steps:
                                                inlineTemplate: "image.html")
         let result = try await ImageImporter.process(file: file,
                                                      settings: settings,
-                                                     outputURL: defaultSourceDirectory.site.filesURL)
+                                                     outputURL: defaultSourceDirectory.site.filesURL,
+                                                     imageBackend: imageBackend)
         XCTAssertNotNil(result.document)
-//        XCTAssertEqual(result.document?.title, "Hallgrímskirkja Church")
+        let thumbnailURL = defaultSourceDirectory.site.filesURL
+            .appendingPathComponent("nezumi_anim")
+            .appendingPathComponent("1600.gif")
         XCTAssert(FileManager.default.fileExists(at: defaultSourceDirectory.site.filesURL
             .appendingPathComponent("nezumi_anim")))
-        XCTAssert(FileManager.default.fileExists(at: defaultSourceDirectory.site.filesURL
-            .appendingPathComponent("nezumi_anim")
-            .appendingPathComponent("1600", conformingTo: .gif)))
+        XCTAssert(FileManager.default.fileExists(at: thumbnailURL))
 
         // Check the number of frames in the image.
-        guard let imageSource = CGImageSourceCreateWithURL(defaultSourceDirectory.site.filesURL
-            .appendingPathComponent("nezumi_anim")
-            .appendingPathComponent("1600", conformingTo: .gif) as CFURL, nil) else {
-            fatalError("Failed to create image source")
-        }
-
-        XCTAssertEqual(CGImageSourceGetCount(imageSource), 14)
+        let thumbnail = try imageBackend.init(url: thumbnailURL)
+        XCTAssertEqual(thumbnail.frameCount, 14)
     }
 
 }
-
-#endif

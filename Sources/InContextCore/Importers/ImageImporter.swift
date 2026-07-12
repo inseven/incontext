@@ -20,19 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if canImport(CoreGraphics)
-import CoreGraphics
-#endif
-
 import Foundation
-
-#if canImport(ImageIO)
-import ImageIO
-#endif
 
 import PlatformSupport
 
-#if !os(Linux)
+#if canImport(ImageIO)
+let defaultPlatformImage: any PlatformImage.Type = CoreGraphicsPlatformImage.self
+#else
+let defaultPlatformImage: any PlatformImage.Type = DummyPlatformImage.self
+#endif
 
 struct _Type: _Test {
 
@@ -63,9 +59,6 @@ struct _Where {
 
 }
 
-// TODO: Perhaps use a protocol?
-typealias ImageSource = CGImageSource
-
 // TODO: Consider making the data that's injected in generic? That way this could be used in multiple places?
 //       Perhaps an image transform could allow for a bunch of type-constrained resize transforms in a pipeline?
 protocol _Transform {
@@ -89,8 +82,8 @@ struct _Resize: _Transform {
 
     func apply(to context: inout TransformContext) throws {
 
-        guard let width = try context.exif.pixelWidth,
-              let height = try context.exif.pixelHeight
+        guard let width = try context.image.pixelWidth,
+              let height = try context.image.pixelHeight
         else {
             throw InContextError.internalInconsistency("Failed to get dimensions of image at \(context.fileURL.relativePath).")
         }
@@ -99,48 +92,16 @@ struct _Resize: _Transform {
         let targetSize = size.fit(width: self.width)
         let maxPixelSize = max(targetSize.width, targetSize.height)
 
-        let options = [kCGImageSourceCreateThumbnailWithTransform: kCFBooleanTrue,
-                     kCGImageSourceCreateThumbnailFromImageAlways: kCFBooleanTrue,
-                              kCGImageSourceThumbnailMaxPixelSize: maxPixelSize as NSNumber] as CFDictionary
-
         guard let format = self.format ?? context.fileURL.type else {
             throw InContextError.internalInconsistency("Failed to detect output type for '\(context.fileURL.relativePath)'.")
         }
 
-        let frameCount = CGImageSourceGetCount(context.imageSource)
-
         // TODO: Honour the input format if we don't have one.
         let destinationFilename = basename + "." + (format.preferredFilenameExtension ?? "")
         let destinationURL = context.assetsURL.appending(component: destinationFilename)
-        guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL,
-                                                                format.identifier as CFString,
-                                                                frameCount,
-                                                                nil) else {
-            throw InContextError.internalInconsistency("Failed to resize image at '\(context.fileURL.relativePath)'.")
-        }
 
-        // Cherry-pick relevant image properties.
-        var destinationProperties: [String: Any] = [:]
-        if let sourceProperties = CGImageSourceCopyProperties(context.imageSource, nil) as? [String: Any] {
-            if let gifProperties = sourceProperties[kCGImagePropertyGIFDictionary as String] {
-                destinationProperties[kCGImagePropertyGIFDictionary as String] = gifProperties
-            }
-        }
-        CGImageDestinationSetProperties(destination, destinationProperties as CFDictionary)
+        try context.image.write(maxPixelSize: maxPixelSize, format: format, to: destinationURL)
 
-        // Resize the frames.
-        for i in 0..<frameCount {
-            let thumbnail = CGImageSourceCreateThumbnailAtIndex(context.imageSource, i, options)!
-            if let properties = CGImageSourceCopyPropertiesAtIndex(context.imageSource, i, nil) as? [String: Any] {
-                var frameProperties: [String: Any] = [:]
-                if let gifProperties = properties[kCGImagePropertyGIFDictionary as String] {
-                    frameProperties[kCGImagePropertyGIFDictionary as String] = gifProperties
-                }
-                CGImageDestinationAddImage(destination, thumbnail, frameProperties as CFDictionary)
-            }
-        }
-
-        CGImageDestinationFinalize(destination)  // TODO: Handle error here?
         context.assets.append(Asset(fileURL: destinationURL as URL))
 
         let details = [
@@ -237,8 +198,6 @@ let configuration = _Configuration {
 
 }
 
-#endif
-
 class ImageImporter {
 
     struct Settings: ImporterSettings {
@@ -267,13 +226,21 @@ class ImageImporter {
 
 }
 
-#if !os(Linux)
-
 extension ImageImporter: Importer {
 
     static func process(file: File,
                         settings: Settings,
                         outputURL: URL) async throws -> ImporterResult {
+        return try await process(file: file,
+                                 settings: settings,
+                                 outputURL: outputURL,
+                                 imageBackend: defaultPlatformImage)
+    }
+
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL,
+                        imageBackend: any PlatformImage.Type) async throws -> ImporterResult {
 
         let fileURL = file.url
 
@@ -281,14 +248,8 @@ extension ImageImporter: Importer {
         let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: outputURL)  // TODO: Make this a utiltiy and test it
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
-        // Load the original image.
-        guard let image = CGImageSourceCreateWithURL(fileURL as CFURL, nil) else {
-            throw InContextError.internalInconsistency("Failed to open image file at '\(fileURL.relativePath)'.")
-        }
-
-        guard let exif = try EXIF(image, 0) else {
-            throw InContextError.internalInconsistency("Failed to load properties for image at '\(fileURL.relativePath)'.")
-        }
+        // Load the image.
+        let image = try imageBackend.init(url: fileURL)
 
         let details = fileURL.basenameDetails()
 
@@ -299,13 +260,13 @@ extension ImageImporter: Importer {
             metadata["scale"] = scale
         }
 
-        if let projectionType = try exif.projectionType {
+        if let projectionType = try image.projectionType {
             metadata["projection"] = projectionType
         }
 
         // Content.
         var content: FrontmatterDocument? = nil
-        if let imageDescription = try exif.imageDescription {
+        if let imageDescription = try image.imageDescription {
             let frontmatter = try FrontmatterDocument(contents: imageDescription, generateHTML: true)
             guard let contentMetadata = frontmatter.metadata as? [String: Any] else {
                 throw InContextError.internalInconsistency("Unexpected key type for metadata")
@@ -315,8 +276,8 @@ extension ImageImporter: Importer {
         }
 
         // Location.
-        if let latitude = try exif.signedLatitude,
-           let longitude = try exif.signedLongitude {
+        if let latitude = try image.signedLatitude,
+           let longitude = try image.signedLongitude {
             metadata["location"] = [
                 "latitude": latitude,
                 "longitude": longitude,
@@ -325,8 +286,7 @@ extension ImageImporter: Importer {
 
         // Perform the transforms.
         var context = TransformContext(fileURL: fileURL,
-                                       imageSource: image,
-                                       exif: exif,
+                                       image: image,
                                        assetsURL: assetsURL,
                                        metadata: metadata,
                                        assets: [])
@@ -345,8 +305,8 @@ extension ImageImporter: Importer {
 
         // N.B. The EXIF 'DateTimeOriginal' field sometimes appears to be invalid so we fall back on DateTimeDigitized.
 
-        let date = try (try? exif.dateTimeOriginal) ?? (try exif.dateTimeDigitized) ?? details.date
-        let title = try exif.firstTitle ?? content?.title ?? filenameTitle
+        let date = try (try? image.dateTimeOriginal) ?? (try image.dateTimeDigitized) ?? details.date
+        let title = try image.firstTitle ?? content?.title ?? filenameTitle
 
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,
@@ -364,5 +324,3 @@ extension ImageImporter: Importer {
     }
 
 }
-
-#endif

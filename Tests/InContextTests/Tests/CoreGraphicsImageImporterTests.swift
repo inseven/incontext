@@ -20,20 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if os(Linux)
-
 import Foundation
 
-struct ImageSource {}
+import XCTest
+@testable import InContextCore
 
-extension ImageImporter: Importer {
+#if canImport(ImageIO)
 
-    static func process(file: File,
-                        settings: Settings,
-                        outputURL: URL) async throws -> ImporterResult {
+class CoreGraphicsImporterTests: ImageImporterTestCase {
 
-        throw InContextError.internalInconsistency("Unsupported")
-
+    override var imageBackend: any PlatformImage.Type {
+        return CoreGraphicsPlatformImage.self
     }
 
 }

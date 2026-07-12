@@ -91,8 +91,7 @@ struct _Metadata: _Test {
 struct TransformContext {
 
     let fileURL: URL
-    let imageSource: ImageSource
-    let exif: EXIF
+    let image: any PlatformImage
 
     let assetsURL: URL
 

@@ -22,16 +22,56 @@
 
 import Foundation
 
-protocol ImageMetadata {
+import PlatformSupport
 
-    var pixelWidth: Int? { get throws }
-    var pixelHeight: Int? { get throws }
-    var dateTimeOriginal: Date? { get throws }
-    var dateTimeDigitized: Date? { get throws }
-    var firstTitle: String? { get throws }
-    var imageDescription: String? { get throws }
-    var signedLatitude: Double? { get throws }
-    var signedLongitude: Double? { get throws }
-    var projectionType: String? { get throws }
+final class DummyPlatformImage: PlatformImage {
+
+    init(url: URL) throws {
+        throw InContextError.unsupportedMediaType
+    }
+
+    var pixelWidth: Int? {
+        fatalError("Unsupported media type.")
+    }
+
+    var pixelHeight: Int? {
+        fatalError("Unsupported media type.")
+    }
+
+    var dateTimeOriginal: Date? {
+        fatalError("Unsupported media type.")
+    }
+
+    var dateTimeDigitized: Date? {
+        fatalError("Unsupported media type.")
+    }
+
+    var firstTitle: String? {
+        fatalError("Unsupported media type.")
+    }
+
+    var imageDescription: String? {
+        fatalError("Unsupported media type.")
+    }
+
+    var signedLatitude: Double? {
+        fatalError("Unsupported media type.")
+    }
+
+    var signedLongitude: Double? {
+        fatalError("Unsupported media type.")
+    }
+
+    var projectionType: String? {
+        fatalError("Unsupported media type.")
+    }
+
+    var frameCount: Int {
+        fatalError("Unsupported media type.")
+    }
+
+    func write(maxPixelSize: Int, format: UTType, to url: URL) throws {
+        fatalError("Unsupported media type.")
+    }
 
 }
