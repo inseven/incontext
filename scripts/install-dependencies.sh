@@ -42,9 +42,6 @@ if [ -d "$LOCAL_TOOLS_PATH" ] ; then
 fi
 mkdir -p "$LOCAL_TOOLS_PATH"
 
-# Set up a Python venv to bootstrap our python dependency on `pipenv`.
-python -m venv "$LOCAL_TOOLS_PATH/python"
-
 # Source `environment.sh` to ensure the remainder of our paths are set up correctly.
 source "$SCRIPTS_DIRECTORY/environment.sh"
 
