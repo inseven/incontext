@@ -231,11 +231,12 @@ extension ImageImporter: Importer {
     static func process(file: File,
                         settings: Settings,
                         outputURL: URL) async throws -> ImporterResult {
-        return try await process(file: file, settings: settings, outputURL: outputURL, imageBackend: defaultPlatformImage)
+        return try await process(file: file,
+                                 settings: settings,
+                                 outputURL: outputURL,
+                                 imageBackend: defaultPlatformImage)
     }
 
-    // Exposed separately so tests can force the Magick backend on macOS (where it isn't the
-    // platform default) and exercise the same code path Linux uses in production.
     static func process(file: File,
                         settings: Settings,
                         outputURL: URL,
