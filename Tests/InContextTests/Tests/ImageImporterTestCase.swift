@@ -27,6 +27,14 @@ import XCTest
 
 class ImageImporterTestCase: ContentTestCase {
 
+    // Hide our tests from the test runner when called directly.
+    override class var defaultTestSuite: XCTestSuite {
+        if self == Self.self {
+            return XCTestSuite(name: "Empty suite for \(String(describing: self))")
+        }
+        return super.defaultTestSuite
+    }
+
     var imageBackend: any PlatformImage.Type {
         fatalError("Subclasses must override `imageBackend`.")
     }
