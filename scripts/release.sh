@@ -73,9 +73,11 @@ mkdir -p "$BUILD_DIRECTORY"
 # List the artifacts.
 find "$ARTIFACTS_DIRECTORY"
 
-# Copy the artifacts to the builds directory.
+# Copy the artifacts to the builds directory, adding each to the manifest.
 
 cd "$BUILD_DIRECTORY"
+
+GIT_SHA=`git rev-parse HEAD`
 
 # macOS.
 
@@ -86,13 +88,50 @@ cp "$ARTIFACTS_DIRECTORY/incontext-macos/$INCONTEXT_MACOS_NAME" "$INCONTEXT_MACO
 cp "$ARTIFACTS_DIRECTORY/incontext-macos/$INCONTEXT_HELPER_MACOS_NAME" "$INCONTEXT_HELPER_MACOS_NAME"
 cp "$ARTIFACTS_DIRECTORY/incontext-macos/appcast.xml" appcast.xml
 
+build-tools add-artifact manifest.json \
+    --project incontext \
+    --version "$VERSION_NUMBER" \
+    --build-number "$BUILD_NUMBER" \
+    --path "$INCONTEXT_MACOS_NAME" \
+    --format zip \
+    --git-sha "$GIT_SHA" \
+    --supports-os macos \
+    --supports-version 26 \
+    --supports-codename tahoe \
+    --supports-architecture arm64 \
+    --supports-architecture x86_64
+
 # Ubuntu.
 
 INCONTEXT_UBUNTU_RESOLUTE_AMD64_NAME="incontext_${VERSION_NUMBER}-resolute${BUILD_NUMBER}_amd64.deb"
 cp "$ARTIFACTS_DIRECTORY/incontext-ubuntu-resolute-amd64/incontext.deb" "$INCONTEXT_UBUNTU_RESOLUTE_AMD64_NAME"
 
+build-tools add-artifact manifest.json \
+    --project incontext \
+    --version "$VERSION_NUMBER" \
+    --build-number "$BUILD_NUMBER" \
+    --path "$INCONTEXT_UBUNTU_RESOLUTE_AMD64_NAME" \
+    --format deb \
+    --git-sha "$GIT_SHA" \
+    --supports-os ubuntu \
+    --supports-version 26.04 \
+    --supports-codename resolute \
+    --supports-architecture amd64
+
 INCONTEXT_UBUNTU_RESOLUTE_ARM64_NAME="incontext_${VERSION_NUMBER}-resolute${BUILD_NUMBER}_arm64.deb"
 cp "$ARTIFACTS_DIRECTORY/incontext-ubuntu-resolute-arm64/incontext.deb" "$INCONTEXT_UBUNTU_RESOLUTE_ARM64_NAME"
+
+build-tools add-artifact manifest.json \
+    --project incontext \
+    --version "$VERSION_NUMBER" \
+    --build-number "$BUILD_NUMBER" \
+    --path "$INCONTEXT_UBUNTU_RESOLUTE_ARM64_NAME" \
+    --format deb \
+    --git-sha "$GIT_SHA" \
+    --supports-os ubuntu \
+    --supports-version 26.04 \
+    --supports-codename resolute \
+    --supports-architecture arm64
 
 if $RELEASE ; then
 
@@ -105,6 +144,7 @@ if $RELEASE ; then
         "$BUILD_DIRECTORY/$INCONTEXT_HELPER_MACOS_NAME" \
         "$BUILD_DIRECTORY/appcast.xml" \
         "$BUILD_DIRECTORY/$INCONTEXT_UBUNTU_RESOLUTE_AMD64_NAME" \
-        "$BUILD_DIRECTORY/$INCONTEXT_UBUNTU_RESOLUTE_ARM64_NAME"
+        "$BUILD_DIRECTORY/$INCONTEXT_UBUNTU_RESOLUTE_ARM64_NAME" \
+        "$BUILD_DIRECTORY/manifest.json"
 
 fi
