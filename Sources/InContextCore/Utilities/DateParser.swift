@@ -35,6 +35,7 @@ public struct DateParser {
         "yyyy'-'MM'-'dd'", // 2016-11-23
         "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SSSSSSzzzzz",
         "yyyy'-'MM'-'dd' 'HH':'mm':'ss'.'SSSSSS", // 2017-07-03 09:38:22.602694
+        "yyyy':'MM':'dd' 'HH':'mm':'ss", // 2023:04:12 11:08:27 (EXIF DateTimeOriginal/DateTimeDigitized)
     ]
 
     private let formatters = formats

@@ -38,6 +38,8 @@ class DateParserTests: XCTestCase {
                        Date(2017, 07, 03, 09, 38, 22, 602))
         XCTAssertEqual(DateParser().date(from: "2016-11-23"),
                        Date(2016, 11, 23))
+        XCTAssertEqual(DateParser().date(from: "2023:04:12 11:08:27"),
+                       Date(2023, 04, 12, 11, 08, 27))
 
     }
 
