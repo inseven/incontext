@@ -290,6 +290,7 @@ jobs:
   macos-update-sparkle:
     needs: publish-release
     if: ${{ needs.publish-release.outputs.released == 'true' }}
+
     runs-on: ubuntu-latest
     steps:
 
