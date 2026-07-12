@@ -40,8 +40,7 @@ import ImageIO
 //
 //})
 
-struct EXIF {
-
+struct EXIF: ImageMetadata {
     let _properties: [String: Any]
     let _metadata: CGImageMetadata
 
