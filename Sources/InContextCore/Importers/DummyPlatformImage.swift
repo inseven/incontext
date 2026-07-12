@@ -30,7 +30,39 @@ final class DummyPlatformImage: PlatformImage {
         throw InContextError.unsupportedMediaType
     }
 
-    var exif: any ImageMetadata {
+    var pixelWidth: Int? {
+        fatalError("Unsupported media type.")
+    }
+
+    var pixelHeight: Int? {
+        fatalError("Unsupported media type.")
+    }
+
+    var dateTimeOriginal: Date? {
+        fatalError("Unsupported media type.")
+    }
+
+    var dateTimeDigitized: Date? {
+        fatalError("Unsupported media type.")
+    }
+
+    var firstTitle: String? {
+        fatalError("Unsupported media type.")
+    }
+
+    var imageDescription: String? {
+        fatalError("Unsupported media type.")
+    }
+
+    var signedLatitude: Double? {
+        fatalError("Unsupported media type.")
+    }
+
+    var signedLongitude: Double? {
+        fatalError("Unsupported media type.")
+    }
+
+    var projectionType: String? {
         fatalError("Unsupported media type.")
     }
 

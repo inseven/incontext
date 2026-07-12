@@ -28,7 +28,16 @@ protocol PlatformImage {
 
     init(url: URL) throws
 
-    var exif: any ImageMetadata { get }
+    var pixelWidth: Int? { get throws }
+    var pixelHeight: Int? { get throws }
+    var dateTimeOriginal: Date? { get throws }
+    var dateTimeDigitized: Date? { get throws }
+    var firstTitle: String? { get throws }
+    var imageDescription: String? { get throws }
+    var signedLatitude: Double? { get throws }
+    var signedLongitude: Double? { get throws }
+    var projectionType: String? { get throws }
+
     var frameCount: Int { get }
 
     func write(maxPixelSize: Int, format: UTType, to url: URL) throws

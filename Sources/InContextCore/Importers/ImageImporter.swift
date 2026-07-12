@@ -82,8 +82,8 @@ struct _Resize: _Transform {
 
     func apply(to context: inout TransformContext) throws {
 
-        guard let width = try context.image.exif.pixelWidth,
-              let height = try context.image.exif.pixelHeight
+        guard let width = try context.image.pixelWidth,
+              let height = try context.image.pixelHeight
         else {
             throw InContextError.internalInconsistency("Failed to get dimensions of image at \(context.fileURL.relativePath).")
         }
@@ -260,13 +260,13 @@ extension ImageImporter: Importer {
             metadata["scale"] = scale
         }
 
-        if let projectionType = try image.exif.projectionType {
+        if let projectionType = try image.projectionType {
             metadata["projection"] = projectionType
         }
 
         // Content.
         var content: FrontmatterDocument? = nil
-        if let imageDescription = try image.exif.imageDescription {
+        if let imageDescription = try image.imageDescription {
             let frontmatter = try FrontmatterDocument(contents: imageDescription, generateHTML: true)
             guard let contentMetadata = frontmatter.metadata as? [String: Any] else {
                 throw InContextError.internalInconsistency("Unexpected key type for metadata")
@@ -276,8 +276,8 @@ extension ImageImporter: Importer {
         }
 
         // Location.
-        if let latitude = try image.exif.signedLatitude,
-           let longitude = try image.exif.signedLongitude {
+        if let latitude = try image.signedLatitude,
+           let longitude = try image.signedLongitude {
             metadata["location"] = [
                 "latitude": latitude,
                 "longitude": longitude,
@@ -305,8 +305,8 @@ extension ImageImporter: Importer {
 
         // N.B. The EXIF 'DateTimeOriginal' field sometimes appears to be invalid so we fall back on DateTimeDigitized.
 
-        let date = try (try? image.exif.dateTimeOriginal) ?? (try image.exif.dateTimeDigitized) ?? details.date
-        let title = try image.exif.firstTitle ?? content?.title ?? filenameTitle
+        let date = try (try? image.dateTimeOriginal) ?? (try image.dateTimeDigitized) ?? details.date
+        let title = try image.firstTitle ?? content?.title ?? filenameTitle
 
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,

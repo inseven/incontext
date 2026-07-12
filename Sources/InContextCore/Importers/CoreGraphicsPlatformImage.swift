@@ -30,17 +30,121 @@ import PlatformSupport
 final class CoreGraphicsPlatformImage: PlatformImage {
 
     let source: CGImageSource
-    let exif: any ImageMetadata
+
+    private let properties: [String: Any]
+    private let metadata: CGImageMetadata
 
     init(url: URL) throws {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
             throw InContextError.internalInconsistency("Failed to open image file at '\(url.relativePath)'.")
         }
-        guard let exif = try EXIF(source, 0) else {
+        guard let rawProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) else {
             throw InContextError.internalInconsistency("Failed to load properties for image at '\(url.relativePath)'.")
         }
+        guard let properties = rawProperties as? [String: Any] else {
+            throw InContextError.internalInconsistency("Failed to load image properties")
+        }
+        guard let metadata = CGImageSourceCopyMetadataAtIndex(source, 0, nil) else {
+            throw InContextError.internalInconsistency("Failed to load image metadata")
+        }
         self.source = source
-        self.exif = exif
+        self.properties = properties
+        self.metadata = metadata
+    }
+
+    var pixelWidth: Int? {
+        get throws { return try properties.optionalValue(for: "PixelWidth") }
+    }
+
+    var pixelHeight: Int? {
+        get throws { return try properties.optionalValue(for: "PixelHeight") }
+    }
+
+    // TODO: Use EXIF timezones if they exist.
+
+    var dateTimeOriginal: Date? {
+        get throws {
+            guard let string: String = try properties.optionalValue(for: ["{Exif}", "DateTimeOriginal"]) else {
+                return nil
+            }
+            return DateParser.default.date(from: string)
+        }
+    }
+
+    var dateTimeDigitized: Date? {
+        get throws {
+            guard let string: String = try properties.optionalValue(for: ["{Exif}", "DateTimeDigitized"]) else {
+                return nil
+            }
+            return DateParser.default.date(from: string)
+        }
+    }
+
+    private var title: String? {
+        get throws { return try properties.optionalValue(for: "Title") }
+    }
+
+    private var displayName: String? {
+        get throws { return try properties.optionalValue(for: "DisplayName") }
+    }
+
+    private var objectName: String? {
+        get throws { return try properties.optionalValue(for: ["{IPTC}", "ObjectName"]) }
+    }
+
+    var firstTitle: String? {
+        get throws { return try (try title) ?? (try displayName) ?? (try objectName) }
+    }
+
+    var imageDescription: String? {
+        get throws { return try properties.optionalValue(for: ["{TIFF}", "ImageDescription"]) }
+    }
+
+    private var latitude: Double? {
+        get throws { return try properties.optionalValue(for: ["{GPS}", "Latitude"]) }
+    }
+
+    private var latitudeRef: CompassDirection? {
+        get throws { return try properties.optionalRawRepresentable(for: ["{GPS}", "LatitudeRef"]) }
+    }
+
+    private var longitude: Double? {
+        get throws { return try properties.optionalValue(for: ["{GPS}", "Longitude"]) }
+    }
+
+    private var longitudeRef: CompassDirection? {
+        get throws { return try properties.optionalRawRepresentable(for: ["{GPS}", "LongitudeRef"]) }
+    }
+
+    var signedLatitude: Double? {
+        get throws {
+            guard let latitude = try latitude, let latitudeRef = try latitudeRef else {
+                return nil
+            }
+            return latitude * latitudeRef.multiplier
+        }
+    }
+
+    var signedLongitude: Double? {
+        get throws {
+            guard let longitude = try longitude, let longitudeRef = try longitudeRef else {
+                return nil
+            }
+            return longitude * longitudeRef.multiplier
+        }
+    }
+
+    var projectionType: String? {
+        get throws {
+            guard let tag = CGImageMetadataCopyTagWithPath(metadata, nil, "GPano:ProjectionType" as NSString) else {
+                return nil
+            }
+            guard let value = CGImageMetadataTagCopyValue(tag) as? String else {
+                // TODO: Consider making this a little cleaner
+                throw InContextError.internalInconsistency("Unexpected value for image property 'ProjectionType'")
+            }
+            return value
+        }
     }
 
     var frameCount: Int {
