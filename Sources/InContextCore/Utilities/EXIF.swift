@@ -26,20 +26,6 @@ import Foundation
 
 import ImageIO
 
-// Metadata import details from Python.
-//METADATA_SCHEMA = Dictionary({
-//
-//    "title": String(First(Key("Title"), Key("DisplayName"), Key("ObjectName"), Empty())),
-//    "content": String(First(Key("ImageDescription"), Key("Description"), Key("ArtworkContentDescription"), Default(None))),
-//    "date": First(EXIFDate(First(Key("DateTimeOriginal"), Key("ContentCreateDate"), Key("CreationDate"))), Empty()),
-//    "projection": First(Key("ProjectionType"), Empty()),
-//    "location": First(Dictionary({
-//        "latitude": GPSCoordinate(Key("GPSLatitude")),
-//        "longitude": GPSCoordinate(Key("GPSLongitude")),
-//    }), Empty())
-//
-//})
-
 struct EXIF: ImageMetadata {
     let _properties: [String: Any]
     let _metadata: CGImageMetadata

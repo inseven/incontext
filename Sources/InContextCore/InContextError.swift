@@ -42,6 +42,7 @@ public enum InContextError: Error {
     case unknownTemplate(String)
     case importError(URL, Error)
     case allocationFailure
+    case unsupportedMediaType
 
     // Function calls.
     case incorrectType(expected: Any.Type, received: Any?)
