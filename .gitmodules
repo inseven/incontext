@@ -15,7 +15,8 @@
 	url = git@github.com:jbmorley/hummingbird.git
 [submodule "dependencies/hoedown"]
 	path = dependencies/hoedown
-	url = git@github.com:hoedown/hoedown.git
+	url = git@github.com:jbmorley/hoedown.git
+	branch = incontext-main
 [submodule "dependencies/interact"]
 	path = dependencies/interact
 	url = git@github.com:inseven/interact.git

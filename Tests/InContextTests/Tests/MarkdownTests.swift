@@ -100,6 +100,38 @@ Text with footnote[^1].
 """)
     }
 
+    func testBlockquotesSeparatedByBlankLineAreDistinct() {
+        XCTAssertEqual("""
+> One quote
+
+> Two quotes
+""".html(), """
+<blockquote>
+<p>One quote</p>
+</blockquote>
+
+<blockquote>
+<p>Two quotes</p>
+</blockquote>
+
+""")
+    }
+
+    func testBlockquoteWithQuotedBlankLineStaysSingle() {
+        XCTAssertEqual("""
+> One quote
+>
+> The same quote
+""".html(), """
+<blockquote>
+<p>One quote</p>
+
+<p>The same quote</p>
+</blockquote>
+
+""")
+    }
+
     func testHeaderAnchorsStripHTMLSignificantCharacters() {
         XCTAssertEqual("""
 # Fish & Chips
