@@ -27,11 +27,16 @@ public class UTType {
     public static let jpeg = UTType(filenameExtension: "jpeg")
     public static let tiff = UTType(filenameExtension: "tiff")
     public static let heic = UTType(filenameExtension: "heic")
+    public static let gif = UTType(filenameExtension: "gif")
 
     let filenameExtension: String
 
     public init(filenameExtension: String) {
         self.filenameExtension = filenameExtension
+    }
+
+    public var preferredFilenameExtension: String? {
+        return filenameExtension
     }
 
     public func conforms(to type: UTType) -> Bool {

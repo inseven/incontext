@@ -42,13 +42,6 @@ import ImageIO
 
 struct EXIF {
 
-    private static let dateTimeForatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.posix
-        formatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
-        return formatter
-    }()
-
     let _properties: [String: Any]
     let _metadata: CGImageMetadata
 
