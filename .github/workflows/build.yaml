@@ -157,6 +157,9 @@ jobs:
     - macos-build
     - linux-build
 
+    outputs:
+      released: ${{ steps.publish.outputs.released }}
+
     env:
       VERSION_NUMBER: ${{ needs.generate-version-number.outputs.version_number }}
       BUILD_NUMBER: ${{ needs.generate-version-number.outputs.build_number }}
@@ -188,6 +191,7 @@ jobs:
         path: artifacts
 
     - name: Publish release
+      id: publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RELEASE: ${{ github.ref == 'refs/heads/main' }}
@@ -257,7 +261,7 @@ jobs:
 
   macos-update-homebrew:
     needs: publish-release
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ needs.publish-release.outputs.released == 'true' }}
 
     runs-on: ubuntu-latest
     steps:
@@ -271,7 +275,7 @@ jobs:
 
   macos-update-sparkle:
     needs: publish-release
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ needs.publish-release.outputs.released == 'true' }}
     runs-on: ubuntu-latest
     steps:
 
@@ -280,4 +284,18 @@ jobs:
       with:
         token: ${{ secrets._GITHUB_ACCESS_TOKEN }}
         repository: inseven/sparkle-archives
+        event-type: build
+
+  update-releases:
+    needs: publish-release
+    if: ${{ needs.publish-release.outputs.released == 'true' }}
+
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Update releases repository
+      uses: peter-evans/repository-dispatch@v4
+      with:
+        token: ${{ secrets._GITHUB_ACCESS_TOKEN }}
+        repository: inseven/releases
         event-type: build
