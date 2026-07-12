@@ -84,10 +84,7 @@ struct EXIF {
             guard let string: String = try _properties.optionalValue(for: ["{Exif}", "DateTimeOriginal"]) else {
                 return nil
             }
-            guard let date = Self.dateTimeForatter.date(from: string) else {
-                throw InContextError.internalInconsistency("Failed to parse DateTimeOriginal (\(string))")
-            }
-            return date
+            return DateParser.default.date(from: string)
         }
     }
 
@@ -96,10 +93,7 @@ struct EXIF {
             guard let string: String = try _properties.optionalValue(for: ["{Exif}", "DateTimeDigitized"]) else {
                 return nil
             }
-            guard let date = Self.dateTimeForatter.date(from: string) else {
-                throw InContextError.internalInconsistency("Failed to parse DateTimeDigitized (\(string))")
-            }
-            return date
+            return DateParser.default.date(from: string)
         }
 
     }
