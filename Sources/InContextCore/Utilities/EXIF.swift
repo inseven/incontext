@@ -42,22 +42,6 @@ import ImageIO
 
 struct EXIF {
 
-    enum CompassDirection: String {
-        case north = "N"
-        case south = "S"
-        case east = "E"
-        case west = "W"
-
-        var multiplier: Double {
-            switch self {
-            case .north, .east:
-                return 1
-            case .west, .south:
-                return -1
-            }
-        }
-    }
-
     private static let dateTimeForatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale.posix
