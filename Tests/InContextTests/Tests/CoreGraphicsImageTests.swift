@@ -27,7 +27,7 @@ import XCTest
 
 #if canImport(ImageIO)
 
-class CoreGraphicsImporterTests: ImageImporterTestCase {
+class CoreGraphicsImageTests: PlatformImageTestCase {
 
     override var imageBackend: any PlatformImage.Type {
         return CoreGraphicsImage.self

@@ -27,7 +27,7 @@ import ImageIO
 
 import PlatformSupport
 
-final class CoreGraphicsPlatformImage: PlatformImage {
+final class CoreGraphicsImage: PlatformImage {
 
     let source: CGImageSource
 
