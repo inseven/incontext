@@ -43,6 +43,7 @@ public enum InContextError: Error {
     case importError(URL, Error)
     case allocationFailure
     case unsupportedMediaType
+    case imageLibraryError(String)
 
     // Function calls.
     case incorrectType(expected: Any.Type, received: Any?)
@@ -60,6 +61,8 @@ extension InContextError: LocalizedError {
             return message
         case .importError(let fileURL, let error):
             return "Failed to import file '\(fileURL.relativePath)' with error '\(error.localizedDescription)'."
+        case .imageLibraryError(let message):
+            return message
         case .incorrectType(expected: let expected, received: let received):
             guard let received else {
                 return "Incorrect type: expected '\(expected)', got nil."

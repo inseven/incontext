@@ -45,7 +45,9 @@ case $ID in
         $SUDO apt-get install -y \
             build-essential git \
             ruby ruby-bundler \
-            libsqlite3-dev
+            pkg-config \
+            libsqlite3-dev \
+            libmagickwand-dev
         $SUDO gem install --no-user-install fpm
         ;;
 

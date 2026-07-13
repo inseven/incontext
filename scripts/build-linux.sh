@@ -81,6 +81,18 @@ case $DISTRO in
 
         ARCHITECTURE=`dpkg --print-architecture`
         PACKAGE_FILENAME="incontext.deb"
+
+        MAGICK_DEPENDS=`ldd "$SWIFT_BUILD_DIRECTORY/release/incontext" \
+            | grep -oE '/\S*lib(MagickWand|MagickCore)\S*' \
+            | xargs -I{} dpkg -S {} \
+            | cut -d: -f1 \
+            | sort -u`
+
+        DEPENDS_ARGS=(--depends libsqlite3-0)
+        for package in $MAGICK_DEPENDS; do
+            DEPENDS_ARGS+=(--depends "$package")
+        done
+
         fpm \
             -s dir \
             -t deb \
@@ -91,7 +103,7 @@ case $DISTRO in
             --description "$DESCRIPTION" \
             --url "$URL" \
             --maintainer "$MAINTAINER" \
-            --depends libsqlite3-0 \
+            "${DEPENDS_ARGS[@]}" \
             "$SWIFT_BUILD_DIRECTORY/release/incontext=/usr/bin/incontext"
         ;;
 

@@ -1,0 +1,181 @@
+#if canImport(CMagickWand)
+
+import Foundation
+
+import CMagickWand
+import PlatformSupport
+
+final class MagickImage: PlatformImage {
+
+    /// Initialize MagickWand.
+    private static let genesis: Void = {
+        MagickWandGenesis()
+    }()
+
+    private let wand: OpaquePointer
+
+    init(url: URL) throws {
+        _ = MagickImage.genesis
+        guard let wand = NewMagickWand() else {
+            throw InContextError.allocationFailure
+        }
+        guard MagickReadImage(wand, url.path) == MagickTrue else {
+            let message = MagickImage.exceptionMessage(wand)
+            DestroyMagickWand(wand)
+            throw InContextError.imageLibraryError(message)
+        }
+
+        self.wand = wand
+    }
+
+    deinit {
+        DestroyMagickWand(wand)
+    }
+
+    var pixelWidth: Int? {
+        return Int(MagickGetImageWidth(wand))
+    }
+
+    var pixelHeight: Int? {
+        return Int(MagickGetImageHeight(wand))
+    }
+
+    var dateTimeOriginal: Date? {
+        get throws { return try date(for: "exif:DateTimeOriginal") }
+    }
+
+    var dateTimeDigitized: Date? {
+        get throws { return try date(for: "exif:DateTimeDigitized") }
+    }
+
+    var firstTitle: String? {
+        get throws { return try property("IPTC:2:5") }
+    }
+
+    var imageDescription: String? {
+        get throws {
+            if let caption = try property("IPTC:2:120") {
+                return caption
+            }
+            return try property("exif:ImageDescription")
+        }
+    }
+
+    var signedLatitude: Double? {
+        get throws { return try signedCoordinate(magnitude: "exif:GPSLatitude", ref: "exif:GPSLatitudeRef") }
+    }
+
+    var signedLongitude: Double? {
+        get throws { return try signedCoordinate(magnitude: "exif:GPSLongitude", ref: "exif:GPSLongitudeRef") }
+    }
+
+    var projectionType: String? {
+        get throws { return try property("GPano:ProjectionType") }
+    }
+
+    var frameCount: Int {
+        return Int(MagickGetNumberImages(wand))
+    }
+
+    func write(maxPixelSize: Int, format: UTType, to url: URL) throws {
+        guard let filenameExtension = format.preferredFilenameExtension else {
+            throw InContextError.internalInconsistency("Unknown output format '\(format)'.")
+        }
+
+        guard let coalesced = MagickCoalesceImages(wand) else {
+            throw InContextError.imageLibraryError(MagickImage.exceptionMessage(wand))
+        }
+        defer {
+            DestroyMagickWand(coalesced)
+        }
+
+        guard MagickSetImageFormat(coalesced, filenameExtension.uppercased()) == MagickTrue else {
+            throw InContextError.imageLibraryError(MagickImage.exceptionMessage(coalesced))
+        }
+
+        MagickResetIterator(coalesced)
+
+        while MagickNextImage(coalesced) == MagickTrue {
+            let width = Int(MagickGetImageWidth(coalesced))
+            let height = Int(MagickGetImageHeight(coalesced))
+            let scale = Double(maxPixelSize) / Double(max(width, height))
+            let targetWidth = max(1, Int((Double(width) * scale).rounded()))
+            let targetHeight = max(1, Int((Double(height) * scale).rounded()))
+            guard MagickResizeImage(coalesced, targetWidth, targetHeight, LanczosFilter) == MagickTrue else {
+                throw InContextError.imageLibraryError(MagickImage.exceptionMessage(coalesced))
+            }
+        }
+
+        MagickResetIterator(coalesced)
+
+        guard MagickWriteImages(coalesced, url.path, MagickTrue) == MagickTrue else {
+            throw InContextError.imageLibraryError(MagickImage.exceptionMessage(coalesced))
+        }
+    }
+
+    private func property(_ name: String) throws -> String? {
+        MagickClearException(wand)
+        guard let value = MagickGetImageProperty(wand, name) else {
+            guard MagickGetExceptionType(wand) == UndefinedException else {
+                throw InContextError.imageLibraryError(MagickImage.exceptionMessage(wand))
+            }
+            return nil
+        }
+        defer {
+            MagickRelinquishMemory(UnsafeMutableRawPointer(mutating: value))
+        }
+        return String(cString: value)
+    }
+
+    private func date(for property: String) throws -> Date? {
+        guard let string = try self.property(property) else {
+            return nil
+        }
+        return DateParser.default.date(from: string)
+    }
+
+    private func signedCoordinate(magnitude property: String, ref refProperty: String) throws -> Double? {
+        guard let dms = try self.property(property),
+              let refString = try self.property(refProperty),
+              let ref = CompassDirection(rawValue: refString)
+        else {
+            return nil
+        }
+        return try Self.parseDMS(dms) * ref.multiplier
+    }
+
+    // MagickWand returns DMS (degrees, minutes, seconds).
+    // For example, "64/1,8/1,3218/100" -> 64 + 8/60 + 32.18/3600.
+    static func parseDMS(_ string: String) throws -> Double {
+        let components = string.split(separator: ",").map(String.init)
+        guard components.count == 3 else {
+            throw InContextError.internalInconsistency("Unexpected GPS coordinate format: \(string)")
+        }
+        let values = try components.map { component -> Double in
+            let parts = component.split(separator: "/")
+            guard parts.count == 2,
+                  let numerator = Double(parts[0]),
+                  let denominator = Double(parts[1]),
+                  denominator != 0
+            else {
+                throw InContextError.internalInconsistency("Unexpected GPS coordinate component: \(component)")
+            }
+            return numerator / denominator
+        }
+        return values[0] + values[1] / 60 + values[2] / 3600
+    }
+
+    private static func exceptionMessage(_ wand: OpaquePointer) -> String {
+        var severity = UndefinedException
+        guard let value = MagickGetException(wand, &severity) else {
+            return "Unknown MagickWand error"
+        }
+        defer {
+            MagickRelinquishMemory(UnsafeMutableRawPointer(mutating: value))
+        }
+        return String(cString: value)
+    }
+
+}
+
+#endif

@@ -27,7 +27,7 @@ import PlatformSupport
 #if canImport(ImageIO)
 let defaultPlatformImage: any PlatformImage.Type = CoreGraphicsImage.self
 #else
-let defaultPlatformImage: any PlatformImage.Type = DummyPlatformImage.self
+let defaultPlatformImage: any PlatformImage.Type = MagickImage.self
 #endif
 
 struct _Type: _Test {
