@@ -1,7 +1,36 @@
 // swift-tools-version: 5.8
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import Foundation
 import PackageDescription
+
+// SwiftPM's `systemLibrary` `pkgConfig` support only forwards `-I`/`-L`/`-l` flags from the
+// underlying `pkg-config` output; it silently drops `-D` flags as "prohibited". MagickWand's
+// headers require `MAGICKCORE_QUANTUM_DEPTH`/`MAGICKCORE_HDRI_ENABLE`/`MAGICKCORE_CHANNEL_MASK_DEPTH`
+// to be defined to compile at all, and their correct values vary by how ImageMagick was built
+// (e.g. Homebrew's Q16HDRI vs a distribution's plain Q16), so we can't just hardcode them. Ask
+// `pkg-config` directly and forward whatever it reports, rather than guessing per-platform.
+func pkgConfigDefines(for library: String) -> [String] {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = ["pkg-config", "--cflags", library]
+
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    process.standardError = Pipe()
+
+    guard (try? process.run()) != nil else {
+        return []
+    }
+    process.waitUntilExit()
+
+    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    let output = String(data: data, encoding: .utf8) ?? ""
+    return output
+        .split(whereSeparator: { $0 == " " || $0.isNewline })
+        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .filter { $0.hasPrefix("-D") }
+}
 
 let package = Package(
     name: "incontext",
@@ -57,6 +86,7 @@ let package = Package(
             dependencies: [
                 "PlatformSupport",
                 "Hoedown",
+                .target(name: "CMagickWand", condition: .when(platforms: [.linux])),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "FSEventsWrapper", package: "FSEventsWrapper", condition:
                     .when(platforms: [.macOS])),
@@ -88,10 +118,16 @@ let package = Package(
             name: "PlatformSupportLinux"),
         .target(
             name: "InContextMetadata"),
+        .systemLibrary(
+            name: "CMagickWand",
+            pkgConfig: "MagickWand",
+            providers: [
+                .apt(["libmagickwand-dev"]),
+            ]),
         .testTarget(
             name: "InContextTests",
             dependencies: [
-                "InContextCore"
+                "InContextCore",
             ],
             resources: [
                 .process("Resources")
@@ -109,13 +145,25 @@ let package = Package(
 )
 
 // Enable regex literals.
-
 let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("BareSlashRegexLiterals"),
     .unsafeFlags(["-warnings-as-errors"]),
 ]
 
+#if os(Linux)
+let magickWandSwiftSettings: [SwiftSetting] = [
+    .unsafeFlags(["-Xcc", "-D_GNU_SOURCE"], .when(platforms: [.linux])),
+    .unsafeFlags(pkgConfigDefines(for: "MagickWand").flatMap { ["-Xcc", $0] }, .when(platforms: [.linux])),
+]
+#else
+let magickWandSwiftSettings: [SwiftSetting] = []
+#endif
+
 for target in package.targets {
+    guard target.type != .system else {
+        continue
+    }
     target.swiftSettings = target.swiftSettings ?? []
+    target.swiftSettings?.append(contentsOf: magickWandSwiftSettings)
     target.swiftSettings?.append(contentsOf: swiftSettings)
 }
