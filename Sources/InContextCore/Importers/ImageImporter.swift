@@ -231,16 +231,6 @@ extension ImageImporter: Importer {
     static func process(file: File,
                         settings: Settings,
                         outputURL: URL) async throws -> ImporterResult {
-        return try await process(file: file,
-                                 settings: settings,
-                                 outputURL: outputURL,
-                                 imageBackend: defaultPlatformImage)
-    }
-
-    static func process(file: File,
-                        settings: Settings,
-                        outputURL: URL,
-                        imageBackend: any PlatformImage.Type) async throws -> ImporterResult {
 
         let fileURL = file.url
 
@@ -249,7 +239,7 @@ extension ImageImporter: Importer {
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
         // Load the image.
-        let image = try imageBackend.init(url: fileURL)
+        let image = try defaultPlatformImage.init(url: fileURL)
 
         let details = fileURL.basenameDetails()
 

@@ -20,22 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if os(macOS)
+
 import Foundation
 
 import XCTest
 @testable import InContextCore
 
-class ImageImporterTestCase: ContentTestCase {
+class ImageImporterTests: ContentTestCase {
 
-    var imageBackend: any PlatformImage.Type {
-        fatalError("Subclasses must override `imageBackend`.")
-    }
-
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        try XCTSkipIf(type(of: self) == ImageImporterTestCase.self,
-                     "ImageImporterTestCase is abstract; run its subclasses instead.")
-    }
+    let imageBackend: any PlatformImage.Type = defaultPlatformImage
 
     func testExtractTitle() async throws {
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
@@ -61,8 +55,7 @@ steps:
                                                inlineTemplate: "image.html")
         let result = try await ImageImporter.process(file: file,
                                                      settings: settings,
-                                                     outputURL: defaultSourceDirectory.site.filesURL,
-                                                     imageBackend: imageBackend)
+                                                     outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
         XCTAssertEqual(result.document?.title, "Hallgrímskirkja Church")
     }
@@ -91,8 +84,7 @@ steps:
                                                inlineTemplate: "image.html")
         let result = try await ImageImporter.process(file: file,
                                                      settings: settings,
-                                                     outputURL: defaultSourceDirectory.site.filesURL,
-                                                     imageBackend: imageBackend)
+                                                     outputURL: defaultSourceDirectory.site.filesURL)
         XCTAssertNotNil(result.document)
         let thumbnailURL = defaultSourceDirectory.site.filesURL
             .appendingPathComponent("nezumi_anim")
@@ -107,3 +99,5 @@ steps:
     }
 
 }
+
+#endif
