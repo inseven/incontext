@@ -26,17 +26,9 @@ import XCTest
 @testable import InContextCore
 import PlatformSupport
 
-class PlatformImageTestCase: ContentTestCase {
+class PlatformImageTests: ContentTestCase {
 
-    var imageBackend: any PlatformImage.Type {
-        fatalError("Subclasses must override `imageBackend`.")
-    }
-
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        try XCTSkipIf(type(of: self) == PlatformImageTestCase.self,
-                     "PlatformImageTestCase is abstract; run its subclasses instead.")
-    }
+    let imageBackend: any PlatformImage.Type = defaultPlatformImage
 
     func testPixelDimensions() throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
@@ -71,6 +63,18 @@ class PlatformImageTestCase: ContentTestCase {
         let url = try bundle.throwingURL(forResource: "R0010239", withExtension: "JPG")
         let image = try imageBackend.init(url: url)
         XCTAssertEqual(try image.projectionType, "equirectangular")
+    }
+
+    func testMetadataForImageWithReadWarnings() throws {
+        let url = try bundle.throwingURL(forResource: "threshold", withExtension: "png")
+        let image = try imageBackend.init(url: url)
+        XCTAssertNil(try image.dateTimeOriginal)
+        XCTAssertNil(try image.dateTimeDigitized)
+        XCTAssertNil(try image.firstTitle)
+        XCTAssertNil(try image.imageDescription)
+        XCTAssertNil(try image.signedLatitude)
+        XCTAssertNil(try image.signedLongitude)
+        XCTAssertNil(try image.projectionType)
     }
 
     func testFrameCountForStillImage() throws {
