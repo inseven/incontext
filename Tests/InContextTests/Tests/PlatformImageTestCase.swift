@@ -67,6 +67,12 @@ class PlatformImageTestCase: ContentTestCase {
         XCTAssert(description.contains("Hallgrímskirkja Church"))
     }
 
+    func testProjectionType() throws {
+        let url = try bundle.throwingURL(forResource: "R0010239", withExtension: "JPG")
+        let image = try imageBackend.init(url: url)
+        XCTAssertEqual(try image.projectionType, "equirectangular")
+    }
+
     func testFrameCountForStillImage() throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
         let image = try imageBackend.init(url: url)
