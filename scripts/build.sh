@@ -132,14 +132,6 @@ popd
 # to package it and notarize it ourselves.
 cp "${CLI_ARCHIVE_PATH}/Products/usr/local/bin/incontext" "${BUILD_DIRECTORY}/incontext"
 
-# Export the command.
-ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}"
-ZIP_PATH="$BUILD_DIRECTORY/$ZIP_BASENAME.zip"
-pushd "$BUILD_DIRECTORY"
-zip -r "$ZIP_PATH" incontext
-rm incontext
-popd
-
 # Export the helper.
 xcodebuild \
     -archivePath "$HELPER_ARCHIVE_PATH" \
@@ -147,80 +139,38 @@ xcodebuild \
     -exportPath "$BUILD_DIRECTORY" \
     -exportOptionsPlist "InContext/ExportOptions.plist"
 
-# Compress the helper.
-# Apple recommends we use ditto to prepare zips for notarization.
-# https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-HELPER_NAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER"
-HELPER_ZIP_BASENAME="$HELPER_NAME.zip"
-HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME"
-pushd "$BUILD_DIRECTORY"
-/usr/bin/ditto -c -k --keepParent "InContext Helper.app" "$HELPER_ZIP_PATH"
-popd
-
 # Notarization.
 
 API_KEY_PATH="$TEMPORARY_DIRECTORY/api.key"
 echo "$APPLE_API_KEY_BASE64" | base64 -d > "$API_KEY_PATH"
 
 # Notarize the command.
-
-xcrun notarytool submit "$ZIP_PATH" \
+build-tools notarize "$BUILD_DIRECTORY/incontext" \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
-    --output-format json \
-    --wait | tee command-notarization-response.json
-NOTARIZATION_ID=`cat command-notarization-response.json | jq -r ".id"`
-NOTARIZATION_RESPONSE=`cat command-notarization-response.json | jq -r ".status"`
-
-xcrun notarytool log \
-    --key "$API_KEY_PATH" \
-    --key-id "$APPLE_API_KEY_ID" \
-    --issuer "$APPLE_API_KEY_ISSUER_ID" \
-    "$NOTARIZATION_ID" | tee "$BUILD_DIRECTORY/command-notarization-log.json"
-
-if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
-    echo "Failed to notarize command."
-    exit 1
-fi
+    --log "$BUILD_DIRECTORY/command-notarization-log.json" \
+    --skip-staple
 
 # Notarize the helper.
-
-xcrun notarytool submit "$HELPER_ZIP_PATH" \
+build-tools notarize "$BUILD_DIRECTORY/InContext Helper.app" \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
-    --output-format json \
-    --wait | tee helper-notarization-response.json
-NOTARIZATION_ID=`cat helper-notarization-response.json | jq -r ".id"`
-NOTARIZATION_RESPONSE=`cat helper-notarization-response.json | jq -r ".status"`
+    --log "$BUILD_DIRECTORY/helper-notarization-log.json"
 
-xcrun notarytool log \
-    --key "$API_KEY_PATH" \
-    --key-id "$APPLE_API_KEY_ID" \
-    --issuer "$APPLE_API_KEY_ISSUER_ID" \
-    "$NOTARIZATION_ID" | tee "$BUILD_DIRECTORY/helper-notarization-log.json"
+# Compress the command.
+ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}"
+ZIP_PATH="$BUILD_DIRECTORY/$ZIP_BASENAME.zip"
+pushd "$BUILD_DIRECTORY"
+zip --symlinks -r "$ZIP_PATH" incontext
+rm incontext
+popd
 
-if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
-    echo "Failed to notarize helper."
-    exit 1
-fi
-
-# Remove the zip file used for notarization.
-rm "$HELPER_ZIP_PATH"
-
-# Staple and validate the app; this bakes the notarization into the app in case the device trying to run it can't do an
-# online check with Apple's servers for some reason.
-xcrun stapler staple "$BUILD_DIRECTORY/InContext Helper.app"
-xcrun stapler validate "$BUILD_DIRECTORY/InContext Helper.app"
-
-# Next up, we perform a belt-and-braces check that the app validates after stapling.
-codesign --verify --deep --strict --verbose=2 "$BUILD_DIRECTORY/InContext Helper.app"
-
-# Compress the stapled app and package it for release.
-# Curiously, ditto, which Apple recommends for compressing app bundles only seems to create valid zip files when using
-# Sequoia and subsequently notarizing the zip file. Since we need to recompress the stapled app package, we instead use
-# `zip --symlinks` which, thankfully, seems to work just fine.
+# Compress the stapled helper app and package it for release.
+HELPER_NAME="InContext-Helper-$VERSION_NUMBER-$BUILD_NUMBER"
+HELPER_ZIP_BASENAME="$HELPER_NAME.zip"
+HELPER_ZIP_PATH="$BUILD_DIRECTORY/$HELPER_ZIP_BASENAME"
 pushd "$BUILD_DIRECTORY"
 zip --symlinks -r "$HELPER_ZIP_BASENAME" "InContext Helper.app"
 rm -r "InContext Helper.app"
