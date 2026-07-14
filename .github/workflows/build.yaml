@@ -105,9 +105,15 @@ jobs:
 
         - name: ubuntu-resolute-amd64
           os: ubuntu-26.04
+          setup: |
+            sudo apt-get update -y
+            sudo apt-get install -y swiftlang
 
         - name: ubuntu-resolute-arm64
           os: ubuntu-26.04-arm
+          setup: |
+            sudo apt-get update -y
+            sudo apt-get install -y swiftlang
 
     name: ${{ matrix.name }}-build
     runs-on: ${{ matrix.os }}
