@@ -140,6 +140,14 @@ jobs:
         submodules: recursive
         lfs: true
 
+    - name: Cache Swift build directory
+      uses: actions/cache@v4
+      with:
+        path: .build
+        key: swift-build-${{ matrix.name }}-${{ hashFiles('Package.resolved') }}
+        restore-keys: |
+          swift-build-${{ matrix.name }}-
+
     - name: Install dependencies
       run: scripts/install-linux-dependencies.sh
 
