@@ -104,18 +104,16 @@ jobs:
         include:
 
         - name: ubuntu-resolute-amd64
-          os: ubuntu-24.04
-          container: ubuntu:resolute
+          os: ubuntu-26.04
           setup: |
-            apt-get update -y
-            apt-get install -y build-essential git git-lfs swiftlang
+            sudo apt-get update -y
+            sudo apt-get install -y swiftlang
 
         - name: ubuntu-resolute-arm64
-          os: ubuntu-24.04-arm
-          container: ubuntu:resolute
+          os: ubuntu-26.04-arm
           setup: |
-            apt-get update -y
-            apt-get install -y build-essential git git-lfs swiftlang
+            sudo apt-get update -y
+            sudo apt-get install -y swiftlang
 
     name: ${{ matrix.name }}-build
     runs-on: ${{ matrix.os }}
