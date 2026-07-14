@@ -35,10 +35,6 @@ BUILD_DIRECTORY="$ROOT_DIRECTORY/build"
 SWIFT_BUILD_DIRECTORY="$ROOT_DIRECTORY/.build"
 ARTIFACTS_DIRECTORY="$BUILD_DIRECTORY/artifacts"
 
-# Clean up and recreate the output directories.
-if [ -d "$SWIFT_BUILD_DIRECTORY" ] ; then
-    rm -rf "$SWIFT_BUILD_DIRECTORY"
-fi
 if [ -d "$BUILD_DIRECTORY" ] ; then
     rm -r "$BUILD_DIRECTORY"
 fi
