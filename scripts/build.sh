@@ -114,7 +114,7 @@ xcodebuild \
     OTHER_CODE_SIGN_FLAGS="--keychain=\"${KEYCHAIN_PATH}\"" \
     MARKETING_VERSION=$VERSION_NUMBER \
     CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
-    clean archive
+    archive
 
 # Build and archive the helper.
 xcodebuild \
@@ -123,7 +123,7 @@ xcodebuild \
     -archivePath "$HELPER_ARCHIVE_PATH" \
     MARKETING_VERSION=$VERSION_NUMBER \
     CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
-    clean archive
+    archive
 
 popd
 
