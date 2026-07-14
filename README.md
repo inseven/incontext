@@ -2,7 +2,7 @@
 
 [![build](https://github.com/inseven/incontext/actions/workflows/build.yaml/badge.svg)](https://github.com/inseven/incontext/actions/workflows/build.yaml)
 
-Multimedia-focused static site builder for macOS
+Multimedia-focused static site builder.
 
 ## Installation
 
