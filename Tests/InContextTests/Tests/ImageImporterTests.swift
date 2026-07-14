@@ -27,8 +27,6 @@ import XCTest
 
 class ImageImporterTests: ContentTestCase {
 
-    let imageBackend: any PlatformImage.Type = defaultPlatformImage
-
     func testExtractTitle() async throws {
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
 version: 2
@@ -92,7 +90,7 @@ steps:
         XCTAssert(FileManager.default.fileExists(at: thumbnailURL))
 
         // Check the number of frames in the image.
-        let thumbnail = try imageBackend.init(url: thumbnailURL)
+        let thumbnail = try NativeImage(url: thumbnailURL)
         XCTAssertEqual(thumbnail.frameCount, 14)
     }
 

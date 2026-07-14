@@ -25,9 +25,9 @@ import Foundation
 import PlatformSupport
 
 #if canImport(ImageIO)
-let defaultPlatformImage: any PlatformImage.Type = CoreGraphicsImage.self
+typealias NativeImage = CoreGraphicsImage
 #else
-let defaultPlatformImage: any PlatformImage.Type = MagickImage.self
+typealias NativeImage = MagickImage
 #endif
 
 struct _Type: _Test {
@@ -239,7 +239,7 @@ extension ImageImporter: Importer {
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
         // Load the image.
-        let image = try defaultPlatformImage.init(url: fileURL)
+        let image = try NativeImage(url: fileURL)
 
         let details = fileURL.basenameDetails()
 
