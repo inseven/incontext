@@ -27,24 +27,22 @@ import XCTest
 
 class PlatformImageTests: ContentTestCase {
 
-    let imageBackend: any PlatformImage.Type = defaultPlatformImage
-
     func testPixelDimensions() throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try imageBackend.init(url: url)
+        let image = try NativeImage(url: url)
         XCTAssertEqual(try XCTUnwrap(image.pixelWidth), 4032)
         XCTAssertEqual(try XCTUnwrap(image.pixelHeight), 3024)
     }
 
     func testDateTimeOriginal() throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try imageBackend.init(url: url)
+        let image = try NativeImage(url: url)
         XCTAssertEqual(try image.dateTimeOriginal, Date(2023, 04, 12, 11, 08, 27))
     }
 
     func testLocation() throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try imageBackend.init(url: url)
+        let image = try NativeImage(url: url)
         let latitude = try XCTUnwrap(image.signedLatitude)
         let longitude = try XCTUnwrap(image.signedLongitude)
         XCTAssertEqual(latitude, 64.142272166666672, accuracy: 0.0001)
@@ -53,20 +51,20 @@ class PlatformImageTests: ContentTestCase {
 
     func testImageDescription() throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try imageBackend.init(url: url)
+        let image = try NativeImage(url: url)
         let description = try XCTUnwrap(image.imageDescription)
         XCTAssert(description.contains("Hallgrímskirkja Church"))
     }
 
     func testProjectionType() throws {
         let url = try bundle.throwingURL(forResource: "R0010239", withExtension: "JPG")
-        let image = try imageBackend.init(url: url)
+        let image = try NativeImage(url: url)
         XCTAssertEqual(try image.projectionType, "equirectangular")
     }
 
     func testMetadataForImageWithReadWarnings() throws {
         let url = try bundle.throwingURL(forResource: "threshold", withExtension: "png")
-        let image = try imageBackend.init(url: url)
+        let image = try NativeImage(url: url)
         XCTAssertNil(try image.dateTimeOriginal)
         XCTAssertNil(try image.dateTimeDigitized)
         XCTAssertNil(try image.firstTitle)
@@ -78,25 +76,25 @@ class PlatformImageTests: ContentTestCase {
 
     func testFrameCountForStillImage() throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try imageBackend.init(url: url)
+        let image = try NativeImage(url: url)
         XCTAssertEqual(image.frameCount, 1)
     }
 
     func testFrameCountForAnimatedGif() throws {
         let url = try bundle.throwingURL(forResource: "nezumi_anim", withExtension: "gif")
-        let image = try imageBackend.init(url: url)
+        let image = try NativeImage(url: url)
         XCTAssertEqual(image.frameCount, 14)
     }
 
     func testResizesImage() throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try imageBackend.init(url: url)
+        let image = try NativeImage(url: url)
 
         let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
         try image.write(maxPixelSize: 400, format: .jpeg, to: destinationURL)
         XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
-        let thumbnail = try imageBackend.init(url: destinationURL)
+        let thumbnail = try NativeImage(url: destinationURL)
         let width = try XCTUnwrap(thumbnail.pixelWidth)
         let height = try XCTUnwrap(thumbnail.pixelHeight)
         XCTAssertEqual(max(width, height), 400)
