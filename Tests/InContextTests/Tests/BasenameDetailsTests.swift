@@ -81,10 +81,6 @@ class BasenameDetailsTests: XCTestCase {
         XCTAssertEqual(url.parentURL, "/posts/")
     }
 
-#if os(macOS)
-
-    // TODO: BasenameDetailsTests.testRootIndexNoTitle fails on Ubuntu #290
-    //       https://github.com/inseven/incontext/issues/290
     func testRootIndexNoTitle() {
         let rootURL = URL(filePath: "/tmp", directoryHint: .isDirectory)
         let url = URL(filePath: "index.markdown", relativeTo: rootURL)
@@ -93,8 +89,6 @@ class BasenameDetailsTests: XCTestCase {
         XCTAssertNil(details.title)
         XCTAssertNil(details.scale)
     }
-
-#endif
 
     func testScale() throws {
         let rootURL = URL(filePath: "/tmp", directoryHint: .isDirectory)
