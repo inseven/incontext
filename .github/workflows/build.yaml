@@ -39,6 +39,16 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Cache Python tool virtualenvs
+      uses: actions/cache@v4
+      with:
+        path: |
+          scripts/changes/.venv
+          scripts/build-tools/.venv
+        key: pipenv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.tool-versions', 'scripts/changes/Pipfile.lock', 'scripts/build-tools/Pipfile.lock') }}
+        restore-keys: |
+          pipenv-${{ runner.os }}-${{ runner.arch }}-
+
     - name: Install dependencies
       run: scripts/install-dependencies.sh
 
