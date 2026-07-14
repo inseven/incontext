@@ -38,6 +38,5 @@ It's very common to want to list all documents within a specific category, with 
 </html>]]
 ```
 
-<aside>
-  Note that this template still includes the document's HTML–this can be helpful in creating reusable listings pages which can be easily annotated in their source Markdown.
-</aside>
+> [!NOTE]
+> This template still includes the document's HTML–this can be helpful in creating reusable listings pages which can be easily annotated in their source Markdown.
