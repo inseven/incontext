@@ -217,8 +217,8 @@ jobs:
         if-no-files-found: error
 
   website-build:
-    needs: macos-build
-    runs-on: macos-latest
+    needs: linux-build
+    runs-on: ubuntu-26.04
     steps:
 
     - name: Checkout repository
@@ -232,8 +232,11 @@ jobs:
     - name: Download the build artifacts
       uses: actions/download-artifact@v8
       with:
-        name: incontext-macos
-        path: build
+        name: incontext-ubuntu-resolute-amd64
+        path: artifacts
+
+    - name: Install incontext
+      run: sudo apt-get install -y ./artifacts/incontext.deb
 
     - name: Install the tool dependencies
       uses: jdx/mise-action@v4
@@ -248,10 +251,7 @@ jobs:
 
     - name: Build the site
       run: |
-        pushd build
-        unzip incontext-*.zip
-        popd
-        build/incontext build --site docs
+        incontext build --site docs
         mv docs/build/files _site
 
     - name: Fix permissions
