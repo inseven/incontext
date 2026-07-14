@@ -10,79 +10,63 @@ InContext supports GitHub-style admonitions.
 
 ### Note
 
-#### Markdown
+> [!NOTE]
+>
+> This is a `NOTE`.
+
 
 ```plaintext
 > [!NOTE]
 >
-> This is a note.
+> This is a `NOTE`.
 ```
-
-#### Output
-
-> [!NOTE]
->
-> This is a note.
 
 ### Tip
 
-#### Markdown
+> [!TIP]
+>
+> This is a `TIP`.
 
 ```plaintext
 > [!TIP]
 >
-> This is a tip.
+> This is a `TIP`.
 ```
 
-#### Output
-
-> [!TIP]
->
-> This is a tip.
-
-### Important
-
 #### Markdown
+
+> [!IMPORTANT]
+>
+> This is `IMPORTANT`.
 
 ```plaintext
 > [!IMPORTANT]
 >
-> This is important.
+> This is `IMPORTANT`.
 ```
-#### Output
-
-> [!IMPORTANT]
->
-> This is important.
 
 ### Warning
 
 #### Markdown
 
+> [!WARNING]
+>
+> This is a `WARNING`.
+
 ```plaintext
 > [!WARNING]
 >
-> This is a warning.
+> This is a `WARNING`.
 ```
-
-#### Output
-
-> [!WARNING]
->
-> This is a warning.
 
 ### Caution
 
-#### Markdown
+> [!CAUTION]
+>
+> This is a `CAUTION`.
 
 ```plaintext
 > [!CAUTION]
 >
-> This is a caution.
+> This is a `CAUTION`.
 ```
-
-#### Output
-
-> [!CAUTION]
->
-> This is a caution.

@@ -97,11 +97,15 @@ Render the contents of a document:
 </html>]]
 ```
 
-<aside>
-  The implementation of <code>incontext.renderDocumentHTML()</code> is a nice example of how to use pure-Lua functions to add simple extensions to the Tilt rendering language:
-
-<pre><code class="lua hljs">function renderDocumentHTML(document)<br />    return render(document.sourcePath, document.html() or "")<br />end</code></pre>
-</aside>
+> [!TIP]
+>
+> The implementation of `incontext.renderDocumentHTML()` is a nice example of how to use pure-Lua functions to add simple extensions to the Tilt rendering language:
+>
+> ```
+> function renderDocumentHTML(document)
+>     return render(document.sourcePath, document.html() or "")
+> end
+> ```
 
 ## `incontext.thumbnail(url)`
 
@@ -285,9 +289,9 @@ Returns all descendants of a document, with a primary sort on the `date` propert
 
 Specifying a maximum depth of 1 will return the document's immediate children. Omitting the maximum depth will return all descendants.
 
-<aside>
-  Note <code>document.children(options)</code> exists as a convenience for listing the documents immediate children and may be cleaner to use in templates if that's all you require.
-</aside>
+> [!NOTE]
+>
+> Note `document.children(options)` exists as a convenience for listing the documents immediate children and may be cleaner to use in templates if that's all you require.
 
 ### Examples
 
