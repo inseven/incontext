@@ -1,7 +1,16 @@
+@charset "utf-8";
+
+@import url('https://fonts.googleapis.com/css2?family=Bitter&family=PT+Serif:ital@1&family=Wix+Madefor+Display:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
 :root {
     --box-border-radius: 0.4em;
     --text-border-radius: 0.2em;
     --box-padding: 1em;
+
+    --main-font-family: 'Bitter', serif;
+    --code-font-family: 'JetBrains Mono', monospace;
+    --code-font-size: 14px;
 
     --primary-foreground-color: #000;
 
@@ -10,8 +19,8 @@
     --tertiary-background-color: #fcfcfc;
 
     --admonition-note-color: #0969da;
-    --admonition-note-background: #c9e2ff;
-    --admonition-note-code-background: #a8cdf5;
+    --admonition-note-background-color: #ddf4ff;
+    --admonition-note-code-background: #c8e8fa;
 
     --admonition-tip-color: #1a7f37;
     --admonition-tip-background-color: #dafbe1;
@@ -42,7 +51,7 @@
         --tertiary-background-color: #1e1e1e;
 
         --admonition-note-color: #2f81f7;
-        --admonition-note-background: rgba(56, 139, 253, 0.1);
+        --admonition-note-background-color: rgba(56, 139, 253, 0.1);
         --admonition-note-code-background: #1f3a5f;
 
         --admonition-tip-color: #3fb950;
@@ -68,7 +77,7 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Bitter', serif;
+    font-family: var(--main-font-family);
     max-width: 1000px;
     margin: auto;
     color: var(--primary-foreground-color);
@@ -86,6 +95,11 @@ a {
 
 p, pre, ul, aside {
     line-height: 1.5em;
+}
+
+pre, code {
+    font-family: var(--code-font-family);
+    font-size: var(--code-font-size);
 }
 
 .content {
