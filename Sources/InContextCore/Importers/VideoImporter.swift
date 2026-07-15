@@ -43,7 +43,7 @@ class VideoImporter: Importer {
     }
 
     let identifier = "video"
-    let version = 8
+    let version = 9
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         return Settings(defaultCategory: try configuration.requiredValue(for: "category"),
@@ -115,14 +115,19 @@ class VideoImporter: Importer {
             "filename": "cheese",
         ]
 
+        // Title.
+        let metadataTitle = try await quickTimeMetadata.quickTimeMetadataTitle
         let filenameTitle = settings.titleFromFilename ? details.title : nil
-        let title = (try await quickTimeMetadata.quickTimeMetadataTitle) ?? content?.title ?? filenameTitle
-        let date = (try await quickTimeMetadata.creationDate) ?? content?.date ?? details.date
+        let title = content?.title ?? metadataTitle ?? filenameTitle
+
+        // Date.
+        let metadataDate = try await quickTimeMetadata.creationDate
+        let date = content?.date ?? metadataDate ?? details.date
 
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,
                                     category: settings.defaultCategory,
-                                    date: content?.date ?? date,
+                                    date: date,
                                     title: title,
                                     metadata: metadata,
                                     contents: content?.content ?? "",
