@@ -83,8 +83,15 @@ class VideoImporter: Importer {
         // Metadata.
         var metadata: [String: Any] = [:]
 
+        if let location = try await quickTimeMetadata.location {
+            metadata["location"] = [
+                "latitude": location.latitude,
+                "longitude": location.longitude,
+            ]
+        }
+
         // Get the metadata title and description.
-        let content: FrontmatterDocument? = if let description = try await quickTimeMetadata.quickTimeMetadataDescription {
+        let content: FrontmatterDocument? = if let description = try await quickTimeMetadata.description {
             try FrontmatterDocument(contents: description, generateHTML: true)
         } else {
             nil
@@ -116,7 +123,7 @@ class VideoImporter: Importer {
         ]
 
         // Title.
-        let metadataTitle = try await quickTimeMetadata.quickTimeMetadataTitle
+        let metadataTitle = try await quickTimeMetadata.title
         let filenameTitle = settings.titleFromFilename ? details.title : nil
         let title = content?.title ?? metadataTitle ?? filenameTitle
 

@@ -59,6 +59,38 @@ steps:
         XCTAssertEqual(result.document?.title, "Royal Wave")
     }
 
+    func testExtractLocation() async throws {
+
+        _ = try defaultSourceDirectory.add("site.yaml", contents: """
+version: 2
+title: Example
+url: http://example.com
+steps:
+  - when: '(.*/)?.*\\.mov'
+    then: video
+    args:
+        category: snapshots
+        defaultTemplate: video.html
+        inlineTemplate: video.html
+        titleFromFilename: false
+""")
+
+        let video = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave",
+                                                                           withExtension: "mov"),
+                                                    to: "2022-05-31-17-55-03-royal-wave.mov",
+                                                    location: .content)
+
+        let result = try await VideoImporter.process(file: video,
+                                                     settings: VideoImporter.Settings(defaultCategory: "snapshots",
+                                                                                      titleFromFilename: false,
+                                                                                      defaultTemplate: "video.html",
+                                                                                      inlineTemplate: "video.html"),
+                                                     outputURL: defaultSourceDirectory.site.filesURL)
+        let location = result.document?.metadata["location"] as? [String: Double]
+        XCTAssertEqual(location?["latitude"], 51.5126)
+        XCTAssertEqual(location?["longitude"], -0.1240)
+    }
+
 }
 
 #endif
