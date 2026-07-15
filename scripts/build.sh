@@ -140,20 +140,14 @@ xcodebuild \
 API_KEY_PATH="$TEMPORARY_DIRECTORY/api.key"
 echo "$APPLE_API_KEY_BASE64" | base64 -d > "$API_KEY_PATH"
 
-# Notarize the command.
-build-tools notarize "$BUILD_DIRECTORY/incontext" \
+# Notarize the command and the helper.
+build-tools notarize \
+    "$BUILD_DIRECTORY/incontext" \
+    "$BUILD_DIRECTORY/InContext Helper.app" \
     --key "$API_KEY_PATH" \
     --key-id "$APPLE_API_KEY_ID" \
     --issuer "$APPLE_API_KEY_ISSUER_ID" \
-    --log "$BUILD_DIRECTORY/command-notarization-log.json" \
-    --skip-staple
-
-# Notarize the helper.
-build-tools notarize "$BUILD_DIRECTORY/InContext Helper.app" \
-    --key "$API_KEY_PATH" \
-    --key-id "$APPLE_API_KEY_ID" \
-    --issuer "$APPLE_API_KEY_ISSUER_ID" \
-    --log "$BUILD_DIRECTORY/helper-notarization-log.json"
+    --log-directory "$BUILD_DIRECTORY/notarization-logs"
 
 # Compress the command.
 ZIP_BASENAME="incontext-${VERSION_NUMBER}-${BUILD_NUMBER}"
