@@ -120,7 +120,7 @@ class VideoImporter: Importer {
             "video": videoDetails,
         ]
 
-        let filenameTitle = settings.titleFromFilename ? details.title
+        let filenameTitle = settings.titleFromFilename ? details.title : nil
         let title = metadataTitle ?? content?.title ?? filenameTitle
         let videoCreationDate = try await quickTimeMetadata.creationDate
         let date = content?.date ?? videoCreationDate ?? details.date
