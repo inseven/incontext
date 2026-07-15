@@ -99,7 +99,7 @@ final class CoreGraphicsImage: PlatformImage {
         get throws { return try (try title) ?? (try displayName) ?? (try objectName) }
     }
 
-    var imageDescription: String? {
+    var mediaDescription: String? {
         get throws { return try properties.optionalValue(for: ["{TIFF}", "ImageDescription"]) }
     }
 

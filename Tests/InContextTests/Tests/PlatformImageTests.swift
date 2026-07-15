@@ -50,10 +50,10 @@ class PlatformImageTests: ContentTestCase {
         XCTAssertEqual(longitude, -21.927391666666665, accuracy: 0.0001)
     }
 
-    func testImageDescription() throws {
+    func testMediaDescription() throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
         let image = try NativeImage(url: url)
-        let description = try XCTUnwrap(image.imageDescription)
+        let description = try XCTUnwrap(image.mediaDescription)
         XCTAssert(description.contains("Hallgrímskirkja Church"))
     }
 
@@ -69,7 +69,7 @@ class PlatformImageTests: ContentTestCase {
         XCTAssertNil(try image.dateTimeOriginal)
         XCTAssertNil(try image.dateTimeDigitized)
         XCTAssertNil(try image.firstTitle)
-        XCTAssertNil(try image.imageDescription)
+        XCTAssertNil(try image.mediaDescription)
         XCTAssertNil(try image.signedLatitude)
         XCTAssertNil(try image.signedLongitude)
         XCTAssertNil(try image.projectionType)
