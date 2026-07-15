@@ -91,6 +91,37 @@ steps:
         XCTAssertEqual(location?["longitude"], -0.1240)
     }
 
+    func testExtractDuration() async throws {
+
+        _ = try defaultSourceDirectory.add("site.yaml", contents: """
+version: 2
+title: Example
+url: http://example.com
+steps:
+  - when: '(.*/)?.*\\.mov'
+    then: video
+    args:
+        category: snapshots
+        defaultTemplate: video.html
+        inlineTemplate: video.html
+        titleFromFilename: false
+""")
+
+        let video = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave",
+                                                                           withExtension: "mov"),
+                                                    to: "2022-05-31-17-55-03-royal-wave.mov",
+                                                    location: .content)
+
+        let result = try await VideoImporter.process(file: video,
+                                                     settings: VideoImporter.Settings(defaultCategory: "snapshots",
+                                                                                      titleFromFilename: false,
+                                                                                      defaultTemplate: "video.html",
+                                                                                      inlineTemplate: "video.html"),
+                                                     outputURL: defaultSourceDirectory.site.filesURL)
+        let duration = try XCTUnwrap(result.document?.metadata["duration"] as? Double)
+        XCTAssertEqual(duration, 7.835, accuracy: 0.01)
+    }
+
 }
 
 #endif
