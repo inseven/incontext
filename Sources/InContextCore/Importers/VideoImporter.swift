@@ -72,7 +72,7 @@ class VideoImporter: Importer {
         }
 
         guard let naturalSize = try await videoTracks.first?.load(.naturalSize) else {
-            throw InContextError.internalInconsistency("Failed to determine size of video '\(fileURL.relativePath)'.")
+            throw InContextError.videoLibraryError("Failed to determine size of video '\(fileURL.relativePath)'.")
         }
         let size = Size(naturalSize)
 
@@ -156,7 +156,7 @@ class VideoImporter: Importer {
                                                                 format.identifier as CFString,
                                                                 1,
                                                                 nil) else {
-            throw InContextError.internalInconsistency("Failed to save thumbnail at '\(destinationURL.relativePath)'.")
+            throw InContextError.videoLibraryError("Failed to save thumbnail at '\(destinationURL.relativePath)'.")
         }
         CGImageDestinationAddImage(destination, result.image, nil)
         CGImageDestinationFinalize(destination)  // TODO: Handle error here?
@@ -173,13 +173,13 @@ class VideoImporter: Importer {
         guard await AVAssetExportSession.compatibility(ofExportPreset: preset,
                                                        with: video,
                                                        outputFileType: outputFileType) else {
-            throw InContextError.internalInconsistency("The preset can't export the video to the output file type.")
+            throw InContextError.videoLibraryError("The preset can't export the video to the output file type.")
         }
 
         // Create and configure the export session.
         guard let exportSession = AVAssetExportSession(asset: video,
                                                        presetName: preset) else {
-            throw InContextError.internalInconsistency("Failed to create export session.")
+            throw InContextError.videoLibraryError("Failed to create export session.")
         }
 
         // Convert the video to the output file type and export it to the output URL.
