@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-public class UTType {
+public class UTType: Equatable {
 
     public static let markdown = UTType(filenameExtension: "markdown")
     public static let html = UTType(filenameExtension: "html")
@@ -28,6 +28,7 @@ public class UTType {
     public static let tiff = UTType(filenameExtension: "tiff")
     public static let heic = UTType(filenameExtension: "heic")
     public static let gif = UTType(filenameExtension: "gif")
+    public static let mov = UTType(filenameExtension: "mov")
 
     let filenameExtension: String
 
@@ -41,6 +42,10 @@ public class UTType {
 
     public func conforms(to type: UTType) -> Bool {
         return type.filenameExtension == filenameExtension
+    }
+
+    public static func == (lhs: UTType, rhs: UTType) -> Bool {
+        return lhs.filenameExtension == rhs.filenameExtension
     }
 
 }
