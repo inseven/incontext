@@ -26,5 +26,6 @@ import UniformTypeIdentifiers
 extension UTType {
 
     public static let markdown: UTType = UTType(mimeType: "text/markdown", conformingTo: .text)!
+    public static let mov: UTType = UTType(filenameExtension: "mov")!
 
 }
