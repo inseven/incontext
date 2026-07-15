@@ -59,6 +59,14 @@ fileprivate let hummingbirdCoreLicense = License(id: "https://github.com/humming
                                                          title: "GitHub"),
                                                  ])
 
+fileprivate let imageMagickLicense = License(id: "https://imagemagick.org",
+                                             name: "ImageMagick",
+                                             author: "ImageMagick Studio LLC",
+                                             text: String(contentsOfResource: "imagemagick-license"),
+                                             attributes: [
+                                                .url(URL(string: "https://imagemagick.org")!, title: "Website"),
+                                             ])
+
 fileprivate let lruCacheLicense = License(id: "https://github.com/nicklockwood/LRUCache",
                                           name: "LRUCache",
                                           author: "Nick Lockwood",
@@ -289,48 +297,56 @@ fileprivate let yamsLicense = License(id: "https://github.com/jpsim/Yams",
                                         .url(URL(string: "https://github.com/jpsim/Yams")!, title: "GitHub"),
                                       ])
 
-fileprivate let incontextLicense = License(id: "https://github.com/inseven/incontext",
-                                           name: "InContext",
-                                           author: "Jason Morley",
-                                           text: String(contentsOfResource: "incontext-license"),
-                                           attributes: [
-                                            .url(URL(string: "https://github.com/inseven/incontext")!, title: "GitHub"),
-                                           ],
-                                           licenses: [
-                                            .licensable,
-                                            fseventsWrapperLicense,
-                                            hoedownLicense,
-                                            hummingbirdLicense,
-                                            hummingbirdCoreLicense,
-                                            lruCacheLicense,
-                                            luaSwiftLicense,
-                                            sqliteSwiftLicense,
-                                            swiftAlgorithmsLicense,
-                                            swiftArgumentParserLicense,
-                                            swiftAtomicsLicense,
-                                            swiftBacktraceLicense,
-                                            swiftCollectionsLicense,
-                                            swiftCryptoLicense,
-                                            swiftDistributedTracingLicense,
-                                            swiftHTTPStructuredHeadersLicense,
-                                            swiftHTTPTypesLicense,
-                                            swiftLogLicense,
-                                            swiftMetricsLicense,
-                                            swiftNIOLicense,
-                                            swiftNIOExtrasLicense,
-                                            swiftNIOHTTP2License,
-                                            swiftNIOSSLLicense,
-                                            swiftNIOTransportServicesLicense,
-                                            swiftNumericsLicense,
-                                            swiftServiceContextLicense,
-                                            swiftServiceLifecycleLicense,
-                                            swiftSoupLicense,
-                                            swiftSystemLicense,
-                                            tiltLicense,
-                                            titlecaserLicense,
-                                            yamsLicense,
-                                           ])
+fileprivate let incontextLicense: License = {
 
+    var licenses: [License] = [
+        .licensable,
+        fseventsWrapperLicense,
+        hoedownLicense,
+        hummingbirdLicense,
+        hummingbirdCoreLicense,
+        lruCacheLicense,
+        luaSwiftLicense,
+        sqliteSwiftLicense,
+        swiftAlgorithmsLicense,
+        swiftArgumentParserLicense,
+        swiftAtomicsLicense,
+        swiftBacktraceLicense,
+        swiftCollectionsLicense,
+        swiftCryptoLicense,
+        swiftDistributedTracingLicense,
+        swiftHTTPStructuredHeadersLicense,
+        swiftHTTPTypesLicense,
+        swiftLogLicense,
+        swiftMetricsLicense,
+        swiftNIOLicense,
+        swiftNIOExtrasLicense,
+        swiftNIOHTTP2License,
+        swiftNIOSSLLicense,
+        swiftNIOTransportServicesLicense,
+        swiftNumericsLicense,
+        swiftServiceContextLicense,
+        swiftServiceLifecycleLicense,
+        swiftSoupLicense,
+        swiftSystemLicense,
+        tiltLicense,
+        titlecaserLicense,
+        yamsLicense,
+    ]
+
+#if os(Linux)
+    licenses.append(imageMagickLicense)
+#endif
+
+    return License(id: "https://github.com/inseven/incontext",
+                   name: "InContext",
+                   author: "Jason Morley",
+                   text: String(contentsOfResource: "incontext-license"),
+                   attributes: [
+                    .url(URL(string: "https://github.com/inseven/incontext")!, title: "GitHub"),
+                   ],
+                   licenses: licenses)
+}()
 
 extension Licensable where Self == License {
 
