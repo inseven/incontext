@@ -22,34 +22,44 @@
 
 import Foundation
 
-struct Size {
-    let width: Int
-    let height: Int
+import PlatformSupport
 
-    init(width: Int, height: Int) {
-        self.width = width
-        self.height = height
+final class DummyPlatformVideo: PlatformVideo {
+
+    init(url: URL) async throws {
+        throw InContextError.unsupportedMediaType
     }
 
-    init(_ size: CGSize) {
-        self.width = Int(size.width)
-        self.height = Int(size.height)
+    var size: Size? {
+        get async throws { fatalError("Unsupported media type.") }
     }
 
-    func fit(width: Int) -> Size {
-        if self.width <= width {
-            return self
-        }
-        let ratio = Double(self.width) / Double(self.height)
-        let height = Double(width) / ratio
-        return Size(width: width, height: Int(height))
+    var duration: Double? {
+        get async throws { fatalError("Unsupported media type.") }
     }
-}
 
-extension CGSize {
+    var creationDate: Date? {
+        get async throws { fatalError("Unsupported media type.") }
+    }
 
-    init(_ size: Size) {
-        self.init(width: size.width, height: size.height)
+    var title: String? {
+        get async throws { fatalError("Unsupported media type.") }
+    }
+
+    var mediaDescription: String? {
+        get async throws { fatalError("Unsupported media type.") }
+    }
+
+    var location: (latitude: Double, longitude: Double)? {
+        get async throws { fatalError("Unsupported media type.") }
+    }
+
+    func writeThumbnail(at time: Double, maxPixelSize: Int, format: UTType, to url: URL) async throws {
+        fatalError("Unsupported media type.")
+    }
+
+    func writeVideo(maxPixelSize: Int, format: UTType, to url: URL) async throws {
+        fatalError("Unsupported media type.")
     }
 
 }
