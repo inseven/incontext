@@ -83,6 +83,12 @@ class VideoImporter: Importer {
         // Metadata.
         var metadata: [String: Any] = [:]
 
+        let duration = try await asset.load(.duration)
+        if duration.isNumeric {
+            metadata["duration"] = duration.seconds
+
+        }
+
         if let location = try await quickTimeMetadata.location {
             metadata["location"] = [
                 "latitude": location.latitude,

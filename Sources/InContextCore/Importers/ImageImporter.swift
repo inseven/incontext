@@ -198,7 +198,7 @@ let configuration = _Configuration {
 
 }
 
-class ImageImporter {
+class ImageImporter: Importer {
 
     struct Settings: ImporterSettings {
         let defaultCategory: String
@@ -223,10 +223,6 @@ class ImageImporter {
                         defaultTemplate: try configuration.requiredValue(for: "defaultTemplate"),
                         inlineTemplate: try configuration.requiredValue(for: "inlineTemplate"))
     }
-
-}
-
-extension ImageImporter: Importer {
 
     static func process(file: File,
                         settings: Settings,
@@ -260,7 +256,7 @@ extension ImageImporter: Importer {
         if let imageDescription = try image.imageDescription {
             let frontmatter = try FrontmatterDocument(contents: imageDescription, generateHTML: true)
             guard let contentMetadata = frontmatter.metadata as? [String: Any] else {
-                throw InContextError.internalInconsistency("Unexpected key type for metadata")
+                throw InContextError.internalInconsistency("Unexpected metadata type")
             }
             metadata.merge(contentMetadata) { $1 }
             content = frontmatter
