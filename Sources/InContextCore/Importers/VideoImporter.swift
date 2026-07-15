@@ -64,7 +64,11 @@ class VideoImporter: Importer {
         let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: outputURL)
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
+        // Load the video.
         let asset = AVAsset(url: file.url)
+
+        // Load the details from the filename.
+        let details = fileURL.basenameDetails()
 
         // Get the first track to guess the dimensions.
         let videoTracks = try await asset.load(.tracks).filter { track in
@@ -77,15 +81,6 @@ class VideoImporter: Importer {
         let size = Size(naturalSize)
 
         let quickTimeMetadata = try await asset.loadMetadata(for: .quickTimeMetadata)
-
-        let date: Date?
-        if let creationDateItem = AVMetadataItem.metadataItems(from: quickTimeMetadata,
-                                                               filteredByIdentifier: .quickTimeMetadataCreationDate).first,
-           let creationDate = try await creationDateItem.load(.dateValue) {
-            date = creationDate
-        } else {
-            date = nil
-        }
 
         // Get the metadata title and description.
         let metadataTitle = try await quickTimeMetadata.quickTimeMetadataTitle
@@ -125,8 +120,10 @@ class VideoImporter: Importer {
             "video": videoDetails,
         ]
 
-        let filenameTitle = settings.titleFromFilename ? fileURL.basenameDetails().title : nil
+        let filenameTitle = settings.titleFromFilename ? details.title : nil
         let title = metadataTitle ?? content?.title ?? filenameTitle
+        let videoCreationDate = try await quickTimeMetadata.creationDate
+        let date = content?.date ?? videoCreationDate ?? details.date
 
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,

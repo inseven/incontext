@@ -20,12 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !os(Linux)
+#if canImport(AVFoundation)
 
 import AVFoundation
 import Foundation
 
 extension Array where Element == AVMetadataItem {
+
+    var creationDate: Date? {
+        get async throws {
+            return try await AVMetadataItem.metadataItems(from: self,
+                                                          filteredByIdentifier: .quickTimeMetadataCreationDate)
+            .first?
+            .load(.dateValue)
+        }
+    }
 
    var quickTimeMetadataTitle: String? {
        get async throws {
