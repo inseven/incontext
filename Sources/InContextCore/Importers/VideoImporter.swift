@@ -22,7 +22,11 @@
 
 import Foundation
 
-class VideoImporter {
+#if canImport(AVFoundation)
+import AVFoundation
+#endif
+
+class VideoImporter: Importer {
 
     struct Settings: ImporterSettings {
         let defaultCategory: String
@@ -47,5 +51,162 @@ class VideoImporter {
                         defaultTemplate: try configuration.requiredValue(for: "defaultTemplate"),
                         inlineTemplate: try configuration.requiredValue(for: "inlineTemplate"))
     }
+
+#if canImport(AVFoundation)
+
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL) async throws -> ImporterResult {
+
+        let fileURL = file.url
+
+        // Create the assets directory.
+        let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: outputURL)
+        try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
+
+        let asset = AVAsset(url: file.url)
+
+        // Get the first track to guess the dimensions.
+        let videoTracks = try await asset.load(.tracks).filter { track in
+            return track.mediaType == .video
+        }
+
+        guard let naturalSize = try await videoTracks.first?.load(.naturalSize) else {
+            throw InContextError.internalInconsistency("Failed to determine size of video '\(fileURL.relativePath)'.")
+        }
+        let size = Size(naturalSize)
+
+        let quickTimeMetadata = try await asset.loadMetadata(for: .quickTimeMetadata)
+
+        let date: Date?
+        if let creationDateItem = AVMetadataItem.metadataItems(from: quickTimeMetadata,
+                                                               filteredByIdentifier: .quickTimeMetadataCreationDate).first,
+           let creationDate = try await creationDateItem.load(.dateValue) {
+            date = creationDate
+        } else {
+            date = nil
+        }
+
+        // Get the metadata title and description.
+        let metadataTitle = try await quickTimeMetadata.quickTimeMetadataTitle
+        let content: FrontmatterDocument? = if let description = try await quickTimeMetadata.quickTimeMetadataDescription {
+            try FrontmatterDocument(contents: description, generateHTML: true)
+        } else {
+            nil
+        }
+
+        // TODO: Scale video.
+        let videoURL = assetsURL.appendingPathComponent("video.mov")
+        try await export(video: asset,
+                         withPreset: AVAssetExportPresetHighestQuality,
+                         toFileType: .mov,
+                         atURL: videoURL)
+
+        // TODO: Scale thumbnail.
+        let thumbnailURL = assetsURL.appendingPathComponent("thumbnail", conformingTo: .jpeg)
+        try await thumbnail(asset: asset, destinationURL: thumbnailURL)
+
+//        https://img.ly/blog/working-with-large-video-and-image-files-on-ios-with-swift/#resizingavideo
+//        let newAsset = AVAsset(url:Bundle.main.url(forResource: "jumping-man", withExtension: "mov")!) //1
+//        var newSize = <some size that you've calculated> //2
+//        let resizeComposition = AVMutableVideoComposition(asset: newAsset, applyingCIFiltersWithHandler: { request in
+//          let filter = CIFilter(name: "CILanczosScaleTransform") //3
+//          filter?.setValue(request.sourceImage, forKey: kCIInputImageKey)
+//          filter?.setValue(<some scale factor>, forKey: kCIInputScaleKey) //4
+//          let resultImage = filter?.outputImage
+//          request.finish(with: resultImage, context: nil)
+//        })
+//        resizeComposition.renderSize = newSize //5
+
+        let thumbnailDetails: [String: Any] = [
+            "url": thumbnailURL.relativePath.ensuringLeadingSlash(),
+            "width": size.width,
+            "height": size.height,
+            "filename": "cheese",
+        ]
+
+        let videoDetails: [String: Any] = [
+            "url": videoURL.relativePath.ensuringLeadingSlash(),
+            "width": size.width,
+            "height": size.height,
+            "filename": "cheese",
+        ]
+
+        let metadata: [String: Any] = [
+            "thumbnail": thumbnailDetails,
+            "video": videoDetails,
+        ]
+
+        let filenameTitle = settings.titleFromFilename ? fileURL.basenameDetails().title : nil
+        let title = metadataTitle ?? content?.title ?? filenameTitle
+
+        let document = try Document(url: fileURL.siteURL,
+                                    parent: fileURL.parentURL,
+                                    category: settings.defaultCategory,
+                                    date: content?.date ?? date,
+                                    title: title,
+                                    metadata: metadata,
+                                    contents: content?.content ?? "",
+                                    contentModificationDate: file.contentModificationDate,
+                                    template: settings.defaultTemplate,
+                                    inlineTemplate: settings.inlineTemplate,
+                                    relativeSourcePath: file.relativePath,
+                                    format: .video)
+
+        return ImporterResult(document: document, assets: [Asset(fileURL: videoURL), Asset(fileURL: thumbnailURL)])
+    }
+
+    static func thumbnail(asset: AVAsset, destinationURL: URL) async throws {
+        let generator = AVAssetImageGenerator(asset: asset)
+        generator.appliesPreferredTrackTransform = true
+        let time = CMTime(seconds: 1, preferredTimescale: 1)
+        let result = try await generator.image(at: time)
+
+        let format: UTType = .jpeg
+
+        guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL,
+                                                                format.identifier as CFString,
+                                                                1,
+                                                                nil) else {
+            throw InContextError.internalInconsistency("Failed to save thumbnail at '\(destinationURL.relativePath)'.")
+        }
+        CGImageDestinationAddImage(destination, result.image, nil)
+        CGImageDestinationFinalize(destination)  // TODO: Handle error here?
+
+    }
+
+    // https://developer.apple.com/documentation/avfoundation/media_reading_and_writing/exporting_video_to_alternative_formats
+    static func export(video: AVAsset,
+                       withPreset preset: String = AVAssetExportPresetHighestQuality,
+                       toFileType outputFileType: AVFileType = .mov,
+                       atURL outputURL: URL) async throws {
+
+        // Check the compatibility of the preset to export the video to the output file type.
+        guard await AVAssetExportSession.compatibility(ofExportPreset: preset,
+                                                       with: video,
+                                                       outputFileType: outputFileType) else {
+            throw InContextError.internalInconsistency("The preset can't export the video to the output file type.")
+        }
+
+        // Create and configure the export session.
+        guard let exportSession = AVAssetExportSession(asset: video,
+                                                       presetName: preset) else {
+            throw InContextError.internalInconsistency("Failed to create export session.")
+        }
+
+        // Convert the video to the output file type and export it to the output URL.
+        try await exportSession.export(to: outputURL, as: outputFileType)
+    }
+
+#else
+
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL) async throws -> ImporterResult {
+
+        throw InContextError.internalInconsistency("Unsupported")
+    }
+
+#endif
 
 }
