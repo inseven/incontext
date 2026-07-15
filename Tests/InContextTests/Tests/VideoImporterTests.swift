@@ -31,21 +31,32 @@ class VideoImporterTests: ContentTestCase {
 
     func testExtractTitle() async throws {
 
-        try await withTemporaryDirectory { temporaryDirectoryURL in
+        _ = try defaultSourceDirectory.add("site.yaml", contents: """
+version: 2
+title: Example
+url: http://example.com
+steps:
+  - when: '(.*/)?.*\\.mov'
+    then: video
+    args:
+        category: snapshots
+        defaultTemplate: video.html
+        inlineTemplate: video.html
+        titleFromFilename: false
+""")
 
-            let videoURL = try self.bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave",
-                                                       withExtension: "mov")
-            let video = try File(url: videoURL)
-            
-            let result = try await VideoImporter.process(file: video,
-                                                         settings: VideoImporter.Settings(defaultCategory: "snapshots",
-                                                                                          titleFromFilename: false,
-                                                                                          defaultTemplate: "video.html",
-                                                                                          inlineTemplate: "video.html"),
-                                                         outputURL: temporaryDirectoryURL)
-            XCTAssertEqual(result.document?.title, "Royal Wave")
-        }
-        
+        let video = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave",
+                                                                           withExtension: "mov"),
+                                                    to: "2022-05-31-17-55-03-royal-wave.mov",
+                                                    location: .content)
+
+        let result = try await VideoImporter.process(file: video,
+                                                     settings: VideoImporter.Settings(defaultCategory: "snapshots",
+                                                                                      titleFromFilename: false,
+                                                                                      defaultTemplate: "video.html",
+                                                                                      inlineTemplate: "video.html"),
+                                                     outputURL: defaultSourceDirectory.site.filesURL)
+        XCTAssertEqual(result.document?.title, "Royal Wave")
     }
 
 }
