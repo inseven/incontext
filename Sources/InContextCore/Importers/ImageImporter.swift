@@ -241,6 +241,7 @@ extension ImageImporter: Importer {
         // Load the image.
         let image = try NativeImage(url: fileURL)
 
+        // Load the details from the filename.
         let details = fileURL.basenameDetails()
 
         // Metadata.
