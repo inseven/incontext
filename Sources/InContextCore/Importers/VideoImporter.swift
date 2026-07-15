@@ -83,12 +83,19 @@ class VideoImporter: Importer {
         // Metadata.
         var metadata: [String: Any] = [:]
 
+        // Scale.
+        if let scale = details.scale {
+            metadata["scale"] = scale
+        }
+
+        // Duration.
         let duration = try await asset.load(.duration)
         if duration.isNumeric {
             metadata["duration"] = duration.seconds
 
         }
 
+        // Location.
         if let location = try await quickTimeMetadata.location {
             metadata["location"] = [
                 "latitude": location.latitude,
@@ -96,11 +103,15 @@ class VideoImporter: Importer {
             ]
         }
 
-        // Get the metadata title and description.
-        let content: FrontmatterDocument? = if let description = try await quickTimeMetadata.description {
-            try FrontmatterDocument(contents: description, generateHTML: true)
-        } else {
-            nil
+        // Content.
+        var content: FrontmatterDocument? = nil
+        if let videoDescription = try await quickTimeMetadata.description {
+            let frontmatter = try FrontmatterDocument(contents: videoDescription, generateHTML: true)
+            guard let contentMetadata = frontmatter.metadata as? [String: Any] else {
+                throw InContextError.internalInconsistency("Unexpected metadata type")
+            }
+            metadata.merge(contentMetadata) { $1 }
+            content = frontmatter
         }
 
         // TODO: Scale video.

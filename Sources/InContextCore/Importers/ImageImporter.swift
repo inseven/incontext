@@ -243,12 +243,23 @@ class ImageImporter: Importer {
         // Metadata.
         var metadata: [String: Any] = [:]
 
+        // Scale.
         if let scale = details.scale {
             metadata["scale"] = scale
         }
 
+        // Projection.
         if let projectionType = try image.projectionType {
             metadata["projection"] = projectionType
+        }
+
+        // Location.
+        if let latitude = try image.signedLatitude,
+           let longitude = try image.signedLongitude {
+            metadata["location"] = [
+                "latitude": latitude,
+                "longitude": longitude,
+            ]
         }
 
         // Content.
@@ -260,15 +271,6 @@ class ImageImporter: Importer {
             }
             metadata.merge(contentMetadata) { $1 }
             content = frontmatter
-        }
-
-        // Location.
-        if let latitude = try image.signedLatitude,
-           let longitude = try image.signedLongitude {
-            metadata["location"] = [
-                "latitude": latitude,
-                "longitude": longitude,
-            ]
         }
 
         // Perform the transforms.
