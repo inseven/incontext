@@ -36,19 +36,31 @@ extension Array where Element == AVMetadataItem {
         }
     }
 
-   var quickTimeMetadataTitle: String? {
+    var description: String? {
+        get async throws {
+            return try await AVMetadataItem.metadataItems(from: self,
+                                                          filteredByIdentifier: .quickTimeMetadataDescription)
+            .first?
+            .load(.stringValue)
+        }
+    }
+
+    var location: (latitude: Double, longitude: Double)? {
+        get async throws {
+            guard let item = AVMetadataItem.metadataItems(from: self,
+                                                          filteredByIdentifier: .quickTimeMetadataLocationISO6709).first,
+                  let value = try await item.load(.stringValue)
+            else {
+                return nil
+            }
+            return ISO6709.parse(value)
+        }
+    }
+
+   var title: String? {
        get async throws {
            return try await AVMetadataItem.metadataItems(from: self,
                                                          filteredByIdentifier: .quickTimeMetadataTitle)
-           .first?
-           .load(.stringValue)
-       }
-   }
-
-   var quickTimeMetadataDescription: String? {
-       get async throws {
-           return try await AVMetadataItem.metadataItems(from: self,
-                                                         filteredByIdentifier: .quickTimeMetadataDescription)
            .first?
            .load(.stringValue)
        }
