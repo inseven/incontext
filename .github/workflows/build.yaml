@@ -70,6 +70,14 @@ jobs:
         submodules: recursive
         lfs: true
 
+    - name: Cache Swift build directory
+      uses: actions/cache@v4
+      with:
+        path: .build
+        key: swift-build-macos-package-build-${{ hashFiles('Package.resolved') }}
+        restore-keys: |
+          swift-build-macos-package-build-
+
     - name: Build and test the package
       run: scripts/build-package.sh
 
