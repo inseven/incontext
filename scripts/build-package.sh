@@ -33,9 +33,17 @@ MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
 
 cd "$ROOT_DIRECTORY"
 
+# Determine the version and build number.
+# We expect these to be injected in by our GitHub build job so we just ensure there are sensible defaults.
+VERSION_NUMBER=${VERSION_NUMBER:-0.0.0}
+BUILD_NUMBER=${BUILD_NUMBER:-0}
+
 # Select the correct Xcode.
 sudo xcode-select --switch "$MACOS_XCODE_PATH"
 
-# Build and test the package.
-swift build
+# Run the tests.
 swift test
+
+# Build the package.
+swift build \
+    -Xcc "-DVERSION_NUMBER=\"$VERSION_NUMBER\"" -Xcc "-DBUILD_NUMBER=\"$BUILD_NUMBER\""
