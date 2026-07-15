@@ -32,7 +32,7 @@ protocol PlatformImage {
     var dateTimeOriginal: Date? { get throws }
     var dateTimeDigitized: Date? { get throws }
     var firstTitle: String? { get throws }
-    var imageDescription: String? { get throws }
+    var mediaDescription: String? { get throws }
     var signedLatitude: Double? { get throws }
     var signedLongitude: Double? { get throws }
     var projectionType: String? { get throws }

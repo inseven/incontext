@@ -261,8 +261,8 @@ class ImageImporter: Importer {
 
         // Content.
         var content: FrontmatterDocument? = nil
-        if let imageDescription = try image.imageDescription {
-            let frontmatter = try FrontmatterDocument(contents: imageDescription, generateHTML: true)
+        if let mediaDescription = try image.mediaDescription {
+            let frontmatter = try FrontmatterDocument(contents: mediaDescription, generateHTML: true)
             guard let contentMetadata = frontmatter.metadata as? [String: Any] else {
                 throw InContextError.internalInconsistency("Unexpected metadata type")
             }

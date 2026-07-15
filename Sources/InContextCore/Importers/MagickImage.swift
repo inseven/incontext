@@ -48,7 +48,7 @@ final class MagickImage: PlatformImage {
         get throws { return try property("IPTC:2:5") }
     }
 
-    var imageDescription: String? {
+    var mediaDescription: String? {
         get throws {
             if let caption = try property("IPTC:2:120") {
                 return caption
