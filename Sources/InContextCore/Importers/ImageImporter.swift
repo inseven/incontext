@@ -215,7 +215,7 @@ class ImageImporter {
     }
 
     let identifier = "image"
-    let version = 13
+    let version = 14
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         return Settings(defaultCategory: try configuration.requiredValue(for: "category"),
@@ -292,12 +292,14 @@ extension ImageImporter: Importer {
             break
         }
 
+        // TItle.
+        let metadataTitle = try image.firstTitle
         let filenameTitle = settings.titleFromFilename ? details.title : nil
+        let title = content?.title ?? metadataTitle ?? filenameTitle
 
-        // N.B. The EXIF 'DateTimeOriginal' field sometimes appears to be invalid so we fall back on DateTimeDigitized.
-
-        let date = try (try? image.dateTimeOriginal) ?? (try image.dateTimeDigitized) ?? content?.date ?? details.date
-        let title = try image.firstTitle ?? content?.title ?? filenameTitle
+        // Date.
+        let metadataDate = try image.dateTimeOriginal ?? image.dateTimeDigitized
+        let date = content?.date ?? metadataDate ?? details.date
 
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,
