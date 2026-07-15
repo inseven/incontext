@@ -22,8 +22,12 @@
 
 import Foundation
 
+import PlatformSupport
+
 #if canImport(AVFoundation)
-import AVFoundation
+typealias NativeVideo = AVFoundationVideo
+#else
+typealias NativeVideo = DummyPlatformVideo
 #endif
 
 class VideoImporter: Importer {
@@ -42,8 +46,12 @@ class VideoImporter: Importer {
         }
     }
 
+    static let videoSize: Int = 1920
+    static let thumbnailSize: Int = 400
+    static let thumbnailOffset: Double = 1
+
     let identifier = "video"
-    let version = 9
+    let version = 10
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         return Settings(defaultCategory: try configuration.requiredValue(for: "category"),
@@ -51,8 +59,6 @@ class VideoImporter: Importer {
                         defaultTemplate: try configuration.requiredValue(for: "defaultTemplate"),
                         inlineTemplate: try configuration.requiredValue(for: "inlineTemplate"))
     }
-
-#if canImport(AVFoundation)
 
     static func process(file: File,
                         settings: Settings,
@@ -65,17 +71,12 @@ class VideoImporter: Importer {
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
         // Load the video.
-        let asset = AVAsset(url: file.url)
-        let quickTimeMetadata = try await asset.loadMetadata(for: .quickTimeMetadata)
+        let video = try await NativeVideo(url: fileURL)
 
-        // Get the size by inspecting the first track.
-        let videoTracks = try await asset.load(.tracks).filter { track in
-            return track.mediaType == .video
-        }
-        guard let naturalSize = try await videoTracks.first?.load(.naturalSize) else {
+        // Get the size.
+        guard let size = try await video.size else {
             throw InContextError.videoLibraryError("Failed to determine size of video '\(fileURL.relativePath)'.")
         }
-        let size = Size(naturalSize)
 
         // Load the details from the filename.
         let details = fileURL.basenameDetails()
@@ -89,14 +90,12 @@ class VideoImporter: Importer {
         }
 
         // Duration.
-        let duration = try await asset.load(.duration)
-        if duration.isNumeric {
-            metadata["duration"] = duration.seconds
-
+        if let duration = try await video.duration {
+            metadata["duration"] = duration
         }
 
         // Location.
-        if let location = try await quickTimeMetadata.location {
+        if let location = try await video.location {
             metadata["location"] = [
                 "latitude": location.latitude,
                 "longitude": location.longitude,
@@ -105,47 +104,50 @@ class VideoImporter: Importer {
 
         // Content.
         var content: FrontmatterDocument? = nil
-        if let videoDescription = try await quickTimeMetadata.description {
-            let frontmatter = try FrontmatterDocument(contents: videoDescription, generateHTML: true)
+        if let mediaDescription = try await video.mediaDescription {
+            let frontmatter = try FrontmatterDocument(contents: mediaDescription, generateHTML: true)
             guard let contentMetadata = frontmatter.metadata as? [String: Any] else {
-                throw InContextError.internalInconsistency("Unexpected metadata type")
+                throw InContextError.internalInconsistency("Unexpected key type for metadata")
             }
             metadata.merge(contentMetadata) { $1 }
             content = frontmatter
         }
 
-        // TODO: Scale video.
-        let videoURL = assetsURL.appendingPathComponent("video.mov")
-        try await export(video: asset,
-                         withPreset: AVAssetExportPresetHighestQuality,
-                         toFileType: .mov,
-                         atURL: videoURL)
+        // Convert the video.
+        let videoFormat: UTType = .mov
+        let videoSize = size.fit(width: Self.videoSize)
+        let videoFilename = "video." + (videoFormat.preferredFilenameExtension ?? "mov")
+        let videoURL = assetsURL.appendingPathComponent(videoFilename)
+        try await video.writeVideo(maxPixelSize: Self.videoSize, format: videoFormat, to: videoURL)
 
-        // TODO: Scale thumbnail.
-        let thumbnailURL = assetsURL.appendingPathComponent("thumbnail", conformingTo: .jpeg)
-        try await thumbnail(asset: asset, destinationURL: thumbnailURL)
+        // Generate the thumbnail.
+        let thumbnailSize = size.fit(width: Self.thumbnailSize)
+        let thumbnailFilename = "thumbnail." + (UTType.jpeg.preferredFilenameExtension ?? "jpg")
+        let thumbnailURL = assetsURL.appendingPathComponent(thumbnailFilename)
+        try await video.writeThumbnail(at: Self.thumbnailOffset,
+                                       maxPixelSize: Self.thumbnailSize,
+                                       format: .jpeg,
+                                       to: thumbnailURL)
 
         metadata["video"] = [
             "url": videoURL.relativePath.ensuringLeadingSlash(),
-            "width": size.width,
-            "height": size.height,
-            "filename": "cheese",
-        ]
+            "width": videoSize.width,
+            "height": videoSize.height,
+        ] as [String: Any]
 
         metadata["thumbnail"] = [
             "url": thumbnailURL.relativePath.ensuringLeadingSlash(),
-            "width": size.width,
-            "height": size.height,
-            "filename": "cheese",
-        ]
+            "width": thumbnailSize.width,
+            "height": thumbnailSize.height,
+        ] as [String: Any]
 
         // Title.
-        let metadataTitle = try await quickTimeMetadata.title
+        let metadataTitle = try await video.title
         let filenameTitle = settings.titleFromFilename ? details.title : nil
         let title = content?.title ?? metadataTitle ?? filenameTitle
 
         // Date.
-        let metadataDate = try await quickTimeMetadata.creationDate
+        let metadataDate = try await video.creationDate
         let date = content?.date ?? metadataDate ?? details.date
 
         let document = try Document(url: fileURL.siteURL,
@@ -163,58 +165,5 @@ class VideoImporter: Importer {
 
         return ImporterResult(document: document, assets: [Asset(fileURL: videoURL), Asset(fileURL: thumbnailURL)])
     }
-
-    static func thumbnail(asset: AVAsset, destinationURL: URL) async throws {
-        let generator = AVAssetImageGenerator(asset: asset)
-        generator.appliesPreferredTrackTransform = true
-        let time = CMTime(seconds: 1, preferredTimescale: 1)
-        let result = try await generator.image(at: time)
-
-        let format: UTType = .jpeg
-
-        guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL,
-                                                                format.identifier as CFString,
-                                                                1,
-                                                                nil) else {
-            throw InContextError.videoLibraryError("Failed to save thumbnail at '\(destinationURL.relativePath)'.")
-        }
-        CGImageDestinationAddImage(destination, result.image, nil)
-        CGImageDestinationFinalize(destination)  // TODO: Handle error here?
-
-    }
-
-    // https://developer.apple.com/documentation/avfoundation/media_reading_and_writing/exporting_video_to_alternative_formats
-    static func export(video: AVAsset,
-                       withPreset preset: String = AVAssetExportPresetHighestQuality,
-                       toFileType outputFileType: AVFileType = .mov,
-                       atURL outputURL: URL) async throws {
-
-        // Check the compatibility of the preset to export the video to the output file type.
-        guard await AVAssetExportSession.compatibility(ofExportPreset: preset,
-                                                       with: video,
-                                                       outputFileType: outputFileType) else {
-            throw InContextError.videoLibraryError("The preset can't export the video to the output file type.")
-        }
-
-        // Create and configure the export session.
-        guard let exportSession = AVAssetExportSession(asset: video,
-                                                       presetName: preset) else {
-            throw InContextError.videoLibraryError("Failed to create export session.")
-        }
-
-        // Convert the video to the output file type and export it to the output URL.
-        try await exportSession.export(to: outputURL, as: outputFileType)
-    }
-
-#else
-
-    static func process(file: File,
-                        settings: Settings,
-                        outputURL: URL) async throws -> ImporterResult {
-
-        throw InContextError.internalInconsistency("Unsupported")
-    }
-
-#endif
 
 }

@@ -22,34 +22,20 @@
 
 import Foundation
 
-struct Size {
-    let width: Int
-    let height: Int
+import PlatformSupport
 
-    init(width: Int, height: Int) {
-        self.width = width
-        self.height = height
-    }
+protocol PlatformVideo {
 
-    init(_ size: CGSize) {
-        self.width = Int(size.width)
-        self.height = Int(size.height)
-    }
+    init(url: URL) async throws
 
-    func fit(width: Int) -> Size {
-        if self.width <= width {
-            return self
-        }
-        let ratio = Double(self.width) / Double(self.height)
-        let height = Double(width) / ratio
-        return Size(width: width, height: Int(height))
-    }
-}
+    var size: Size? { get async throws }
+    var duration: Double? { get async throws }
+    var creationDate: Date? { get async throws }
+    var title: String? { get async throws }
+    var mediaDescription: String? { get async throws }
+    var location: (latitude: Double, longitude: Double)? { get async throws }
 
-extension CGSize {
-
-    init(_ size: Size) {
-        self.init(width: size.width, height: size.height)
-    }
+    func writeThumbnail(at time: Double, maxPixelSize: Int, format: UTType, to url: URL) async throws
+    func writeVideo(maxPixelSize: Int, format: UTType, to url: URL) async throws
 
 }

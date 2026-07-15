@@ -25,7 +25,7 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-#if !os(Linux)
+#if canImport(AVFoundation)
 
 class VideoImporterTests: ContentTestCase {
 
