@@ -264,7 +264,9 @@ jobs:
       uses: actions/upload-pages-artifact@v5
 
   website-deploy:
-    needs: website-build
+    needs:
+    - website-build
+    - publish-release
     if: ${{ github.ref == 'refs/heads/main' }}
 
     permissions:
