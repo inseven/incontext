@@ -66,24 +66,24 @@ class VideoImporter: Importer {
 
         // Load the video.
         let asset = AVAsset(url: file.url)
+        let quickTimeMetadata = try await asset.loadMetadata(for: .quickTimeMetadata)
 
-        // Load the details from the filename.
-        let details = fileURL.basenameDetails()
-
-        // Get the first track to guess the dimensions.
+        // Get the size by inspecting the first track.
         let videoTracks = try await asset.load(.tracks).filter { track in
             return track.mediaType == .video
         }
-
         guard let naturalSize = try await videoTracks.first?.load(.naturalSize) else {
             throw InContextError.videoLibraryError("Failed to determine size of video '\(fileURL.relativePath)'.")
         }
         let size = Size(naturalSize)
 
-        let quickTimeMetadata = try await asset.loadMetadata(for: .quickTimeMetadata)
+        // Load the details from the filename.
+        let details = fileURL.basenameDetails()
+
+        // Metadata.
+        var metadata: [String: Any] = [:]
 
         // Get the metadata title and description.
-        let metadataTitle = try await quickTimeMetadata.quickTimeMetadataTitle
         let content: FrontmatterDocument? = if let description = try await quickTimeMetadata.quickTimeMetadataDescription {
             try FrontmatterDocument(contents: description, generateHTML: true)
         } else {
@@ -101,29 +101,23 @@ class VideoImporter: Importer {
         let thumbnailURL = assetsURL.appendingPathComponent("thumbnail", conformingTo: .jpeg)
         try await thumbnail(asset: asset, destinationURL: thumbnailURL)
 
-        let thumbnailDetails: [String: Any] = [
-            "url": thumbnailURL.relativePath.ensuringLeadingSlash(),
-            "width": size.width,
-            "height": size.height,
-            "filename": "cheese",
-        ]
-
-        let videoDetails: [String: Any] = [
+        metadata["video"] = [
             "url": videoURL.relativePath.ensuringLeadingSlash(),
             "width": size.width,
             "height": size.height,
             "filename": "cheese",
         ]
 
-        let metadata: [String: Any] = [
-            "thumbnail": thumbnailDetails,
-            "video": videoDetails,
+        metadata["thumbnail"] = [
+            "url": thumbnailURL.relativePath.ensuringLeadingSlash(),
+            "width": size.width,
+            "height": size.height,
+            "filename": "cheese",
         ]
 
         let filenameTitle = settings.titleFromFilename ? details.title : nil
-        let title = metadataTitle ?? content?.title ?? filenameTitle
-        let videoCreationDate = try await quickTimeMetadata.creationDate
-        let date = content?.date ?? videoCreationDate ?? details.date
+        let title = (try await quickTimeMetadata.quickTimeMetadataTitle) ?? content?.title ?? filenameTitle
+        let date = (try await quickTimeMetadata.creationDate) ?? content?.date ?? details.date
 
         let document = try Document(url: fileURL.siteURL,
                                     parent: fileURL.parentURL,
