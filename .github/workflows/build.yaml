@@ -51,6 +51,21 @@ jobs:
         echo "version_number=$VERSION_NUMBER" >> $GITHUB_OUTPUT
         echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
 
+  macos-package-build:
+
+    runs-on: macos-26
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: recursive
+        lfs: true
+
+    - name: Build and test the package
+      run: scripts/build-package.sh
+
   macos-build:
 
     runs-on: inseven-macos-26
@@ -165,6 +180,7 @@ jobs:
 
     needs:
     - generate-version-number
+    - macos-package-build
     - macos-build
     - linux-build
 
