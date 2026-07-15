@@ -32,12 +32,8 @@ final class MagickImage: PlatformImage {
         DestroyMagickWand(wand)
     }
 
-    var pixelWidth: Int? {
-        return Int(MagickGetImageWidth(wand))
-    }
-
-    var pixelHeight: Int? {
-        return Int(MagickGetImageHeight(wand))
+    var size: Size? {
+        return Size(width: Int(MagickGetImageWidth(wand)), height: Int(MagickGetImageHeight(wand)))
     }
 
     var dateTimeOriginal: Date? {

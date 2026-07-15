@@ -30,8 +30,9 @@ class PlatformImageTests: ContentTestCase {
     func testPixelDimensions() throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
         let image = try NativeImage(url: url)
-        XCTAssertEqual(try XCTUnwrap(image.pixelWidth), 4032)
-        XCTAssertEqual(try XCTUnwrap(image.pixelHeight), 3024)
+        let size = try XCTUnwrap(image.size)
+        XCTAssertEqual(size.width, 4032)
+        XCTAssertEqual(size.height, 3024)
     }
 
     func testDateTimeOriginal() throws {
@@ -95,9 +96,8 @@ class PlatformImageTests: ContentTestCase {
         XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
         let thumbnail = try NativeImage(url: destinationURL)
-        let width = try XCTUnwrap(thumbnail.pixelWidth)
-        let height = try XCTUnwrap(thumbnail.pixelHeight)
-        XCTAssertEqual(max(width, height), 400)
+        let size = try XCTUnwrap(thumbnail.size)
+        XCTAssertEqual(max(size.width, size.height), 400)
     }
 
 }

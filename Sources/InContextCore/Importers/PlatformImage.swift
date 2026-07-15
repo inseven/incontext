@@ -28,8 +28,7 @@ protocol PlatformImage {
 
     init(url: URL) throws
 
-    var pixelWidth: Int? { get throws }
-    var pixelHeight: Int? { get throws }
+    var size: Size? { get throws }
     var dateTimeOriginal: Date? { get throws }
     var dateTimeDigitized: Date? { get throws }
     var firstTitle: String? { get throws }
