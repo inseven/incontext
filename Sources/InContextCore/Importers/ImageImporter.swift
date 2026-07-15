@@ -82,13 +82,10 @@ struct _Resize: _Transform {
 
     func apply(to context: inout TransformContext) throws {
 
-        guard let width = try context.image.pixelWidth,
-              let height = try context.image.pixelHeight
-        else {
+        guard let size = try context.image.size else {
             throw InContextError.internalInconsistency("Failed to get dimensions of image at \(context.fileURL.relativePath).")
         }
 
-        let size = Size(width: width, height: height)
         let targetSize = size.fit(width: self.width)
         let maxPixelSize = max(targetSize.width, targetSize.height)
 

@@ -52,12 +52,15 @@ final class CoreGraphicsImage: PlatformImage {
         self.metadata = metadata
     }
 
-    var pixelWidth: Int? {
-        get throws { return try properties.optionalValue(for: "PixelWidth") }
-    }
-
-    var pixelHeight: Int? {
-        get throws { return try properties.optionalValue(for: "PixelHeight") }
+    var size: Size? {
+        get throws {
+            guard let width: Int = try properties.optionalValue(for: "PixelWidth"),
+                  let height: Int = try properties.optionalValue(for: "PixelHeight")
+            else {
+                return nil
+            }
+            return Size(width: width, height: height)
+        }
     }
 
     // TODO: Use EXIF timezones if they exist.
