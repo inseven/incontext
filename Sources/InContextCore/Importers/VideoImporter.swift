@@ -106,18 +106,6 @@ class VideoImporter: Importer {
         let thumbnailURL = assetsURL.appendingPathComponent("thumbnail", conformingTo: .jpeg)
         try await thumbnail(asset: asset, destinationURL: thumbnailURL)
 
-//        https://img.ly/blog/working-with-large-video-and-image-files-on-ios-with-swift/#resizingavideo
-//        let newAsset = AVAsset(url:Bundle.main.url(forResource: "jumping-man", withExtension: "mov")!) //1
-//        var newSize = <some size that you've calculated> //2
-//        let resizeComposition = AVMutableVideoComposition(asset: newAsset, applyingCIFiltersWithHandler: { request in
-//          let filter = CIFilter(name: "CILanczosScaleTransform") //3
-//          filter?.setValue(request.sourceImage, forKey: kCIInputImageKey)
-//          filter?.setValue(<some scale factor>, forKey: kCIInputScaleKey) //4
-//          let resultImage = filter?.outputImage
-//          request.finish(with: resultImage, context: nil)
-//        })
-//        resizeComposition.renderSize = newSize //5
-
         let thumbnailDetails: [String: Any] = [
             "url": thumbnailURL.relativePath.ensuringLeadingSlash(),
             "width": size.width,
