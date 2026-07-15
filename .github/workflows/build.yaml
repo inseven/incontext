@@ -51,6 +51,36 @@ jobs:
         echo "version_number=$VERSION_NUMBER" >> $GITHUB_OUTPUT
         echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
 
+  macos-package-build:
+
+    runs-on: macos-26
+
+    needs:
+    - generate-version-number
+
+    env:
+      VERSION_NUMBER: ${{ needs.generate-version-number.outputs.version_number }}
+      BUILD_NUMBER: ${{ needs.generate-version-number.outputs.build_number }}
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: recursive
+        lfs: true
+
+    - name: Cache Swift build directory
+      uses: actions/cache@v6
+      with:
+        path: .build
+        key: swift-build-macos-package-build-${{ hashFiles('Package.resolved') }}
+        restore-keys: |
+          swift-build-macos-package-build-
+
+    - name: Build and test the package
+      run: scripts/build-package.sh
+
   macos-build:
 
     runs-on: inseven-macos-26
@@ -139,7 +169,7 @@ jobs:
         lfs: true
 
     - name: Cache Swift build directory
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: .build
         key: swift-build-${{ matrix.name }}-${{ hashFiles('Package.resolved') }}
@@ -165,6 +195,7 @@ jobs:
 
     needs:
     - generate-version-number
+    - macos-package-build
     - macos-build
     - linux-build
 
@@ -253,12 +284,7 @@ jobs:
       run: |
         incontext build --site docs
         mv docs/build/files _site
-
-    - name: Fix permissions
-      run: |
-        chmod -v -R +rX "_site/" | while read line; do
-          echo "::warning title=Invalid file permissions automatically fixed::$line"
-        done
+        chmod -v -R +rX "_site/"
 
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v5

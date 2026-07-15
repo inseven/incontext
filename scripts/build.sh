@@ -97,10 +97,6 @@ BUILD_NUMBER=${BUILD_NUMBER:-0}
 # Import the certificates into our dedicated keychain.
 echo "$DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64"
 
-# Build and test the package.
-swift build
-swift test
-
 pushd InContext
 
 # Install the provisioning profiles.
