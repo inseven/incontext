@@ -25,10 +25,6 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-// TODO: Remove this guard once NativeVideo is switched back to GStreamerVideo on Linux (see
-// VideoImporter.swift).
-#if canImport(AVFoundation)
-
 class PlatformVideoTests: ContentTestCase {
 
     func testPixelDimensions() async throws {
@@ -102,5 +98,3 @@ class PlatformVideoTests: ContentTestCase {
     }
 
 }
-
-#endif

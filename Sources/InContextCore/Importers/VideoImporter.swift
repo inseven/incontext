@@ -27,7 +27,7 @@ import PlatformSupport
 #if canImport(AVFoundation)
 typealias NativeVideo = AVFoundationVideo
 #else
-typealias NativeVideo = DummyPlatformVideo
+typealias NativeVideo = GStreamerVideo
 #endif
 
 class VideoImporter: Importer {

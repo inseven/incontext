@@ -1,0 +1,4 @@
+module CGStreamer [system] {
+    header "shim.h"
+    export *
+}

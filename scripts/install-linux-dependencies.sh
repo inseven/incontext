@@ -47,7 +47,14 @@ case $ID in
             ruby ruby-bundler \
             pkg-config \
             libsqlite3-dev \
-            libmagickwand-dev
+            libmagickwand-dev \
+            libavformat-dev \
+            libavutil-dev \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad \
+            gstreamer1.0-libav
         $SUDO gem install --no-user-install fpm
         ;;
 

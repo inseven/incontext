@@ -87,6 +87,8 @@ let package = Package(
                 "PlatformSupport",
                 "Hoedown",
                 .target(name: "CMagickWand", condition: .when(platforms: [.linux])),
+                .target(name: "CAVFormat", condition: .when(platforms: [.linux])),
+                .target(name: "CGStreamer", condition: .when(platforms: [.linux])),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "FSEventsWrapper", package: "FSEventsWrapper", condition:
                     .when(platforms: [.macOS])),
@@ -123,6 +125,18 @@ let package = Package(
             pkgConfig: "MagickWand",
             providers: [
                 .apt(["libmagickwand-dev"]),
+            ]),
+        .systemLibrary(
+            name: "CAVFormat",
+            pkgConfig: "libavformat libavutil",
+            providers: [
+                .apt(["libavformat-dev", "libavutil-dev"]),
+            ]),
+        .systemLibrary(
+            name: "CGStreamer",
+            pkgConfig: "gstreamer-1.0",
+            providers: [
+                .apt(["libgstreamer1.0-dev", "libgstreamer-plugins-base1.0-dev"]),
             ]),
         .testTarget(
             name: "InContextTests",
