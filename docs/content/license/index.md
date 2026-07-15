@@ -11,6 +11,7 @@ InContext is licensed under the MIT License (see [LICENSE](https://github.com/in
 - [Hoedown](https://github.com/hoedown/hoedown), ISC License
 - [Hummingbird](https://github.com/hummingbird-project/hummingbird), Apache License, Version 2.0
 - [HummingbirdCore](https://github.com/hummingbird-project/hummingbird-core), Apache License, Version 2.0
+- [ImageMagick](https://imagemagick.org), ImageMagick License
 - [Interact](https://github.com/inseven/interact), MIT License
 - [Licensable](https://github.com/inseven/licensable), MIT License
 - [LRUCache](https://github.com/nicklockwood/LRUCache), MIT License
