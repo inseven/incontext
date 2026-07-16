@@ -27,8 +27,6 @@ import XCTest
 
 class IntegrationTests: XCTestCase {
 
-#if !os(Linux)
-
     func testAltAndTitlePromotedFromMarkdownImage() async throws {
         try await withTemporarySourceDirectory { sourceDirectory in
             _ = try sourceDirectory.add("site.yaml", contents: """
@@ -76,8 +74,6 @@ steps:
             XCTAssertTrue(html.contains(#"title="My favourite cat photo""#))
         }
     }
-
-#endif
 
     func testAdmonitionRewritesBlockquote() async throws {
         try await withTemporarySourceDirectory { sourceDirectory in
