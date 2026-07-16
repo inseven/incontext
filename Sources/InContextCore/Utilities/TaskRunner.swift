@@ -31,47 +31,32 @@ struct Tasks<T> {
     }
 }
 
-func withTaskRunner<T>(of: T.Type, concurrent: Bool, body: (inout Tasks<T>) async throws -> Void) async throws -> [T] {
+func withTaskRunner<T>(of: T.Type, maximumConcurrentTasks: Int, body: (inout Tasks<T>) async throws -> Void) async throws -> [T] {
 
     var tasks = Tasks<T>()
     try await body(&tasks)
 
-    guard concurrent else {
-
-        var results = [T]()
-        for task in tasks.tasks {
-            guard let result = try await task() else {
-                continue
-            }
-            results.append(result)
-        }
-
-        return results
-    }
-
     return try await withThrowingTaskGroup(of: Optional<T>.self) { group in
-        let limiter = TaskLimiter(max: 8)
+        var iterator = tasks.tasks.makeIterator()
 
-        for task in tasks.tasks {
-            await limiter.waitForSlot()
-            group.addTask {
-                do {
-                    let result = try await task()
-                    await limiter.release()
-                    return result
-                } catch {
-                    await limiter.release()
-                    throw error
-                }
+        // Prime the runner with minimumConcurrentTasks tasks.
+        for _ in 0..<maximumConcurrentTasks {
+            guard let task = iterator.next() else {
+                break
             }
+            group.addTask { try await task() }
         }
 
+        // Pull completed tasks from the group, adding a new task each time until we run out.
+        // This guarantees that we see failures as soon as they happen.
         var results: [T] = []
-        for try await result in group {
-            guard let result else {
-                continue
+        while let result = try await group.next() {
+            if let result {
+                results.append(result)
             }
-            results.append(result)
+            if let task = iterator.next() {
+                group.addTask { try await task() }
+            }
         }
         return results
     }
