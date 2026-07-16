@@ -30,26 +30,19 @@ struct SiteMenu: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        Group {
-            Button("Open") {
-                siteModel.open()
-            }
+        Button("View in Browser", systemImage: "safari") {
+            siteModel.open()
+        }
+        Button("Show in Finder", systemImage: "finder") {
+            NSWorkspace.shared.open(siteModel.rootURL)
         }
         Divider()
-        Button("Logs...") {
+        Button("Logs...", systemImage: "list.bullet.rectangle") {
             openWindow(id: LogWindow.windowID, value: siteModel.rootURL)
         }
         Divider()
-        Button {
-            NSWorkspace.shared.open(siteModel.rootURL)
-        } label: {
-            Text("Show in Finder")
-        }
-        Divider()
-        Button {
+        Button("Remove", systemImage: "folder.badge.minus") {
             applicationModel.remove(siteModel: siteModel)
-        } label: {
-            Text("Remove")
         }
     }
 
