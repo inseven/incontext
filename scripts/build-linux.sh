@@ -87,6 +87,12 @@ case $DISTRO in
             DEPENDS_ARGS+=(--depends "$package")
         done
 
+        # Manually add dynamically linked dependencies we can't auto-detect.
+
+        # Required for HEIC support.
+        DEPENDS_ARGS+=(--depends libmagickcore-7.q16-10-extra)
+        DEPENDS_ARGS+=(--depends libheif-plugin-libde265)
+
         fpm \
             -s dir \
             -t deb \
