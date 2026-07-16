@@ -111,6 +111,16 @@ final class GStreamerVideo: PlatformVideo {
         defer { g_free(uri) }
         incontext_playbin_set_uri(playbin, uri)
 
+        // Set dummy video and audio sinks to stop output being shown to the user.
+        guard let videoSink = gst_element_factory_make("fakesink", nil) else {
+            throw InContextError.videoLibraryError("Failed to create fakesink for video.")
+        }
+        incontext_playbin_set_video_sink(playbin, videoSink)
+        guard let audioSink = gst_element_factory_make("fakesink", nil) else {
+            throw InContextError.videoLibraryError("Failed to create fakesink for audio.")
+        }
+        incontext_playbin_set_audio_sink(playbin, audioSink)
+
         guard let bus = gst_element_get_bus(playbin) else {
             throw InContextError.videoLibraryError("Failed to get pipeline bus.")
         }

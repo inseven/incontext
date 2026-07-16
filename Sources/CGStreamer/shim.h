@@ -28,6 +28,14 @@ static inline void incontext_playbin_set_uri(GstElement *playbin, const gchar *u
     g_object_set(playbin, "uri", uri, NULL);
 }
 
+static inline void incontext_playbin_set_video_sink(GstElement *playbin, GstElement *sink) {
+    g_object_set(playbin, "video-sink", sink, NULL);
+}
+
+static inline void incontext_playbin_set_audio_sink(GstElement *playbin, GstElement *sink) {
+    g_object_set(playbin, "audio-sink", sink, NULL);
+}
+
 static inline GstSample *incontext_playbin_convert_sample(GstElement *playbin, GstCaps *caps) {
     GstSample *sample = NULL;
     g_signal_emit_by_name(playbin, "convert-sample", caps, &sample);
