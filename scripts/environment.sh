@@ -37,5 +37,6 @@ export PATH=$PATH:"$SCRIPTS_DIRECTORY/changes"
 export PATH=$PATH:"$SCRIPTS_DIRECTORY/build-tools"
 export PATH=$PATH:"$ROOT_DIRECTORY/dependencies/diligence/scripts"
 
-# Temporary work-around to activate mise.
+# TODO: Remove workaround to source mise in environment.sh #421
+#       https://github.com/inseven/incontext/issues/421
 eval "$(mise activate bash)"
