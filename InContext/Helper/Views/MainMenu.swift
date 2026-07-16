@@ -35,7 +35,7 @@ struct MainMenu: View {
 
         Divider()
 
-        Button("Add Site...") {
+        Button("Add Site...", systemImage: "folder.badge.plus") {
             print("Add Site")
             let openPanel = NSOpenPanel()
             openPanel.canChooseFiles = false
