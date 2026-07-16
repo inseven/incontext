@@ -47,5 +47,6 @@ source "$SCRIPTS_DIRECTORY/environment.sh"
 
 # Install the Python dependencies.
 pip install --upgrade pip pipenv wheel certifi
+which pipenv
 PIPENV_PIPFILE="$CHANGES_DIRECTORY/Pipfile" pipenv install
 PIPENV_PIPFILE="$BUILD_TOOLS_DIRECTORY/Pipfile" pipenv install
