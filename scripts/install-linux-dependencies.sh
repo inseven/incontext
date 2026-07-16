@@ -48,6 +48,7 @@ case $ID in
             pkg-config \
             libsqlite3-dev \
             libmagickwand-dev \
+            libheif-plugin-libde265 \
             libavformat-dev \
             libavutil-dev \
             libgstreamer1.0-dev \
