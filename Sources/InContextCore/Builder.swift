@@ -113,6 +113,8 @@ public class Builder {
         ]
     }
 
+    static let maximumConcurrentTasks = 8
+
     let site: Site
     let tracker: Tracker
     let serializeImport: Bool
@@ -298,7 +300,8 @@ public class Builder {
         task.success()
 
         // Enqueue and wait on tasks to import each individual file.
-        let fileURLs = try await withTaskRunner(of: URL.self, concurrent: !serializeImport) { tasks in
+        let maximumImportTasks = serializeImport ? 1 : Self.maximumConcurrentTasks
+        let fileURLs = try await withTaskRunner(of: URL.self, maximumConcurrentTasks: maximumImportTasks) { tasks in
             for file in sourceFiles {
                 let task = session.startTask("Importing '\(file.url.relativePath)'...")
                 tasks.add {
@@ -355,8 +358,9 @@ public class Builder {
         }
 
         // Render the documents that need updates.
+        let maximumRenderTasks = serializeRender ? 1 : Self.maximumConcurrentTasks
         try await session.withTask("Rendering \(updates.count) documents...") { _ in
-            _ = try await withTaskRunner(of: Void.self, concurrent: concurrent) { tasks in
+            _ = try await withTaskRunner(of: Void.self, maximumConcurrentTasks: maximumRenderTasks) { tasks in
                 for document in updates {
                     tasks.add {
                         try await self.renderDocument(document,
