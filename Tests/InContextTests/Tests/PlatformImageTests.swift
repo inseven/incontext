@@ -100,4 +100,31 @@ class PlatformImageTests: ContentTestCase {
         XCTAssertEqual(max(size.width, size.height), 400)
     }
 
+    func testHeicPixelDimensions() throws {
+        let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic")
+        let image = try NativeImage(url: url)
+        let size = try XCTUnwrap(image.size)
+        XCTAssertEqual(size.width, 4032)
+        XCTAssertEqual(size.height, 3024)
+    }
+
+    func testHeicDateTimeOriginal() throws {
+        let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic")
+        let image = try NativeImage(url: url)
+        XCTAssertEqual(try image.dateTimeOriginal, Date(2023, 04, 12, 11, 08, 27))
+    }
+
+    func testResizesHeicImage() throws {
+        let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic")
+        let image = try NativeImage(url: url)
+
+        let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
+        try image.write(maxPixelSize: 400, format: .jpeg, to: destinationURL)
+        XCTAssert(FileManager.default.fileExists(at: destinationURL))
+
+        let thumbnail = try NativeImage(url: destinationURL)
+        let size = try XCTUnwrap(thumbnail.size)
+        XCTAssertEqual(max(size.width, size.height), 400)
+    }
+
 }
