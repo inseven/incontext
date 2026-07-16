@@ -22,7 +22,6 @@
 
 public class UTType: Equatable {
 
-    public static let markdown = UTType(filenameExtension: "markdown")
     public static let html = UTType(filenameExtension: "html")
     public static let jpeg = UTType(filenameExtension: "jpeg")
     public static let tiff = UTType(filenameExtension: "tiff")
@@ -33,7 +32,7 @@ public class UTType: Equatable {
     let filenameExtension: String
 
     public init(filenameExtension: String) {
-        self.filenameExtension = filenameExtension
+        self.filenameExtension = filenameExtension.lowercased()
     }
 
     public var preferredFilenameExtension: String? {

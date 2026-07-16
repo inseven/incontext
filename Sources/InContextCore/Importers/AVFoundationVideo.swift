@@ -110,7 +110,7 @@ final class AVFoundationVideo: PlatformVideo {
     }
 
     func writeVideo(maxPixelSize: Int, format: UTType, to url: URL) async throws {
-        guard format == .mov else {
+        guard format == .quickTimeMovie else {
             throw InContextError.unsupportedMediaType
         }
 

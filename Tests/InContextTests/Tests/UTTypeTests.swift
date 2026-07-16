@@ -21,8 +21,18 @@
 // SOFTWARE.
 
 import Foundation
-import UniformTypeIdentifiers
 
-extension UTType {
+import XCTest
+@testable import InContextCore
+
+import PlatformSupport
+
+class UTTypeTests: XCTestCase {
+
+    func funcTestExtensionCaseSensitivity() {
+        let heicUpper = UTType(filenameExtension: "heic")
+        let heicLower = UTType(filenameExtension: "HEIC")
+        XCTAssertEqual(heicUpper, heicLower)
+    }
 
 }

@@ -114,7 +114,7 @@ class VideoImporter: Importer {
         }
 
         // Convert the video.
-        let videoFormat: UTType = .mov
+        let videoFormat: UTType = .quickTimeMovie
         let videoSize = size.fit(width: Self.videoSize)
         let videoFilename = "video." + (videoFormat.preferredFilenameExtension ?? "mov")
         let videoURL = assetsURL.appendingPathComponent(videoFilename)
