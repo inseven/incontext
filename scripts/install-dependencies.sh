@@ -49,6 +49,5 @@ export PATH="/home/runner/.local/share/mise/installs/python/3.12.13/bin":$PATH
 
 # Install the Python dependencies.
 pip install --upgrade pip pipenv wheel certifi
-which pipenv
 PIPENV_PIPFILE="$CHANGES_DIRECTORY/Pipfile" pipenv install
 PIPENV_PIPFILE="$BUILD_TOOLS_DIRECTORY/Pipfile" pipenv install
