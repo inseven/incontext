@@ -47,7 +47,8 @@ case $ID in
             ruby ruby-bundler \
             pkg-config \
             libsqlite3-dev \
-            libmagickwand-dev
+            libmagickwand-dev \
+            libheif-plugin-libde265
         $SUDO gem install --no-user-install fpm
         ;;
 
