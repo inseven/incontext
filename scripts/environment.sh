@@ -36,3 +36,6 @@ export PIPENV_IGNORE_VIRTUALENVS=1
 export PATH=$PATH:"$SCRIPTS_DIRECTORY/changes"
 export PATH=$PATH:"$SCRIPTS_DIRECTORY/build-tools"
 export PATH=$PATH:"$ROOT_DIRECTORY/dependencies/diligence/scripts"
+
+# Temporary work-around to activate mise.
+eval "$(~/.local/bin/mise activate bash)"
