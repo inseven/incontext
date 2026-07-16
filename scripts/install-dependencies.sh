@@ -45,8 +45,6 @@ mkdir -p "$LOCAL_TOOLS_PATH"
 # Source `environment.sh` to ensure the remainder of our paths are set up correctly.
 source "$SCRIPTS_DIRECTORY/environment.sh"
 
-export PATH="/home/runner/.local/share/mise/installs/python/3.12.13/bin":$PATH
-
 # Install the Python dependencies.
 pip install --upgrade pip pipenv wheel certifi
 PIPENV_PIPFILE="$CHANGES_DIRECTORY/Pipfile" pipenv install
