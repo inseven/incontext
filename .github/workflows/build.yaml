@@ -40,7 +40,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Install dependencies
-      run: scripts/install-dependencies.sh
+      run: |
+        which pipenv
+        scripts/install-dependencies.sh
 
     - name: Generate version and build numbers
       id: version
