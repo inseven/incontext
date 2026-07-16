@@ -103,7 +103,10 @@ final class GStreamerVideo: PlatformVideo {
         guard let playbin = gst_element_factory_make("playbin", nil) else {
             throw InContextError.videoLibraryError("Failed to create playbin.")
         }
-        defer { gst_object_unref(playbin) }
+        defer {
+            gst_element_set_state(playbin, GST_STATE_NULL)
+            gst_object_unref(playbin)
+        }
 
         guard let uri = g_filename_to_uri(fileURL.path, nil, nil) else {
             throw InContextError.videoLibraryError("Failed to construct URI for '\(fileURL.relativePath)'.")
@@ -162,8 +165,6 @@ final class GStreamerVideo: PlatformVideo {
 
         let data = Data(bytes: map.data, count: Int(map.size))
         try data.write(to: url)
-
-        gst_element_set_state(playbin, GST_STATE_NULL)
     }
 
     func writeVideo(maxPixelSize: Int, format: UTType, to url: URL) async throws {
@@ -190,7 +191,10 @@ final class GStreamerVideo: PlatformVideo {
         guard let pipeline = gst_parse_launch(description, &error) else {
             throw InContextError.videoLibraryError(Self.message(error))
         }
-        defer { gst_object_unref(pipeline) }
+        defer {
+            gst_element_set_state(pipeline, GST_STATE_NULL)
+            gst_object_unref(pipeline)
+        }
 
         guard let bus = gst_element_get_bus(pipeline) else {
             throw InContextError.videoLibraryError("Failed to get pipeline bus.")
@@ -201,8 +205,6 @@ final class GStreamerVideo: PlatformVideo {
             throw InContextError.videoLibraryError("Failed to start transcode pipeline.")
         }
         try Self.waitFor(bus: bus, type: GST_MESSAGE_EOS)
-
-        gst_element_set_state(pipeline, GST_STATE_NULL)
     }
 
 }
