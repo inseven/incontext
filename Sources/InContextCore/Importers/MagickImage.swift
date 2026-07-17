@@ -107,12 +107,31 @@ final class MagickImage: PlatformImage {
         get throws { return try date(for: "exif:DateTimeDigitized") }
     }
 
+    private lazy var xmp: XMPMetadata? = {
+        var length = 0
+        guard let profile = MagickGetImageProfile(wand, "xmp", &length) else {
+            return nil
+        }
+        defer {
+            MagickRelinquishMemory(UnsafeMutableRawPointer(mutating: profile))
+        }
+        return XMPMetadata(data: Data(bytes: profile, count: length))
+    }()
+
     var firstTitle: String? {
-        get throws { return try property("IPTC:2:5") }
+        get throws {
+            if let title = xmp?.title {
+                return title
+            }
+            return try property("IPTC:2:5")
+        }
     }
 
     var mediaDescription: String? {
         get throws {
+            if let mediaDescription = xmp?.mediaDescription {
+                return mediaDescription
+            }
             if let caption = try property("IPTC:2:120") {
                 return caption
             }

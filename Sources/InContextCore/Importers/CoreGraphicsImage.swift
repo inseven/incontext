@@ -100,7 +100,12 @@ final class CoreGraphicsImage: PlatformImage {
     }
 
     var mediaDescription: String? {
-        get throws { return try properties.optionalValue(for: ["{TIFF}", "ImageDescription"]) }
+        get throws {
+            if let description: String = try properties.optionalValue(for: ["{TIFF}", "ImageDescription"]) {
+                return description
+            }
+            return try properties.optionalValue(for: ["{IPTC}", "Caption/Abstract"])
+        }
     }
 
     private var latitude: Double? {

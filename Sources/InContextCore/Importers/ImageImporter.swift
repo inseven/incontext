@@ -211,7 +211,7 @@ class ImageImporter: Importer {
     }
 
     let identifier = "image"
-    let version = 14
+    let version = 15
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         return Settings(defaultCategory: try configuration.requiredValue(for: "category"),
