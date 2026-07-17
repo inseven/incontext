@@ -26,7 +26,7 @@ import PlatformSupport
 
 protocol PlatformImage {
 
-    init(url: URL) throws
+    init(url: URL) async throws
 
     var size: Size? { get throws }
     var dateTimeOriginal: Date? { get throws }
