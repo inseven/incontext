@@ -45,6 +45,8 @@ public enum InContextError: Error {
     case unsupportedMediaType
     case imageLibraryError(String)
     case videoLibraryError(String)
+    case inotifyWatchLimitReached(String)
+    case inotifyEventQueueOverflow
 
     // Function calls.
     case incorrectType(expected: Any.Type, received: Any?)
@@ -66,6 +68,10 @@ extension InContextError: LocalizedError {
             return message
         case .videoLibraryError(let message):
             return message
+        case .inotifyWatchLimitReached(let path):
+            return "Reached the inotify watch limit while monitoring '\(path)'; increase 'fs.inotify.max_user_watches' to watch a directory tree this large."
+        case .inotifyEventQueueOverflow:
+            return "The inotify event queue overflowed and file system changes were dropped; increase 'fs.inotify.max_queued_events' to monitor a tree this busy."
         case .incorrectType(expected: let expected, received: let received):
             guard let received else {
                 return "Incorrect type: expected '\(expected)', got nil."

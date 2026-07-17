@@ -412,7 +412,7 @@ public class Builder {
                 } catch {
                     print("Build failed with error \(error).")
                 }
-                await changeObserver.wait()
+                try await changeObserver.wait()
             }
         } else {
             try await doBuild()
