@@ -112,8 +112,6 @@ let package = Package(
                 .target(name: "PlatformSupportLinux", condition: .when(platforms: [.linux])),
             ]),
         .target(
-            name: "PlatformSupportMacOS"),
-        .target(
             name: "PlatformSupportLinux"),
         .target(
             name: "InContextMetadata"),
