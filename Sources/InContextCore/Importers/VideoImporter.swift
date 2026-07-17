@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 import Foundation
-import UniformTypeIdentifiers
 
 import PlatformSupport
 
@@ -123,7 +122,7 @@ class VideoImporter: Importer {
 
         // Generate the thumbnail.
         let thumbnailSize = size.fit(width: Self.thumbnailSize)
-        let thumbnailFilename = "thumbnail." + (UTType.jpeg.preferredFilenameExtension ?? "jpg")
+        let thumbnailFilename = "thumbnail." + FileType.jpeg.preferredFilenameExtension
         let thumbnailURL = assetsURL.appendingPathComponent(thumbnailFilename)
         try await video.writeThumbnail(at: Self.thumbnailOffset,
                                        maxPixelSize: Self.thumbnailSize,
