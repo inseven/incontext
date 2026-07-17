@@ -30,13 +30,31 @@ fileprivate struct LuaStateArgumentProvider: ArgumentProvider {
 
     func getArgument<T>(_ index: Int) -> T? {
         // Index is zero based (so + 1) and the first Lua stack index is the Function userdata, so add another +1
-        return L.tovalue(CInt(index + 2))
+        guard let value: T = L.tovalue(CInt(index + 2)) else {
+            return nil
+        }
+        return unwrapLuaValue(value) as? T ?? value
     }
 
     func countArguments() -> Int {
         return Int(L.gettop() - 1)
     }
 
+}
+
+// Explicitly unwrap values to ensure Linux (which handles numbers differently to macOS; thanks Swift) can cast them.
+func unwrapLuaValue(_ value: Any) -> Any {
+    if let dictionary = value as? [AnyHashable: Any] {
+        return dictionary.mapValues { unwrapLuaValue($0) }
+    }
+    if let array = value as? [Any] {
+        return array.map { unwrapLuaValue($0) }
+    }
+    let unwrapped = (value as? AnyHashable)?.base ?? value
+    if let integer = unwrapped as? Int64 {
+        return Int(exactly: integer) ?? unwrapped
+    }
+    return unwrapped
 }
 
 fileprivate func readFile(_ L: LuaState!) -> CInt {
