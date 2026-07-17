@@ -48,7 +48,14 @@ case $ID in
             pkg-config \
             libsqlite3-dev \
             libmagickwand-dev \
-            libheif-plugin-libde265
+            libheif-plugin-libde265 \
+            libavformat-dev \
+            libavutil-dev \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad \
+            gstreamer1.0-libav
         $SUDO gem install --no-user-install fpm
         ;;
 

@@ -76,16 +76,22 @@ case $DISTRO in
         ARCHITECTURE=`dpkg --print-architecture`
         PACKAGE_FILENAME="incontext.deb"
 
-        MAGICK_DEPENDS=`ldd "$SWIFT_BUILD_DIRECTORY/release/incontext" \
-            | grep -oE '/\S*lib(MagickWand|MagickCore)\S*' \
+        # Detect linked dependencies.
+        LINKED_DEPENDS=`ldd "$SWIFT_BUILD_DIRECTORY/release/incontext" \
+            | grep -oE '/\S*lib(MagickWand|MagickCore|avformat|avutil|gstreamer|glib-2\.0|gobject-2\.0)\S*' \
             | xargs -I{} dpkg -S {} \
             | cut -d: -f1 \
             | sort -u`
 
         DEPENDS_ARGS=(--depends libsqlite3-0)
-        for package in $MAGICK_DEPENDS; do
+        for package in $LINKED_DEPENDS; do
             DEPENDS_ARGS+=(--depends "$package")
         done
+
+        # Manually add dynamically linked GStreamer plugins.
+        DEPENDS_ARGS+=(--depends gstreamer1.0-plugins-good)
+        DEPENDS_ARGS+=(--depends gstreamer1.0-plugins-bad)
+        DEPENDS_ARGS+=(--depends gstreamer1.0-libav)
 
         # Manually add dynamically linked dependencies we can't auto-detect.
 

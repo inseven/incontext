@@ -25,8 +25,6 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-#if canImport(AVFoundation)
-
 class VideoImporterTests: ContentTestCase {
 
     func testExtractTitle() async throws {
@@ -123,5 +121,3 @@ steps:
     }
 
 }
-
-#endif
