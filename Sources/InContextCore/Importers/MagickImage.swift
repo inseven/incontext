@@ -62,7 +62,7 @@ actor MagicWand {
         guard isInitialized else {
             return
         }
-        MagicWandTerminus()
+        MagickWandTerminus()
     }
 
 }
