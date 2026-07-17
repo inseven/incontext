@@ -58,6 +58,13 @@ actor MagicWand {
         isInitialized = true
     }
 
+    deinit {
+        guard isInitialized else {
+            return
+        }
+        MagicWandTerminus()
+    }
+
 }
 
 let magicWand = MagicWand()

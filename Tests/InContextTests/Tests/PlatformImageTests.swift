@@ -27,45 +27,45 @@ import XCTest
 
 class PlatformImageTests: ContentTestCase {
 
-    func testPixelDimensions() throws {
+    func testPixelDimensions() async throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
         let size = try XCTUnwrap(image.size)
         XCTAssertEqual(size.width, 4032)
         XCTAssertEqual(size.height, 3024)
     }
 
-    func testDateTimeOriginal() throws {
+    func testDateTimeOriginal() async throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
         XCTAssertEqual(try image.dateTimeOriginal, Date(2023, 04, 12, 11, 08, 27))
     }
 
-    func testLocation() throws {
+    func testLocation() async throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
         let latitude = try XCTUnwrap(image.signedLatitude)
         let longitude = try XCTUnwrap(image.signedLongitude)
         XCTAssertEqual(latitude, 64.142272166666672, accuracy: 0.0001)
         XCTAssertEqual(longitude, -21.927391666666665, accuracy: 0.0001)
     }
 
-    func testMediaDescription() throws {
+    func testMediaDescription() async throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
         let description = try XCTUnwrap(image.mediaDescription)
         XCTAssert(description.contains("Hallgrímskirkja Church"))
     }
 
-    func testProjectionType() throws {
+    func testProjectionType() async throws {
         let url = try bundle.throwingURL(forResource: "R0010239", withExtension: "JPG")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
         XCTAssertEqual(try image.projectionType, "equirectangular")
     }
 
-    func testMetadataForImageWithReadWarnings() throws {
+    func testMetadataForImageWithReadWarnings() async throws {
         let url = try bundle.throwingURL(forResource: "threshold", withExtension: "png")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
         XCTAssertNil(try image.dateTimeOriginal)
         XCTAssertNil(try image.dateTimeDigitized)
         XCTAssertNil(try image.firstTitle)
@@ -75,66 +75,66 @@ class PlatformImageTests: ContentTestCase {
         XCTAssertNil(try image.projectionType)
     }
 
-    func testFrameCountForStillImage() throws {
+    func testFrameCountForStillImage() async throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
         XCTAssertEqual(image.frameCount, 1)
     }
 
-    func testFrameCountForAnimatedGif() throws {
+    func testFrameCountForAnimatedGif() async throws {
         let url = try bundle.throwingURL(forResource: "nezumi_anim", withExtension: "gif")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
         XCTAssertEqual(image.frameCount, 14)
     }
 
-    func testResizesImage() throws {
+    func testResizesImage() async throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
 
         let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
         try image.write(maxPixelSize: 400, format: .jpeg, to: destinationURL)
         XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
-        let thumbnail = try NativeImage(url: destinationURL)
+        let thumbnail = try await NativeImage(url: destinationURL)
         let size = try XCTUnwrap(thumbnail.size)
         XCTAssertEqual(max(size.width, size.height), 400)
     }
 
-    func testHeicPixelDimensions() throws {
+    func testHeicPixelDimensions() async throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
         let size = try XCTUnwrap(image.size)
         XCTAssertEqual(size.width, 4032)
         XCTAssertEqual(size.height, 3024)
     }
 
-    func testHeicDateTimeOriginal() throws {
+    func testHeicDateTimeOriginal() async throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
         XCTAssertEqual(try image.dateTimeOriginal, Date(2023, 04, 12, 11, 08, 27))
     }
 
-    func testResizesHeicImage() throws {
+    func testResizesHeicImage() async throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic")
-        let image = try NativeImage(url: url)
+        let image = try await NativeImage(url: url)
 
         let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
         try image.write(maxPixelSize: 400, format: .jpeg, to: destinationURL)
         XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
-        let thumbnail = try NativeImage(url: destinationURL)
+        let thumbnail = try await NativeImage(url: destinationURL)
         let size = try XCTUnwrap(thumbnail.size)
         XCTAssertEqual(max(size.width, size.height), 400)
     }
 
     func testConcurrentImports() async throws {
-        let url = try bundle.throwingURL(forResource: "hero-open", withExtension: "jpg")
+        let sourceURL = try bundle.throwingURL(forResource: "hero-open", withExtension: "jpg")
         try await withThrowingTaskGroup(of: Void.self) { group in
             for _ in 0..<40 {
                 group.addTask {
                     try await withTemporaryDirectory { url in
                         let destinationURL = url.appendingPathComponent("image.jpeg")
-                        let image = try NativeImage(url: url)
+                        let image = try await NativeImage(url: sourceURL)
                         try image.write(maxPixelSize: 1600, format: .jpeg, to: destinationURL)
                     }
                 }
