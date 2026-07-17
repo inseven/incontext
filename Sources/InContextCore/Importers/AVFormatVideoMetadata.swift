@@ -56,19 +56,29 @@ final class AVFormatVideoMetadata {
         avformat_close_input(&formatContext)
     }
 
-    private var videoCodecParameters: UnsafeMutablePointer<AVCodecParameters>? {
+    private func firstCodecParameters(type: AVMediaType) -> UnsafeMutablePointer<AVCodecParameters>? {
         guard let formatContext, let streams = formatContext.pointee.streams else {
             return nil
         }
         for i in 0..<Int(formatContext.pointee.nb_streams) {
-            guard let stream = streams[i], let codecpar = stream.pointee.codecpar else {
+            guard let stream = streams[i],
+                  let codecpar = stream.pointee.codecpar
+            else {
                 continue
             }
-            if codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO {
+            if codecpar.pointee.codec_type == type {
                 return codecpar
             }
         }
         return nil
+    }
+
+    private var videoCodecParameters: UnsafeMutablePointer<AVCodecParameters>? {
+        firstCodecParameters(type: AVMEDIA_TYPE_VIDEO)
+    }
+
+    var hasAudio: Bool {
+        firstCodecParameters(type: AVMEDIA_TYPE_AUDIO) != nil
     }
 
     var size: Size? {
