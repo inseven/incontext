@@ -39,6 +39,6 @@ protocol PlatformImage {
 
     var frameCount: Int { get }
 
-    func write(maxPixelSize: Int, format: UTType, to url: URL) throws
+    func write(maxPixelSize: Int, format: FileType, to url: URL) throws
 
 }

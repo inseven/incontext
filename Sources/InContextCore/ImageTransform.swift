@@ -28,7 +28,7 @@ struct ImageTransform {
 
     let basename: String
     let width: Float
-    let format: UTType
+    let format: FileType
     let sets: [String]  // Named sets to add the image to.
 
 }
