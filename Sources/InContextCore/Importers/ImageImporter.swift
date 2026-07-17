@@ -93,7 +93,6 @@ struct _Resize: _Transform {
             throw InContextError.internalInconsistency("Failed to detect output type for '\(context.fileURL.relativePath)'.")
         }
 
-        // TODO: Honour the input format if we don't have one.
         let destinationFilename = basename + "." + format.preferredFilenameExtension
         let destinationURL = context.assetsURL.appending(component: destinationFilename)
 
