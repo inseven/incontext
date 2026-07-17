@@ -168,7 +168,7 @@ final class GStreamerVideo: PlatformVideo {
     }
 
     func writeVideo(maxPixelSize: Int, format: FileType, to url: URL) async throws {
-        guard format == .mov else {
+        guard format == .quickTimeMovie else {
             throw InContextError.unsupportedMediaType
         }
 
