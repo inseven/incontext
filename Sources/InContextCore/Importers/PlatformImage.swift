@@ -31,7 +31,7 @@ protocol PlatformImage {
     var size: Size? { get throws }
     var dateTimeOriginal: Date? { get throws }
     var dateTimeDigitized: Date? { get throws }
-    var firstTitle: String? { get throws }
+    var title: String? { get throws }
     var mediaDescription: String? { get throws }
     var signedLatitude: Double? { get throws }
     var signedLongitude: Double? { get throws }

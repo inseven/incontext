@@ -83,20 +83,16 @@ final class CoreGraphicsImage: PlatformImage {
         }
     }
 
-    private var title: String? {
-        get throws { return try properties.optionalValue(for: "Title") }
-    }
-
-    private var displayName: String? {
-        get throws { return try properties.optionalValue(for: "DisplayName") }
-    }
-
-    private var objectName: String? {
-        get throws { return try properties.optionalValue(for: ["{IPTC}", "ObjectName"]) }
-    }
-
-    var firstTitle: String? {
-        get throws { return try (try title) ?? (try displayName) ?? (try objectName) }
+    var title: String? {
+        get throws {
+            if let title: String = try properties.optionalValue(for: "Title") {
+                return title
+            }
+            if let displayName: String = try properties.optionalValue(for: "DisplayName") {
+                return displayName
+            }
+            return try properties.optionalValue(for: ["{IPTC}", "ObjectName"])
+        }
     }
 
     var mediaDescription: String? {

@@ -60,7 +60,7 @@ class PlatformImageTests: ContentTestCase {
     func testXmpTitle() async throws {
         let url = try bundle.throwingURL(forResource: "xmp", withExtension: "jpeg")
         let image = try await NativeImage(url: url)
-        XCTAssertEqual(try image.firstTitle, "Radio Center")
+        XCTAssertEqual(try image.title, "Radio Center")
     }
 
     func testXmpMediaDescription() async throws {
@@ -86,7 +86,7 @@ One of very few Metabolist buildings still standing.
         let image = try await NativeImage(url: url)
         XCTAssertNil(try image.dateTimeOriginal)
         XCTAssertNil(try image.dateTimeDigitized)
-        XCTAssertNil(try image.firstTitle)
+        XCTAssertNil(try image.title)
         XCTAssertNil(try image.mediaDescription)
         XCTAssertNil(try image.signedLatitude)
         XCTAssertNil(try image.signedLongitude)
