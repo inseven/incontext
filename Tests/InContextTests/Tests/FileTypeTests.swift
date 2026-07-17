@@ -25,8 +25,6 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-import PlatformSupport
-
 class FileTypeTests: XCTestCase {
 
     func testFileTypeCaseSensitivity() {
