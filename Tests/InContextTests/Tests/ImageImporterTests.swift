@@ -94,4 +94,36 @@ steps:
         XCTAssertEqual(thumbnail.frameCount, 14)
     }
 
+    func testRespectsUppercaseExtensions() async throws {
+        _ = try defaultSourceDirectory.add("site.yaml", contents: """
+version: 2
+title: Example
+url: http://example.com
+steps:
+  - when: '(.*/)?.*\\.[hH][eE][iI][cC]'
+    then: image
+    args:
+        category: general
+        defaultTemplate: photo.html
+        inlineTemplate: image.html
+        titleFromFilename: false
+""")
+
+        let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic"),
+                                                   to: "IMG_0581.HEIC",
+                                                   location: .content)
+        let settings = ImageImporter.Settings(defaultCategory: "photos",
+                                              titleFromFilename: false,
+                                              defaultTemplate: "photo.html",
+                                              inlineTemplate: "image.html")
+        let result = try await ImageImporter.process(file: file,
+                                                     settings: settings,
+                                                     outputURL: defaultSourceDirectory.site.filesURL)
+        XCTAssertNotNil(result.document)
+        let imageURL = defaultSourceDirectory.site.filesURL
+            .appendingPathComponent("IMG_0581")
+            .appendingPathComponent("1600.jpeg")
+        XCTAssert(FileManager.default.fileExists(at: imageURL))
+    }
+
 }
