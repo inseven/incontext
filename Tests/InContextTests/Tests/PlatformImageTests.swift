@@ -60,7 +60,7 @@ class PlatformImageTests: ContentTestCase {
     func testXmpTitle() async throws {
         let url = try bundle.throwingURL(forResource: "xmp", withExtension: "jpeg")
         let image = try await NativeImage(url: url)
-        XCTAssertEqual(try image.firstTitle, "Radio Center")
+        XCTAssertEqual(try image.title, "Radio Center")
     }
 
     func testXmpMediaDescription() async throws {

@@ -287,7 +287,7 @@ class ImageImporter: Importer {
         }
 
         // TItle.
-        let metadataTitle = try image.firstTitle
+        let metadataTitle = try image.title
         let filenameTitle = settings.titleFromFilename ? details.title : nil
         let title = content?.title ?? metadataTitle ?? filenameTitle
 

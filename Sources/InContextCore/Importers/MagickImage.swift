@@ -118,7 +118,7 @@ final class MagickImage: PlatformImage {
         return XMPMetadata(data: Data(bytes: profile, count: length))
     }()
 
-    var firstTitle: String? {
+    var title: String? {
         get throws {
             if let title = xmp?.title {
                 return title
