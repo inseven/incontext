@@ -41,9 +41,11 @@ final class GStreamerVideo: PlatformVideo {
         return (fitted.width, fitted.height)
     }
 
+    private static let timeout = GstClockTime(10 * 60 * 1_000_000_000)  // 10 minutes.
+
     private static func waitFor(bus: UnsafeMutablePointer<GstBus>, type: GstMessageType) throws {
         let types = GstMessageType(type.rawValue | GST_MESSAGE_ERROR.rawValue)
-        guard let message = gst_bus_timed_pop_filtered(bus, GstClockTime(30 * 1_000_000_000), types) else {
+        guard let message = gst_bus_timed_pop_filtered(bus, Self.timeout, types) else {
             throw InContextError.videoLibraryError("Timed out waiting for GStreamer pipeline.")
         }
         defer { gst_message_unref(message) }
