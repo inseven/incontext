@@ -183,7 +183,7 @@ final class GStreamerVideo: PlatformVideo {
 
         // Video processing pipeline.
         let videoBranch = """
-        d. ! queue ! videoconvert ! videoscale ! video/x-raw,width=\(width),height=\(height) ! \
+        d. ! queue ! videoconvert ! videoscale ! videorate ! video/x-raw,width=\(width),height=\(height) ! \
         openh264enc ! h264parse ! queue ! mux.video_0
         """
 

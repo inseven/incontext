@@ -111,4 +111,18 @@ class PlatformVideoTests: ContentTestCase {
         XCTAssertEqual(max(size.width, size.height), 640)
     }
 
+    func testWritesVariableFrameRateVideo() async throws {
+        let url = try bundle.throwingURL(forResource: "variable-frame-rate", withExtension: "mov")
+        let video = try await NativeVideo(url: url)
+
+        let destinationURL = directoryURL.appendingPathComponent("video.mov")
+        try await video.writeVideo(maxPixelSize: 640, format: .quickTimeMovie, to: destinationURL)
+        XCTAssert(FileManager.default.fileExists(at: destinationURL))
+
+        let transcoded = try await NativeVideo(url: destinationURL)
+        let transcodedSize = try await transcoded.size
+        let size = try XCTUnwrap(transcodedSize)
+        XCTAssertEqual(max(size.width, size.height), 640)
+    }
+
 }
