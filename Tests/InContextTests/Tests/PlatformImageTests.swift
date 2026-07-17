@@ -57,6 +57,24 @@ class PlatformImageTests: ContentTestCase {
         XCTAssert(description.contains("Hallgrímskirkja Church"))
     }
 
+    func testXmpTitle() async throws {
+        let url = try bundle.throwingURL(forResource: "xmp", withExtension: "jpeg")
+        let image = try await NativeImage(url: url)
+        XCTAssertEqual(try image.firstTitle, "Radio Center")
+    }
+
+    func testXmpMediaDescription() async throws {
+        let url = try bundle.throwingURL(forResource: "xmp", withExtension: "jpeg")
+        let image = try await NativeImage(url: url)
+        XCTAssertEqual(try image.mediaDescription, """
+---
+title: Metabolism
+---
+
+One of very few Metabolist buildings still standing.
+""".trimmingCharacters(in: .newlines))
+    }
+
     func testProjectionType() async throws {
         let url = try bundle.throwingURL(forResource: "R0010239", withExtension: "JPG")
         let image = try await NativeImage(url: url)
