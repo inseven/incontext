@@ -92,7 +92,7 @@ class PlatformVideoTests: ContentTestCase {
         let video = try await NativeVideo(url: url)
 
         let destinationURL = directoryURL.appendingPathComponent("video.mov")
-        try await video.writeVideo(maxPixelSize: 640, format: .mov, to: destinationURL)
+        try await video.writeVideo(maxPixelSize: 640, format: .quickTimeMovie, to: destinationURL)
         XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
         let transcoded = try await NativeVideo(url: destinationURL)

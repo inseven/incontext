@@ -27,7 +27,6 @@ public class UTType: Equatable {
     public static let tiff = UTType(filenameExtension: "tiff")
     public static let heic = UTType(filenameExtension: "heic")
     public static let gif = UTType(filenameExtension: "gif")
-    public static let mov = UTType(filenameExtension: "mov")
 
     let filenameExtension: String
 
