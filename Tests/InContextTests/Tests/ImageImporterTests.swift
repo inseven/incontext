@@ -94,6 +94,36 @@ steps:
         XCTAssertEqual(thumbnail.frameCount, 14)
     }
 
+    func testExtractLocation() async throws {
+        _ = try defaultSourceDirectory.add("site.yaml", contents: """
+version: 2
+title: Example
+url: http://example.com
+steps:
+  - when: '(.*/)?.*\\.jpeg'
+    then: image
+    args:
+        category: general
+        defaultTemplate: photo.html
+        inlineTemplate: image.html
+        titleFromFilename: false
+""")
+
+        let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg"),
+                                                   to: "image.jpeg",
+                                                   location: .content)
+        let settings = ImageImporter.Settings(defaultCategory: "photos",
+                                              titleFromFilename: false,
+                                              defaultTemplate: "photo.html",
+                                              inlineTemplate: "image.html")
+        let result = try await ImageImporter.process(file: file,
+                                                     settings: settings,
+                                                     outputURL: defaultSourceDirectory.site.filesURL)
+        let location = try XCTUnwrap(result.document?.metadata["location"] as? [String: Double])
+        XCTAssertEqual(try XCTUnwrap(location["latitude"]), 64.142272166666672, accuracy: 0.0001)
+        XCTAssertEqual(try XCTUnwrap(location["longitude"]), -21.927391666666665, accuracy: 0.0001)
+    }
+
     func testRespectsUppercaseExtensions() async throws {
         // The current hard-coded image transform pipeline converts TIFFs to JPEGs. Before introducing file extension
         // case normalization in `FileType`, this was failing on case-sensitive file systems for files with uppercase
