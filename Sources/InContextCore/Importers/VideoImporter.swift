@@ -114,15 +114,15 @@ class VideoImporter: Importer {
         }
 
         // Convert the video.
-        let videoFormat: UTType = .mov
+        let videoFormat: FileType = .quickTimeMovie
         let videoSize = size.fit(width: Self.videoSize)
-        let videoFilename = "video." + (videoFormat.preferredFilenameExtension ?? "mov")
+        let videoFilename = "video." + videoFormat.preferredFilenameExtension
         let videoURL = assetsURL.appendingPathComponent(videoFilename)
         try await video.writeVideo(maxPixelSize: Self.videoSize, format: videoFormat, to: videoURL)
 
         // Generate the thumbnail.
         let thumbnailSize = size.fit(width: Self.thumbnailSize)
-        let thumbnailFilename = "thumbnail." + (UTType.jpeg.preferredFilenameExtension ?? "jpg")
+        let thumbnailFilename = "thumbnail." + FileType.jpeg.preferredFilenameExtension
         let thumbnailURL = assetsURL.appendingPathComponent(thumbnailFilename)
         try await video.writeThumbnail(at: Self.thumbnailOffset,
                                        maxPixelSize: Self.thumbnailSize,

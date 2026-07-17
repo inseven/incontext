@@ -154,15 +154,19 @@ final class CoreGraphicsImage: PlatformImage {
         return CGImageSourceGetCount(source)
     }
 
-    func write(maxPixelSize: Int, format: UTType, to url: URL) throws {
+    func write(maxPixelSize: Int, format: FileType, to url: URL) throws {
         let options = [kCGImageSourceCreateThumbnailWithTransform: kCFBooleanTrue,
                      kCGImageSourceCreateThumbnailFromImageAlways: kCFBooleanTrue,
                               kCGImageSourceThumbnailMaxPixelSize: maxPixelSize as NSNumber] as CFDictionary
 
         let frameCount = CGImageSourceGetCount(source)
 
+        guard let identifier = format.identifier else {
+            throw InContextError.unsupportedMediaType
+        }
+
         guard let destination = CGImageDestinationCreateWithURL(url as CFURL,
-                                                                format.identifier as CFString,
+                                                                identifier as CFString,
                                                                 frameCount,
                                                                 nil) else {
             throw InContextError.internalInconsistency("Failed to resize image at '\(url.relativePath)'.")

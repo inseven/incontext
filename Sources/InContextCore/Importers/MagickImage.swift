@@ -3,7 +3,6 @@
 import Foundation
 
 import CMagickWand
-import PlatformSupport
 
 final class MagickImage: PlatformImage {
 
@@ -73,11 +72,7 @@ final class MagickImage: PlatformImage {
         return Int(MagickGetNumberImages(wand))
     }
 
-    func write(maxPixelSize: Int, format: UTType, to url: URL) throws {
-        guard let filenameExtension = format.preferredFilenameExtension else {
-            throw InContextError.internalInconsistency("Unknown output format '\(format)'.")
-        }
-
+    func write(maxPixelSize: Int, format: FileType, to url: URL) throws {
         guard let coalesced = MagickCoalesceImages(wand) else {
             throw InContextError.imageLibraryError(MagickImage.exceptionMessage(wand))
         }
@@ -85,7 +80,7 @@ final class MagickImage: PlatformImage {
             DestroyMagickWand(coalesced)
         }
 
-        guard MagickSetImageFormat(coalesced, filenameExtension.uppercased()) == MagickTrue else {
+        guard MagickSetImageFormat(coalesced, format.preferredFilenameExtension.uppercased()) == MagickTrue else {
             throw InContextError.imageLibraryError(MagickImage.exceptionMessage(coalesced))
         }
 

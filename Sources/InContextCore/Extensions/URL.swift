@@ -68,8 +68,8 @@ extension URL {
         return BasenameDetails(basename: relevantBasename)
     }
 
-    var type: UTType? {
-        return UTType(filenameExtension: pathExtension)
+    var type: FileType? {
+        return FileType(filenameExtension: pathExtension)
     }
 
     public var pathIncludingTrailingDirectorySeparator: String {

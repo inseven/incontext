@@ -54,11 +54,11 @@ final class DummyPlatformVideo: PlatformVideo {
         get async throws { fatalError("Unsupported media type.") }
     }
 
-    func writeThumbnail(at time: Double, maxPixelSize: Int, format: UTType, to url: URL) async throws {
+    func writeThumbnail(at time: Double, maxPixelSize: Int, format: FileType, to url: URL) async throws {
         fatalError("Unsupported media type.")
     }
 
-    func writeVideo(maxPixelSize: Int, format: UTType, to url: URL) async throws {
+    func writeVideo(maxPixelSize: Int, format: FileType, to url: URL) async throws {
         fatalError("Unsupported media type.")
     }
 

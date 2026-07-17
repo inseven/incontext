@@ -88,7 +88,7 @@ final class AVFoundationVideo: PlatformVideo {
         }
     }
 
-    func writeThumbnail(at time: Double, maxPixelSize: Int, format: UTType, to url: URL) async throws {
+    func writeThumbnail(at time: Double, maxPixelSize: Int, format: FileType, to url: URL) async throws {
         guard let videoSize = try await size else {
             throw InContextError.videoLibraryError("Failed to determine video dimensions.")
         }
@@ -99,7 +99,11 @@ final class AVFoundationVideo: PlatformVideo {
         generator.maximumSize = CGSize(width: size.width, height: size.height)
         let result = try await generator.image(at: CMTime(seconds: time, preferredTimescale: 600))
 
-        guard let destination = CGImageDestinationCreateWithURL(url as CFURL, format.identifier as CFString, 1, nil) else {
+        guard let identifier = format.identifier else {
+            throw InContextError.unsupportedMediaType
+        }
+
+        guard let destination = CGImageDestinationCreateWithURL(url as CFURL, identifier as CFString, 1, nil) else {
             throw InContextError.videoLibraryError("Failed to create thumbnail destination at '\(url.relativePath)'.")
         }
         CGImageDestinationAddImage(destination, result.image, nil)
@@ -109,8 +113,8 @@ final class AVFoundationVideo: PlatformVideo {
         }
     }
 
-    func writeVideo(maxPixelSize: Int, format: UTType, to url: URL) async throws {
-        guard format == .mov else {
+    func writeVideo(maxPixelSize: Int, format: FileType, to url: URL) async throws {
+        guard format == .quickTimeMovie else {
             throw InContextError.unsupportedMediaType
         }
 

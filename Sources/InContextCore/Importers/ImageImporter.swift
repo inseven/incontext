@@ -32,9 +32,9 @@ typealias NativeImage = MagickImage
 
 struct _Type: _Test {
 
-    let type: UTType
+    let type: FileType
 
-    init(_ type: UTType) {
+    init(_ type: FileType) {
         self.type = type
     }
 
@@ -42,7 +42,7 @@ struct _Type: _Test {
         guard let fileType = fileURL.type else {
             return false
         }
-        return fileType.conforms(to: type)
+        return fileType == type
     }
 
 }
@@ -69,10 +69,10 @@ struct _Resize: _Transform {
 
     let basename: String
     let width: Int  // TODO: Consider making this richer.
-    let format: UTType?  // TODO: Rename to outputType
+    let format: FileType?  // TODO: Rename to outputType
     let sets: [String]
 
-    init(basename: String, width: Int, format: UTType? = nil, sets: [String]) {
+    init(basename: String, width: Int, format: FileType? = nil, sets: [String]) {
         precondition(!sets.isEmpty, "Resize output must be stored in at least one set.")
         self.basename = basename
         self.width = width
@@ -93,8 +93,7 @@ struct _Resize: _Transform {
             throw InContextError.internalInconsistency("Failed to detect output type for '\(context.fileURL.relativePath)'.")
         }
 
-        // TODO: Honour the input format if we don't have one.
-        let destinationFilename = basename + "." + (format.preferredFilenameExtension ?? "")
+        let destinationFilename = basename + "." + format.preferredFilenameExtension
         let destinationURL = context.assetsURL.appending(component: destinationFilename)
 
         try context.image.write(maxPixelSize: maxPixelSize, format: format, to: destinationURL)
