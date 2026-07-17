@@ -82,7 +82,7 @@ class RenderManager {
         renderTracker.add(try renderStatuses(for: renderResult.templatesUsed))
 
         // Prettify HTML output to make debugging a little easier.
-        guard template.type?.conforms(to: .html) ?? false else {
+        guard template.type == .html else {
             return renderResult.content
         }
         let dom = try SwiftSoup.parse(renderResult.content)

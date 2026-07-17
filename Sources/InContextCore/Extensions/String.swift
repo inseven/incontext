@@ -95,8 +95,8 @@ extension String {
         return URL(filePath: self).pathExtension
     }
 
-    var type: UTType? {
-        return UTType(filenameExtension: pathExtension)
+    var type: FileType? {
+        return FileType(filenameExtension: pathExtension)
     }
 
 }

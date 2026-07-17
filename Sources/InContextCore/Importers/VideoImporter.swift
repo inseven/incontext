@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 import Foundation
+import UniformTypeIdentifiers
 
 import PlatformSupport
 
@@ -114,9 +115,9 @@ class VideoImporter: Importer {
         }
 
         // Convert the video.
-        let videoFormat: UTType = .quickTimeMovie
+        let videoFormat: FileType = .quickTimeMovie
         let videoSize = size.fit(width: Self.videoSize)
-        let videoFilename = "video." + (videoFormat.preferredFilenameExtension ?? "mov")
+        let videoFilename = "video." + videoFormat.preferredFilenameExtension
         let videoURL = assetsURL.appendingPathComponent(videoFilename)
         try await video.writeVideo(maxPixelSize: Self.videoSize, format: videoFormat, to: videoURL)
 

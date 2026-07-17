@@ -28,7 +28,7 @@ enum FileType: String, CaseIterable {
     case html = "text/html"
     case jpeg = "image/jpeg"
     case markdown = "text/markdown"
-    case quickTimeVideo = "video/quicktime"
+    case quickTimeMovie = "video/quicktime"
     case tiff = "image/tiff"
 }
 
@@ -53,13 +53,13 @@ extension FileType {
             case .htm, .html: .html
             case .jpeg, .jpg: .jpeg
             case .markdown, .md: .markdown
-            case .mov: .quickTimeVideo
+            case .mov: .quickTimeMovie
             case .tiff: .tiff
             }
         }
     }
 
-    var preferredFilenameExtension: String? {
+    var preferredFilenameExtension: String {
         func map(_ fileType: FileType) -> Extension {
             switch fileType {
             case .gif: .gif
@@ -67,14 +67,14 @@ extension FileType {
             case .html: .html
             case .jpeg: .jpeg
             case .markdown: .md
-            case .quickTimeVideo: .mov
+            case .quickTimeMovie: .mov
             case .tiff: .tiff
             }
         }
         return map(self).rawValue
     }
 
-    var preferredMIMEType: String? {
+    var preferredMIMEType: String {
         return self.rawValue
     }
 

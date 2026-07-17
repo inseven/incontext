@@ -26,7 +26,7 @@
 
 #if os(macOS)
 @_exported import PlatformSupportMacOS
-@_exported import UniformTypeIdentifiers
+//@_exported import UniformTypeIdentifiers
 #endif
 
 #if os(Linux)
