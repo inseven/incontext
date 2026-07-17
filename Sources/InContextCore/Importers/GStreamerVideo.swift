@@ -98,7 +98,7 @@ final class GStreamerVideo: PlatformVideo {
         get async throws { metadata.location }
     }
 
-    func writeThumbnail(at time: Double, maxPixelSize: Int, format: UTType, to url: URL) async throws {
+    func writeThumbnail(at time: Double, maxPixelSize: Int, format: FileType, to url: URL) async throws {
 
         guard let playbin = gst_element_factory_make("playbin", nil) else {
             throw InContextError.videoLibraryError("Failed to create playbin.")
@@ -167,7 +167,7 @@ final class GStreamerVideo: PlatformVideo {
         try data.write(to: url)
     }
 
-    func writeVideo(maxPixelSize: Int, format: UTType, to url: URL) async throws {
+    func writeVideo(maxPixelSize: Int, format: FileType, to url: URL) async throws {
         guard format == .mov else {
             throw InContextError.unsupportedMediaType
         }
