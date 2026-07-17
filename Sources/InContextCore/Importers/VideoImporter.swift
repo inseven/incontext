@@ -51,7 +51,7 @@ class VideoImporter: Importer {
     static let thumbnailOffset: Double = 1
 
     let identifier = "video"
-    let version = 10
+    let version = 11
 
     func settings(for configuration: [String : Any]) throws -> Settings {
         return Settings(defaultCategory: try configuration.requiredValue(for: "category"),

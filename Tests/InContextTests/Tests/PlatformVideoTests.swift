@@ -68,6 +68,13 @@ class PlatformVideoTests: ContentTestCase {
         XCTAssertEqual(coordinate.longitude, -0.1240, accuracy: 0.0001)
     }
 
+    func testTitle() async throws {
+        let url = try bundle.throwingURL(forResource: "titled", withExtension: "mov")
+        let video = try await NativeVideo(url: url)
+        let title = try await video.title
+        XCTAssertEqual(title, "Fuzzball")
+    }
+
     func testWritesThumbnail() async throws {
         let url = try bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave", withExtension: "mov")
         let video = try await NativeVideo(url: url)
