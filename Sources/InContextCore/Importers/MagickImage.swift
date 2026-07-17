@@ -8,8 +8,27 @@ final class MagickImage: PlatformImage {
 
     /// Initialize MagickWand.
     private static let genesis: Void = {
+        MagickImage.configureResourcePolicy()
         MagickWandGenesis()
     }()
+
+    // Relax ImageMagick's resource policy.
+    private static func configureResourcePolicy() {
+        let configDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("incontext-imagemagick-policy", isDirectory: true)
+        let policyURL = configDirectory.appendingPathComponent("policy.xml")
+        let policy = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <policymap>
+          <policy domain="resource" name="memory" value="4GiB"/>
+          <policy domain="resource" name="map" value="8GiB"/>
+          <policy domain="resource" name="disk" value="8GiB"/>
+        </policymap>
+        """
+        try FileManager.default.createDirectory(at: configDirectory, withIntermediateDirectories: true)
+        try policy.write(to: policyURL, atomically: true, encoding: .utf8)
+        setenv("MAGICK_CONFIGURE_PATH", configDirectory.path, 1)
+    }
 
     private let wand: OpaquePointer
 
