@@ -181,11 +181,24 @@ final class GStreamerVideo: PlatformVideo {
         }
         defer { g_free(uri) }
 
+        // Video processing pipeline.
+        let videoBranch = """
+        d. ! queue ! videoconvert ! videoscale ! video/x-raw,width=\(width),height=\(height) ! \
+        openh264enc ! h264parse ! queue ! mux.video_0
+        """
+
+        // Audio processing pipeline.
+        let audioBranch = """
+        d. ! queue ! audioconvert ! audioresample ! avenc_aac ! aacparse ! queue ! mux.audio_0
+        """
+
+        // Full decode description.
+        // Only includes the audio pipeline if the video has an audio stream; without this processing will fail on
+        // silent videos.
         let description = """
         uridecodebin uri=\(String(cString: uri)) name=d \
-        d. ! queue ! videoconvert ! videoscale ! video/x-raw,width=\(width),height=\(height) ! \
-        openh264enc ! h264parse ! queue ! mux.video_0 \
-        d. ! queue ! audioconvert ! audioresample ! avenc_aac ! aacparse ! queue ! mux.audio_0 \
+        \(videoBranch) \
+        \(metadata.hasAudio ? audioBranch + " " : "")\
         qtmux name=mux ! filesink location=\(url.path)
         """
 
