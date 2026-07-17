@@ -242,12 +242,17 @@ final class MagickImage: PlatformImage {
     private static func exceptionMessage(_ wand: OpaquePointer) -> String {
         var severity = UndefinedException
         guard let value = MagickGetException(wand, &severity) else {
-            return "Unknown MagickWand error"
+            return "Unknown MagickWand error (severity \(severity.rawValue))"
         }
         defer {
             MagickRelinquishMemory(UnsafeMutableRawPointer(mutating: value))
         }
-        return String(cString: value)
+        let message = String(cString: value)
+        guard !message.isEmpty else {
+            // Return a default error including the severity if the message is empty.
+            return "Unknown MagickWand error (severity \(severity.rawValue))"
+        }
+        return message
     }
 
 }
