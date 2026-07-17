@@ -21,8 +21,4 @@
 // SOFTWARE.
 
 import Foundation
-import UniformTypeIdentifiers
 
-extension UTType {
-
-}
