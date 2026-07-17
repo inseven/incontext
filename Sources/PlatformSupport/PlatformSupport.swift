@@ -24,10 +24,6 @@
 // Swift modules re-export their imports, meaning that `import PlatformSupport`
 // will pull in all platform-specific code.
 
-#if os(macOS)
-@_exported import PlatformSupportMacOS
-#endif
-
 #if os(Linux)
 @_exported import PlatformSupportLinux
 #endif

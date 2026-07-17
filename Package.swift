@@ -109,7 +109,6 @@ let package = Package(
         .target(
             name: "PlatformSupport",
             dependencies: [
-                .target(name: "PlatformSupportMacOS", condition: .when(platforms: [.macOS])),
                 .target(name: "PlatformSupportLinux", condition: .when(platforms: [.linux])),
             ]),
         .target(
