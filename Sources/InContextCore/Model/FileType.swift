@@ -90,3 +90,32 @@ extension FileType {
     }
 
 }
+
+#if canImport(UniformTypeIdentifiers)
+
+import UniformTypeIdentifiers
+
+extension FileType {
+
+    var identifier: String? {
+        switch self {
+        case .gif:
+            return UTType.gif.identifier
+        case .heic:
+            return UTType.heic.identifier
+        case .html:
+            return nil
+        case .jpeg:
+            return UTType.jpeg.identifier
+        case .markdown:
+            return nil
+        case .quickTimeMovie:
+            return nil
+        case .tiff:
+            return UTType.tiff.identifier
+        }
+    }
+
+}
+
+#endif

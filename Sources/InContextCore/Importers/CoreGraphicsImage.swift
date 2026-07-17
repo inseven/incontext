@@ -24,32 +24,8 @@
 
 import Foundation
 import ImageIO
-import UniformTypeIdentifiers
 
 import PlatformSupport
-
-extension FileType {
-
-    var identifier: String? {
-        switch self {
-        case .gif:
-            return UTType.gif.identifier
-        case .heic:
-            return UTType.heic.identifier
-        case .html:
-            return nil
-        case .jpeg:
-            return UTType.jpeg.identifier
-        case .markdown:
-            return nil
-        case .quickTimeMovie:
-            return nil
-        case .tiff:
-            return UTType.tiff.identifier
-        }
-    }
-
-}
 
 final class CoreGraphicsImage: PlatformImage {
 
