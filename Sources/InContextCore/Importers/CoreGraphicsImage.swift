@@ -34,7 +34,7 @@ final class CoreGraphicsImage: PlatformImage {
     private let properties: [String: Any]
     private let metadata: CGImageMetadata
 
-    init(url: URL) throws {
+    init(url: URL) async throws {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
             throw InContextError.internalInconsistency("Failed to open image file at '\(url.relativePath)'.")
         }

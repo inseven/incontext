@@ -231,7 +231,7 @@ class ImageImporter: Importer {
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
 
         // Load the image.
-        let image = try NativeImage(url: fileURL)
+        let image = try await NativeImage(url: fileURL)
 
         // Load the details from the filename.
         let details = fileURL.basenameDetails()

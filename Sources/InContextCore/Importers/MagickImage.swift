@@ -1,20 +1,84 @@
+// MIT License
+//
+// Copyright (c) 2016-2026 Jason Morley
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #if canImport(CMagickWand)
 
 import Foundation
+import Glibc
 
 import CMagickWand
 
-final class MagickImage: PlatformImage {
+actor MagicWand {
 
-    /// Initialize MagickWand.
-    private static let genesis: Void = {
+    private var isInitialized = false
+
+    func initialize() throws {
+        guard !isInitialized else {
+            return
+        }
+
+        // Relax ImageMagick's resource policy.
+        let configDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("incontext-imagemagick-policy", isDirectory: true)
+        let policyURL = configDirectory.appendingPathComponent("policy.xml")
+        let policy = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <policymap>
+          <policy domain="resource" name="memory" value="4GiB"/>
+          <policy domain="resource" name="map" value="8GiB"/>
+          <policy domain="resource" name="disk" value="8GiB"/>
+        </policymap>
+        """
+        try FileManager.default.createDirectory(at: configDirectory, withIntermediateDirectories: true)
+        try policy.write(to: policyURL, atomically: true, encoding: .utf8)
+        setenv("MAGICK_CONFIGURE_PATH", configDirectory.path, 1)
+
+        // Initialize MagicWand.
         MagickWandGenesis()
-    }()
+
+        isInitialized = true
+    }
+
+    deinit {
+        guard isInitialized else {
+            return
+        }
+        MagickWandTerminus()
+    }
+
+}
+
+let magicWand = MagicWand()
+
+func initializeMagicWand() async throws {
+    try await magicWand.initialize()
+}
+
+final class MagickImage: PlatformImage {
 
     private let wand: OpaquePointer
 
-    init(url: URL) throws {
-        _ = MagickImage.genesis
+    init(url: URL) async throws {
+        try await initializeMagicWand()
         guard let wand = NewMagickWand() else {
             throw InContextError.allocationFailure
         }

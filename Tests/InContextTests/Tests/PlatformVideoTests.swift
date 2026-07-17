@@ -76,7 +76,7 @@ class PlatformVideoTests: ContentTestCase {
         try await video.writeThumbnail(at: 1, maxPixelSize: 400, format: .jpeg, to: destinationURL)
         XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
-        let thumbnail = try NativeImage(url: destinationURL)
+        let thumbnail = try await NativeImage(url: destinationURL)
         let size = try XCTUnwrap(thumbnail.size)
         // AVAssetImageGenerator.maximumSize is a bounding box, not an exact fit, so the encoder's
         // even-dimension rounding can land a pixel or two under the requested size.

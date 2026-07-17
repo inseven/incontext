@@ -90,7 +90,7 @@ steps:
         XCTAssert(FileManager.default.fileExists(at: thumbnailURL))
 
         // Check the number of frames in the image.
-        let thumbnail = try NativeImage(url: thumbnailURL)
+        let thumbnail = try await NativeImage(url: thumbnailURL)
         XCTAssertEqual(thumbnail.frameCount, 14)
     }
 
