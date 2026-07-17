@@ -89,6 +89,107 @@ steps:
         XCTAssertEqual(location?["longitude"], -0.1240)
     }
 
+    private func configureSite(in sourceDirectory: SourceDirectory) throws {
+        _ = try sourceDirectory.add("site.yaml", contents: """
+version: 2
+title: Example
+url: http://example.com
+steps: []
+""")
+    }
+
+    private func videoSettings(titleFromFilename: Bool = false) -> VideoImporter.Settings {
+        return VideoImporter.Settings(defaultCategory: "snapshots",
+                                      titleFromFilename: titleFromFilename,
+                                      defaultTemplate: "video.html",
+                                      inlineTemplate: "video.html")
+    }
+
+    func testFrontmatterTitleOverridesMetadataTitle() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            try configureSite(in: sourceDirectory)
+            let file = try sourceDirectory.add("video.mov", location: .content, contents: "")
+            let video = TestPlatformVideo(title: "Metadata Title",
+                                          mediaDescription: """
+---
+title: Frontmatter Title
+---
+""")
+            let result = try await VideoImporter.process(file: file,
+                                                         settings: videoSettings(),
+                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         video: video)
+            XCTAssertEqual(result.document?.title, "Frontmatter Title")
+        }
+    }
+
+    func testMetadataTitleUsedWhenFrontmatterHasNoTitle() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            try configureSite(in: sourceDirectory)
+            let file = try sourceDirectory.add("video.mov", location: .content, contents: "")
+            let video = TestPlatformVideo(title: "Metadata Title",
+                                          mediaDescription: "A plain caption with no frontmatter.")
+            let result = try await VideoImporter.process(file: file,
+                                                         settings: videoSettings(),
+                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         video: video)
+            XCTAssertEqual(result.document?.title, "Metadata Title")
+        }
+    }
+
+    func testFrontmatterDateOverridesMetadataDate() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            try configureSite(in: sourceDirectory)
+            let file = try sourceDirectory.add("video.mov", location: .content, contents: "")
+            let video = TestPlatformVideo(creationDate: Date(2001, 10, 02, 01, 54, 02),
+                                          mediaDescription: """
+---
+date: '2020-05-04 12:00:00 +00:00'
+---
+""")
+            let result = try await VideoImporter.process(file: file,
+                                                         settings: videoSettings(),
+                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         video: video)
+            XCTAssertEqual(result.document?.date, Date(2020, 05, 04, 12, 00, 00))
+        }
+    }
+
+    func testFrontmatterDurationOverridesMetadataDuration() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            try configureSite(in: sourceDirectory)
+            let file = try sourceDirectory.add("video.mov", location: .content, contents: "")
+            let video = TestPlatformVideo(duration: 7.835,
+                                          mediaDescription: """
+---
+duration: 42.0
+---
+""")
+            let result = try await VideoImporter.process(file: file,
+                                                         settings: videoSettings(),
+                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         video: video)
+            XCTAssertEqual(result.document?.metadata["duration"] as? Double, 42.0)
+        }
+    }
+
+    func testFrontmatterInjectsCustomMetadata() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            try configureSite(in: sourceDirectory)
+            let file = try sourceDirectory.add("video.mov", location: .content, contents: "")
+            let video = TestPlatformVideo(mediaDescription: """
+---
+photographer: Jane Doe
+---
+""")
+            let result = try await VideoImporter.process(file: file,
+                                                         settings: videoSettings(),
+                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         video: video)
+            XCTAssertEqual(result.document?.metadata["photographer"] as? String, "Jane Doe")
+        }
+    }
+
     func testExtractDuration() async throws {
 
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
