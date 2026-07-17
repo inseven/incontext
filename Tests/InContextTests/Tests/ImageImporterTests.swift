@@ -124,6 +124,112 @@ steps:
         XCTAssertEqual(try XCTUnwrap(location["longitude"]), -21.927391666666665, accuracy: 0.0001)
     }
 
+    private func configureSite(in sourceDirectory: SourceDirectory) throws {
+        _ = try sourceDirectory.add("site.yaml", contents: """
+version: 2
+title: Example
+url: http://example.com
+steps: []
+""")
+    }
+
+    private func imageSettings(titleFromFilename: Bool = false) -> ImageImporter.Settings {
+        return ImageImporter.Settings(defaultCategory: "photos",
+                                      titleFromFilename: titleFromFilename,
+                                      defaultTemplate: "photo.html",
+                                      inlineTemplate: "image.html")
+    }
+
+    func testFrontmatterTitleOverridesMetadataTitle() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            try configureSite(in: sourceDirectory)
+            let file = try sourceDirectory.add("image.jpeg", location: .content, contents: "")
+            let image = TestPlatformImage(title: "Metadata Title",
+                                          mediaDescription: """
+---
+title: Frontmatter Title
+---
+""")
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(),
+                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         image: image)
+            XCTAssertEqual(result.document?.title, "Frontmatter Title")
+        }
+    }
+
+    func testMetadataTitleUsedWhenFrontmatterHasNoTitle() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            try configureSite(in: sourceDirectory)
+            let file = try sourceDirectory.add("image.jpeg", location: .content, contents: "")
+            let image = TestPlatformImage(title: "Metadata Title",
+                                          mediaDescription: "A plain caption with no frontmatter.")
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(),
+                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         image: image)
+            XCTAssertEqual(result.document?.title, "Metadata Title")
+        }
+    }
+
+    func testFrontmatterDateOverridesMetadataDate() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            try configureSite(in: sourceDirectory)
+            let file = try sourceDirectory.add("image.jpeg", location: .content, contents: "")
+            let image = TestPlatformImage(dateTimeOriginal: Date(2001, 10, 02, 01, 54, 02),
+                                          mediaDescription: """
+---
+date: '2020-05-04 12:00:00 +00:00'
+---
+""")
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(),
+                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         image: image)
+            XCTAssertEqual(result.document?.date, Date(2020, 05, 04, 12, 00, 00))
+        }
+    }
+
+    func testFrontmatterLocationOverridesMetadataLocation() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            try configureSite(in: sourceDirectory)
+            let file = try sourceDirectory.add("image.jpeg", location: .content, contents: "")
+            let image = TestPlatformImage(mediaDescription: """
+---
+location:
+  latitude: 1.5
+  longitude: 2.5
+---
+""",
+                                          signedLatitude: 64.0,
+                                          signedLongitude: -21.0)
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(),
+                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         image: image)
+            let location = try XCTUnwrap(result.document?.metadata["location"] as? [AnyHashable: Any])
+            XCTAssertEqual(location["latitude"] as? Double, 1.5)
+            XCTAssertEqual(location["longitude"] as? Double, 2.5)
+        }
+    }
+
+    func testFrontmatterInjectsCustomMetadata() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            try configureSite(in: sourceDirectory)
+            let file = try sourceDirectory.add("image.jpeg", location: .content, contents: "")
+            let image = TestPlatformImage(mediaDescription: """
+---
+photographer: Jane Doe
+---
+""")
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(),
+                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         image: image)
+            XCTAssertEqual(result.document?.metadata["photographer"] as? String, "Jane Doe")
+        }
+    }
+
     func testRespectsUppercaseExtensions() async throws {
         // The current hard-coded image transform pipeline converts TIFFs to JPEGs. Before introducing file extension
         // case normalization in `FileType`, this was failing on case-sensitive file systems for files with uppercase

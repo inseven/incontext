@@ -63,15 +63,20 @@ class VideoImporter: Importer {
     static func process(file: File,
                         settings: Settings,
                         outputURL: URL) async throws -> ImporterResult {
+        let video = try await NativeVideo(url: file.url)
+        return try await process(file: file, settings: settings, outputURL: outputURL, video: video)
+    }
+
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL,
+                        video: any PlatformVideo) async throws -> ImporterResult {
 
         let fileURL = file.url
 
         // Create the assets directory.
         let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: outputURL)
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
-
-        // Load the video.
-        let video = try await NativeVideo(url: fileURL)
 
         // Get the size.
         guard let size = try await video.size else {

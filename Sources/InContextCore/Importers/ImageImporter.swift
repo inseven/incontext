@@ -223,15 +223,20 @@ class ImageImporter: Importer {
     static func process(file: File,
                         settings: Settings,
                         outputURL: URL) async throws -> ImporterResult {
+        let image = try await NativeImage(url: file.url)
+        return try await process(file: file, settings: settings, outputURL: outputURL, image: image)
+    }
+
+    static func process(file: File,
+                        settings: Settings,
+                        outputURL: URL,
+                        image: any PlatformImage) async throws -> ImporterResult {
 
         let fileURL = file.url
 
         // Create the assets directory.
         let assetsURL = URL(filePath: fileURL.relevantRelativePath, relativeTo: outputURL)  // TODO: Make this a utiltiy and test it
         try FileManager.default.createDirectory(at: assetsURL, withIntermediateDirectories: true)
-
-        // Load the image.
-        let image = try await NativeImage(url: fileURL)
 
         // Load the details from the filename.
         let details = fileURL.basenameDetails()
