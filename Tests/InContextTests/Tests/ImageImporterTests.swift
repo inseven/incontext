@@ -95,6 +95,9 @@ steps:
     }
 
     func testRespectsUppercaseExtensions() async throws {
+        // The current hard-coded image transform pipeline converts TIFFs to JPEGs. Before introducing file extension
+        // case normalization in `FileType`, this was failing on case-sensitive file systems for files with uppercase
+        // extensions. This test will need revisiting when we switch to a user-configurable transform pipeline.
         _ = try defaultSourceDirectory.add("site.yaml", contents: """
 version: 2
 title: Example
