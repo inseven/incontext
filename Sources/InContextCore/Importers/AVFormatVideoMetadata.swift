@@ -96,7 +96,7 @@ final class AVFormatVideoMetadata {
     }
 
     var title: String? {
-        tag("title")
+        tag("com.apple.quicktime.title") ?? tag("title")
     }
 
     var mediaDescription: String? {
