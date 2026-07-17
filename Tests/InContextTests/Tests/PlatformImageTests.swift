@@ -132,10 +132,11 @@ class PlatformImageTests: ContentTestCase {
         try await withThrowingTaskGroup(of: Void.self) { group in
             for _ in 0..<40 {
                 group.addTask {
-                    let image = try NativeImage(url: url)
-                    let dest = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).jpg")
-                    try image.write(maxPixelSize: 1600, format: .jpeg, to: dest)
-                    try? FileManager.default.removeItem(at: dest)
+                    try await withTemporaryDirectory { url in
+                        let destinationURL = url.appendingPathComponent("image.jpeg")
+                        let image = try NativeImage(url: url)
+                        try image.write(maxPixelSize: 1600, format: .jpeg, to: destinationURL)
+                    }
                 }
             }
             try await group.waitForAll()
