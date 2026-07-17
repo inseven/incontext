@@ -28,6 +28,7 @@ enum FileType: String, CaseIterable {
     case html = "text/html"
     case jpeg = "image/jpeg"
     case markdown = "text/markdown"
+    case png = "image/png"
     case quickTimeMovie = "video/quicktime"
     case tiff = "image/tiff"
 }
@@ -44,6 +45,7 @@ extension FileType {
         case markdown
         case md
         case mov
+        case png
         case tiff
 
         var fileType: FileType {
@@ -54,6 +56,7 @@ extension FileType {
             case .jpeg, .jpg: .jpeg
             case .markdown, .md: .markdown
             case .mov: .quickTimeMovie
+            case .png: .png
             case .tiff: .tiff
             }
         }
@@ -67,6 +70,7 @@ extension FileType {
             case .html: .html
             case .jpeg: .jpeg
             case .markdown: .md
+            case .png: .png
             case .quickTimeMovie: .mov
             case .tiff: .tiff
             }
@@ -109,6 +113,8 @@ extension FileType {
             return UTType.jpeg.identifier
         case .markdown:
             return nil
+        case .png:
+            return UTType.png.identifier
         case .quickTimeMovie:
             return nil
         case .tiff:

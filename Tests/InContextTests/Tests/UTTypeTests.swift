@@ -58,7 +58,9 @@ class FileTypeTests: XCTestCase {
                 XCTAssertEqual(fileType.preferredMIMEType, "image/jpeg")
             case .markdown:
                 XCTAssertEqual(fileType.preferredMIMEType, "text/markdown")
-            case .quickTimeVideo:
+            case .png:
+                XCTAssertEqual(fileType.preferredMIMEType, "image/png")
+            case .quickTimeMovie:
                 XCTAssertEqual(fileType.preferredMIMEType, "video/quicktime")
             case .tiff:
                 XCTAssertEqual(fileType.preferredMIMEType, "image/tiff")
@@ -79,7 +81,9 @@ class FileTypeTests: XCTestCase {
                 XCTAssertEqual(fileType.preferredFilenameExtension, "jpeg")
             case .markdown:
                 XCTAssertEqual(fileType.preferredFilenameExtension, "md")
-            case .quickTimeVideo:
+            case .png:
+                XCTAssertEqual(fileType.preferredFilenameExtension, "png")
+            case .quickTimeMovie:
                 XCTAssertEqual(fileType.preferredFilenameExtension, "mov")
             case .tiff:
                 XCTAssertEqual(fileType.preferredFilenameExtension, "tiff")
@@ -107,7 +111,9 @@ class FileTypeTests: XCTestCase {
             case .md:
                 XCTAssertEqual(FileType(filenameExtension: filenameExtension.rawValue), .markdown)
             case .mov:
-                XCTAssertEqual(FileType(filenameExtension: filenameExtension.rawValue), .quickTimeVideo)
+                XCTAssertEqual(FileType(filenameExtension: filenameExtension.rawValue), .quickTimeMovie)
+            case .png:
+                XCTAssertEqual(FileType(filenameExtension: filenameExtension.rawValue), .png)
             case .tiff:
                 XCTAssertEqual(FileType(filenameExtension: filenameExtension.rawValue), .tiff)
             }
@@ -117,7 +123,7 @@ class FileTypeTests: XCTestCase {
 
     func testPreferredExtensionRoundTrip() {
         for type in FileType.allCases {
-            XCTAssertEqual(FileType(filenameExtension: type.preferredFilenameExtension!), type)
+            XCTAssertEqual(FileType(filenameExtension: type.preferredFilenameExtension), type)
         }
     }
 
