@@ -26,22 +26,6 @@ import Yams
 
 @testable import InContextCore
 
-func withTemporaryDirectory(perform: (URL) async throws -> Void) async throws {
-    let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
-    try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
-    defer {
-        try! FileManager.default.removeItem(at: directoryURL)
-    }
-    try await perform(directoryURL)
-}
-
-func withTemporarySourceDirectory(perform: (SourceDirectory) async throws -> Void) async throws {
-    try await withTemporaryDirectory { directoryURL in
-        let sourceDirectory = try SourceDirectory(rootURL: directoryURL.real())
-        try await perform(sourceDirectory)
-    }
-}
-
 class SourceDirectory {
 
     enum Location {

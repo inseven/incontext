@@ -25,7 +25,7 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-class PlatformVideoTests: ContentTestCase {
+class PlatformVideoTests: XCTestCase {
 
     func testPixelDimensions() async throws {
         let url = try bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave", withExtension: "mov")
@@ -76,60 +76,68 @@ class PlatformVideoTests: ContentTestCase {
     }
 
     func testWritesThumbnail() async throws {
-        let url = try bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave", withExtension: "mov")
-        let video = try await NativeVideo(url: url)
+        try await withTemporaryDirectory { directoryURL in
+            let url = try bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave", withExtension: "mov")
+            let video = try await NativeVideo(url: url)
 
-        let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
-        try await video.writeThumbnail(at: 1, maxPixelSize: 400, format: .jpeg, to: destinationURL)
-        XCTAssert(FileManager.default.fileExists(at: destinationURL))
+            let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
+            try await video.writeThumbnail(at: 1, maxPixelSize: 400, format: .jpeg, to: destinationURL)
+            XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
-        let thumbnail = try await NativeImage(url: destinationURL)
-        let size = try XCTUnwrap(thumbnail.size)
-        // AVAssetImageGenerator.maximumSize is a bounding box, not an exact fit, so the encoder's
-        // even-dimension rounding can land a pixel or two under the requested size.
-        XCTAssertEqual(Double(max(size.width, size.height)), 400, accuracy: 2)
+            let thumbnail = try await NativeImage(url: destinationURL)
+            let size = try XCTUnwrap(thumbnail.size)
+            // AVAssetImageGenerator.maximumSize is a bounding box, not an exact fit, so the encoder's
+            // even-dimension rounding can land a pixel or two under the requested size.
+            XCTAssertEqual(Double(max(size.width, size.height)), 400, accuracy: 2)
+        }
     }
 
     func testWritesVideo() async throws {
-        let url = try bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave", withExtension: "mov")
-        let video = try await NativeVideo(url: url)
+        try await withTemporaryDirectory { directoryURL in
+            let url = try bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave", withExtension: "mov")
+            let video = try await NativeVideo(url: url)
 
-        let destinationURL = directoryURL.appendingPathComponent("video.mov")
-        try await video.writeVideo(maxPixelSize: 640, format: .quickTimeMovie, to: destinationURL)
-        XCTAssert(FileManager.default.fileExists(at: destinationURL))
+            let destinationURL = directoryURL.appendingPathComponent("video.mov")
+            try await video.writeVideo(maxPixelSize: 640, format: .quickTimeMovie, to: destinationURL)
+            XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
-        let transcoded = try await NativeVideo(url: destinationURL)
-        let transcodedSize = try await transcoded.size
-        let size = try XCTUnwrap(transcodedSize)
-        XCTAssertEqual(max(size.width, size.height), 640)
+            let transcoded = try await NativeVideo(url: destinationURL)
+            let transcodedSize = try await transcoded.size
+            let size = try XCTUnwrap(transcodedSize)
+            XCTAssertEqual(max(size.width, size.height), 640)
+        }
     }
 
     func testWritesVideoWithoutAudioTrack() async throws {
-        let url = try bundle.throwingURL(forResource: "silent", withExtension: "mov")
-        let video = try await NativeVideo(url: url)
+        try await withTemporaryDirectory { directoryURL in
+            let url = try bundle.throwingURL(forResource: "silent", withExtension: "mov")
+            let video = try await NativeVideo(url: url)
 
-        let destinationURL = directoryURL.appendingPathComponent("video.mov")
-        try await video.writeVideo(maxPixelSize: 640, format: .quickTimeMovie, to: destinationURL)
-        XCTAssert(FileManager.default.fileExists(at: destinationURL))
+            let destinationURL = directoryURL.appendingPathComponent("video.mov")
+            try await video.writeVideo(maxPixelSize: 640, format: .quickTimeMovie, to: destinationURL)
+            XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
-        let transcoded = try await NativeVideo(url: destinationURL)
-        let transcodedSize = try await transcoded.size
-        let size = try XCTUnwrap(transcodedSize)
-        XCTAssertEqual(max(size.width, size.height), 640)
+            let transcoded = try await NativeVideo(url: destinationURL)
+            let transcodedSize = try await transcoded.size
+            let size = try XCTUnwrap(transcodedSize)
+            XCTAssertEqual(max(size.width, size.height), 640)
+        }
     }
 
     func testWritesVariableFrameRateVideo() async throws {
-        let url = try bundle.throwingURL(forResource: "variable-frame-rate", withExtension: "mov")
-        let video = try await NativeVideo(url: url)
+        try await withTemporaryDirectory { directoryURL in
+            let url = try bundle.throwingURL(forResource: "variable-frame-rate", withExtension: "mov")
+            let video = try await NativeVideo(url: url)
 
-        let destinationURL = directoryURL.appendingPathComponent("video.mov")
-        try await video.writeVideo(maxPixelSize: 640, format: .quickTimeMovie, to: destinationURL)
-        XCTAssert(FileManager.default.fileExists(at: destinationURL))
+            let destinationURL = directoryURL.appendingPathComponent("video.mov")
+            try await video.writeVideo(maxPixelSize: 640, format: .quickTimeMovie, to: destinationURL)
+            XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
-        let transcoded = try await NativeVideo(url: destinationURL)
-        let transcodedSize = try await transcoded.size
-        let size = try XCTUnwrap(transcodedSize)
-        XCTAssertEqual(max(size.width, size.height), 640)
+            let transcoded = try await NativeVideo(url: destinationURL)
+            let transcodedSize = try await transcoded.size
+            let size = try XCTUnwrap(transcodedSize)
+            XCTAssertEqual(max(size.width, size.height), 640)
+        }
     }
 
 }
