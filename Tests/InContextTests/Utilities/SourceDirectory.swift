@@ -52,6 +52,13 @@ class SourceDirectory {
     let rootURL: URL
     let contentURL: URL
 
+    // Simulate the paths used by a `Site` instance.
+    var filesURL: URL {
+        return rootURL
+            .appendingPathComponent("build", isDirectory: true)
+            .appendingPathComponent("files", isDirectory: true)
+    }
+
     lazy var site: Site = {
         try! Site(rootURL: rootURL)
     }()

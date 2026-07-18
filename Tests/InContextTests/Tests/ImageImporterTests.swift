@@ -28,109 +28,52 @@ import XCTest
 class ImageImporterTests: ContentTestCase {
 
     func testExtractTitle() async throws {
-        _ = try defaultSourceDirectory.add("site.yaml", contents: """
-version: 2
-title: Example
-url: http://example.com
-steps:
-  - when: '(.*/)?.*\\.jpeg'
-    then: image
-    args:
-        category: general
-        defaultTemplate: photo.html
-        inlineTemplate: image.html
-        titleFromFilename: false
-""")
-
-        let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg"),
-                                                   to: "image.jpeg",
-                                                   location: .content)
-        let settings =  ImageImporter.Settings(defaultCategory: "photos",
-                                               titleFromFilename: false,
-                                               defaultTemplate: "photo.html",
-                                               inlineTemplate: "image.html")
-        let result = try await ImageImporter.process(file: file,
-                                                     settings: settings,
-                                                     outputURL: defaultSourceDirectory.site.filesURL)
-        XCTAssertNotNil(result.document)
-        XCTAssertEqual(result.document?.title, "Hallgrímskirkja Church")
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg"),
+                                                to: "image.jpeg",
+                                                location: .content)
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(),
+                                                         outputURL: sourceDirectory.filesURL)
+            XCTAssertNotNil(result.document)
+            XCTAssertEqual(result.document?.title, "Hallgrímskirkja Church")
+        }
     }
 
     func testResizeGif() async throws {
-        _ = try defaultSourceDirectory.add("site.yaml", contents: """
-version: 2
-title: Example
-url: http://example.com
-steps:
-  - when: '(.*/)?.*\\.gif'
-    then: image
-    args:
-        category: general
-        defaultTemplate: photo.html
-        inlineTemplate: image.html
-        titleFromFilename: false
-""")
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.copy(try bundle.throwingURL(forResource: "nezumi_anim", withExtension: "gif"),
+                                                to: "nezumi_anim.gif",
+                                                location: .content)
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(),
+                                                         outputURL: sourceDirectory.filesURL)
+            XCTAssertNotNil(result.document)
+            let thumbnailURL = sourceDirectory.filesURL
+                .appendingPathComponent("nezumi_anim")
+                .appendingPathComponent("1600.gif")
+            XCTAssert(FileManager.default.fileExists(at: sourceDirectory.filesURL
+                .appendingPathComponent("nezumi_anim")))
+            XCTAssert(FileManager.default.fileExists(at: thumbnailURL))
 
-        let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "nezumi_anim", withExtension: "gif"),
-                                                   to: "nezumi_anim.gif",
-                                                   location: .content)
-        let settings =  ImageImporter.Settings(defaultCategory: "photos",
-                                               titleFromFilename: false,
-                                               defaultTemplate: "photo.html",
-                                               inlineTemplate: "image.html")
-        let result = try await ImageImporter.process(file: file,
-                                                     settings: settings,
-                                                     outputURL: defaultSourceDirectory.site.filesURL)
-        XCTAssertNotNil(result.document)
-        let thumbnailURL = defaultSourceDirectory.site.filesURL
-            .appendingPathComponent("nezumi_anim")
-            .appendingPathComponent("1600.gif")
-        XCTAssert(FileManager.default.fileExists(at: defaultSourceDirectory.site.filesURL
-            .appendingPathComponent("nezumi_anim")))
-        XCTAssert(FileManager.default.fileExists(at: thumbnailURL))
-
-        // Check the number of frames in the image.
-        let thumbnail = try await NativeImage(url: thumbnailURL)
-        XCTAssertEqual(thumbnail.frameCount, 14)
+            // Check the number of frames in the image.
+            let thumbnail = try await NativeImage(url: thumbnailURL)
+            XCTAssertEqual(thumbnail.frameCount, 14)
+        }
     }
 
     func testExtractLocation() async throws {
-        _ = try defaultSourceDirectory.add("site.yaml", contents: """
-version: 2
-title: Example
-url: http://example.com
-steps:
-  - when: '(.*/)?.*\\.jpeg'
-    then: image
-    args:
-        category: general
-        defaultTemplate: photo.html
-        inlineTemplate: image.html
-        titleFromFilename: false
-""")
-
-        let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg"),
-                                                   to: "image.jpeg",
-                                                   location: .content)
-        let settings = ImageImporter.Settings(defaultCategory: "photos",
-                                              titleFromFilename: false,
-                                              defaultTemplate: "photo.html",
-                                              inlineTemplate: "image.html")
-        let result = try await ImageImporter.process(file: file,
-                                                     settings: settings,
-                                                     outputURL: defaultSourceDirectory.site.filesURL)
-        let location = try XCTUnwrap(result.document?.metadata["location"] as? [String: Double])
-        XCTAssertEqual(try XCTUnwrap(location["latitude"]), 64.142272166666672, accuracy: 0.0001)
-        XCTAssertEqual(try XCTUnwrap(location["longitude"]), -21.927391666666665, accuracy: 0.0001)
-    }
-
-    private func configureSite(in sourceDirectory: SourceDirectory) throws {
-        _ = try sourceDirectory.add("site.yaml", contents: """
-version: 2
-title: Example
-url: http://example.com
-steps: []
-""")
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg"),
+                                                to: "image.jpeg",
+                                                location: .content)
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(),
+                                                         outputURL: sourceDirectory.filesURL)
+            let location = try XCTUnwrap(result.document?.metadata["location"] as? [String: Double])
+            XCTAssertEqual(try XCTUnwrap(location["latitude"]), 64.142272166666672, accuracy: 0.0001)
+            XCTAssertEqual(try XCTUnwrap(location["longitude"]), -21.927391666666665, accuracy: 0.0001)
+        }
     }
 
     private func imageSettings(titleFromFilename: Bool = false) -> ImageImporter.Settings {
@@ -142,7 +85,6 @@ steps: []
 
     func testFrontmatterTitleOverridesMetadataTitle() async throws {
         try await withTemporarySourceDirectory { sourceDirectory in
-            try configureSite(in: sourceDirectory)
             let file = try sourceDirectory.add("image.jpeg", location: .content, contents: "")
             let image = TestPlatformImage(title: "Metadata Title",
                                           mediaDescription: """
@@ -152,7 +94,7 @@ title: Frontmatter Title
 """)
             let result = try await ImageImporter.process(file: file,
                                                          settings: imageSettings(),
-                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         outputURL: sourceDirectory.filesURL,
                                                          image: image)
             XCTAssertEqual(result.document?.title, "Frontmatter Title")
         }
@@ -160,13 +102,12 @@ title: Frontmatter Title
 
     func testMetadataTitleUsedWhenFrontmatterHasNoTitle() async throws {
         try await withTemporarySourceDirectory { sourceDirectory in
-            try configureSite(in: sourceDirectory)
             let file = try sourceDirectory.add("image.jpeg", location: .content, contents: "")
             let image = TestPlatformImage(title: "Metadata Title",
                                           mediaDescription: "A plain caption with no frontmatter.")
             let result = try await ImageImporter.process(file: file,
                                                          settings: imageSettings(),
-                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         outputURL: sourceDirectory.filesURL,
                                                          image: image)
             XCTAssertEqual(result.document?.title, "Metadata Title")
         }
@@ -174,7 +115,6 @@ title: Frontmatter Title
 
     func testFrontmatterDateOverridesMetadataDate() async throws {
         try await withTemporarySourceDirectory { sourceDirectory in
-            try configureSite(in: sourceDirectory)
             let file = try sourceDirectory.add("image.jpeg", location: .content, contents: "")
             let image = TestPlatformImage(dateTimeOriginal: Date(2001, 10, 02, 01, 54, 02),
                                           mediaDescription: """
@@ -184,7 +124,7 @@ date: '2020-05-04 12:00:00 +00:00'
 """)
             let result = try await ImageImporter.process(file: file,
                                                          settings: imageSettings(),
-                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         outputURL: sourceDirectory.filesURL,
                                                          image: image)
             XCTAssertEqual(result.document?.date, Date(2020, 05, 04, 12, 00, 00))
         }
@@ -192,7 +132,6 @@ date: '2020-05-04 12:00:00 +00:00'
 
     func testFrontmatterLocationOverridesMetadataLocation() async throws {
         try await withTemporarySourceDirectory { sourceDirectory in
-            try configureSite(in: sourceDirectory)
             let file = try sourceDirectory.add("image.jpeg", location: .content, contents: "")
             let image = TestPlatformImage(mediaDescription: """
 ---
@@ -205,7 +144,7 @@ location:
                                           signedLongitude: -21.0)
             let result = try await ImageImporter.process(file: file,
                                                          settings: imageSettings(),
-                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         outputURL: sourceDirectory.filesURL,
                                                          image: image)
             let location = try XCTUnwrap(result.document?.metadata["location"] as? [AnyHashable: Any])
             XCTAssertEqual(location["latitude"] as? Double, 1.5)
@@ -215,7 +154,6 @@ location:
 
     func testFrontmatterInjectsCustomMetadata() async throws {
         try await withTemporarySourceDirectory { sourceDirectory in
-            try configureSite(in: sourceDirectory)
             let file = try sourceDirectory.add("image.jpeg", location: .content, contents: "")
             let image = TestPlatformImage(mediaDescription: """
 ---
@@ -224,7 +162,7 @@ photographer: Jane Doe
 """)
             let result = try await ImageImporter.process(file: file,
                                                          settings: imageSettings(),
-                                                         outputURL: sourceDirectory.site.filesURL,
+                                                         outputURL: sourceDirectory.filesURL,
                                                          image: image)
             XCTAssertEqual(result.document?.metadata["photographer"] as? String, "Jane Doe")
         }
@@ -234,35 +172,19 @@ photographer: Jane Doe
         // The current hard-coded image transform pipeline converts TIFFs to JPEGs. Before introducing file extension
         // case normalization in `FileType`, this was failing on case-sensitive file systems for files with uppercase
         // extensions. This test will need revisiting when we switch to a user-configurable transform pipeline.
-        _ = try defaultSourceDirectory.add("site.yaml", contents: """
-version: 2
-title: Example
-url: http://example.com
-steps:
-  - when: '(.*/)?.*\\.[hH][eE][iI][cC]'
-    then: image
-    args:
-        category: general
-        defaultTemplate: photo.html
-        inlineTemplate: image.html
-        titleFromFilename: false
-""")
-
-        let file = try defaultSourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic"),
-                                                   to: "IMG_0581.HEIC",
-                                                   location: .content)
-        let settings = ImageImporter.Settings(defaultCategory: "photos",
-                                              titleFromFilename: false,
-                                              defaultTemplate: "photo.html",
-                                              inlineTemplate: "image.html")
-        let result = try await ImageImporter.process(file: file,
-                                                     settings: settings,
-                                                     outputURL: defaultSourceDirectory.site.filesURL)
-        XCTAssertNotNil(result.document)
-        let imageURL = defaultSourceDirectory.site.filesURL
-            .appendingPathComponent("IMG_0581")
-            .appendingPathComponent("1600.jpeg")
-        XCTAssert(FileManager.default.fileExists(at: imageURL))
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.copy(try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic"),
+                                                to: "IMG_0581.HEIC",
+                                                location: .content)
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(),
+                                                         outputURL: sourceDirectory.filesURL)
+            XCTAssertNotNil(result.document)
+            let imageURL = sourceDirectory.filesURL
+                .appendingPathComponent("IMG_0581")
+                .appendingPathComponent("1600.jpeg")
+            XCTAssert(FileManager.default.fileExists(at: imageURL))
+        }
     }
 
 }
