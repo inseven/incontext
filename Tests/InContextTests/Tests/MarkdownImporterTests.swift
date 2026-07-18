@@ -28,51 +28,33 @@ import XCTest
 class MarkdownImporterTests: ContentTestCase {
 
     func testMarkdownTitleOverride() async throws {
-        _ = try defaultSourceDirectory.add("site.yaml", contents: """
-version: 2
-title: Example
-url: http://example.com
-steps:
-  - when: '(.*/)?.*\\.markdown'
-    then: markdown
-    args:
-        defaultCategory: general
-        defaultTemplate: posts.html
-""")
-        let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: """
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.add("cheese/index.markdown", location: .content, contents: """
 ---
 title: Fromage
 ---
 
 These are the contents of the file.
 """)
-        let result = try await MarkdownImporter.process(file: file,
-                                                        settings: .init(defaultCategory: "general",
-                                                                        defaultTemplate: "posts.html"),
-                                                        outputURL: defaultSourceDirectory.site.filesURL)
-        XCTAssertNotNil(result.document)
-        XCTAssertEqual(result.document!.metadata["title"] as? String, "Fromage")
+            let result = try await MarkdownImporter.process(file: file,
+                                                            settings: .init(defaultCategory: "general",
+                                                                            defaultTemplate: "posts.html"),
+                                                            outputURL: sourceDirectory.filesURL)
+            XCTAssertNotNil(result.document)
+            XCTAssertEqual(result.document!.metadata["title"] as? String, "Fromage")
+        }
     }
 
     func testMarkdownTitleFromFile() async throws {
-        _ = try defaultSourceDirectory.add("site.yaml", contents: """
-version: 2
-title: Example
-url: http://example.com
-steps:
-  - when: '(.*/)?.*\\.markdown'
-    then: markdown
-    args:
-        defaultCategory: general
-        defaultTemplate: posts.html
-""")
-        let file = try defaultSourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
-        let result = try await MarkdownImporter.process(file: file,
-                                                        settings: .init(defaultCategory: "general",
-                                                                        defaultTemplate: "posts.html"),
-                                                        outputURL: defaultSourceDirectory.site.filesURL)
-        XCTAssertNotNil(result.document)
-        XCTAssertEqual(result.document!.metadata["title"] as? String, "Cheese")
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.add("cheese/index.markdown", location: .content, contents: "Contents!")
+            let result = try await MarkdownImporter.process(file: file,
+                                                            settings: .init(defaultCategory: "general",
+                                                                            defaultTemplate: "posts.html"),
+                                                            outputURL: sourceDirectory.filesURL)
+            XCTAssertNotNil(result.document)
+            XCTAssertEqual(result.document!.metadata["title"] as? String, "Cheese")
+        }
     }
 
 }
