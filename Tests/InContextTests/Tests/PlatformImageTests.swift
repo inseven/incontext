@@ -25,7 +25,7 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-class PlatformImageTests: ContentTestCase {
+class PlatformImageTests: XCTestCase {
 
     func testPixelDimensions() async throws {
         let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
@@ -106,16 +106,18 @@ One of very few Metabolist buildings still standing.
     }
 
     func testResizesImage() async throws {
-        let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
-        let image = try await NativeImage(url: url)
+        try await withTemporaryDirectory { directoryURL in
+            let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "jpeg")
+            let image = try await NativeImage(url: url)
 
-        let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
-        try image.write(maxPixelSize: 400, format: .jpeg, to: destinationURL)
-        XCTAssert(FileManager.default.fileExists(at: destinationURL))
+            let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
+            try image.write(maxPixelSize: 400, format: .jpeg, to: destinationURL)
+            XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
-        let thumbnail = try await NativeImage(url: destinationURL)
-        let size = try XCTUnwrap(thumbnail.size)
-        XCTAssertEqual(max(size.width, size.height), 400)
+            let thumbnail = try await NativeImage(url: destinationURL)
+            let size = try XCTUnwrap(thumbnail.size)
+            XCTAssertEqual(max(size.width, size.height), 400)
+        }
     }
 
     func testHeicPixelDimensions() async throws {
@@ -133,23 +135,25 @@ One of very few Metabolist buildings still standing.
     }
 
     func testResizesHeicImage() async throws {
-        let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic")
-        let image = try await NativeImage(url: url)
+        try await withTemporaryDirectory { directoryURL in
+            let url = try bundle.throwingURL(forResource: "IMG_0581", withExtension: "heic")
+            let image = try await NativeImage(url: url)
 
-        let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
-        try image.write(maxPixelSize: 400, format: .jpeg, to: destinationURL)
-        XCTAssert(FileManager.default.fileExists(at: destinationURL))
+            let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
+            try image.write(maxPixelSize: 400, format: .jpeg, to: destinationURL)
+            XCTAssert(FileManager.default.fileExists(at: destinationURL))
 
-        let thumbnail = try await NativeImage(url: destinationURL)
-        let size = try XCTUnwrap(thumbnail.size)
-        XCTAssertEqual(max(size.width, size.height), 400)
+            let thumbnail = try await NativeImage(url: destinationURL)
+            let size = try XCTUnwrap(thumbnail.size)
+            XCTAssertEqual(max(size.width, size.height), 400)
+        }
     }
 
     func testConcurrentImports() async throws {
         let sourceURL = try bundle.throwingURL(forResource: "hero-open", withExtension: "jpg")
         try await withThrowingTaskGroup(of: Void.self) { group in
             for _ in 0..<40 {
-                group.addTask {
+                group.addTask { [self] in
                     try await withTemporaryDirectory { url in
                         let destinationURL = url.appendingPathComponent("image.jpeg")
                         let image = try await NativeImage(url: sourceURL)

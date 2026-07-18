@@ -25,7 +25,7 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-class MarkdownImporterTests: ContentTestCase {
+class MarkdownImporterTests: XCTestCase {
 
     func testMarkdownTitleOverride() async throws {
         try await withTemporarySourceDirectory { sourceDirectory in

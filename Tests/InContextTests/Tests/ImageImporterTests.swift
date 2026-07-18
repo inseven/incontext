@@ -25,7 +25,7 @@ import Foundation
 import XCTest
 @testable import InContextCore
 
-class ImageImporterTests: ContentTestCase {
+class ImageImporterTests: XCTestCase {
 
     func testExtractTitle() async throws {
         try await withTemporarySourceDirectory { sourceDirectory in
