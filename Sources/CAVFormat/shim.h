@@ -21,5 +21,7 @@
 // SOFTWARE.
 
 #include <libavformat/avformat.h>
+#include <libavcodec/packet.h>
 #include <libavutil/avutil.h>
 #include <libavutil/dict.h>
+#include <libavutil/display.h>

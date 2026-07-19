@@ -76,6 +76,15 @@ final class GStreamerVideo: PlatformVideo {
         self.metadata = try AVFormatVideoMetadata(url: url)
     }
 
+    private var requiresRotation: Bool {
+        switch metadata.orientation {
+        case .up:
+            return false
+        case .down, .left, .right:
+            return true
+        }
+    }
+
     var size: Size? {
         get async throws { metadata.size }
     }
@@ -125,6 +134,14 @@ final class GStreamerVideo: PlatformVideo {
             throw InContextError.videoLibraryError("Failed to create fakesink for audio.")
         }
         incontext_playbin_set_audio_sink(playbin, audioSink)
+
+        if requiresRotation {
+            guard let videoFilter = gst_element_factory_make("videoflip", nil) else {
+                throw InContextError.videoLibraryError("Failed to create videoflip filter.")
+            }
+            incontext_videoflip_set_direction_auto(videoFilter)
+            incontext_playbin_set_video_filter(playbin, videoFilter)
+        }
 
         guard let bus = gst_element_get_bus(playbin) else {
             throw InContextError.videoLibraryError("Failed to get pipeline bus.")
@@ -182,8 +199,9 @@ final class GStreamerVideo: PlatformVideo {
         defer { g_free(uri) }
 
         // Video processing pipeline.
+        let videoFlip = requiresRotation ? "videoflip video-direction=auto ! " : ""
         let videoBranch = """
-        d. ! queue ! videoconvert ! videoscale ! videorate ! video/x-raw,width=\(width),height=\(height) ! \
+        d. ! queue ! \(videoFlip)videoconvert ! videoscale ! videorate ! video/x-raw,width=\(width),height=\(height) ! \
         openh264enc ! h264parse ! queue ! mux.video_0
         """
 

@@ -140,4 +140,46 @@ class PlatformVideoTests: XCTestCase {
         }
     }
 
+    func testReportsOrientedPortraitDimensions() async throws {
+        let url = try bundle.throwingURL(forResource: "IMG_0022", withExtension: "mov")
+        let video = try await NativeVideo(url: url)
+        let unwrappedSize = try await video.size
+        let size = try XCTUnwrap(unwrappedSize)
+        XCTAssertEqual(size.width, 480)
+        XCTAssertEqual(size.height, 640)
+    }
+
+    func testWritesPortraitThumbnail() async throws {
+        try await withTemporaryDirectory { directoryURL in
+            let url = try bundle.throwingURL(forResource: "IMG_0022", withExtension: "mov")
+            let video = try await NativeVideo(url: url)
+
+            let destinationURL = directoryURL.appendingPathComponent("thumbnail.jpeg")
+            try await video.writeThumbnail(at: 1, maxPixelSize: 400, format: .jpeg, to: destinationURL)
+            XCTAssert(FileManager.default.fileExists(at: destinationURL))
+
+            let thumbnail = try await NativeImage(url: destinationURL)
+            let size = try XCTUnwrap(thumbnail.size)
+            XCTAssertGreaterThan(size.height, size.width)
+            XCTAssertEqual(Double(size.width) / Double(size.height), 480.0 / 640.0, accuracy: 0.02)
+        }
+    }
+
+    func testWritesPortraitVideo() async throws {
+        try await withTemporaryDirectory { directoryURL in
+            let url = try bundle.throwingURL(forResource: "IMG_0022", withExtension: "mov")
+            let video = try await NativeVideo(url: url)
+
+            let destinationURL = directoryURL.appendingPathComponent("video.mov")
+            try await video.writeVideo(maxPixelSize: 640, format: .quickTimeMovie, to: destinationURL)
+            XCTAssert(FileManager.default.fileExists(at: destinationURL))
+
+            let transcoded = try await NativeVideo(url: destinationURL)
+            let transcodedSize = try await transcoded.size
+            let size = try XCTUnwrap(transcodedSize)
+            XCTAssertGreaterThan(size.height, size.width)
+            XCTAssertEqual(Double(size.width) / Double(size.height), 480.0 / 640.0, accuracy: 0.02)
+        }
+    }
+
 }

@@ -36,6 +36,14 @@ static inline void incontext_playbin_set_audio_sink(GstElement *playbin, GstElem
     g_object_set(playbin, "audio-sink", sink, NULL);
 }
 
+static inline void incontext_playbin_set_video_filter(GstElement *playbin, GstElement *filter) {
+    g_object_set(playbin, "video-filter", filter, NULL);
+}
+
+static inline void incontext_videoflip_set_direction_auto(GstElement *videoflip) {
+    gst_util_set_object_arg(G_OBJECT(videoflip), "video-direction", "auto");
+}
+
 static inline GstSample *incontext_playbin_convert_sample(GstElement *playbin, GstCaps *caps) {
     GstSample *sample = NULL;
     g_signal_emit_by_name(playbin, "convert-sample", caps, &sample);
