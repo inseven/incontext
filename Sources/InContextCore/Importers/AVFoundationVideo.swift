@@ -47,10 +47,13 @@ final class AVFoundationVideo: PlatformVideo {
 
     var size: Size? {
         get async throws {
-            guard let naturalSize = try await videoTrack?.load(.naturalSize) else {
+            guard let videoTrack = try await videoTrack else {
                 return nil
             }
-            return Size(naturalSize)
+            let naturalSize = try await videoTrack.load(.naturalSize)
+            let preferredTransform = try await videoTrack.load(.preferredTransform)
+            let displaySize = naturalSize.applying(preferredTransform)
+            return Size(CGSize(width: abs(displaySize.width), height: abs(displaySize.height)))
         }
     }
 

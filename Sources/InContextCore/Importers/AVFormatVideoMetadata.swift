@@ -26,6 +26,13 @@ import Foundation
 
 import CAVFormat
 
+enum VideoOrientation {
+    case up     // Already upright.
+    case down   // Rotated 180°.
+    case left   // Rotated a quarter-turn; upright display requires a 90° clockwise rotation.
+    case right  // Rotated a quarter-turn; upright display requires a 90° counter-clockwise rotation.
+}
+
 final class AVFormatVideoMetadata {
 
     private static func parseDate(_ string: String) -> Date? {
@@ -81,11 +88,50 @@ final class AVFormatVideoMetadata {
         firstCodecParameters(type: AVMEDIA_TYPE_AUDIO) != nil
     }
 
+    var orientation: VideoOrientation {
+        guard let codecpar = videoCodecParameters,
+              let sideData = codecpar.pointee.coded_side_data
+        else {
+            return .up
+        }
+        for index in 0..<Int(codecpar.pointee.nb_coded_side_data) {
+            let entry = sideData[index]
+            guard entry.type == AV_PKT_DATA_DISPLAYMATRIX, let data = entry.data else {
+                continue
+            }
+            let counterclockwise = data.withMemoryRebound(to: Int32.self, capacity: 9) { matrix in
+                av_display_rotation_get(matrix)
+            }
+            guard counterclockwise.isFinite else {
+                return .up
+            }
+            let clockwise = ((Int((-counterclockwise).rounded()) % 360) + 360) % 360
+            switch clockwise {
+            case 90:
+                return .left
+            case 180:
+                return .down
+            case 270:
+                return .right
+            default:
+                return .up
+            }
+        }
+        return .up
+    }
+
     var size: Size? {
         guard let codecpar = videoCodecParameters else {
             return nil
         }
-        return Size(width: Int(codecpar.pointee.width), height: Int(codecpar.pointee.height))
+        let width = Int(codecpar.pointee.width)
+        let height = Int(codecpar.pointee.height)
+        switch orientation {
+        case .up, .down:
+            return Size(width: width, height: height)
+        case .left, .right:
+            return Size(width: height, height: width)
+        }
     }
 
     var duration: Double? {
