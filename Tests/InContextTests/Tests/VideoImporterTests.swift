@@ -142,6 +142,42 @@ photographer: Jane Doe
         }
     }
 
+    func testTitleFromFilename() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.add("royal-wave.mov", location: .content, contents: "")
+            let video = TestPlatformVideo()
+            let result = try await VideoImporter.process(file: file,
+                                                         settings: videoSettings(titleFromFilename: true),
+                                                         outputURL: sourceDirectory.filesURL,
+                                                         video: video)
+            XCTAssertEqual(result.document?.title, "Royal Wave")
+        }
+    }
+
+    func testTitleFromFilenameIgnoredWhenDisabled() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.add("royal-wave.mov", location: .content, contents: "")
+            let video = TestPlatformVideo()
+            let result = try await VideoImporter.process(file: file,
+                                                         settings: videoSettings(titleFromFilename: false),
+                                                         outputURL: sourceDirectory.filesURL,
+                                                         video: video)
+            XCTAssertNil(result.document?.title)
+        }
+    }
+
+    func testMetadataTitleOverridesFilenameTitle() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.add("royal-wave.mov", location: .content, contents: "")
+            let video = TestPlatformVideo(title: "Metadata Title")
+            let result = try await VideoImporter.process(file: file,
+                                                         settings: videoSettings(titleFromFilename: true),
+                                                         outputURL: sourceDirectory.filesURL,
+                                                         video: video)
+            XCTAssertEqual(result.document?.title, "Metadata Title")
+        }
+    }
+
     func testExtractDuration() async throws {
         try await withTemporarySourceDirectory { sourceDirectory in
             let video = try sourceDirectory.copy(try bundle.throwingURL(forResource: "2022-05-31-17-55-03-royal-wave",
