@@ -1,6 +1,6 @@
 [submodule "dependencies/Tilt"]
 	path = dependencies/Tilt
-	url = git@github.com:tomsci/tomscis-lua-templater.git
+	url = https://github.com/tomsci/tomscis-lua-templater.git
 [submodule "scripts/changes"]
 	path = scripts/changes
 	url = https://github.com/jbmorley/changes.git
@@ -9,20 +9,20 @@
 	url = https://github.com/jbmorley/build-tools.git
 [submodule "dependencies/diligence"]
 	path = dependencies/diligence
-	url = git@github.com:inseven/diligence.git
+	url = https://github.com/inseven/diligence.git
 [submodule "dependencies/hummingbird"]
 	path = dependencies/hummingbird
-	url = git@github.com:jbmorley/hummingbird.git
+	url = https://github.com/jbmorley/hummingbird.git
 [submodule "dependencies/hoedown"]
 	path = dependencies/hoedown
-	url = git@github.com:jbmorley/hoedown.git
+	url = https://github.com/jbmorley/hoedown.git
 	branch = incontext-main
 [submodule "dependencies/interact"]
 	path = dependencies/interact
-	url = git@github.com:inseven/interact.git
+	url = https://github.com/inseven/interact.git
 [submodule "scripts/Sparkle"]
 	path = scripts/Sparkle
 	url = https://github.com/sparkle-project/Sparkle
 [submodule "dependencies/glitter"]
 	path = dependencies/glitter
-	url = git@github.com:inseven/glitter.git
+	url = https://github.com/inseven/glitter.git
