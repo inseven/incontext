@@ -168,6 +168,42 @@ photographer: Jane Doe
         }
     }
 
+    func testTitleFromFilename() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.add("royal-wave.jpeg", location: .content, contents: "")
+            let image = TestPlatformImage()
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(titleFromFilename: true),
+                                                         outputURL: sourceDirectory.filesURL,
+                                                         image: image)
+            XCTAssertEqual(result.document?.title, "Royal Wave")
+        }
+    }
+
+    func testTitleFromFilenameIgnoredWhenDisabled() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.add("royal-wave.jpeg", location: .content, contents: "")
+            let image = TestPlatformImage()
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(titleFromFilename: false),
+                                                         outputURL: sourceDirectory.filesURL,
+                                                         image: image)
+            XCTAssertNil(result.document?.title)
+        }
+    }
+
+    func testMetadataTitleOverridesFilenameTitle() async throws {
+        try await withTemporarySourceDirectory { sourceDirectory in
+            let file = try sourceDirectory.add("royal-wave.jpeg", location: .content, contents: "")
+            let image = TestPlatformImage(title: "Metadata Title")
+            let result = try await ImageImporter.process(file: file,
+                                                         settings: imageSettings(titleFromFilename: true),
+                                                         outputURL: sourceDirectory.filesURL,
+                                                         image: image)
+            XCTAssertEqual(result.document?.title, "Metadata Title")
+        }
+    }
+
     func testRespectsUppercaseExtensions() async throws {
         // The current hard-coded image transform pipeline converts TIFFs to JPEGs. Before introducing file extension
         // case normalization in `FileType`, this was failing on case-sensitive file systems for files with uppercase
