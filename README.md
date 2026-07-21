@@ -4,14 +4,6 @@
 
 Multimedia-focused static site builder.
 
-## Installation
-
-InContext can be installed using [Homebrew](https://brew.sh):
-
-```bash
-brew install inseven/incontext/incontext
-```
-
 ## Documentation
 
 See [https://incontext.jbmorley.co.uk/docs](https://incontext.jbmorley.co.uk/docs).

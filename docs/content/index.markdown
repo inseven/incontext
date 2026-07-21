@@ -28,7 +28,9 @@ You can use InContext in one of two ways: on the [command line](#command-line); 
 ### Command Line
 
 ```sh
-brew install inseven/incontext/incontext
+brew tap inseven/incontext
+brew trust --formula inseven/incontext/incontext
+brew install incontext
 ```
 
 ### GUI
