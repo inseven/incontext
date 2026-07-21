@@ -4,12 +4,15 @@
 [submodule "scripts/changes"]
 	path = scripts/changes
 	url = https://github.com/jbmorley/changes.git
+	branch = main
 [submodule "scripts/build-tools"]
 	path = scripts/build-tools
 	url = https://github.com/jbmorley/build-tools.git
+	branch = main
 [submodule "dependencies/diligence"]
 	path = dependencies/diligence
 	url = https://github.com/inseven/diligence.git
+	branch = main
 [submodule "dependencies/hummingbird"]
 	path = dependencies/hummingbird
 	url = https://github.com/jbmorley/hummingbird.git
@@ -20,9 +23,11 @@
 [submodule "dependencies/interact"]
 	path = dependencies/interact
 	url = https://github.com/inseven/interact.git
+	branch = main
 [submodule "scripts/Sparkle"]
 	path = scripts/Sparkle
 	url = https://github.com/sparkle-project/Sparkle
 [submodule "dependencies/glitter"]
 	path = dependencies/glitter
 	url = https://github.com/inseven/glitter.git
+	branch = main
