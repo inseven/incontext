@@ -1,14 +1,6 @@
 [submodule "dependencies/Tilt"]
 	path = dependencies/Tilt
 	url = https://github.com/tomsci/tomscis-lua-templater.git
-[submodule "scripts/changes"]
-	path = scripts/changes
-	url = https://github.com/jbmorley/changes.git
-	branch = main
-[submodule "scripts/build-tools"]
-	path = scripts/build-tools
-	url = https://github.com/jbmorley/build-tools.git
-	branch = main
 [submodule "dependencies/diligence"]
 	path = dependencies/diligence
 	url = https://github.com/inseven/diligence.git

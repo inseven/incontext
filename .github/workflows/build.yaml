@@ -29,11 +29,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Checkout required submodules
-      run: |
-        git submodule update --init --depth 1 scripts/build-tools
-        git submodule update --init --depth 1 scripts/changes
-
     - name: Install the tool dependencies
       uses: jdx/mise-action@v4
       env:
@@ -213,11 +208,6 @@ jobs:
       with:
         token: ${{ secrets.ACCESS_TOKEN }}
         fetch-depth: 0
-
-    - name: Checkout required submodules
-      run: |
-        git submodule update --init --depth 1 scripts/build-tools
-        git submodule update --init --depth 1 scripts/changes
 
     - name: Install the tool dependencies
       uses: jdx/mise-action@v4

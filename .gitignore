@@ -6,3 +6,4 @@
 /build
 /docs/build
 /docs/content/releases
+/scripts/Pipfile.lock

@@ -25,17 +25,20 @@ SCRIPTS_DIRECTORY="$ROOT_DIRECTORY/scripts"
 
 export LOCAL_TOOLS_PATH="$ROOT_DIRECTORY/.local"
 
+# Keep Python user installs local to the project instead of polluting the host.
 export PYTHONUSERBASE="$LOCAL_TOOLS_PATH/python"
 mkdir -p "$PYTHONUSERBASE"
 export PATH="$PYTHONUSERBASE/bin":$PATH
-export PYTHONPATH=$PYTHONUSERBASE
 
-export PIPENV_VENV_IN_PROJECT=1
+# Keep pipenv virtualenvs local and predictable.
+export WORKON_HOME="$LOCAL_TOOLS_PATH"
+export PIPENV_CUSTOM_VENV_NAME="venv"
+export PIPENV_VENV_IN_PROJECT=0
 export PIPENV_IGNORE_VIRTUALENVS=1
+export PIPENV_PIPFILE="$SCRIPTS_DIRECTORY/Pipfile"
 
-export PATH=$PATH:"$SCRIPTS_DIRECTORY/changes"
-export PATH=$PATH:"$SCRIPTS_DIRECTORY/build-tools"
-export PATH=$PATH:"$ROOT_DIRECTORY/dependencies/diligence/scripts"
+# Add the tools to the path.
+export PATH="$LOCAL_TOOLS_PATH/venv/bin":$PATH
 
 # TODO: Remove workaround to source mise in environment.sh #421
 #       https://github.com/inseven/incontext/issues/421
