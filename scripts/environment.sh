@@ -39,7 +39,3 @@ export PIPENV_PIPFILE="$SCRIPTS_DIRECTORY/Pipfile"
 
 # Add the tools to the path.
 export PATH="$LOCAL_TOOLS_PATH/venv/bin":$PATH
-
-# TODO: Remove workaround to source mise in environment.sh #421
-#       https://github.com/inseven/incontext/issues/421
-eval "$(mise activate bash)"
