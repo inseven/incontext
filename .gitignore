@@ -1,9 +1,7 @@
 /.build
-/.local
 /.swiftpm
 /_site
 /archives
 /build
 /docs/build
 /docs/content/releases
-/scripts/Pipfile.lock
