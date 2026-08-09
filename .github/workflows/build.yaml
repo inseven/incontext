@@ -25,22 +25,25 @@ jobs:
     steps:
 
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
-    - name: Install the tool dependencies
+    # Ensure we're using the latest version of mise in an attempt to catch upstream errors early.
+    - name: Get the latest mise version
+      id: mise
+      run: echo "version=$(curl -fsSL https://mise.jdx.dev/VERSION)" >> "$GITHUB_OUTPUT"
+
+    - name: Install mise
       uses: jdx/mise-action@v4
+      with:
+        version: ${{ steps.mise.outputs.version }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Install dependencies
-      run: scripts/install-dependencies.sh
 
     - name: Generate version and build numbers
       id: version
       run: |
-        source scripts/environment.sh
         VERSION_NUMBER=`changes version`
         BUILD_NUMBER=`build-tools generate-build-number`
         echo "version_number=$VERSION_NUMBER" >> $GITHUB_OUTPUT
@@ -60,7 +63,7 @@ jobs:
     steps:
 
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         submodules: recursive
         lfs: true
@@ -90,15 +93,24 @@ jobs:
     steps:
 
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         token: ${{ secrets.ACCESS_TOKEN }}
         submodules: recursive
         fetch-depth: 0
         lfs: true
 
-    - name: Install dependencies
-      run: scripts/install-dependencies.sh
+    # Ensure we're using the latest version of mise in an attempt to catch upstream errors early.
+    - name: Get the latest mise version
+      id: mise
+      run: echo "version=$(curl -fsSL https://mise.jdx.dev/VERSION)" >> "$GITHUB_OUTPUT"
+
+    - name: Install mise
+      uses: jdx/mise-action@v4
+      with:
+        version: ${{ steps.mise.outputs.version }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build, test, and release
       env:
@@ -158,7 +170,7 @@ jobs:
       run: ${{ matrix.setup }}
 
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         submodules: recursive
         lfs: true
@@ -204,18 +216,22 @@ jobs:
     steps:
 
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         token: ${{ secrets.ACCESS_TOKEN }}
         fetch-depth: 0
 
-    - name: Install the tool dependencies
+    # Ensure we're using the latest version of mise in an attempt to catch upstream errors early.
+    - name: Get the latest mise version
+      id: mise
+      run: echo "version=$(curl -fsSL https://mise.jdx.dev/VERSION)" >> "$GITHUB_OUTPUT"
+
+    - name: Install mise
       uses: jdx/mise-action@v4
+      with:
+        version: ${{ steps.mise.outputs.version }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Install dependencies
-      run: scripts/install-dependencies.sh
 
     - uses: actions/download-artifact@v8
       with:
@@ -243,7 +259,7 @@ jobs:
     steps:
 
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         token: ${{ secrets.ACCESS_TOKEN }}
         submodules: recursive
@@ -259,13 +275,17 @@ jobs:
     - name: Install incontext
       run: sudo apt-get install -y ./artifacts/incontext.deb
 
-    - name: Install the tool dependencies
+    # Ensure we're using the latest version of mise in an attempt to catch upstream errors early.
+    - name: Get the latest mise version
+      id: mise
+      run: echo "version=$(curl -fsSL https://mise.jdx.dev/VERSION)" >> "$GITHUB_OUTPUT"
+
+    - name: Install mise
       uses: jdx/mise-action@v4
+      with:
+        version: ${{ steps.mise.outputs.version }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Install dependencies
-      run: scripts/install-dependencies.sh
 
     - name: Update release notes
       run: scripts/update-release-notes.sh
