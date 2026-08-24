@@ -273,7 +273,9 @@ jobs:
         path: artifacts
 
     - name: Install incontext
-      run: sudo apt-get install -y ./artifacts/incontext.deb
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y ./artifacts/incontext.deb
 
     # Ensure we're using the latest version of mise in an attempt to catch upstream errors early.
     - name: Get the latest mise version
