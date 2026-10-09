@@ -134,6 +134,7 @@ jobs:
         name: incontext-macos
         path: build
         if-no-files-found: error
+        retention-days: 1
 
   linux-build:
     strategy:
@@ -196,6 +197,7 @@ jobs:
         name: incontext-${{ matrix.name }}
         path: build/artifacts/*
         if-no-files-found: error
+        retention-days: 1
 
   publish-release:
     runs-on: ubuntu-latest
@@ -252,6 +254,7 @@ jobs:
         name: build
         path: build/*
         if-no-files-found: error
+        retention-days: 1
 
   website-build:
     needs: linux-build
