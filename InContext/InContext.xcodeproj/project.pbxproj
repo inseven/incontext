@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A9AACEA40B98A87648135F9 /* Glitter in Frameworks */ = {isa = PBXBuildFile; productRef = 3C8A3A7FEA5210D8D2A19062 /* Glitter */; };
 		D80E4FCF2AA7AD3300FD4BB5 /* HelperSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80E4FCE2AA7AD3300FD4BB5 /* HelperSession.swift */; };
 		D80E4FD12AA7AD5300FD4BB5 /* HelperTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80E4FD02AA7AD5300FD4BB5 /* HelperTracker.swift */; };
 		D8121A6E2AA0465200EEDF5B /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8121A6D2AA0465200EEDF5B /* Settings.swift */; };
@@ -19,7 +20,6 @@
 		D8121A7F2AA105CC00EEDF5B /* SiteMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8121A7E2AA105CC00EEDF5B /* SiteMenu.swift */; };
 		D83B4DDD2C2F98DE003C3DC1 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = D83B4DDC2C2F98DE003C3DC1 /* Sparkle */; };
 		D83C2F8B2B857F3C00CE60F7 /* Interact in Frameworks */ = {isa = PBXBuildFile; productRef = D83C2F8A2B857F3C00CE60F7 /* Interact */; };
-		1A9AACEA40B98A87648135F9 /* Glitter in Frameworks */ = {isa = PBXBuildFile; productRef = 3C8A3A7FEA5210D8D2A19062 /* Glitter */; };
 		D849DDEC2A982B0F00C5041E /* InContextCore in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDEB2A982B0F00C5041E /* InContextCore */; };
 		D849DDF42A982B9200C5041E /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF32A982B9200C5041E /* ArgumentParser */; };
 		D849DDF72A982BA000C5041E /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF62A982BA000C5041E /* Logging */; };
@@ -39,6 +39,7 @@
 		D8A739B82AA6621E00946EED /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A739B72AA6621E00946EED /* SessionView.swift */; };
 		D8A739BA2AA6627500946EED /* SettingsMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A739B92AA6627500946EED /* SettingsMenu.swift */; };
 		D8AD37AF2AA69FDF0006555F /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AD37AE2AA69FDF0006555F /* Event.swift */; };
+		D8B70A05307EFD0F00B79F96 /* HelperCore in Frameworks */ = {isa = PBXBuildFile; productRef = D8B70A04307EFD0F00B79F96 /* HelperCore */; };
 		D8E4C1212BC9F81000B09A78 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E4C1202BC9F77300B09A78 /* Main.swift */; };
 		D8F672782AC8988D0073900D /* TaskRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F672772AC8988D0073900D /* TaskRow.swift */; };
 		D8F6727A2AC898B00073900D /* SessionFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F672792AC898B00073900D /* SessionFooter.swift */; };
@@ -101,12 +102,12 @@
 		D8850A152B841D4A00E17977 /* MainMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
 		D890630A2A98293A0001A8E2 /* incontext */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = incontext; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89063152A9829500001A8E2 /* incontext */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = incontext; path = ..; sourceTree = "<group>"; };
-		D8920F192AB2AB4B00137912 /* diligence */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = diligence; path = ../dependencies/diligence; sourceTree = "<group>"; };
 		D8A739B32AA660F400946EED /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		D8A739B52AA6611E00946EED /* LogWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogWindow.swift; sourceTree = "<group>"; };
 		D8A739B72AA6621E00946EED /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 		D8A739B92AA6627500946EED /* SettingsMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMenu.swift; sourceTree = "<group>"; };
 		D8AD37AE2AA69FDF0006555F /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
+		D8B70A03307EFCEE00B79F96 /* HelperCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HelperCore; sourceTree = "<group>"; };
 		D8E4C1202BC9F77300B09A78 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		D8F672772AC8988D0073900D /* TaskRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRow.swift; sourceTree = "<group>"; };
 		D8F672792AC898B00073900D /* SessionFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionFooter.swift; sourceTree = "<group>"; };
@@ -121,6 +122,7 @@
 				D8121A7B2AA05FCA00EEDF5B /* InContextCore in Frameworks */,
 				D83B4DDD2C2F98DE003C3DC1 /* Sparkle in Frameworks */,
 				D8920F1B2AB2AB8700137912 /* Diligence in Frameworks */,
+				D8B70A05307EFD0F00B79F96 /* HelperCore in Frameworks */,
 				D83C2F8B2B857F3C00CE60F7 /* Interact in Frameworks */,
 				1A9AACEA40B98A87648135F9 /* Glitter in Frameworks */,
 			);
@@ -278,8 +280,8 @@
 		D89063142A9829500001A8E2 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
+				D8B70A03307EFCEE00B79F96 /* HelperCore */,
 				D89063152A9829500001A8E2 /* incontext */,
-				D8920F192AB2AB4B00137912 /* diligence */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -306,6 +308,7 @@
 				D83C2F8A2B857F3C00CE60F7 /* Interact */,
 				D83B4DDC2C2F98DE003C3DC1 /* Sparkle */,
 				3C8A3A7FEA5210D8D2A19062 /* Glitter */,
+				D8B70A04307EFD0F00B79F96 /* HelperCore */,
 			);
 			productName = "InContext Helper";
 			productReference = D86BCDCE2A9B016A00C81BA5 /* InContext Helper.app */;
@@ -864,13 +867,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../dependencies/interact" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../dependencies/interact;
-		};
 		AC8535ADC7D002109CC7419B /* XCLocalSwiftPackageReference "../dependencies/glitter" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../dependencies/glitter;
+		};
+		D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../dependencies/interact" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../dependencies/interact;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -910,6 +913,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		3C8A3A7FEA5210D8D2A19062 /* Glitter */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AC8535ADC7D002109CC7419B /* XCLocalSwiftPackageReference "../dependencies/glitter" */;
+			productName = Glitter;
+		};
 		D8121A7A2AA05FCA00EEDF5B /* InContextCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = InContextCore;
@@ -922,11 +930,6 @@
 		D83C2F8A2B857F3C00CE60F7 /* Interact */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Interact;
-		};
-		3C8A3A7FEA5210D8D2A19062 /* Glitter */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AC8535ADC7D002109CC7419B /* XCLocalSwiftPackageReference "../dependencies/glitter" */;
-			productName = Glitter;
 		};
 		D849DDEB2A982B0F00C5041E /* InContextCore */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -949,6 +952,10 @@
 		D8920F1A2AB2AB8700137912 /* Diligence */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Diligence;
+		};
+		D8B70A04307EFD0F00B79F96 /* HelperCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HelperCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
