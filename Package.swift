@@ -50,7 +50,6 @@ let package = Package(
             ]),
     ],
     dependencies: [
-        .package(path: "dependencies/diligence"),
         .package(path: "dependencies/hummingbird"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.4"),
         .package(path: "dependencies/Tilt"),
@@ -77,7 +76,6 @@ let package = Package(
                "InContextCore",
                .target(name: "InContextMetadata", condition: .when(platforms: [.linux])),
                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-               .product(name: "Diligence", package: "diligence", condition: .when(platforms: [.macOS])),
                .product(name: "Hummingbird", package: "hummingbird"),
                .product(name: "HummingbirdFoundation", package: "hummingbird"),
            ]),

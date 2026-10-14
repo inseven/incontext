@@ -1,6 +1,6 @@
-/.build
-/.swiftpm
+.build
 /_site
+/.swiftpm
 /archives
 /build
 /docs/build
