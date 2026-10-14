@@ -11,13 +11,11 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/inseven/diligence.git", from: "2.0.1"),
     ],
     targets: [
         .target(
             name: "HelperCore",
             dependencies: [
-                .product(name: "Diligence", package: "diligence"),
             ],
             swiftSettings: [
                 .enableUpcomingFeature("ApproachableConcurrency"),
