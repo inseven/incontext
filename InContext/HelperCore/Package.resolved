@@ -1,5 +1,5 @@
 {
-  "originHash" : "02251d1d30b5abf47ce853986d1c513abd77ea4046d3579c385258d659783c6c",
+  "originHash" : "5bff015cbd3d4c641f5f8790d31c3214dd6f1f6a92646ae6accc209685d235d4",
   "pins" : [
     {
       "identity" : "glitter",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "5e6ff2108b369bf5064f1158416db6ff73a503bc",
         "version" : "0.1.8"
+      }
+    },
+    {
+      "identity" : "interact",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/inseven/interact.git",
+      "state" : {
+        "revision" : "f54eb2dcd05b40f02ecab721044d87049fbaca78",
+        "version" : "3.10.7"
       }
     },
     {

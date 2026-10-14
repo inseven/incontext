@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,7 +17,6 @@
 		D8121A7B2AA05FCA00EEDF5B /* InContextCore in Frameworks */ = {isa = PBXBuildFile; productRef = D8121A7A2AA05FCA00EEDF5B /* InContextCore */; };
 		D8121A7D2AA0747000EEDF5B /* Publisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8121A7C2AA0747000EEDF5B /* Publisher.swift */; };
 		D8121A7F2AA105CC00EEDF5B /* SiteMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8121A7E2AA105CC00EEDF5B /* SiteMenu.swift */; };
-		D83B4DDD2C2F98DE003C3DC1 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = D83B4DDC2C2F98DE003C3DC1 /* Sparkle */; };
 		D83C2F8B2B857F3C00CE60F7 /* Interact in Frameworks */ = {isa = PBXBuildFile; productRef = D83C2F8A2B857F3C00CE60F7 /* Interact */; };
 		D849DDEC2A982B0F00C5041E /* InContextCore in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDEB2A982B0F00C5041E /* InContextCore */; };
 		D849DDF42A982B9200C5041E /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = D849DDF32A982B9200C5041E /* ArgumentParser */; };
@@ -119,7 +118,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8121A7B2AA05FCA00EEDF5B /* InContextCore in Frameworks */,
-				D83B4DDD2C2F98DE003C3DC1 /* Sparkle in Frameworks */,
 				D8920F1B2AB2AB8700137912 /* Diligence in Frameworks */,
 				D8B70A05307EFD0F00B79F96 /* HelperCore in Frameworks */,
 				D83C2F8B2B857F3C00CE60F7 /* Interact in Frameworks */,
@@ -304,7 +302,6 @@
 				D8121A7A2AA05FCA00EEDF5B /* InContextCore */,
 				D8920F1A2AB2AB8700137912 /* Diligence */,
 				D83C2F8A2B857F3C00CE60F7 /* Interact */,
-				D83B4DDC2C2F98DE003C3DC1 /* Sparkle */,
 				D8B70A04307EFD0F00B79F96 /* HelperCore */,
 			);
 			productName = "InContext Helper";
@@ -409,8 +406,6 @@
 				D849DDED2A982B7800C5041E /* XCRemoteSwiftPackageReference "hummingbird" */,
 				D849DDF22A982B9200C5041E /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				D849DDF52A982BA000C5041E /* XCRemoteSwiftPackageReference "swift-log" */,
-				D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../dependencies/interact" */,
-				D83B4DDB2C2F98DE003C3DC1 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			productRefGroup = D890630B2A98293A0001A8E2 /* Products */;
 			projectDirPath = "";
@@ -862,22 +857,7 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../dependencies/interact" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../dependencies/interact;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
-		D83B4DDB2C2F98DE003C3DC1 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparkle-project/Sparkle";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.6.3;
-			};
-		};
 		D849DDED2A982B7800C5041E /* XCRemoteSwiftPackageReference "hummingbird" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hummingbird-project/hummingbird.git";
@@ -908,11 +888,6 @@
 		D8121A7A2AA05FCA00EEDF5B /* InContextCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = InContextCore;
-		};
-		D83B4DDC2C2F98DE003C3DC1 /* Sparkle */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D83B4DDB2C2F98DE003C3DC1 /* XCRemoteSwiftPackageReference "Sparkle" */;
-			productName = Sparkle;
 		};
 		D83C2F8A2B857F3C00CE60F7 /* Interact */ = {
 			isa = XCSwiftPackageProductDependency;
