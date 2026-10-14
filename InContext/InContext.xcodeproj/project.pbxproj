@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1A9AACEA40B98A87648135F9 /* Glitter in Frameworks */ = {isa = PBXBuildFile; productRef = 3C8A3A7FEA5210D8D2A19062 /* Glitter */; };
 		D80E4FCF2AA7AD3300FD4BB5 /* HelperSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80E4FCE2AA7AD3300FD4BB5 /* HelperSession.swift */; };
 		D80E4FD12AA7AD5300FD4BB5 /* HelperTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80E4FD02AA7AD5300FD4BB5 /* HelperTracker.swift */; };
 		D8121A6E2AA0465200EEDF5B /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8121A6D2AA0465200EEDF5B /* Settings.swift */; };
@@ -124,7 +123,6 @@
 				D8920F1B2AB2AB8700137912 /* Diligence in Frameworks */,
 				D8B70A05307EFD0F00B79F96 /* HelperCore in Frameworks */,
 				D83C2F8B2B857F3C00CE60F7 /* Interact in Frameworks */,
-				1A9AACEA40B98A87648135F9 /* Glitter in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -307,7 +305,6 @@
 				D8920F1A2AB2AB8700137912 /* Diligence */,
 				D83C2F8A2B857F3C00CE60F7 /* Interact */,
 				D83B4DDC2C2F98DE003C3DC1 /* Sparkle */,
-				3C8A3A7FEA5210D8D2A19062 /* Glitter */,
 				D8B70A04307EFD0F00B79F96 /* HelperCore */,
 			);
 			productName = "InContext Helper";
@@ -414,7 +411,6 @@
 				D849DDF52A982BA000C5041E /* XCRemoteSwiftPackageReference "swift-log" */,
 				D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../dependencies/interact" */,
 				D83B4DDB2C2F98DE003C3DC1 /* XCRemoteSwiftPackageReference "Sparkle" */,
-				AC8535ADC7D002109CC7419B /* XCLocalSwiftPackageReference "../dependencies/glitter" */,
 			);
 			productRefGroup = D890630B2A98293A0001A8E2 /* Products */;
 			projectDirPath = "";
@@ -867,10 +863,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		AC8535ADC7D002109CC7419B /* XCLocalSwiftPackageReference "../dependencies/glitter" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../dependencies/glitter;
-		};
 		D83C2F892B857F3C00CE60F7 /* XCLocalSwiftPackageReference "../dependencies/interact" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../dependencies/interact;
@@ -913,11 +905,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		3C8A3A7FEA5210D8D2A19062 /* Glitter */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AC8535ADC7D002109CC7419B /* XCLocalSwiftPackageReference "../dependencies/glitter" */;
-			productName = Glitter;
-		};
 		D8121A7A2AA05FCA00EEDF5B /* InContextCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = InContextCore;
