@@ -54,7 +54,7 @@ let package = Package(
         .package(path: "dependencies/Tilt"),
         .package(path: "dependencies/Tilt/LuaSwift"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.8.2"),
-        .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
+        .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "1.1.7"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.4"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
         .package(url: "https://github.com/inseven/diligence.git", from: "2.0.1"),
