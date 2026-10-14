@@ -12,7 +12,3 @@
 	path = dependencies/interact
 	url = https://github.com/inseven/interact.git
 	branch = main
-[submodule "dependencies/glitter"]
-	path = dependencies/glitter
-	url = https://github.com/inseven/glitter.git
-	branch = main
