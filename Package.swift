@@ -58,7 +58,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.4"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
         .package(url: "https://github.com/inseven/diligence.git", from: "2.0.1"),
-        .package(url: "https://github.com/inseven/licensable", from: "0.0.13"),
+        .package(url: "https://github.com/inseven/licensable", from: "0.1.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),
         .package(url: "https://github.com/jwells89/Titlecaser.git", from: "1.0.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
