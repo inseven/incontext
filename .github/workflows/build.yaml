@@ -298,7 +298,7 @@ jobs:
         retention-days: 1
 
   website-build:
-    needs: linux-build
+    needs: publish-release
     runs-on: ubuntu-26.04
 
     env:
