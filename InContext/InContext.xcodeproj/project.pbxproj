@@ -403,7 +403,6 @@
 			);
 			mainGroup = D89063012A9829390001A8E2;
 			packageReferences = (
-				D849DDED2A982B7800C5041E /* XCRemoteSwiftPackageReference "hummingbird" */,
 				D849DDF22A982B9200C5041E /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				D849DDF52A982BA000C5041E /* XCRemoteSwiftPackageReference "swift-log" */,
 			);
@@ -858,14 +857,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		D849DDED2A982B7800C5041E /* XCRemoteSwiftPackageReference "hummingbird" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/hummingbird-project/hummingbird.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		D849DDF22A982B9200C5041E /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-argument-parser.git";
