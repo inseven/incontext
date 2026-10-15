@@ -1,9 +1,6 @@
 [submodule "dependencies/Tilt"]
 	path = dependencies/Tilt
 	url = https://github.com/tomsci/tomscis-lua-templater.git
-[submodule "dependencies/hummingbird"]
-	path = dependencies/hummingbird
-	url = https://github.com/jbmorley/hummingbird.git
 [submodule "dependencies/hoedown"]
 	path = dependencies/hoedown
 	url = https://github.com/jbmorley/hoedown.git

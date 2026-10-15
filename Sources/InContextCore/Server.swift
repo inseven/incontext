@@ -58,7 +58,7 @@ public class Server {
 
         guard watch else {
             // If we're not watching for builds, we need to wait on the web server.
-            app.wait()
+            await app.asyncWait()
             return
         }
 
