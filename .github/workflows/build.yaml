@@ -197,6 +197,13 @@ jobs:
         submodules: recursive
         lfs: true
 
+    - name: Cache mise
+      id: cache-mise
+      uses: actions/cache@v6
+      with:
+        path: .mise
+        key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.name }}-mise--${{ hashFiles('mise.toml') }}
+
     - name: Install mise
       uses: jdx/mise-action@v5.1.2
       with:
