@@ -176,8 +176,14 @@ jobs:
     - generate-version-number
 
     env:
+
       VERSION_NUMBER: ${{ needs.generate-version-number.outputs.version_number }}
       BUILD_NUMBER: ${{ needs.generate-version-number.outputs.build_number }}
+
+      MISE_CACHE_DIR: ${{ github.workspace }}/.mise/cache
+      MISE_CONFIG_DIR: ${{ github.workspace }}/.mise/config
+      MISE_DATA_DIR: ${{ github.workspace }}/.mise/data
+      MISE_STATE_DIR: ${{ github.workspace }}/.mise/state
 
     steps:
 
@@ -190,6 +196,12 @@ jobs:
       with:
         submodules: recursive
         lfs: true
+
+    - name: Install mise
+      uses: jdx/mise-action@v5.1.2
+      with:
+        version: 2026.10.10
+        cache: false
 
     - name: Cache Swift build directory
       uses: actions/cache@v6
