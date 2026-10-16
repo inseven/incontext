@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="last-modified" content="{{ document.last_modified.format(iso_8601_format) }}">
 
-    <title>{% if document.title and document.title ~= "" then %}{{ document.title }} &mdash; {% end %}{{ site.title }}</title>
+    <title>{% if document.title and document.title ~= "" then %}{{ document.title }} &ndash; {% end %}{{ site.title }}</title>
 
     {% if document.title then %}
         <meta property="og:title" content="{{ document.title }}">
