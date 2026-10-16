@@ -23,7 +23,6 @@
 import Foundation
 
 import Hummingbird
-import HummingbirdFoundation
 
 public class Server {
 
@@ -49,24 +48,28 @@ public class Server {
     }
 
     public func start(watch: Bool) async throws {
-
-        // Start the server.
-        let app = HBApplication(configuration: .init(address: .hostname("127.0.0.1", port: port)))
-        let middleware = HBFileMiddleware(site.filesURL.path, searchForIndexHtml: true, application: app)
-        app.middleware.add(middleware)
-        try app.start()
-
-        guard watch else {
-            // If we're not watching for builds, we need to wait on the web server.
-            await app.asyncWait()
-            return
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            group.addTask {
+                let router = Router()
+                router.add(middleware: FileMiddleware(self.site.filesURL.path, searchForIndexHtml: true))
+                let app = Application(router: router,
+                                      configuration: .init(address: .hostname("127.0.0.1", port: self.port)))
+                try await app.runService()
+            }
+            if watch {
+                group.addTask {
+                    let ic = try await Builder(site: self.site,
+                                               tracker: self.tracker,
+                                               serializeImport: self.serializeImport,
+                                               serializeRender: self.serializeRender)
+                    try await ic.build(watch: true)
+                }
+            }
+            defer {
+                group.cancelAll()
+            }
+            try await group.next()
         }
-
-        let ic = try await Builder(site: site,
-                                   tracker: tracker,
-                                   serializeImport: serializeImport,
-                                   serializeRender: serializeRender)
-        try await ic.build(watch: watch)
     }
 
 }

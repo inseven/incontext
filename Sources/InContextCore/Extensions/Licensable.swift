@@ -24,6 +24,15 @@ import Foundation
 
 import Licensable
 
+fileprivate let asyncHTTPClientLicense = License(id: "https://github.com/swift-server/async-http-client",
+                                                 name: "AsyncHTTPClient",
+                                                 author: "Swift Server Working Group",
+                                                 text: String(contentsOfResource: "asynchttpclient-license"),
+                                                 attributes: [
+                                                    .url(URL(string: "https://github.com/swift-server/async-http-client")!,
+                                                         title: "GitHub"),
+                                                 ])
+
 fileprivate let fseventsWrapperLicense = License(id: "https://github.com/Frizlab/FSEventsWrapper",
                                                  name: "FSEventsWrapper",
                                                  author: "François Lamboley",
@@ -49,15 +58,6 @@ fileprivate let hummingbirdLicense = License(id: "https://github.com/hummingbird
                                                 .url(URL(string: "https://github.com/hummingbird-project/hummingbird")!,
                                                      title: "GitHub"),
                                              ])
-
-fileprivate let hummingbirdCoreLicense = License(id: "https://github.com/hummingbird-project/hummingbird-core",
-                                                 name: "HummingbirdCore",
-                                                 author: "Hummingbird Authors",
-                                                 text: String(contentsOfResource: "hummingbirdcore-license"),
-                                                 attributes: [
-                                                    .url(URL(string: "https://github.com/hummingbird-project/hummingbird-core")!,
-                                                         title: "GitHub"),
-                                                 ])
 
 fileprivate let imageMagickLicense = License(id: "https://imagemagick.org",
                                              name: "ImageMagick",
@@ -110,6 +110,23 @@ fileprivate let swiftArgumentParserLicense = License(id: "https://github.com/app
                                                              title: "GitHub"),
                                                      ])
 
+fileprivate let swiftASN1License = License(id: "https://github.com/apple/swift-asn1",
+                                           name: "Swift ASN.1",
+                                           author: "Apple Inc.",
+                                           text: String(contentsOfResource: "swiftasn1-license"),
+                                           attributes: [
+                                             .url(URL(string: "https://github.com/apple/swift-asn1")!, title: "GitHub"),
+                                           ])
+
+fileprivate let swiftAsyncAlgorithmsLicense = License(id: "https://github.com/apple/swift-async-algorithms",
+                                                      name: "Swift Async Algorithms",
+                                                      author: "Apple Inc.",
+                                                      text: String(contentsOfResource: "swiftasyncalgorithms-license"),
+                                                      attributes: [
+                                                         .url(URL(string: "https://github.com/apple/swift-async-algorithms")!,
+                                                              title: "GitHub"),
+                                                      ])
+
 fileprivate let swiftAtomicsLicense = License(id: "https://github.com/apple/swift-atomics",
                                               name: "Swift Atomics",
                                               author: "Apple Inc.",
@@ -118,14 +135,14 @@ fileprivate let swiftAtomicsLicense = License(id: "https://github.com/apple/swif
                                                 .url(URL(string: "https://github.com/apple/swift-atomics")!, title: "GitHub"),
                                               ])
 
-fileprivate let swiftBacktraceLicense = License(id: "https://github.com/swift-server/swift-backtrace",
-                                                name: "Backtrace",
-                                                author: "Swift Server Working Group",
-                                                text: String(contentsOfResource: "swiftbacktrace-license"),
-                                                attributes: [
-                                                    .url(URL(string: "https://github.com/swift-server/swift-backtrace")!,
-                                                         title: "GitHub"),
-                                                ])
+fileprivate let swiftCertificatesLicense = License(id: "https://github.com/apple/swift-certificates",
+                                                   name: "Swift Certificates",
+                                                   author: "Apple Inc.",
+                                                   text: String(contentsOfResource: "swiftcertificates-license"),
+                                                   attributes: [
+                                                      .url(URL(string: "https://github.com/apple/swift-certificates")!,
+                                                           title: "GitHub"),
+                                                   ])
 
 fileprivate let swiftCollectionsLicense = License(id: "https://github.com/apple/swift-collections",
                                                   name: "Swift Collections",
@@ -135,6 +152,15 @@ fileprivate let swiftCollectionsLicense = License(id: "https://github.com/apple/
                                                     .url(URL(string: "https://github.com/apple/swift-collections")!,
                                                          title: "GitHub"),
                                                   ])
+
+fileprivate let swiftConfigurationLicense = License(id: "https://github.com/apple/swift-configuration",
+                                                    name: "Swift Configuration",
+                                                    author: "Apple Inc.",
+                                                    text: String(contentsOfResource: "swiftconfiguration-license"),
+                                                    attributes: [
+                                                       .url(URL(string: "https://github.com/apple/swift-configuration")!,
+                                                            title: "GitHub"),
+                                                    ])
 
 fileprivate let swiftCryptoLicense = License(id: "https://github.com/apple/swift-crypto",
                                              name: "Swift Crypto",
@@ -301,18 +327,21 @@ fileprivate let incontextLicense: License = {
 
     var licenses: [License] = [
         .licensable,
+        asyncHTTPClientLicense,
         fseventsWrapperLicense,
         hoedownLicense,
         hummingbirdLicense,
-        hummingbirdCoreLicense,
         lruCacheLicense,
         luaSwiftLicense,
         sqliteSwiftLicense,
         swiftAlgorithmsLicense,
         swiftArgumentParserLicense,
+        swiftASN1License,
+        swiftAsyncAlgorithmsLicense,
         swiftAtomicsLicense,
-        swiftBacktraceLicense,
+        swiftCertificatesLicense,
         swiftCollectionsLicense,
+        swiftConfigurationLicense,
         swiftCryptoLicense,
         swiftDistributedTracingLicense,
         swiftHTTPStructuredHeadersLicense,

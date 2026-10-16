@@ -1,4 +1,4 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import Foundation
@@ -35,7 +35,7 @@ func pkgConfigDefines(for library: String) -> [String] {
 let package = Package(
     name: "incontext",
     platforms: [
-        .macOS(.v13),
+        .macOS(.v14),
     ],
     products: [
         .library(
@@ -56,7 +56,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ... "5.0.1"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.16.1"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "1.12.2"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.28.0"),
         .package(url: "https://github.com/inseven/diligence.git", from: "2.0.1"),
         .package(url: "https://github.com/inseven/licensable", from: "0.1.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.2"),
@@ -79,7 +79,6 @@ let package = Package(
                .product(name: "ArgumentParser", package: "swift-argument-parser"),
                .product(name: "Diligence", package: "diligence", condition: .when(platforms: [.macOS])),
                .product(name: "Hummingbird", package: "hummingbird"),
-               .product(name: "HummingbirdFoundation", package: "hummingbird"),
            ]),
         .target(
             name: "InContextCore",
@@ -93,7 +92,6 @@ let package = Package(
                 .product(name: "FSEventsWrapper", package: "FSEventsWrapper", condition:
                     .when(platforms: [.macOS])),
                 .product(name: "Hummingbird", package: "hummingbird"),
-                .product(name: "HummingbirdFoundation", package: "hummingbird"),
                 .product(name: "Licensable", package: "licensable"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "SQLite", package: "SQLite.swift"),
