@@ -27,7 +27,7 @@ import PlatformSupport
 extension Date: EvaluationContext {
 
     var millisecondsSinceReferenceDate: Int {
-        return Int(timeIntervalSinceReferenceDate * 1000)
+        return Int((timeIntervalSinceReferenceDate * 1000).rounded())
     }
 
     init(millisecondsSinceReferenceDate: Int) {
