@@ -413,6 +413,7 @@ public class Builder {
                     print("Build failed with error \(error).")
                 }
                 try await changeObserver.wait()
+                try Task.checkCancellation()
             }
         } else {
             try await doBuild()

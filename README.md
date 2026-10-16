@@ -22,13 +22,12 @@ Frontmatter is supported in Markdown files and image and video descriptions. InC
 
 InContext is licensed under the MIT License (see [LICENSE](https://github.com/inseven/incontext/blob/main/LICENSE)). It depends on the following separately licensed third-party libraries and components:
 
-- [Backtrace](https://github.com/swift-server/swift-backtrace), Apache License, Version 2.0
+- [AsyncHTTPClient](https://github.com/swift-server/async-http-client), Apache License, Version 2.0
 - [Diligence](https://github.com/inseven/diligence), MIT License
 - [FSEventsWrapper](https://github.com/Frizlab/FSEventsWrapper), MIT License
 - [Glitter](https://github.com/inseven/glitter), MIT License
 - [Hoedown](https://github.com/hoedown/hoedown), ISC License
 - [Hummingbird](https://github.com/hummingbird-project/hummingbird), Apache License, Version 2.0
-- [HummingbirdCore](https://github.com/hummingbird-project/hummingbird-core), Apache License, Version 2.0
 - [ImageMagick](https://imagemagick.org), ImageMagick License
 - [Interact](https://github.com/inseven/interact), MIT License
 - [Licensable](https://github.com/inseven/licensable), MIT License
@@ -40,8 +39,12 @@ InContext is licensed under the MIT License (see [LICENSE](https://github.com/in
 - [SQLite.swift](https://github.com/stephencelis/SQLite.swift), MIT License
 - [Swift Algorithms](https://github.com/apple/swift-algorithms), Apache License, Version 2.0
 - [Swift Argument Parser](https://github.com/apple/swift-argument-parser), Apache License, Version 2.0
+- [Swift ASN.1](https://github.com/apple/swift-asn1), Apache License, Version 2.0
+- [Swift Async Algorithms](https://github.com/apple/swift-async-algorithms), Apache License, Version 2.0
 - [Swift Atomics](https://github.com/apple/swift-atomics), Apache License, Version 2.0
+- [Swift Certificates](https://github.com/apple/swift-certificates), Apache License, Version 2.0
 - [Swift Collections](https://github.com/apple/swift-collections), Apache License, Version 2.0
+- [Swift Configuration](https://github.com/apple/swift-configuration), Apache License, Version 2.0
 - [Swift Crypto](https://github.com/apple/swift-crypto), Apache License, Version 2.0
 - [Swift Distributed Tracing](https://github.com/apple/swift-distributed-tracing), Apache License, Version 2.0
 - [Swift HTTP Structured Headers](https://github.com/apple/swift-http-structured-headers), Apache License, Version 2.0
