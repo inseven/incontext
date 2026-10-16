@@ -16,6 +16,7 @@ InContext is not vibe coded. Code is predominantly human-authored, with some tar
 
 ## Tests
 
+- {% link("Tests/InContextTests/Tests/DateTests.swift") %}
 - {% link("Tests/InContextTests/Tests/LiveReloadMiddlewareTests.swift") %}
 
 ## Tools
