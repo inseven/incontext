@@ -51,6 +51,7 @@ public class Server {
         try await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask {
                 let router = Router()
+                router.add(middleware: LiveReloadMiddleware())
                 router.add(middleware: FileMiddleware(self.site.filesURL.path, searchForIndexHtml: true))
                 let app = Application(router: router,
                                       configuration: .init(address: .hostname("127.0.0.1", port: self.port)))

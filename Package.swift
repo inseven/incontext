@@ -137,6 +137,7 @@ let package = Package(
             name: "InContextTests",
             dependencies: [
                 "InContextCore",
+                .product(name: "Hummingbird", package: "hummingbird"),
             ],
             resources: [
                 .process("Resources")
