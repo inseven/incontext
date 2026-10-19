@@ -49,7 +49,7 @@ jobs:
         key: ${{ runner.os }}-${{ runner.arch }}-mise--${{ hashFiles('mise.toml') }}
 
     - name: Install mise
-      uses: jdx/mise-action@v5.2.0
+      uses: jdx/mise-action@v5.2.1
       with:
         version: 2026.10.15
         cache: false
@@ -127,7 +127,7 @@ jobs:
         key: ${{ runner.os }}-${{ runner.arch }}-mise--${{ hashFiles('mise.toml') }}
 
     - name: Install mise
-      uses: jdx/mise-action@v5.2.0
+      uses: jdx/mise-action@v5.2.1
       with:
         version: 2026.10.15
         cache: false
@@ -210,7 +210,7 @@ jobs:
         key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.name }}-mise--${{ hashFiles('mise.toml') }}
 
     - name: Install mise
-      uses: jdx/mise-action@v5.2.0
+      uses: jdx/mise-action@v5.2.1
       with:
         version: 2026.10.15
         cache: false
@@ -276,7 +276,7 @@ jobs:
         key: ${{ runner.os }}-${{ runner.arch }}-mise--${{ hashFiles('mise.toml') }}
 
     - name: Install mise
-      uses: jdx/mise-action@v5.2.0
+      uses: jdx/mise-action@v5.2.1
       with:
         version: 2026.10.15
         cache: false
@@ -342,7 +342,7 @@ jobs:
         key: ${{ runner.os }}-${{ runner.arch }}-mise--${{ hashFiles('mise.toml') }}
 
     - name: Install mise
-      uses: jdx/mise-action@v5.2.0
+      uses: jdx/mise-action@v5.2.1
       with:
         version: 2026.10.15
         cache: false
