@@ -62,7 +62,7 @@ let package = Package(
         .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.2"),
         .package(url: "https://github.com/jwells89/Titlecaser.git", from: "1.0.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.14.3"),
-        .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.16.0"),
+        .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.17.0"),
     ],
     targets: [
        .executableTarget(
