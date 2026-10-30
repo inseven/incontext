@@ -8,4 +8,4 @@ uv = "latest"
 
 "github:sparkle-project/Sparkle" = { version = "2.10.1", asset_pattern = "Sparkle-*.tar.xz", bin_path = "bin" }
 
-swift = { version = "6.4.1", os = ["linux"] }
+swift = { version = "6.4.2", os = ["linux"] }
