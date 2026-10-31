@@ -56,7 +56,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ... "5.0.3"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.16.2"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.28.0"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird.git", from: "2.28.1"),
         .package(url: "https://github.com/inseven/diligence.git", from: "2.0.1"),
         .package(url: "https://github.com/inseven/licensable", from: "0.1.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.2"),
