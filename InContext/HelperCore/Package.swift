@@ -15,7 +15,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/inseven/glitter.git", from: "0.1.3"),
-        .package(url: "https://github.com/inseven/interact.git", from: "3.10.7"),
+        .package(url: "https://github.com/inseven/interact.git", from: "3.10.8"),
     ],
     targets: [
         .target(
